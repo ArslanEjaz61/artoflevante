@@ -57,6 +57,9 @@ import {
   Ticket,
   Copy,
   RotateCw,
+  Mail,
+  Award,
+  Ban,
 } from "lucide-react";
 
 function formatRelativeTime(iso?: string | null): string {
@@ -282,6 +285,61 @@ export default function AdminPage() {
   const [visitRewardSaving, setVisitRewardSaving] = useState(false);
   const [visitRewardMsg, setVisitRewardMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
+  // Customer Details Modal State
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [selectedCustomerData, setSelectedCustomerData] = useState<any>(null);
+  const [loadingCustomerDetail, setLoadingCustomerDetail] = useState(false);
+  const [customerDetailTab, setCustomerDetailTab] = useState<"overview" | "transactions" | "rewards" | "visits" | "ledger">("overview");
+  const [customerDetailMsg, setCustomerDetailMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  const loadCustomers = useCallback(async () => {
+    try {
+      const r = await fetch(
+        `/api/admin/customers?q=${encodeURIComponent(q)}&page=${page}&filter=${filter}`
+      );
+      const d = await r.json();
+      if (r.ok) setCust(d);
+    } catch { }
+  }, [q, page, filter]);
+
+  const openCustomerDetail = useCallback(async (id: string) => {
+    setSelectedCustomerId(id);
+    setSelectedCustomerData(null);
+    setLoadingCustomerDetail(true);
+    setCustomerDetailTab("overview");
+    setCustomerDetailMsg(null);
+    try {
+      const r = await fetch(`/api/admin/customers/${id}`);
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Could not load customer profile.");
+      setSelectedCustomerData(d.customer);
+    } catch (e: any) {
+      setCustomerDetailMsg({ type: "err", text: String(e.message || e) });
+    } finally {
+      setLoadingCustomerDetail(false);
+    }
+  }, []);
+
+  const toggleCustomerBlock = useCallback(async (id: string, isBlocked: boolean) => {
+    try {
+      const r = await fetch(`/api/admin/customers/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isBlocked }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Could not update customer status.");
+      setSelectedCustomerData((prev: any) => (prev ? { ...prev, isBlocked } : prev));
+      setCustomerDetailMsg({
+        type: "ok",
+        text: isBlocked ? "Customer account has been blocked." : "Customer account unblocked & active.",
+      });
+      loadCustomers();
+    } catch (e: any) {
+      setCustomerDetailMsg({ type: "err", text: String(e.message || e) });
+    }
+  }, [loadCustomers]);
+
   const loadOverview = useCallback(async () => {
     setErr("");
     setRefreshing(true);
@@ -305,16 +363,6 @@ export default function AdminPage() {
       setRefreshing(false);
     }
   }, [overviewBranchFilter, overviewDateFilter, router]);
-
-  const loadCustomers = useCallback(async () => {
-    try {
-      const r = await fetch(
-        `/api/admin/customers?q=${encodeURIComponent(q)}&page=${page}&filter=${filter}`
-      );
-      const d = await r.json();
-      if (r.ok) setCust(d);
-    } catch { }
-  }, [q, page, filter]);
 
   const loadAudit = useCallback(async () => {
     try {
@@ -1691,24 +1739,49 @@ export default function AdminPage() {
                   <tbody className="divide-y divide-[#EFE8E1]">
                     {cust?.customers && cust.customers.length > 0 ? (
                       cust.customers.map((c: any) => (
-                        <tr key={c.id} className="hover:bg-[#FAF7F4] transition-colors">
-                          <td className="py-3 px-3">
-                            <div className="font-bold text-[#1E1815]">{c.name}</div>
-                            <div className="text-[10px] text-[#7A6E67]">
-                              Joined {c.createdAt || c.joinedAt ? new Date(c.createdAt || c.joinedAt).toLocaleDateString() : "—"}
+                        <tr
+                          key={c.id}
+                          onClick={() => openCustomerDetail(c.id)}
+                          className="hover:bg-[#FAF7F4] transition-all cursor-pointer group"
+                        >
+                          <td className="py-3.5 px-3">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#C0392B] to-[#96291D] text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-xs">
+                                {c.name ? c.name.slice(0, 2).toUpperCase() : "MB"}
+                              </div>
+                              <div className="min-w-0">
+                                <div className="font-bold text-[#1E1815] group-hover:text-[#C0392B] transition-colors flex items-center gap-1.5">
+                                  <span>{c.name}</span>
+                                  {c.isBlocked && (
+                                    <span className="px-1.5 py-0.5 rounded bg-[#C0392B]/10 text-[#C0392B] text-[9px] font-black uppercase">
+                                      Blocked
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-[10px] text-[#7A6E67]">
+                                  Joined {c.createdAt || c.joinedAt ? new Date(c.createdAt || c.joinedAt).toLocaleDateString() : "—"}
+                                </div>
+                              </div>
                             </div>
                           </td>
-                          <td className="py-3 px-3 font-mono text-[#4A3F39]">
+                          <td className="py-3.5 px-3 font-mono text-[#4A3F39]">
                             <div>{c.mobile}</div>
-                            {c.email && <div className="text-[10px] text-[#7A6E67]">{c.email}</div>}
+                            {c.email && <div className="text-[10px] text-[#7A6E67] truncate max-w-[170px]">{c.email}</div>}
                           </td>
-                          <td className="py-3 px-3 text-[#7A6E67]">{c.homeBranch?.name || c.branch || "—"}</td>
-                          <td className="py-3 px-3 font-black text-[#C0392B]">{c.pointsBalance ?? c.points ?? 0}</td>
-                          <td className="py-3 px-3 font-bold text-[#1E1815]">{c.visitCount ?? c.visits ?? 0}</td>
-                          <td className="py-3 px-3 font-bold text-[#1E1815]">
+                          <td className="py-3.5 px-3 text-[#7A6E67] font-medium">{c.homeBranch?.name || c.branch || "—"}</td>
+                          <td className="py-3.5 px-3 font-black text-[#C0392B]">{c.pointsBalance ?? c.points ?? 0} pts</td>
+                          <td className="py-3.5 px-3 font-bold text-[#1E1815]">{c.visitCount ?? c.visits ?? 0} visits</td>
+                          <td className="py-3.5 px-3 font-bold text-[#1E1815]">
                             {formatMoney(cur, c.totalSpend ?? c.spend ?? 0)}
                           </td>
-                          <td className="py-3 px-3 text-[#7A6E67]">{formatRelativeTime(c.lastVisitAt)}</td>
+                          <td className="py-3.5 px-3 text-[#7A6E67]">
+                            <div className="flex items-center justify-between">
+                              <span>{formatRelativeTime(c.lastVisitAt)}</span>
+                              <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[#C0392B] font-bold text-[11px] flex items-center gap-0.5 ml-2">
+                                Details <ChevronRight className="w-3 h-3" />
+                              </span>
+                            </div>
+                          </td>
                         </tr>
                       ))
                     ) : (
@@ -4551,6 +4624,531 @@ export default function AdminPage() {
                 className="px-5 py-2 rounded-xl bg-[#C0392B] hover:bg-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
               >
                 {busy ? "Deleting…" : "Confirm Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: CUSTOMER FULL PROFILE & LOYALTY DATA                    */}
+      {/* ============================================================== */}
+      {selectedCustomerId && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl max-w-4xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-[#1E1815] via-[#2A211C] to-[#1E1815] p-5 sm:p-6 text-white relative shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCustomerId(null);
+                  setSelectedCustomerData(null);
+                }}
+                className="absolute top-4 right-4 sm:top-5 sm:right-5 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 pr-10">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] text-white flex items-center justify-center font-black text-xl shadow-lg shrink-0">
+                  {selectedCustomerData?.name ? selectedCustomerData.name.slice(0, 2).toUpperCase() : "MB"}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <h2 className="text-lg sm:text-xl font-black truncate">
+                      {selectedCustomerData?.name || "Customer Profile"}
+                    </h2>
+                    {selectedCustomerData?.isBlocked ? (
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#C0392B] text-white text-[10px] font-black uppercase tracking-wider">
+                        Account Blocked
+                      </span>
+                    ) : (
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> Active VIP Member
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/70 font-mono">
+                    <span className="flex items-center gap-1.5">
+                      <Phone className="w-3.5 h-3.5 text-[#E5A93C]" />
+                      <a href={`tel:${selectedCustomerData?.mobile}`} className="hover:underline hover:text-white">
+                        {selectedCustomerData?.mobile || "—"}
+                      </a>
+                    </span>
+                    {selectedCustomerData?.email && (
+                      <span className="flex items-center gap-1.5">
+                        <Mail className="w-3.5 h-3.5 text-[#E5A93C]" />
+                        <a href={`mailto:${selectedCustomerData.email}`} className="hover:underline hover:text-white truncate max-w-[220px]">
+                          {selectedCustomerData.email}
+                        </a>
+                      </span>
+                    )}
+                    {selectedCustomerData?.homeBranch && (
+                      <span className="flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-[#E5A93C]" />
+                        <span className="text-white/90">{selectedCustomerData.homeBranch.name}</span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* KPI Mini Bar */}
+              {selectedCustomerData && (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mt-5 pt-4 border-t border-white/10">
+                  <div className="bg-white/5 rounded-xl p-2.5 border border-white/10">
+                    <div className="text-[10px] text-white/60 font-semibold uppercase tracking-wider flex items-center gap-1">
+                      <Coins className="w-3 h-3 text-[#E5A93C]" /> Points Wallet
+                    </div>
+                    <div className="text-base sm:text-lg font-black text-[#E5A93C] mt-0.5">
+                      {selectedCustomerData.pointsBalance} <span className="text-[10px] text-white/70 font-normal">pts</span>
+                    </div>
+                    <div className="text-[9px] text-white/50">
+                      ≈ {formatMoney(cur, selectedCustomerData.pointsCashValue || 0)}
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 rounded-xl p-2.5 border border-white/10">
+                    <div className="text-[10px] text-white/60 font-semibold uppercase tracking-wider flex items-center gap-1">
+                      <Receipt className="w-3 h-3 text-[#E5A93C]" /> Total Spend
+                    </div>
+                    <div className="text-base sm:text-lg font-black text-white mt-0.5">
+                      {formatMoney(cur, selectedCustomerData.totalSpend || 0)}
+                    </div>
+                    <div className="text-[9px] text-white/50">Lifetime Invoiced</div>
+                  </div>
+
+                  <div className="bg-white/5 rounded-xl p-2.5 border border-white/10">
+                    <div className="text-[10px] text-white/60 font-semibold uppercase tracking-wider flex items-center gap-1">
+                      <UserCheck className="w-3 h-3 text-[#E5A93C]" /> Total Visits
+                    </div>
+                    <div className="text-base sm:text-lg font-black text-white mt-0.5">
+                      {selectedCustomerData.visitCount || 0} <span className="text-[10px] text-white/70 font-normal">visits</span>
+                    </div>
+                    <div className="text-[9px] text-white/50">
+                      Last: {formatRelativeTime(selectedCustomerData.lastVisitAt)}
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 rounded-xl p-2.5 border border-white/10">
+                    <div className="text-[10px] text-white/60 font-semibold uppercase tracking-wider flex items-center gap-1">
+                      <CreditCard className="w-3 h-3 text-[#E5A93C]" /> Loyalty Card
+                    </div>
+                    <div className="text-xs sm:text-sm font-mono font-black text-white mt-1 truncate">
+                      {selectedCustomerData.cardCode || "Auto-Generated"}
+                    </div>
+                    <div className="text-[9px] text-white/50">Permanent ID</div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Tabs Navigation */}
+            <div className="flex items-center gap-1 sm:gap-2 px-5 sm:px-6 pt-3 border-b border-[#EAE3DC] bg-[#FAF7F4] overflow-x-auto text-xs font-bold shrink-0">
+              <button
+                type="button"
+                onClick={() => setCustomerDetailTab("overview")}
+                className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                  customerDetailTab === "overview"
+                    ? "border-[#C0392B] text-[#C0392B]"
+                    : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
+                }`}
+              >
+                <Users className="w-3.5 h-3.5" /> Overview & Profile
+              </button>
+              <button
+                type="button"
+                onClick={() => setCustomerDetailTab("transactions")}
+                className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                  customerDetailTab === "transactions"
+                    ? "border-[#C0392B] text-[#C0392B]"
+                    : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
+                }`}
+              >
+                <Receipt className="w-3.5 h-3.5" /> Invoices ({selectedCustomerData?.transactions?.length || 0})
+              </button>
+              <button
+                type="button"
+                onClick={() => setCustomerDetailTab("rewards")}
+                className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                  customerDetailTab === "rewards"
+                    ? "border-[#C0392B] text-[#C0392B]"
+                    : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
+                }`}
+              >
+                <Gift className="w-3.5 h-3.5" /> Vouchers ({selectedCustomerData?.rewards?.length || 0})
+              </button>
+              <button
+                type="button"
+                onClick={() => setCustomerDetailTab("visits")}
+                className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                  customerDetailTab === "visits"
+                    ? "border-[#C0392B] text-[#C0392B]"
+                    : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
+                }`}
+              >
+                <MapPin className="w-3.5 h-3.5" /> Dine-In Check-ins ({selectedCustomerData?.visits?.length || 0})
+              </button>
+              <button
+                type="button"
+                onClick={() => setCustomerDetailTab("ledger")}
+                className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                  customerDetailTab === "ledger"
+                    ? "border-[#C0392B] text-[#C0392B]"
+                    : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
+                }`}
+              >
+                <TrendingUp className="w-3.5 h-3.5" /> Points History ({selectedCustomerData?.ledger?.length || 0})
+              </button>
+            </div>
+
+            {/* Modal Body / Tab Contents */}
+            <div className="p-5 sm:p-6 overflow-y-auto flex-1">
+              {loadingCustomerDetail ? (
+                <div className="flex flex-col items-center justify-center py-16 text-[#7A6E67] gap-3">
+                  <RefreshCw className="w-7 h-7 animate-spin text-[#C0392B]" />
+                  <p className="text-xs font-bold">Loading member profile and loyalty history…</p>
+                </div>
+              ) : !selectedCustomerData ? (
+                <div className="text-center py-12 text-xs text-[#7A6E67]">
+                  No customer data available.
+                </div>
+              ) : (
+                <>
+                  {/* Toast Alert */}
+                  {customerDetailMsg && (
+                    <div
+                      className={`mb-4 p-3 rounded-xl text-xs font-bold flex items-center gap-2 ${
+                        customerDetailMsg.type === "ok"
+                          ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                          : "bg-red-50 text-red-800 border border-red-200"
+                      }`}
+                    >
+                      {customerDetailMsg.type === "ok" ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                      )}
+                      <span>{customerDetailMsg.text}</span>
+                    </div>
+                  )}
+
+                  {/* TAB 1: OVERVIEW & PROFILE */}
+                  {customerDetailTab === "overview" && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Personal Info Box */}
+                      <div className="p-4 bg-[#FAF7F4] rounded-2xl border border-[#EAE3DC]">
+                        <h4 className="text-xs font-black text-[#1E1815] uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                          <Users className="w-3.5 h-3.5 text-[#C0392B]" /> Personal Information
+                        </h4>
+                        <div className="space-y-2.5 text-xs">
+                          <div className="flex justify-between py-1 border-b border-[#EAE3DC]/60">
+                            <span className="text-[#7A6E67]">Full Name</span>
+                            <span className="font-bold text-[#1E1815]">{selectedCustomerData.name}</span>
+                          </div>
+                          <div className="flex justify-between py-1 border-b border-[#EAE3DC]/60">
+                            <span className="text-[#7A6E67]">Mobile Phone</span>
+                            <span className="font-mono font-bold text-[#1E1815]">{selectedCustomerData.mobile}</span>
+                          </div>
+                          <div className="flex justify-between py-1 border-b border-[#EAE3DC]/60">
+                            <span className="text-[#7A6E67]">Email Address</span>
+                            <span className="font-bold text-[#1E1815]">{selectedCustomerData.email || "—"}</span>
+                          </div>
+                          <div className="flex justify-between py-1 border-b border-[#EAE3DC]/60">
+                            <span className="text-[#7A6E67]">Date of Birth</span>
+                            <span className="font-bold text-[#1E1815]">
+                              {selectedCustomerData.birthday
+                                ? new Date(selectedCustomerData.birthday).toLocaleDateString()
+                                : "Not provided"}
+                            </span>
+                          </div>
+                          <div className="flex justify-between py-1 border-b border-[#EAE3DC]/60">
+                            <span className="text-[#7A6E67]">Preferred Language</span>
+                            <span className="font-bold text-[#1E1815] uppercase">{selectedCustomerData.language || "EN"}</span>
+                          </div>
+                          <div className="flex justify-between py-1">
+                            <span className="text-[#7A6E67]">Registration Date</span>
+                            <span className="font-bold text-[#1E1815]">
+                              {new Date(selectedCustomerData.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Loyalty & Account Status Box */}
+                      <div className="space-y-4">
+                        <div className="p-4 bg-[#FAF7F4] rounded-2xl border border-[#EAE3DC]">
+                          <h4 className="text-xs font-black text-[#1E1815] uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                            <ShieldCheck className="w-3.5 h-3.5 text-[#C0392B]" /> Loyalty Status & Security
+                          </h4>
+                          <div className="space-y-2.5 text-xs">
+                            <div className="flex justify-between py-1 border-b border-[#EAE3DC]/60">
+                              <span className="text-[#7A6E67]">Account Status</span>
+                              <span className={`font-bold ${selectedCustomerData.isBlocked ? "text-[#C0392B]" : "text-emerald-700"}`}>
+                                {selectedCustomerData.isBlocked ? "Blocked / Suspended" : "Active & Verified"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between py-1 border-b border-[#EAE3DC]/60">
+                              <span className="text-[#7A6E67]">Home / Assigned Branch</span>
+                              <span className="font-bold text-[#1E1815]">
+                                {selectedCustomerData.homeBranch?.name || "All Branches"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between py-1 border-b border-[#EAE3DC]/60">
+                              <span className="text-[#7A6E67]">Permanent Card Token</span>
+                              <span className="font-mono font-bold text-[#1E1815]">
+                                {selectedCustomerData.cardCode || "Auto-Assigned"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between py-1">
+                              <span className="text-[#7A6E67]">Cashback Redemption Value</span>
+                              <span className="font-black text-[#C0392B]">
+                                {formatMoney(cur, selectedCustomerData.pointsCashValue || 0)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Quick Action Box */}
+                        <div className="p-4 rounded-2xl border border-[#EAE3DC] bg-white flex items-center justify-between">
+                          <div>
+                            <div className="text-xs font-bold text-[#1E1815]">Account Controls</div>
+                            <div className="text-[11px] text-[#7A6E67]">
+                              {selectedCustomerData.isBlocked
+                                ? "Restore this member's access to earn & redeem points."
+                                : "Temporarily suspend points earning & vouchers for this customer."}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => toggleCustomerBlock(selectedCustomerData.id, !selectedCustomerData.isBlocked)}
+                            className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
+                              selectedCustomerData.isBlocked
+                                ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                                : "bg-[#C0392B]/10 hover:bg-[#C0392B]/20 text-[#C0392B]"
+                            }`}
+                          >
+                            {selectedCustomerData.isBlocked ? (
+                              <>
+                                <Check className="w-3.5 h-3.5" /> Unblock Account
+                              </>
+                            ) : (
+                              <>
+                                <Ban className="w-3.5 h-3.5" /> Block Member
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 2: TRANSACTIONS / INVOICES */}
+                  {customerDetailTab === "transactions" && (
+                    <div className="overflow-x-auto">
+                      {selectedCustomerData.transactions?.length > 0 ? (
+                        <table className="w-full text-left text-xs">
+                          <thead className="border-b border-[#EAE3DC] text-[#7A6E67] uppercase font-bold">
+                            <tr>
+                              <th className="pb-2.5 px-3">Invoice #</th>
+                              <th className="pb-2.5 px-3">Date & Time</th>
+                              <th className="pb-2.5 px-3">Branch</th>
+                              <th className="pb-2.5 px-3">Staff</th>
+                              <th className="pb-2.5 px-3 text-right">Bill Amount</th>
+                              <th className="pb-2.5 px-3 text-right">Points Earned</th>
+                              <th className="pb-2.5 px-3 text-right">Discount</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-[#EFE8E1]">
+                            {selectedCustomerData.transactions.map((t: any) => (
+                              <tr key={t.id} className="hover:bg-[#FAF7F4] transition-colors">
+                                <td className="py-2.5 px-3 font-mono font-bold text-[#1E1815]">
+                                  {t.invoiceNumber || "INV-" + t.id.slice(0, 6)}
+                                </td>
+                                <td className="py-2.5 px-3 text-[#7A6E67]">
+                                  {new Date(t.createdAt).toLocaleString()}
+                                </td>
+                                <td className="py-2.5 px-3 text-[#1E1815] font-semibold">
+                                  {t.branch?.name || "—"}
+                                </td>
+                                <td className="py-2.5 px-3 text-[#7A6E67]">{t.staffName}</td>
+                                <td className="py-2.5 px-3 font-black text-[#1E1815] text-right">
+                                  {formatMoney(cur, t.amount)}
+                                </td>
+                                <td className="py-2.5 px-3 font-bold text-emerald-700 text-right">
+                                  +{t.pointsEarned} pts
+                                </td>
+                                <td className="py-2.5 px-3 text-[#7A6E67] text-right">
+                                  {t.discountGiven > 0 ? formatMoney(cur, t.discountGiven) : "—"}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      ) : (
+                        <div className="text-center py-10 text-xs text-[#7A6E67]">
+                          <Receipt className="w-8 h-8 text-[#C0392B]/40 mx-auto mb-2" />
+                          No purchase transactions recorded yet for this customer.
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* TAB 3: VOUCHERS & REWARDS */}
+                  {customerDetailTab === "rewards" && (
+                    <div className="space-y-3">
+                      {selectedCustomerData.rewards?.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {selectedCustomerData.rewards.map((r: any) => (
+                            <div
+                              key={r.id}
+                              className="p-3.5 bg-[#FAF7F4] rounded-2xl border border-[#EAE3DC] flex flex-col justify-between"
+                            >
+                              <div>
+                                <div className="flex items-center justify-between gap-2 mb-1">
+                                  <h5 className="font-bold text-xs text-[#1E1815]">{r.name}</h5>
+                                  <span
+                                    className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${
+                                      r.status === "AVAILABLE"
+                                        ? "bg-emerald-100 text-emerald-800"
+                                        : r.status === "REDEEMED"
+                                        ? "bg-blue-100 text-blue-800"
+                                        : "bg-gray-100 text-gray-700"
+                                    }`}
+                                  >
+                                    {r.status}
+                                  </span>
+                                </div>
+                                {r.description && (
+                                  <p className="text-[11px] text-[#7A6E67] mb-2">{r.description}</p>
+                                )}
+                              </div>
+                              <div className="pt-2 border-t border-[#EAE3DC]/60 flex items-center justify-between text-[10px] text-[#7A6E67]">
+                                <span>
+                                  Value:{" "}
+                                  <strong className="text-[#C0392B]">
+                                    {r.isPercent ? `${r.value}% OFF` : formatMoney(cur, r.value)}
+                                  </strong>
+                                </span>
+                                <span>
+                                  {r.expiresAt ? `Expires: ${new Date(r.expiresAt).toLocaleDateString()}` : "No expiry"}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-10 text-xs text-[#7A6E67]">
+                          <Gift className="w-8 h-8 text-[#C0392B]/40 mx-auto mb-2" />
+                          No vouchers or milestone rewards issued to this member yet.
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* TAB 4: DINE-IN CHECK-INS */}
+                  {customerDetailTab === "visits" && (
+                    <div className="overflow-x-auto">
+                      {selectedCustomerData.visits?.length > 0 ? (
+                        <table className="w-full text-left text-xs">
+                          <thead className="border-b border-[#EAE3DC] text-[#7A6E67] uppercase font-bold">
+                            <tr>
+                              <th className="pb-2.5 px-3">Date & Time</th>
+                              <th className="pb-2.5 px-3">Branch</th>
+                              <th className="pb-2.5 px-3">Daily Coupon / Token</th>
+                              <th className="pb-2.5 px-3">Method</th>
+                              <th className="pb-2.5 px-3 text-right">Points Added</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-[#EFE8E1]">
+                            {selectedCustomerData.visits.map((v: any) => (
+                              <tr key={v.id} className="hover:bg-[#FAF7F4] transition-colors">
+                                <td className="py-2.5 px-3 text-[#1E1815] font-semibold">
+                                  {new Date(v.createdAt).toLocaleString()}
+                                </td>
+                                <td className="py-2.5 px-3 text-[#7A6E67]">{v.branch?.name || "All Branches"}</td>
+                                <td className="py-2.5 px-3 font-mono text-[#C0392B] font-bold">
+                                  {v.couponCode || "DIRECT_QR"}
+                                </td>
+                                <td className="py-2.5 px-3 text-[#7A6E67] capitalize">
+                                  {v.checkInMethod?.toLowerCase() || "dine_in"}
+                                </td>
+                                <td className="py-2.5 px-3 font-black text-emerald-700 text-right">
+                                  +{v.pointsEarned} pts
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      ) : (
+                        <div className="text-center py-10 text-xs text-[#7A6E67]">
+                          <MapPin className="w-8 h-8 text-[#C0392B]/40 mx-auto mb-2" />
+                          No dine-in check-in visits registered yet for this member.
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* TAB 5: POINTS AUDIT TRAIL / LEDGER */}
+                  {customerDetailTab === "ledger" && (
+                    <div className="overflow-x-auto">
+                      {selectedCustomerData.ledger?.length > 0 ? (
+                        <table className="w-full text-left text-xs">
+                          <thead className="border-b border-[#EAE3DC] text-[#7A6E67] uppercase font-bold">
+                            <tr>
+                              <th className="pb-2.5 px-3">Date & Time</th>
+                              <th className="pb-2.5 px-3">Points Delta</th>
+                              <th className="pb-2.5 px-3">Activity / Reason</th>
+                              <th className="pb-2.5 px-3">Details / Reference</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-[#EFE8E1]">
+                            {selectedCustomerData.ledger.map((l: any) => (
+                              <tr key={l.id} className="hover:bg-[#FAF7F4] transition-colors">
+                                <td className="py-2.5 px-3 text-[#7A6E67]">
+                                  {new Date(l.createdAt).toLocaleString()}
+                                </td>
+                                <td
+                                  className={`py-2.5 px-3 font-black ${
+                                    l.delta >= 0 ? "text-emerald-700" : "text-[#C0392B]"
+                                  }`}
+                                >
+                                  {l.delta >= 0 ? `+${l.delta}` : l.delta} pts
+                                </td>
+                                <td className="py-2.5 px-3 font-bold text-[#1E1815] capitalize">
+                                  {l.reason.replace(/_/g, " ")}
+                                </td>
+                                <td className="py-2.5 px-3 text-[#7A6E67]">{l.note || "—"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      ) : (
+                        <div className="text-center py-10 text-xs text-[#7A6E67]">
+                          <TrendingUp className="w-8 h-8 text-[#C0392B]/40 mx-auto mb-2" />
+                          No points ledger events recorded yet.
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 px-5 sm:px-6 bg-[#FAF7F4] border-t border-[#EAE3DC] flex items-center justify-between shrink-0">
+              <div className="text-[11px] text-[#7A6E67] hidden sm:block">
+                Customer ID: <span className="font-mono text-[#1E1815]">{selectedCustomerId}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCustomerId(null);
+                  setSelectedCustomerData(null);
+                }}
+                className="px-5 py-2 rounded-xl bg-[#1E1815] hover:bg-[#2A211C] text-white font-bold text-xs transition-colors cursor-pointer ml-auto"
+              >
+                Close Profile
               </button>
             </div>
           </div>
