@@ -5,7 +5,12 @@ export const metadata: Metadata = {
   title: "Loyalty Club",
   description: "Collect points, unlock rewards and enjoy exclusive member offers at every branch.",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
   },
   appleWebApp: {
     capable: true,
