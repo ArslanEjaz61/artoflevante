@@ -91,7 +91,7 @@ export async function clearStaffSession(): Promise<void> {
 // --------------------------------------------------------------- permissions
 
 export function canAccessAllBranches(role?: string): boolean {
-  return role === "SUPER_ADMIN" || role === "COMPANY_ADMIN";
+  return role === "SUPER_ADMIN" || role === "COMPANY_ADMIN" || role === "BRANCH_MANAGER";
 }
 
 export function canAccessBranch(session: StaffSession | null, branchId: string): boolean {

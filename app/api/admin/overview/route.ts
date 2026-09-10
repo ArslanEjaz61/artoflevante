@@ -33,9 +33,7 @@ export async function GET(req: NextRequest) {
 
   // 2. Determine Branch Filter
   let effectiveBranchId: string | undefined = undefined;
-  if (!all && session.branchId) {
-    effectiveBranchId = session.branchId;
-  } else if (branchIdParam && branchIdParam !== "all") {
+  if (branchIdParam && branchIdParam !== "all") {
     effectiveBranchId = branchIdParam;
   }
 
