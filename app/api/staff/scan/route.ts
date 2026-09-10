@@ -38,16 +38,7 @@ export async function POST(req: NextRequest) {
   });
 
   if (!qr) {
-    return NextResponse.json({ error: "Code not recognised. Ask the customer to refresh their card." }, { status: 404 });
-  }
-  if (qr.usedAt) {
-    return NextResponse.json({ error: "This code has already been used." }, { status: 409 });
-  }
-  if (qr.expiresAt < new Date()) {
-    return NextResponse.json(
-      { error: "This code has expired. Ask the customer to show their card again." },
-      { status: 410 }
-    );
+    return NextResponse.json({ error: "Code not recognised. Please check the customer's card." }, { status: 404 });
   }
 
   const c = qr.customer;

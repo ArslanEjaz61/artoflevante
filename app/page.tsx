@@ -94,8 +94,13 @@ export default function HomePage() {
 
   useEffect(() => {
     try {
-      const b = new URLSearchParams(window.location.search).get("b");
-      if (b) setBranchCode(b);
+      if (typeof window !== "undefined") {
+        if (window.location.pathname.includes("/login") || window.location.search.includes("mode=login")) {
+          setMode("login");
+        }
+        const b = new URLSearchParams(window.location.search).get("b");
+        if (b) setBranchCode(b);
+      }
     } catch {}
   }, []);
 
@@ -201,40 +206,6 @@ export default function HomePage() {
       <main className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-3xl p-6 sm:p-7 shadow-xl shadow-black/[0.03] transition-all">
         {stage === "form" ? (
           <div>
-            {/* Segmented Mode Selector: Join Now vs Sign In */}
-            <div className="flex bg-[var(--surface-subtle)] p-1.5 rounded-2xl border border-[var(--line)] mb-6">
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("register");
-                  setErr("");
-                }}
-                className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                  mode === "register"
-                    ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/25"
-                    : "text-[var(--ink-2)] hover:text-[var(--ink)] hover:bg-[var(--surface)]"
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                Join Now (Register)
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("login");
-                  setErr("");
-                }}
-                className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                  mode === "login"
-                    ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/25"
-                    : "text-[var(--ink-2)] hover:text-[var(--ink)] hover:bg-[var(--surface)]"
-                }`}
-              >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                Sign In (Login)
-              </button>
-            </div>
-
             <div className="mb-6">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FBEAE7] text-[#C0392B] text-xs font-bold mb-2.5">
                 <Sparkles className="w-3.5 h-3.5" />
@@ -354,37 +325,8 @@ export default function HomePage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[var(--ink-2)] mb-1.5" htmlFor="branchCode">
-                      Branch Code <span className="text-[var(--ink-3)] font-normal normal-case">— from table QR</span>
-                    </label>
-                    <input
-                      id="branchCode"
-                      inputMode="numeric"
-                      maxLength={4}
-                      className="w-full px-4 py-3 text-base bg-[var(--surface)] border border-[var(--line-2)] rounded-xl text-[var(--ink)] placeholder-[var(--ink-3)] focus:outline-none focus:border-[#C0392B] font-mono tracking-wider transition-colors"
-                      placeholder="e.g. 1007"
-                      value={branchCode}
-                      onChange={(e) => setBranchCode(e.target.value)}
-                    />
-                    {branchCode && (
-                      <div className="mt-2 text-xs font-semibold">
-                        {matchedBranch ? (
-                          <div className="text-[#1E7A4D] flex items-center gap-1.5 bg-[#E3F2E9] p-2 rounded-lg">
-                            <CheckCircle2 className="w-4 h-4 shrink-0" />
-                            {matchedBranch.name} — {matchedBranch.city}
-                          </div>
-                        ) : (
-                          <div className="text-[#C0392B] bg-[#FBEAE7] p-2 rounded-lg">
-                            Code not recognised. Select below instead.
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-[var(--ink-2)] mb-1.5" htmlFor="branch">
-                      {matchedBranch ? "Selected Home Branch" : "Select Your Home Branch"}
+                      Select Your Home Branch
                     </label>
                     <select
                       id="branch"
@@ -508,8 +450,8 @@ export default function HomePage() {
                   </>
                 ) : (
                   <>
-                    Confirm & View Card
-                    <ChevronRight className="w-4 h-4" />
+                    {mode === "register" ? "Confirm & Join Club" : "Confirm & Sign In"}
+                    <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>

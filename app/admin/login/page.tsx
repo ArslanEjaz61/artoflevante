@@ -154,11 +154,6 @@ export default function AdminLoginPage() {
             )}
           </button>
         </form>
-
-        <div className="mt-8 pt-6 border-t border-[#2F2724] text-center text-xs text-[#8C7F78] space-y-1">
-          <div>Super Admin Demo: <span className="text-white font-mono font-bold">admin / 246810</span></div>
-          <div>Branch Manager Demo: <span className="text-white font-mono font-bold">manager / 135790</span></div>
-        </div>
       </div>
     </div>
   );

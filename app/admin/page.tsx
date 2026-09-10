@@ -1029,7 +1029,7 @@ export default function AdminPage() {
               }`}
           >
             <LayoutDashboard className="w-4 h-4" />
-            <span>Overview & KPIs</span>
+            <span>Overview</span>
           </button>
 
           <button
@@ -1043,7 +1043,7 @@ export default function AdminPage() {
               }`}
           >
             <Users className="w-4 h-4" />
-            <span>Member Directory</span>
+            <span>Customers</span>
           </button>
 
           <button
@@ -1071,7 +1071,7 @@ export default function AdminPage() {
               }`}
           >
             <Building2 className="w-4 h-4" />
-            <span>Branch</span>
+            <span>Branches</span>
           </button>
 
           <button
@@ -1085,7 +1085,7 @@ export default function AdminPage() {
               }`}
           >
             <Store className="w-4 h-4" />
-            <span>Staff & Tills</span>
+            <span>Staff</span>
           </button>
 
           <button
@@ -1113,7 +1113,7 @@ export default function AdminPage() {
               }`}
           >
             <Settings className="w-4 h-4" />
-            <span>Program Settings</span>
+            <span>Settings</span>
           </button>
 
           <button

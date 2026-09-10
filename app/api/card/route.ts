@@ -43,18 +43,26 @@ export async function GET() {
     Math.round(((pointsBal % pointsRequired) / pointsRequired) * 100)
   );
 
-  // Retire outstanding tokens
-  await prisma.qrToken.deleteMany({ where: { customerId, usedAt: null } });
+  // Maintain a permanent QR token / card code per customer so it does not constantly change
+  let qrRecord = await prisma.qrToken.findFirst({
+    where: { customerId },
+    orderBy: { createdAt: "desc" },
+  });
 
-  let token = randomCode(8);
-  const expiresAt = new Date(Date.now() + ttl * 1000);
-  for (let attempt = 0; attempt < 5; attempt += 1) {
-    try {
-      await prisma.qrToken.create({ data: { token, customerId, expiresAt } });
-      break;
-    } catch (e: any) {
-      if (e?.code !== "P2002" || attempt === 4) throw e;
-      token = randomCode(8);
+  let token = qrRecord?.token;
+  let expiresAt = qrRecord?.expiresAt || new Date(Date.now() + 10 * 365 * 86400_000);
+
+  if (!token) {
+    token = randomCode(8);
+    expiresAt = new Date(Date.now() + 10 * 365 * 86400_000);
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      try {
+        await prisma.qrToken.create({ data: { token, customerId, expiresAt } });
+        break;
+      } catch (e: any) {
+        if (e?.code !== "P2002" || attempt === 4) throw e;
+        token = randomCode(8);
+      }
     }
   }
 
@@ -161,7 +169,7 @@ export async function GET() {
       lastVisitAt: customer.lastVisitAt,
       memberSince: customer.createdAt,
     },
-    qr: { image: qr, code: formatCode(token), expiresAt, ttlSeconds: ttl },
+    qr: { image: qr, code: formatCode(token), expiresAt, ttlSeconds: 0 },
     rewards: rewards.map((cr) => ({
       id: cr.id,
       name: cr.reward.name,

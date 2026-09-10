@@ -18,10 +18,15 @@ export async function GET(req: NextRequest) {
   const branchFilter = searchParams.get("branchId");
 
   const ids = await scopedCustomerIds(prisma, session);
-  const where: any = ids ? { id: { in: ids } } : {};
-
-  if (branchFilter && branchFilter !== "all") {
-    where.homeBranchId = branchFilter;
+  const where: any = {};
+  if (ids !== null) {
+    where.id = { in: ids };
+  } else if (branchFilter && branchFilter !== "all") {
+    where.OR = [
+      { homeBranchId: branchFilter },
+      { transactions: { some: { branchId: branchFilter } } },
+      { visits: { some: { branchId: branchFilter } } },
+    ];
   }
 
   if (q) {

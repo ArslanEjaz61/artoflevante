@@ -42,10 +42,6 @@ export async function POST(req: NextRequest) {
   if (token) {
     qr = await prisma.qrToken.findUnique({ where: { token }, include: { customer: true } });
     if (!qr) return NextResponse.json({ error: "Code not recognised." }, { status: 404 });
-    if (qr.usedAt) return NextResponse.json({ error: "This code has already been used." }, { status: 409 });
-    if (qr.expiresAt < new Date()) {
-      return NextResponse.json({ error: "The code expired. Please scan again." }, { status: 410 });
-    }
     customer = qr.customer;
   } else {
     customer = await prisma.customer.findUnique({ where: { id: String(lookedUpCustomerId) } });
@@ -168,9 +164,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    if (qr) {
-      await tx.qrToken.update({ where: { id: qr.id }, data: { usedAt: new Date() } });
-    }
+
 
     await tx.auditLog.create({
       data: {

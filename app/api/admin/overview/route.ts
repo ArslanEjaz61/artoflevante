@@ -50,9 +50,15 @@ export async function GET(req: NextRequest) {
 
   // Customer filter
   const customerIds = await scopedCustomerIds(prisma, session);
-  const custWhere: any = customerIds ? { id: { in: customerIds } } : {};
-  if (effectiveBranchId) {
-    custWhere.homeBranchId = effectiveBranchId;
+  const custWhere: any = {};
+  if (customerIds !== null) {
+    custWhere.id = { in: customerIds };
+  } else if (effectiveBranchId) {
+    custWhere.OR = [
+      { homeBranchId: effectiveBranchId },
+      { transactions: { some: { branchId: effectiveBranchId } } },
+      { visits: { some: { branchId: effectiveBranchId } } },
+    ];
   }
 
   const settings = await getSettings();

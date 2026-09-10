@@ -16,14 +16,31 @@ export function branchFilter(session: StaffSession) {
   return { branchId: session.branchId ?? undefined };
 }
 
-/** Customer ids that have transacted at this manager's branch. */
+/** Customer ids that belong to, transacted at, or visited this manager's branch. */
 export async function scopedCustomerIds(prismaClient: PrismaClient, session: StaffSession): Promise<string[] | null> {
-  if (canAccessAllBranches(session.role)) return null; // null = no restriction
+  if (canAccessAllBranches(session.role)) return null; // null = no restriction (Super Admin / Brand Admin)
   if (!session.branchId) return [];
-  const rows = await prismaClient.transaction.findMany({
-    where: { branchId: session.branchId },
-    select: { customerId: true },
-    distinct: ["customerId"],
-  });
-  return rows.map((r) => r.customerId);
+
+  const [homeCusts, txCusts, visitCusts] = await Promise.all([
+    prismaClient.customer.findMany({
+      where: { homeBranchId: session.branchId },
+      select: { id: true },
+    }),
+    prismaClient.transaction.findMany({
+      where: { branchId: session.branchId },
+      select: { customerId: true },
+      distinct: ["customerId"],
+    }),
+    prismaClient.customerVisit.findMany({
+      where: { branchId: session.branchId },
+      select: { customerId: true },
+      distinct: ["customerId"],
+    }),
+  ]);
+
+  const idSet = new Set<string>();
+  homeCusts.forEach((c) => idSet.add(c.id));
+  txCusts.forEach((t) => idSet.add(t.customerId));
+  visitCusts.forEach((v) => idSet.add(v.customerId));
+  return Array.from(idSet);
 }

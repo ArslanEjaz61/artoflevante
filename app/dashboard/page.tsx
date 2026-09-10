@@ -161,13 +161,7 @@ export default function CustomerDashboardPage() {
     loadCard();
   }, [loadCard]);
 
-  // Refresh QR code before expiration
-  useEffect(() => {
-    if (!data?.qr?.ttlSeconds) return undefined;
-    const ms = Math.max((data.qr.ttlSeconds - 10) * 1000, 15000);
-    const interval = setInterval(loadCard, ms);
-    return () => clearInterval(interval);
-  }, [data?.qr?.ttlSeconds, loadCard]);
+
 
   if (err) {
     return (
@@ -293,12 +287,12 @@ export default function CustomerDashboardPage() {
             <img src={qr.image} alt="Loyalty Card QR" className="w-32 h-32 sm:w-36 sm:h-36 rounded-lg block" />
           </div>
 
-          {/* 8-character manual code */}
+          {/* 8-character permanent member code */}
           <div className="text-xl sm:text-2xl font-mono font-black tracking-[0.2em] text-white">
             {qr.code}
           </div>
           <p className="text-[10px] sm:text-[11px] text-white/75 font-medium mt-1">
-            Show code to cashier · Auto-refreshes every 3 mins
+            Show code or QR to cashier at checkout
           </p>
         </div>
       </div>
