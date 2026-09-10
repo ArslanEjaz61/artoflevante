@@ -246,6 +246,10 @@ export default function AdminPage() {
   const [rotatingBranchId, setRotatingBranchId] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
+  // Overview Tab Filters
+  const [overviewBranchFilter, setOverviewBranchFilter] = useState("all");
+  const [overviewDateFilter, setOverviewDateFilter] = useState("all");
+
   // Simulator Test Inputs
   const [simBillAmount, setSimBillAmount] = useState("250");
   const [simPointsBalance, setSimPointsBalance] = useState("500");
@@ -254,7 +258,11 @@ export default function AdminPage() {
     setErr("");
     setRefreshing(true);
     try {
-      const r = await fetch("/api/admin/overview");
+      const r = await fetch(
+        `/api/admin/overview?branchId=${encodeURIComponent(overviewBranchFilter)}&dateRange=${encodeURIComponent(
+          overviewDateFilter
+        )}`
+      );
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Could not load admin overview.");
       setData(d);
@@ -264,7 +272,7 @@ export default function AdminPage() {
     } finally {
       setRefreshing(false);
     }
-  }, []);
+  }, [overviewBranchFilter, overviewDateFilter]);
 
   const loadCustomers = useCallback(async () => {
     try {
@@ -823,10 +831,10 @@ export default function AdminPage() {
 
   // ===================== SIGNED IN EXECUTIVE DASHBOARD =====================
   const cur = settingsForm.currency || data?.currency || "AED";
-  const metrics = data?.metrics || {};
+  const metrics = data?.metrics || data?.kpis || {};
 
   // Filtered branches for Branches Tab
-  const allBranches = branchesData?.branches || data?.branchLeaderboard || [];
+  const allBranches = branchesData?.branches || data?.branches || data?.branchLeaderboard || data?.branchPerformance || [];
   const cities: string[] = Array.from(
     new Set(allBranches.map((b: any) => String(b.city || "").trim()).filter(Boolean))
   );
@@ -1150,6 +1158,75 @@ export default function AdminPage() {
           {/* ============================================================== */}
           {tab === "overview" && (
             <>
+              {/* Overview Filter Bar */}
+              <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-[#C0392B]" />
+                    <span className="text-xs font-bold text-[#7A6E67] uppercase tracking-wider">Branch:</span>
+                    <select
+                      value={overviewBranchFilter}
+                      onChange={(e) => setOverviewBranchFilter(e.target.value)}
+                      className="px-3 py-1.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-bold focus:outline-none focus:border-[#C0392B]"
+                    >
+                      <option value="all">All Branches (All UAE Outlets)</option>
+                      {allBranches.map((b: any) => (
+                        <option key={b.id} value={b.id}>
+                          {b.name} ({b.city || "Dubai"})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 bg-[#FAF7F4] border border-[#EAE3DC] p-1 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => setOverviewDateFilter("all")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      overviewDateFilter === "all"
+                        ? "bg-[#C0392B] text-white shadow-xs"
+                        : "text-[#7A6E67] hover:text-[#1E1815]"
+                    }`}
+                  >
+                    All Time
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOverviewDateFilter("today")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      overviewDateFilter === "today"
+                        ? "bg-[#C0392B] text-white shadow-xs"
+                        : "text-[#7A6E67] hover:text-[#1E1815]"
+                    }`}
+                  >
+                    Today
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOverviewDateFilter("7days")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      overviewDateFilter === "7days"
+                        ? "bg-[#C0392B] text-white shadow-xs"
+                        : "text-[#7A6E67] hover:text-[#1E1815]"
+                    }`}
+                  >
+                    Last 7 Days
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOverviewDateFilter("30days")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      overviewDateFilter === "30days"
+                        ? "bg-[#C0392B] text-white shadow-xs"
+                        : "text-[#7A6E67] hover:text-[#1E1815]"
+                    }`}
+                  >
+                    Last 30 Days
+                  </button>
+                </div>
+              </div>
+
               {/* Top Executive KPI Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Metric 1: Total Revenue */}
@@ -1164,7 +1241,7 @@ export default function AdminPage() {
                   </div>
                   <div className="mt-2 text-xs font-semibold text-[#1E7A4D] flex items-center gap-1">
                     <TrendingUp className="w-3.5 h-3.5" />
-                    <span>Avg Bill: {formatMoney(cur, metrics.avgBill || 0)}</span>
+                    <span>Avg Bill: {formatMoney(cur, metrics.avgBill || metrics.avgTransaction || 0)}</span>
                   </div>
                 </div>
 
@@ -1176,11 +1253,11 @@ export default function AdminPage() {
                     <Users className="w-4 h-4 text-[#C68A1E]" />
                   </div>
                   <div className="text-2xl font-black text-[#1E1815] tracking-tight">
-                    {metrics.totalMembers ?? 0}
+                    {metrics.totalMembers ?? metrics.totalCustomers ?? 0}
                   </div>
                   <div className="mt-2 text-xs font-semibold text-[#1E7A4D] flex items-center gap-1">
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>+{metrics.newMembersLast30Days ?? 0} new (last 30d)</span>
+                    <span>+{metrics.newMembersLast30Days ?? metrics.newLast30 ?? 0} new (last 30d)</span>
                   </div>
                 </div>
 
@@ -1197,7 +1274,7 @@ export default function AdminPage() {
                   <div className="mt-2 text-xs font-semibold text-[#7A6E67]">
                     Repeat Customer Rate:{" "}
                     <span className="font-bold text-[#1E1815]">
-                      {metrics.repeatRate ?? 0}%
+                      {metrics.repeatRate ?? metrics.returnRate ?? 0}%
                     </span>
                   </div>
                 </div>
@@ -1210,7 +1287,7 @@ export default function AdminPage() {
                     <Gift className="w-4 h-4 text-[#8B5CF6]" />
                   </div>
                   <div className="text-2xl font-black text-[#1E1815] tracking-tight">
-                    {metrics.rewardsClaimed ?? 0}
+                    {metrics.rewardsClaimed ?? metrics.rewardsRedeemed ?? 0}
                     <span className="text-xs font-normal text-[#7A6E67] ml-1">
                       / {metrics.rewardsIssued ?? 0} issued
                     </span>
@@ -1218,7 +1295,7 @@ export default function AdminPage() {
                   <div className="mt-2 text-xs font-semibold text-[#1E7A4D] flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>
-                      {metrics.rewardsIssued ? Math.round((metrics.rewardsClaimed / metrics.rewardsIssued) * 100) : 0}% claim rate
+                      {metrics.rewardsIssued ? Math.round(((metrics.rewardsClaimed ?? metrics.rewardsRedeemed ?? 0) / metrics.rewardsIssued) * 100) : 0}% claim rate
                     </span>
                   </div>
                 </div>
@@ -1240,7 +1317,7 @@ export default function AdminPage() {
                       <div>
                         <div className="text-xs font-bold text-[#7A6E67] uppercase">Awarded (All Time)</div>
                         <div className="text-xl font-black text-[#1E7A4D] mt-0.5">
-                          +{Number(metrics.pointsAwarded || 0).toLocaleString()}
+                          +{Number(metrics.pointsAwarded ?? metrics.pointsIssued ?? 0).toLocaleString()}
                         </div>
                       </div>
                       <div className="w-10 h-10 rounded-xl bg-[#1E7A4D]/10 text-[#1E7A4D] flex items-center justify-center font-bold">
@@ -1264,7 +1341,7 @@ export default function AdminPage() {
                       <div>
                         <div className="text-xs font-bold text-[#7A6E67] uppercase">Active Member Wallet Float</div>
                         <div className="text-xl font-black text-[#C68A1E] mt-0.5">
-                          {Number(metrics.activePointsFloat || 0).toLocaleString()}
+                          {Number(metrics.activeMemberWalletFloat ?? metrics.walletFloat ?? metrics.activePointsFloat ?? 0).toLocaleString()}
                         </div>
                       </div>
                       <div className="w-10 h-10 rounded-xl bg-[#C68A1E]/20 text-[#C68A1E] flex items-center justify-center font-bold">
@@ -1284,21 +1361,20 @@ export default function AdminPage() {
                     <span className="text-xs font-semibold text-[#7A6E67]">Campaigns</span>
                   </div>
                   <div className="space-y-3">
-                    {data?.rewardBreakdown && data.rewardBreakdown.length > 0 ? (
-                      data.rewardBreakdown.map((r: any) => (
+                    {(data?.topRewards || data?.rewardBreakdown) && (data?.topRewards || data?.rewardBreakdown).length > 0 ? (
+                      (data?.topRewards || data?.rewardBreakdown).map((r: any, rIdx: number) => (
                         <div
-                          key={r.id}
+                          key={r.id || rIdx}
                           className="p-3 rounded-2xl border border-[#EAE3DC] bg-[#FAF7F4] flex items-center justify-between hover:border-[#D0C6BE] transition-colors"
                         >
                           <div className="min-w-0 flex-1 mr-3">
                             <div className="font-bold text-xs text-[#1E1815] truncate">{r.name}</div>
                             <div className="text-[11px] text-[#7A6E67] uppercase tracking-wider font-semibold">
-                              {r.type} • {r.threshold ? `${r.threshold} pts` : "Automatic"}
+                              {r.type || "Reward Voucher"}
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="font-black text-sm text-[#1E1815]">{r.claimedCount} claims</div>
-                            <div className="text-[10px] text-[#7A6E67] font-semibold">{r.issuedCount} issued</div>
+                            <div className="font-black text-sm text-[#1E1815]">{r.count ?? r.claimedCount ?? 0} claims</div>
                           </div>
                         </div>
                       ))
@@ -1317,12 +1393,12 @@ export default function AdminPage() {
                       </span>
                       <Calendar className="w-4 h-4 text-[#C68A1E]" />
                     </div>
-                    <h3 className="font-black text-lg text-white">This Month's Birthdays</h3>
+                    <h3 className="font-black text-lg text-white">This Month&apos;s Birthdays</h3>
                     <p className="text-xs text-[#B8ADA6] mt-1">
                       VIP members receiving complimentary birthday dining gifts and vouchers.
                     </p>
                     <div className="mt-6 flex items-baseline gap-2">
-                      <span className="text-4xl font-black text-white">{data?.birthdaysThisMonth ?? 0}</span>
+                      <span className="text-4xl font-black text-white">{data?.birthdays?.length ?? data?.birthdaysThisMonth ?? 0}</span>
                       <span className="text-xs text-[#C68A1E] font-bold">Celebrations this month</span>
                     </div>
                   </div>
@@ -1351,9 +1427,10 @@ export default function AdminPage() {
                     </button>
                   </div>
                   <div className="divide-y divide-[#EFE8E1]">
-                    {data?.branchLeaderboard && data.branchLeaderboard.length > 0 ? (
-                      data.branchLeaderboard.slice(0, 7).map((b: any, idx: number) => {
-                        const maxRev = Math.max(...data.branchLeaderboard.map((x: any) => x.revenue || 1));
+                    {(data?.branchLeaderboard || data?.branchPerformance) && (data?.branchLeaderboard || data?.branchPerformance).length > 0 ? (
+                      (data?.branchLeaderboard || data?.branchPerformance).slice(0, 7).map((b: any, idx: number) => {
+                        const allRows = data?.branchLeaderboard || data?.branchPerformance;
+                        const maxRev = Math.max(...allRows.map((x: any) => x.revenue || 1));
                         const pct = Math.min(100, Math.round(((b.revenue || 0) / maxRev) * 100));
                         return (
                           <div key={b.id} className="py-3 flex items-center gap-4">
@@ -1376,7 +1453,7 @@ export default function AdminPage() {
                               <div className="flex items-center justify-between text-[10px] text-[#7A6E67] mt-1">
                                 <span>{b.city}</span>
                                 <span>
-                                  {b.visits} visits • +{b.pointsAwarded} pts
+                                  {b.visits} visits • +{b.pointsAwarded ?? b.points ?? 0} pts
                                 </span>
                               </div>
                             </div>
@@ -1414,10 +1491,10 @@ export default function AdminPage() {
                             </div>
                             <div className="min-w-0">
                               <div className="font-bold text-xs text-[#1E1815] truncate">
-                                {t.customer?.name || "Member"} • Inv #{t.invoiceNumber}
+                                {t.customer?.name || t.customer || "Member"} • Inv #{t.invoiceNumber}
                               </div>
                               <div className="text-[11px] text-[#7A6E67] truncate">
-                                {t.branch?.name || "Branch"} • {formatRelativeTime(t.createdAt)}
+                                {t.branch?.name || t.branch || "Branch"} • {formatRelativeTime(t.createdAt)}
                               </div>
                             </div>
                           </div>
@@ -1426,14 +1503,14 @@ export default function AdminPage() {
                               {formatMoney(cur, t.amount)}
                             </div>
                             <div className="text-[10px] font-bold text-[#1E7A4D]">
-                              +{t.pointsEarned} pts
+                              +{t.pointsEarned ?? t.points ?? 0} pts
                             </div>
                           </div>
                         </div>
                       ))
                     ) : (
                       <div className="text-xs text-[#7A6E67] text-center py-8">
-                        No transactions registered yet. Scan cards at the staff POS till!
+                        No transactions registered yet. Scan cards or record visits!
                       </div>
                     )}
                   </div>
@@ -1496,18 +1573,18 @@ export default function AdminPage() {
                           <td className="py-3 px-3">
                             <div className="font-bold text-[#1E1815]">{c.name}</div>
                             <div className="text-[10px] text-[#7A6E67]">
-                              Joined {new Date(c.createdAt).toLocaleDateString()}
+                              Joined {c.createdAt || c.joinedAt ? new Date(c.createdAt || c.joinedAt).toLocaleDateString() : "—"}
                             </div>
                           </td>
                           <td className="py-3 px-3 font-mono text-[#4A3F39]">
                             <div>{c.mobile}</div>
                             {c.email && <div className="text-[10px] text-[#7A6E67]">{c.email}</div>}
                           </td>
-                          <td className="py-3 px-3 text-[#7A6E67]">{c.homeBranch?.name || "—"}</td>
-                          <td className="py-3 px-3 font-black text-[#C0392B]">{c.pointsBalance}</td>
-                          <td className="py-3 px-3 font-bold text-[#1E1815]">{c.visitCount}</td>
+                          <td className="py-3 px-3 text-[#7A6E67]">{c.homeBranch?.name || c.branch || "—"}</td>
+                          <td className="py-3 px-3 font-black text-[#C0392B]">{c.pointsBalance ?? c.points ?? 0}</td>
+                          <td className="py-3 px-3 font-bold text-[#1E1815]">{c.visitCount ?? c.visits ?? 0}</td>
                           <td className="py-3 px-3 font-bold text-[#1E1815]">
-                            {formatMoney(cur, c.totalSpend)}
+                            {formatMoney(cur, c.totalSpend ?? c.spend ?? 0)}
                           </td>
                           <td className="py-3 px-3 text-[#7A6E67]">{formatRelativeTime(c.lastVisitAt)}</td>
                         </tr>
