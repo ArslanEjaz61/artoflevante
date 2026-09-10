@@ -16,6 +16,7 @@ import {
   Coins,
   Ticket,
   X,
+  RotateCw,
 } from "lucide-react";
 
 const BRAND = process.env.NEXT_PUBLIC_APP_NAME || "Loyalty Club";
@@ -81,6 +82,19 @@ export default function HomePage() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [branchCode, setBranchCode] = useState("");
+  const [resendTimer, setResendTimer] = useState(30);
+  const [resendSuccess, setResendSuccess] = useState("");
+  const [resending, setResending] = useState(false);
+
+  useEffect(() => {
+    let interval: any;
+    if (stage === "code" && resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [stage, resendTimer]);
 
   useEffect(() => {
     fetch("/api/card")
@@ -139,6 +153,7 @@ export default function HomePage() {
     e?.preventDefault();
     setBusy(true);
     setErr("");
+    setResendSuccess("");
     try {
       const r = await fetch("/api/auth/start", {
         method: "POST",
@@ -152,11 +167,37 @@ export default function HomePage() {
         throw new Error(d.error || "Something went wrong.");
       }
       setDevCode(d.devCode || "");
+      setResendTimer(30);
       setStage("code");
     } catch (e2: any) {
       setErr(String(e2.message || e2));
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function handleResendCode() {
+    if (resending || resendTimer > 0) return;
+    setResending(true);
+    setErr("");
+    setResendSuccess("");
+    try {
+      const r = await fetch("/api/auth/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...f, mode }),
+      });
+      const d = await r.json();
+      if (!r.ok) {
+        throw new Error(d.error || "Could not resend code.");
+      }
+      setDevCode(d.devCode || "");
+      setResendTimer(30);
+      setResendSuccess("A new verification code has been sent!");
+    } catch (e2: any) {
+      setErr(String(e2.message || e2));
+    } finally {
+      setResending(false);
     }
   }
 
@@ -298,7 +339,7 @@ export default function HomePage() {
                 <>
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-[var(--ink-2)] mb-1.5" htmlFor="email">
-                      Email Address <span className="text-[var(--ink-3)] font-normal normal-case">(optional)</span>
+                      Email Address
                     </label>
                     <input
                       id="email"
@@ -308,6 +349,7 @@ export default function HomePage() {
                       value={f.email}
                       onChange={setField("email")}
                       autoComplete="email"
+                      required
                     />
                   </div>
 
@@ -455,7 +497,33 @@ export default function HomePage() {
                   </>
                 )}
               </button>
+
+              <div className="pt-2 text-center text-xs">
+                {resendTimer > 0 ? (
+                  <span className="text-[var(--ink-3)] font-medium">
+                    Didn&apos;t receive code? Resend in{" "}
+                    <strong className="text-[var(--ink)] font-bold">{resendTimer}s</strong>
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleResendCode}
+                    disabled={resending}
+                    className="font-bold text-[#C0392B] hover:underline cursor-pointer inline-flex items-center gap-1.5 disabled:opacity-50"
+                  >
+                    <RotateCw className={`w-3.5 h-3.5 ${resending ? "animate-spin" : ""}`} />
+                    {resending ? "Resending Code…" : "Resend Verification Code"}
+                  </button>
+                )}
+              </div>
             </form>
+
+            {resendSuccess && (
+              <div className="mt-3 p-3 rounded-xl bg-[#E3F2E9] border border-[#1E7A4D]/20 text-[#1E7A4D] text-xs font-semibold text-center flex items-center justify-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                {resendSuccess}
+              </div>
+            )}
 
             {devCode && (
               <div className="mt-4 p-3.5 rounded-xl bg-[#FBF1DC] border border-[#C68A1E]/30 text-[#C68A1E] text-xs font-bold">

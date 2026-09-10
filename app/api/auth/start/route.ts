@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     if (!name || String(name).trim().length < 2) {
       return NextResponse.json({ error: "Please enter your full name." }, { status: 400 });
     }
-    if (email && !isValidEmail(email)) {
+    if (!email || !isValidEmail(email)) {
       return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
     }
     if (!branchId) {

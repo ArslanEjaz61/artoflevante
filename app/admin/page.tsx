@@ -992,9 +992,23 @@ export default function AdminPage() {
       : "0.0";
 
   return (
-    <div className="h-screen overflow-hidden bg-[#F8F5F2] text-[#221C1A] flex flex-col md:flex-row">
+    <div className="h-screen overflow-hidden bg-[#F8F5F2] text-[#221C1A] flex flex-col md:flex-row relative">
+      {/* Mobile Backdrop Overlay */}
+      {mobileMenuOpen && (
+        <div
+          onClick={() => setMobileMenuOpen(false)}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity animate-in fade-in duration-200"
+          aria-hidden="true"
+        />
+      )}
+
       {/* ===================== SIDEBAR NAVIGATION ===================== */}
-      <aside className="w-full md:w-64 h-auto md:h-screen bg-[#181312] text-white flex-shrink-0 flex flex-col border-r border-[#2A2320] overflow-y-auto">
+      {/* Fixed drawer sliding from left on mobile, permanent left sidebar on desktop */}
+      <aside
+        className={`fixed md:static inset-y-0 left-0 z-50 w-72 md:w-64 h-full bg-[#181312] text-white flex-shrink-0 flex flex-col border-r border-[#2A2320] shadow-2xl md:shadow-none transition-transform duration-300 ease-in-out ${
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
+      >
         {/* Brand Header */}
         <div className="p-5 flex items-center justify-between border-b border-[#2A2320]">
           <div className="flex items-center gap-3">
@@ -1009,15 +1023,17 @@ export default function AdminPage() {
             </div>
           </div>
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg bg-[#2A2320] text-[#D8CDC6]"
+            type="button"
+            onClick={() => setMobileMenuOpen(false)}
+            className="md:hidden p-2 rounded-xl bg-[#2A2320] text-[#D8CDC6] hover:text-white hover:bg-[#382F2B] transition-colors cursor-pointer"
+            aria-label="Close navigation"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Navigation Items */}
-        <div className={`p-3 space-y-1 flex-1 ${mobileMenuOpen ? "block" : "hidden md:block"}`}>
+        <div className="p-3 space-y-1 flex-1 overflow-y-auto">
           <button
             onClick={() => {
               setTab("overview");
@@ -1153,24 +1169,36 @@ export default function AdminPage() {
       </aside>
 
       {/* ===================== MAIN CONTENT AREA ===================== */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+      <main className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
         {/* Top Navbar */}
-        <header className="bg-white border-b border-[#EAE3DC] px-6 py-4 flex items-center justify-between sticky top-0 z-20">
-          <div>
-            <h1 className="text-xl font-black tracking-tight text-[#1E1815] capitalize flex items-center gap-2">
-              {tab === "overview" && "Executive Overview"}
-              {tab === "customers" && "Member Directory"}
-              {tab === "offers" && "Promotions & Campaign Engine"}
-              {tab === "branches" && "Branch Management"}
-              {tab === "staff" && "Staff POS Accounts & Tills"}
-              {tab === "visits" && "Branch Visitors"}
-              {tab === "settings" && "System & Loyalty Points Engine"}
-              {tab === "audit" && "Security & Activity Audit Log"}
-            </h1>
-            <p className="text-xs text-[#7A6E67] mt-0.5">
-              {session.branchName ? `${session.branchName} • ` : "All 14 UAE Locations • "}
-              Live sync active
-            </p>
+        <header className="bg-white border-b border-[#EAE3DC] px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between sticky top-0 z-20 shadow-2xs">
+          <div className="flex items-center gap-3 min-w-0">
+            {/* Mobile Hamburger Menu Button */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden p-2 rounded-xl bg-[#FAF7F4] border border-[#EAE3DC] text-[#1E1815] hover:bg-[#F2ECE6] transition-colors cursor-pointer shrink-0"
+              aria-label="Open sidebar navigation"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-xl font-black tracking-tight text-[#1E1815] capitalize flex items-center gap-2 truncate">
+                {tab === "overview" && "Executive Overview"}
+                {tab === "customers" && "Member Directory"}
+                {tab === "offers" && "Promotions & Campaign Engine"}
+                {tab === "branches" && "Branch Management"}
+                {tab === "staff" && "Staff POS Accounts & Tills"}
+                {tab === "visits" && "Branch Visitors"}
+                {tab === "settings" && "System & Loyalty Points Engine"}
+                {tab === "audit" && "Security & Activity Audit Log"}
+              </h1>
+              <p className="text-[11px] sm:text-xs text-[#7A6E67] mt-0.5 truncate">
+                {session.branchName ? `${session.branchName} • ` : "All 14 UAE Locations • "}
+                Live sync active
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
