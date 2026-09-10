@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { normalizeMobile, DEFAULT_COUNTRY } from "@/lib/mobile";
 import { verifySecret } from "@/lib/crypto";
 import { setCustomerSession } from "@/lib/session";
-import { getNumber } from "@/lib/loyalty";
+import { getNumber, getSetting, pointsToCurrency } from "@/lib/loyalty";
 
 export async function POST(req: NextRequest) {
   let body: any;
@@ -72,7 +72,32 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, customerId: alreadyThere.id, isNew: false });
   }
 
-  const welcome = await prisma.reward.findFirst({ where: { type: "WELCOME", isActive: true } });
+  // Dynamic Welcome Rules from Settings
+  const welcomeBonusPoints = (await getNumber("welcome_bonus_points")) || 50;
+  const welcomeDiscountPercent = (await getNumber("welcome_discount_percent")) || 10;
+  const currency = (await getSetting("currency")) || "AED";
+  const pointsAedValue = await pointsToCurrency(welcomeBonusPoints);
+
+  // Find or create the active WELCOME reward voucher
+  let welcomeReward = await prisma.reward.findFirst({
+    where: { type: "WELCOME", isActive: true },
+  });
+
+  if (!welcomeReward) {
+    welcomeReward = await prisma.reward.create({
+      data: {
+        name: `Welcome ${welcomeDiscountPercent}% Voucher`,
+        nameAr: `قسيمة ترحيبية ${welcomeDiscountPercent}%`,
+        description: `Enjoy ${welcomeDiscountPercent}% off your first dining order as a new member gift.`,
+        type: "WELCOME",
+        threshold: 0,
+        value: welcomeDiscountPercent,
+        isPercent: true,
+        validDays: 30,
+        isActive: true,
+      },
+    });
+  }
 
   const customer = await prisma.$transaction(async (tx) => {
     const created = await tx.customer.create({
@@ -82,18 +107,30 @@ export async function POST(req: NextRequest) {
         email: otp.pendingEmail || null,
         birthday: otp.pendingBirthday || null,
         homeBranchId: otp.pendingBranchId || null,
+        pointsBalance: welcomeBonusPoints,
       },
     });
 
-    if (welcome) {
+    if (welcomeBonusPoints > 0) {
+      await tx.pointsLedger.create({
+        data: {
+          customerId: created.id,
+          delta: welcomeBonusPoints,
+          reason: "welcome",
+          note: `Signup welcome bonus gift: +${welcomeBonusPoints} points credited`,
+        },
+      });
+    }
+
+    if (welcomeReward) {
       await tx.customerReward.create({
         data: {
           customerId: created.id,
-          rewardId: welcome.id,
+          rewardId: welcomeReward.id,
           status: "AVAILABLE",
-          expiresAt: welcome.validDays
-            ? new Date(Date.now() + welcome.validDays * 86400_000)
-            : null,
+          expiresAt: welcomeReward.validDays
+            ? new Date(Date.now() + welcomeReward.validDays * 86400_000)
+            : new Date(Date.now() + 30 * 86400_000),
         },
       });
     }
@@ -103,7 +140,12 @@ export async function POST(req: NextRequest) {
         action: "customer.register",
         entityType: "Customer",
         entityId: created.id,
-        metadata: { mobile: normalized, branchId: otp.pendingBranchId ?? null },
+        metadata: {
+          mobile: normalized,
+          branchId: otp.pendingBranchId ?? null,
+          welcomeBonusPoints,
+          welcomeDiscountPercent,
+        },
       },
     });
 
@@ -112,5 +154,15 @@ export async function POST(req: NextRequest) {
 
   await setCustomerSession(customer.id);
 
-  return NextResponse.json({ ok: true, customerId: customer.id, isNew: true });
+  return NextResponse.json({
+    ok: true,
+    customerId: customer.id,
+    isNew: true,
+    welcome: {
+      bonusPoints: welcomeBonusPoints,
+      discountPercent: welcomeDiscountPercent,
+      currency,
+      pointsAedValue,
+    },
+  });
 }

@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const { code, name, nameAr, city, address, addressAr, phone, hours, isActive, dailyCode } = body || {};
+  const { code, name, nameAr, city, address, addressAr, phone, hours, isActive, dailyCode, dailyCodeExpiresAt } = body || {};
 
   if (!code || String(code).trim().length < 2) {
     return NextResponse.json({ error: "Branch code is required (e.g. 1015)." }, { status: 400 });
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
   }
 
   const initialCode = dailyCode ? String(dailyCode).trim().toUpperCase() : generateBranchDailyCode(cleanCode);
-  const initialExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  const initialExpiresAt = dailyCodeExpiresAt ? new Date(dailyCodeExpiresAt) : new Date(Date.now() + 24 * 60 * 60 * 1000);
 
   try {
     const branch = await prisma.branch.create({
@@ -152,6 +152,7 @@ export async function POST(req: NextRequest) {
           name: branch.name,
           city: branch.city,
           dailyCode: branch.dailyCode,
+          dailyCodeExpiresAt: branch.dailyCodeExpiresAt,
         },
       },
     });
@@ -181,7 +182,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const { id, code, name, nameAr, city, address, addressAr, phone, hours, isActive, dailyCode, rotateCode } = body || {};
+  const { id, code, name, nameAr, city, address, addressAr, phone, hours, isActive, dailyCode, dailyCodeExpiresAt, rotateCode } = body || {};
 
   if (!id) {
     return NextResponse.json({ error: "Branch ID is required." }, { status: 400 });
@@ -212,10 +213,14 @@ export async function PUT(req: NextRequest) {
 
   if (rotateCode) {
     newDailyCode = generateBranchDailyCode(cleanCode);
-    newExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-  } else if (dailyCode && String(dailyCode).trim() !== branch.dailyCode) {
-    newDailyCode = String(dailyCode).trim().toUpperCase();
-    newExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    newExpiresAt = dailyCodeExpiresAt ? new Date(dailyCodeExpiresAt) : new Date(Date.now() + 24 * 60 * 60 * 1000);
+  } else {
+    if (dailyCode !== undefined && String(dailyCode).trim() !== "") {
+      newDailyCode = String(dailyCode).trim().toUpperCase();
+    }
+    if (dailyCodeExpiresAt !== undefined && dailyCodeExpiresAt) {
+      newExpiresAt = new Date(dailyCodeExpiresAt);
+    }
   }
 
   try {

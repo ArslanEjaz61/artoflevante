@@ -3,7 +3,7 @@ import QRCode from "qrcode";
 import { prisma } from "@/lib/db";
 import { getCustomerId } from "@/lib/session";
 import { randomCode, formatCode } from "@/lib/crypto";
-import { getNumber, getSettings } from "@/lib/loyalty";
+import { getNumber, getSettings, pointsToCurrency } from "@/lib/loyalty";
 
 export async function GET() {
   const customerId = await getCustomerId();
@@ -22,6 +22,7 @@ export async function GET() {
 
   const ttl = (await getNumber("qr_token_ttl_seconds")) || 180;
   const settings = await getSettings();
+  const pointsCashValue = await pointsToCurrency(customer.pointsBalance);
 
   // Retire outstanding tokens
   await prisma.qrToken.deleteMany({ where: { customerId, usedAt: null } });
@@ -140,5 +141,14 @@ export async function GET() {
     offers,
     nextTargets,
     currency: settings.currency || "AED",
+    loyaltyRules: {
+      spendAedForPoints: Number(settings.spend_aed_for_points || 10),
+      pointsEarnedPerSpend: Number(settings.points_earned_per_spend || 1),
+      pointsRequiredForRedemption: Number(settings.points_required_for_redemption || 100),
+      currencyValuePerRedemptionPoints: Number(settings.currency_value_per_redemption_points || 5),
+      welcomeDiscountPercent: Number(settings.welcome_discount_percent || 10),
+      welcomeBonusPoints: Number(settings.welcome_bonus_points || 50),
+      pointsCashValue,
+    },
   });
 }

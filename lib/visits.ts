@@ -64,8 +64,11 @@ export async function getOrRotateBranchDailyCode(branchIdOrRecord: string | any)
   };
 }
 
-/** Explicitly rotate a branch's 24-hour coupon code immediately */
-export async function rotateBranchDailyCode(branchId: string) {
+/** Explicitly rotate or update a branch's coupon code and custom expiration time */
+export async function rotateBranchDailyCode(
+  branchId: string,
+  options?: { customCode?: string; customExpiresAt?: Date | string | null; validityHours?: number }
+) {
   const branch = await prisma.branch.findUnique({
     where: { id: branchId },
   });
@@ -74,8 +77,18 @@ export async function rotateBranchDailyCode(branchId: string) {
     throw new Error("Branch not found.");
   }
 
-  const newCode = generateBranchDailyCode(branch.code);
-  const newExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  const newCode = options?.customCode && String(options.customCode).trim().length > 0
+    ? String(options.customCode).trim().toUpperCase()
+    : generateBranchDailyCode(branch.code);
+
+  let newExpiresAt: Date;
+  if (options?.customExpiresAt) {
+    newExpiresAt = new Date(options.customExpiresAt);
+  } else if (options?.validityHours && options.validityHours > 0) {
+    newExpiresAt = new Date(Date.now() + options.validityHours * 60 * 60 * 1000);
+  } else {
+    newExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  }
 
   const updatedBranch = await prisma.branch.update({
     where: { id: branch.id },

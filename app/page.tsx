@@ -3,7 +3,20 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/mobile";
-import { Sparkles, ArrowRight, ShieldCheck, Phone, CheckCircle2, ChevronRight, Store, ArrowLeft } from "lucide-react";
+import {
+  Sparkles,
+  ArrowRight,
+  ShieldCheck,
+  Phone,
+  CheckCircle2,
+  ChevronRight,
+  Store,
+  ArrowLeft,
+  Gift,
+  Coins,
+  Ticket,
+  X,
+} from "lucide-react";
 
 const BRAND = process.env.NEXT_PUBLIC_APP_NAME || "Loyalty Club";
 
@@ -30,6 +43,31 @@ export default function HomePage() {
   const [mode, setMode] = useState<"register" | "login">("register");
   const [stage, setStage] = useState<"form" | "code">("form");
   const [branches, setBranches] = useState<Branch[]>([]);
+  const [programInfo, setProgramInfo] = useState<{
+    welcomeDiscountPercent: number;
+    welcomeBonusPoints: number;
+    currency: string;
+    spendAedForPoints: number;
+    pointsEarnedPerSpend: number;
+    pointsRequiredForRedemption: number;
+    currencyValuePerRedemptionPoints: number;
+  }>({
+    welcomeDiscountPercent: 10,
+    welcomeBonusPoints: 50,
+    currency: "AED",
+    spendAedForPoints: 10,
+    pointsEarnedPerSpend: 1,
+    pointsRequiredForRedemption: 100,
+    currencyValuePerRedemptionPoints: 5,
+  });
+  const [welcomeGift, setWelcomeGift] = useState<{
+    bonusPoints: number;
+    discountPercent: number;
+    currency: string;
+    pointsAedValue: number;
+  } | null>(null);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+
   const [f, setF] = useState({
     name: "",
     mobile: "",
@@ -56,6 +94,9 @@ export default function HomePage() {
       .then((r) => r.json())
       .then((d) => {
         setBranches(d.branches || []);
+        if (d.programInfo) {
+          setProgramInfo(d.programInfo);
+        }
         if (d.branches?.length) {
           setF((x) => ({ ...x, branchId: x.branchId || d.branches[0].id }));
         }
@@ -111,7 +152,13 @@ export default function HomePage() {
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Something went wrong.");
-      router.push("/card");
+
+      if (d.isNew && d.welcome) {
+        setWelcomeGift(d.welcome);
+        setShowWelcomeModal(true);
+      } else {
+        router.push("/card");
+      }
     } catch (e2: any) {
       setErr(String(e2.message || e2));
       setBusy(false);
@@ -142,14 +189,16 @@ export default function HomePage() {
             <div className="mb-6">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FBEAE7] text-[#C0392B] text-xs font-bold mb-2.5">
                 <Sparkles className="w-3.5 h-3.5" />
-                {mode === "register" ? "Instant 10% Welcome Reward" : "Welcome Back"}
+                {mode === "register"
+                  ? `Instant ${programInfo.welcomeDiscountPercent}% Voucher + ${programInfo.welcomeBonusPoints} Pts Gift`
+                  : "Welcome Back"}
               </div>
               <h2 className="text-2xl font-black tracking-tight text-[var(--ink)]">
                 {mode === "register" ? "Join the club" : "Sign in to your card"}
               </h2>
               <p className="text-sm text-[var(--ink-2)] mt-1.5 leading-relaxed">
                 {mode === "register"
-                  ? "Register once. Earn points & redeem treats at every branch."
+                  ? `Register now. Get +${programInfo.welcomeBonusPoints} points bonus and ${programInfo.welcomeDiscountPercent}% off your order.`
                   : "Enter your mobile number to receive a secure login code."}
               </p>
             </div>
@@ -408,6 +457,78 @@ export default function HomePage() {
           </div>
         )}
       </main>
+
+      {/* Welcome Celebration Modal for New Registrations */}
+      {showWelcomeModal && welcomeGift && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-sm w-full shadow-2xl text-center space-y-4">
+            {/* Celebration Icon Header */}
+            <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center text-white mx-auto shadow-xl shadow-[#C0392B]/30">
+              <Sparkles className="w-8 h-8 text-[#FFD700]" />
+            </div>
+
+            <div>
+              <span className="px-3 py-1 rounded-full bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20 text-xs font-black uppercase tracking-wider">
+                Membership Activated!
+              </span>
+              <h3 className="text-2xl font-black text-[#1E1815] tracking-tight mt-2">
+                Welcome to the Club!
+              </h3>
+              <p className="text-xs text-[#7A6E67] mt-1">
+                Your account is ready! We&apos;ve credited your welcome gifts directly to your new digital card:
+              </p>
+            </div>
+
+            {/* Gifts Unlocked Cards */}
+            <div className="space-y-2.5 text-left">
+              {/* Gift 1: Welcome Bonus Points */}
+              <div className="p-3.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C68A1E] to-[#9E690B] flex items-center justify-center text-white font-bold text-lg shadow-sm shrink-0">
+                  🪙
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-black text-sm text-[#1E1815]">
+                    +{welcomeGift.bonusPoints} Welcome Points
+                  </div>
+                  <div className="text-[11px] text-[#7A6E67]">
+                    Credited to wallet (Worth {welcomeGift.currency} {Number(welcomeGift.pointsAedValue || 0).toFixed(2)})
+                  </div>
+                </div>
+                <span className="px-2 py-0.5 rounded-full bg-[#1E7A4D]/10 text-[#1E7A4D] text-[10px] font-extrabold shrink-0">
+                  Added!
+                </span>
+              </div>
+
+              {/* Gift 2: Welcome Discount Voucher */}
+              <div className="p-3.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center text-white font-bold text-lg shadow-sm shrink-0">
+                  🏷️
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-black text-sm text-[#1E1815]">
+                    {welcomeGift.discountPercent}% Welcome Voucher
+                  </div>
+                  <div className="text-[11px] text-[#7A6E67]">
+                    Ready to use on your first dining order
+                  </div>
+                </div>
+                <span className="px-2 py-0.5 rounded-full bg-[#1E7A4D]/10 text-[#1E7A4D] text-[10px] font-extrabold shrink-0">
+                  Unlocked!
+                </span>
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <button
+              onClick={() => router.push("/card")}
+              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-sm shadow-xl shadow-[#C0392B]/25 flex items-center justify-center gap-2 transition-all cursor-pointer"
+            >
+              <span>Open My Digital VIP Card</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Footer Navigation Links */}
       <footer className="w-full flex items-center justify-center gap-6 mt-8 text-xs font-semibold text-[var(--ink-3)]">

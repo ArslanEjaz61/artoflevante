@@ -151,14 +151,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
   }
 
-  const { branchId, action } = body || {};
+  const { branchId, action, customCode, customExpiresAt, validityHours } = body || {};
 
   if (!branchId) {
     return NextResponse.json({ error: "Branch ID is required." }, { status: 400 });
   }
 
   try {
-    const rotated = await rotateBranchDailyCode(String(branchId));
+    const rotated = await rotateBranchDailyCode(String(branchId), {
+      customCode,
+      customExpiresAt,
+      validityHours: validityHours ? Number(validityHours) : undefined,
+    });
 
     await prisma.auditLog.create({
       data: {
@@ -176,7 +180,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       ok: true,
-      message: `24-Hour Visit Code for '${rotated.branch.name}' refreshed to ${rotated.dailyCode}`,
+      message: `Coupon code for '${rotated.branch.name}' updated to ${rotated.dailyCode} (Expires: ${new Date(rotated.dailyCodeExpiresAt).toLocaleString()})`,
       branchCode: {
         branchId: rotated.branch.id,
         branchName: rotated.branch.name,

@@ -20,6 +20,8 @@ import {
   Ticket,
   Check,
   X,
+  Coins,
+  Zap,
 } from "lucide-react";
 
 const BRAND = process.env.NEXT_PUBLIC_APP_NAME || "Loyalty Club";
@@ -127,7 +129,7 @@ export default function CustomerCardPage() {
     );
   }
 
-  const { customer, qr, rewards, transactions, offers, nextTargets, currency } = data;
+  const { customer, qr, rewards, transactions, offers, nextTargets, currency, loyaltyRules } = data;
   const availableRewards = rewards.filter((r: any) => r.status === "AVAILABLE");
   const usedRewards = rewards.filter((r: any) => r.status !== "AVAILABLE");
 
@@ -226,7 +228,7 @@ export default function CustomerCardPage() {
       </div>
 
       {/* Stats Counter Grid */}
-      <div className="grid grid-cols-3 gap-2.5 mb-5">
+      <div className="grid grid-cols-3 gap-2.5 mb-3">
         <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-3.5 text-center shadow-sm">
           <div className="text-2xl font-black text-[#C0392B] leading-none">{customer.pointsBalance}</div>
           <div className="text-[11px] font-bold text-[var(--ink-3)] uppercase tracking-wider mt-1.5">Points</div>
@@ -238,6 +240,41 @@ export default function CustomerCardPage() {
         <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-3.5 text-center shadow-sm">
           <div className="text-2xl font-black text-[var(--ink)] leading-none">{Math.round(customer.totalSpend)}</div>
           <div className="text-[11px] font-bold text-[var(--ink-3)] uppercase tracking-wider mt-1.5">{currency} Spent</div>
+        </div>
+      </div>
+
+      {/* Dynamic Points Cash Value & Rules Transparency Banner */}
+      <div className="bg-gradient-to-br from-[var(--surface)] to-[var(--surface-subtle)] border border-[var(--line)] rounded-3xl p-4 mb-5 shadow-sm space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#E5A844]/15 text-[#C68A1E] flex items-center justify-center font-bold">
+              <Coins className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-[10px] font-bold text-[var(--ink-3)] uppercase tracking-wider">Points Cash Value</div>
+              <div className="text-base font-black text-[var(--ink)] leading-tight">
+                {currency} {loyaltyRules?.pointsCashValue ?? "0.00"}
+              </div>
+            </div>
+          </div>
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#1E7A4D]/10 text-[#1E7A4D] text-[11px] font-extrabold">
+            <Sparkles className="w-3 h-3 text-[#1E7A4D]" /> Active Perks
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--line)] text-[11px]">
+          <div className="bg-[var(--surface)] p-2 rounded-xl text-left border border-[var(--line)]">
+            <span className="block text-[10px] font-bold uppercase text-[var(--ink-3)]">Earning Rate</span>
+            <span className="font-extrabold text-[var(--ink)]">
+              +{loyaltyRules?.pointsEarnedPerSpend || 1} pt / {currency} {loyaltyRules?.spendAedForPoints || 10}
+            </span>
+          </div>
+          <div className="bg-[var(--surface)] p-2 rounded-xl text-left border border-[var(--line)]">
+            <span className="block text-[10px] font-bold uppercase text-[var(--ink-3)]">Redemption</span>
+            <span className="font-extrabold text-[#1E7A4D]">
+              {loyaltyRules?.pointsRequiredForRedemption || 100} pts = {currency} {loyaltyRules?.currencyValuePerRedemptionPoints || 5}
+            </span>
+          </div>
         </div>
       </div>
 
