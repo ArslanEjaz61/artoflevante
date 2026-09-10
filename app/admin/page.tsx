@@ -2308,6 +2308,11 @@ export default function AdminPage() {
                               <span className="px-2.5 py-1 rounded-lg bg-[#FAF7F4] border border-[#EAE3DC] font-mono font-bold text-[11px] text-[#C0392B]">
                                 {v.couponCode}
                               </span>
+                              {v.note && (
+                                <div className="text-[10px] font-mono text-[#4A3F39] mt-1 font-semibold">
+                                  {v.note}
+                                </div>
+                              )}
                             </td>
                             <td className="py-3.5 px-4">
                               {v.checkInMethod === "CUSTOMER_PORTAL" ? (

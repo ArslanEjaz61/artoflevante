@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCustomerId, getStaffSession } from "@/lib/session";
 import { getOrRotateBranchDailyCode } from "@/lib/visits";
-import { getSetting } from "@/lib/loyalty";
+import { getNumber, getSetting, pointsForAmount, newlyEligibleRewards } from "@/lib/loyalty";
 
 export async function POST(req: NextRequest) {
   // Can be checked in by customer directly or by staff cashier
@@ -20,13 +20,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
   }
 
-  const { couponCode, customerId } = body || {};
+  const { couponCode, customerId, invoiceNumber, amount, billAmount } = body || {};
 
   if (!couponCode || typeof couponCode !== "string") {
-    return NextResponse.json({ error: "Please enter a valid branch visit coupon code." }, { status: 400 });
+    return NextResponse.json({ error: "Please enter the branch 24h visit coupon code." }, { status: 400 });
   }
 
   const cleanCode = couponCode.trim().toUpperCase().replace(/\s+/g, "");
+  const cleanInvoice = String(invoiceNumber || "").trim().toUpperCase();
+  const rawBill = amount !== undefined && amount !== null && amount !== "" ? amount : billAmount;
+  const numAmount = Number(rawBill);
+
+  if (!cleanInvoice) {
+    return NextResponse.json({ error: "Please enter the bill invoice number (e.g. INV-1002)." }, { status: 400 });
+  }
+
+  if (!Number.isFinite(numAmount) || numAmount <= 0) {
+    return NextResponse.json({ error: "Please enter a valid bill payment amount (e.g. 50.00)." }, { status: 400 });
+  }
 
   // Determine target customer
   let targetCustomerId = customerIdFromCookie;
@@ -70,13 +81,13 @@ export async function POST(req: NextRequest) {
 
     if (!matchingEntry) {
       return NextResponse.json({
-        error: "Invalid or expired branch coupon code. Please ask the restaurant counter for today's active visit code.",
+        error: "Invalid or expired branch coupon code. Please verify today's active coupon code with the branch cashier.",
       }, { status: 400 });
     }
 
     const matchedBranch = matchingEntry.branch;
 
-    // 3. Strict anti-abuse checks:
+    // 3. Strict Anti-Abuse Checks:
     // Check A: Has customer already applied/redeemed this specific coupon code before?
     const existingCodeUse = await prisma.customerVisit.findFirst({
       where: {
@@ -87,7 +98,7 @@ export async function POST(req: NextRequest) {
 
     if (existingCodeUse) {
       return NextResponse.json({
-        error: "You have already used this coupon code. This coupon cannot be applied again to your account.",
+        error: "You have already used this coupon code. This daily code cannot be applied again to your account.",
       }, { status: 400 });
     }
 
@@ -103,8 +114,22 @@ export async function POST(req: NextRequest) {
 
     if (existingRecentVisit) {
       return NextResponse.json({
-        error: `You have already checked into ${matchedBranch.name} in the past 24 hours. Your visit is already logged!`,
+        error: `You have already logged a visit at ${matchedBranch.name} in the past 24 hours. Your visit is already recorded!`,
       }, { status: 400 });
+    }
+
+    // Check C: DUPLICATE INVOICE NUMBER PREVENTION
+    const duplicateInvoice = await prisma.transaction.findFirst({
+      where: {
+        branchId: matchedBranch.id,
+        invoiceNumber: cleanInvoice,
+      },
+    });
+
+    if (duplicateInvoice) {
+      return NextResponse.json({
+        error: `Invoice #${cleanInvoice} has already been registered and points issued. Duplicate invoice numbers are not allowed.`,
+      }, { status: 409 });
     }
 
     // 4. Fetch customer
@@ -116,83 +141,140 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Customer account not found or is blocked." }, { status: 404 });
     }
 
-    // Check if visit bonus points are configured
-    const bonusSetting = await getSetting("visit_bonus_points");
-    const bonusPoints = bonusSetting ? parseInt(bonusSetting, 10) : 0;
-    const finalBonus = !isNaN(bonusPoints) && bonusPoints > 0 ? bonusPoints : 0;
+    // 5. Calculate Points dynamically based on bill amount and loyalty rules
+    const pointsEarned = await pointsForAmount(numAmount);
+    const currency = (await getSetting("currency")) || "AED";
+    const expiryDays = (await getNumber("points_expiry_days")) || 0;
 
-    // 5. Create CustomerVisit record
-    const visit = await prisma.customerVisit.create({
-      data: {
-        customerId: customer.id,
-        branchId: matchedBranch.id,
-        couponCode: matchingEntry.dailyCode,
-        pointsEarned: finalBonus,
-        checkInMethod: staffSession ? "STAFF_POS" : "CUSTOMER_PORTAL",
-      },
-    });
-
-    // 6. Update customer visitCount and lastVisitAt
-    const updatedCustomer = await prisma.customer.update({
-      where: { id: customer.id },
-      data: {
-        visitCount: { increment: 1 },
-        lastVisitAt: new Date(),
-        pointsBalance: finalBonus > 0 ? { increment: finalBonus } : undefined,
-      },
-    });
-
-    // 7. If points earned, log in points ledger
-    if (finalBonus > 0) {
-      await prisma.pointsLedger.create({
+    // 6. Execute atomic database transaction
+    const result = await prisma.$transaction(async (tx) => {
+      // Create Transaction record
+      const trx = await tx.transaction.create({
         data: {
           customerId: customer.id,
-          delta: finalBonus,
-          reason: "visit",
-          note: `Daily visit check-in bonus at ${matchedBranch.name}`,
+          branchId: matchedBranch.id,
+          staffId: staffSession?.id || null,
+          invoiceNumber: cleanInvoice,
+          amount: numAmount,
+          pointsEarned,
+          discountGiven: 0,
         },
       });
-    }
 
-    // 8. Create audit log
-    await prisma.auditLog.create({
-      data: {
-        staffId: staffSession?.id || null,
-        action: "customer.visit_checkin",
-        entityType: "customer_visit",
-        entityId: visit.id,
-        metadata: {
+      // Create Points Ledger entry
+      if (pointsEarned > 0) {
+        await tx.pointsLedger.create({
+          data: {
+            customerId: customer.id,
+            transactionId: trx.id,
+            delta: pointsEarned,
+            reason: "purchase",
+            note: `Visit bill payment at ${matchedBranch.name} (Invoice #${cleanInvoice})`,
+            expiresAt: expiryDays > 0 ? new Date(Date.now() + expiryDays * 86400_000) : null,
+          },
+        });
+      }
+
+      // Create CustomerVisit record
+      const visit = await tx.customerVisit.create({
+        data: {
           customerId: customer.id,
-          customerName: customer.name,
           branchId: matchedBranch.id,
-          branchName: matchedBranch.name,
           couponCode: matchingEntry.dailyCode,
-          newVisitCount: updatedCustomer.visitCount,
-          pointsEarned: finalBonus,
+          pointsEarned,
+          checkInMethod: staffSession ? "STAFF_POS" : "CUSTOMER_PORTAL",
+          note: `Invoice #${cleanInvoice} · Bill: ${currency} ${numAmount.toFixed(2)}`,
         },
-      },
+      });
+
+      // Increment customer visit count, points balance, and total spend
+      const updatedCustomer = await tx.customer.update({
+        where: { id: customer.id },
+        data: {
+          visitCount: { increment: 1 },
+          totalSpend: { increment: numAmount },
+          pointsBalance: { increment: pointsEarned },
+          lastVisitAt: new Date(),
+        },
+      });
+
+      // Audit Log
+      await tx.auditLog.create({
+        data: {
+          staffId: staffSession?.id || null,
+          action: "customer.visit_checkin_with_bill",
+          entityType: "Transaction",
+          entityId: trx.id,
+          metadata: {
+            customerId: customer.id,
+            customerName: customer.name,
+            branchId: matchedBranch.id,
+            branchName: matchedBranch.name,
+            couponCode: matchingEntry.dailyCode,
+            invoiceNumber: cleanInvoice,
+            amount: numAmount,
+            pointsEarned,
+            newVisitCount: updatedCustomer.visitCount,
+            newPointsBalance: updatedCustomer.pointsBalance,
+          },
+        },
+      });
+
+      return { trx, visit, customer: updatedCustomer };
     });
+
+    // 7. Check for milestone rewards newly unlocked by this visit / points balance
+    const held = await prisma.customerReward.findMany({
+      where: { customerId: customer.id, status: "AVAILABLE" },
+      select: { rewardId: true },
+    });
+
+    const unlocked = await newlyEligibleRewards({
+      pointsBalance: result.customer.pointsBalance,
+      visitCount: result.customer.visitCount,
+      alreadyHeldRewardIds: held.map((h) => h.rewardId),
+    });
+
+    const issuedRewards: any[] = [];
+    for (const r of unlocked) {
+      const cr = await prisma.customerReward.create({
+        data: {
+          customerId: customer.id,
+          rewardId: r.id,
+          status: "AVAILABLE",
+          expiresAt: r.validDays ? new Date(Date.now() + r.validDays * 86400_000) : null,
+        },
+      });
+      issuedRewards.push({ id: cr.id, name: r.name, description: r.description });
+    }
 
     return NextResponse.json({
       ok: true,
-      message: `Welcome to ${matchedBranch.name}! Your visit has been successfully recorded.`,
+      message: `Visit & Bill recorded! You earned +${pointsEarned} points at ${matchedBranch.name}.`,
       branch: {
         id: matchedBranch.id,
         name: matchedBranch.name,
-        nameAr: matchedBranch.nameAr,
         code: matchedBranch.code,
         city: matchedBranch.city,
       },
+      transaction: {
+        id: result.trx.id,
+        invoiceNumber: cleanInvoice,
+        amount: numAmount,
+        pointsEarned,
+        currency,
+      },
       visit: {
-        id: visit.id,
-        couponCode: visit.couponCode,
-        createdAt: visit.createdAt,
-        pointsEarned: finalBonus,
+        id: result.visit.id,
+        couponCode: result.visit.couponCode,
+        createdAt: result.visit.createdAt,
       },
       customer: {
-        visitCount: updatedCustomer.visitCount,
-        pointsBalance: updatedCustomer.pointsBalance,
+        visitCount: result.customer.visitCount,
+        pointsBalance: result.customer.pointsBalance,
+        totalSpend: Number(result.customer.totalSpend),
       },
+      newRewards: issuedRewards,
     });
   } catch (err: any) {
     console.error("POST /api/visits/check-in error:", err);

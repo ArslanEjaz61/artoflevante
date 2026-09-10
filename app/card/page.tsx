@@ -22,6 +22,8 @@ import {
   X,
   Coins,
   Zap,
+  Receipt,
+  Award,
 } from "lucide-react";
 
 const BRAND = process.env.NEXT_PUBLIC_APP_NAME || "Loyalty Club";
@@ -47,31 +49,96 @@ export default function CustomerCardPage() {
   const [profileBusy, setProfileBusy] = useState(false);
   const [profileMsg, setProfileMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
-  // Branch Visit Self Check-in
+  // Branch Visit Verification & Bill Popup
   const [visitCodeInput, setVisitCodeInput] = useState("");
-  const [visitBusy, setVisitBusy] = useState(false);
-  const [visitMsg, setVisitMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [checkingCode, setCheckingCode] = useState(false);
+  const [verifiedBranch, setVerifiedBranch] = useState<{ id: string; name: string; code: string; city?: string } | null>(null);
+  const [verifiedCoupon, setVerifiedCoupon] = useState("");
+  const [showBillModal, setShowBillModal] = useState(false);
+  const [invoiceInput, setInvoiceInput] = useState("");
+  const [billAmountInput, setBillAmountInput] = useState("");
+  const [billSubmitting, setBillSubmitting] = useState(false);
+  const [modalErr, setModalErr] = useState("");
+  const [visitMsg, setVisitMsg] = useState<{ type: "ok" | "err"; text: string; details?: any } | null>(null);
 
-  async function handleCheckIn(e: React.FormEvent) {
+  // Step 1: Check if coupon code is valid
+  async function handleCheckCoupon(e: React.FormEvent) {
     e.preventDefault();
-    if (!visitCodeInput.trim()) return;
-    setVisitBusy(true);
+    if (!visitCodeInput.trim()) {
+      setVisitMsg({ type: "err", text: "Please enter the branch 24h coupon code first." });
+      return;
+    }
+
+    setCheckingCode(true);
     setVisitMsg(null);
+    try {
+      const r = await fetch("/api/visits/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ couponCode: visitCodeInput.trim() }),
+      });
+      const d = await r.json();
+      if (!r.ok) {
+        throw new Error(d.error || "Invalid branch coupon code.");
+      }
+
+      setVerifiedBranch(d.branch);
+      setVerifiedCoupon(d.couponCode);
+      setInvoiceInput("");
+      setBillAmountInput("");
+      setModalErr("");
+      setShowBillModal(true);
+    } catch (err2: any) {
+      setVisitMsg({ type: "err", text: String(err2.message || err2) });
+    } finally {
+      setCheckingCode(false);
+    }
+  }
+
+  // Step 2: Confirm Invoice & Bill in Popup Modal
+  async function handleConfirmBill(e: React.FormEvent) {
+    e.preventDefault();
+    if (!invoiceInput.trim()) {
+      setModalErr("Please enter the invoice / receipt number (e.g. INV-1002).");
+      return;
+    }
+    if (!billAmountInput || Number(billAmountInput) <= 0) {
+      setModalErr("Please enter a valid bill payment amount (e.g. 50.00).");
+      return;
+    }
+
+    setBillSubmitting(true);
+    setModalErr("");
     try {
       const r = await fetch("/api/visits/check-in", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ couponCode: visitCodeInput }),
+        body: JSON.stringify({
+          couponCode: verifiedCoupon || visitCodeInput.trim(),
+          invoiceNumber: invoiceInput.trim(),
+          amount: Number(billAmountInput),
+        }),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || "Could not check in visit.");
-      setVisitMsg({ type: "ok", text: d.message || "Visit checked in successfully!" });
+      if (!r.ok) {
+        throw new Error(d.error || "Could not record visit and bill.");
+      }
+
+      setShowBillModal(false);
       setVisitCodeInput("");
+      setInvoiceInput("");
+      setBillAmountInput("");
+      setVerifiedBranch(null);
+      setVisitMsg({
+        type: "ok",
+        text: d.message || "Visit & bill recorded successfully!",
+        details: d,
+      });
       loadCard();
-    } catch (err2: any) {
-      setVisitMsg({ type: "err", text: String(err2.message || err2) });
+    } catch (err3: any) {
+      setModalErr(String(err3.message || err3));
     } finally {
-      setVisitBusy(false);
+      setBillSubmitting(false);
     }
   }
 
@@ -278,8 +345,8 @@ export default function CustomerCardPage() {
         </div>
       </div>
 
-      {/* Branch Visit Self Check-in Banner / Form */}
-      <div className="bg-[var(--surface)] border border-[var(--line)] rounded-3xl p-5 mb-5 shadow-sm space-y-3">
+      {/* Branch Visit Check-in Banner / Form */}
+      <div className="bg-[var(--surface)] border border-[var(--line)] rounded-3xl p-5 mb-5 shadow-sm space-y-3.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-[#C0392B]/10 text-[#C0392B] flex items-center justify-center font-bold">
@@ -287,32 +354,51 @@ export default function CustomerCardPage() {
             </div>
             <div>
               <div className="text-sm font-extrabold text-[var(--ink)] leading-tight">
-                Dine-in Check-in
+                Dine-in Visit & Bill Check-in
               </div>
               <div className="text-[11px] text-[var(--ink-3)]">
-                Enter today&apos;s 24H branch code to log your visit
+                Enter today&apos;s 24H branch coupon code to verify & record your bill
               </div>
             </div>
           </div>
           <span className="px-2 py-0.5 rounded-full bg-[#1E7A4D]/10 text-[#1E7A4D] text-[10px] font-black uppercase">
-            24h Passcode
+            Earn Points
           </span>
         </div>
 
         {visitMsg && (
           <div
-            className={`p-3 rounded-xl text-xs font-semibold flex items-center justify-between ${
-              visitMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20" : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/20"
+            className={`p-3.5 rounded-2xl text-xs font-semibold space-y-1.5 ${
+              visitMsg.type === "ok"
+                ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/25"
+                : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/25"
             }`}
           >
-            <span>{visitMsg.text}</span>
-            <button onClick={() => setVisitMsg(null)}>
-              <X className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex items-center justify-between font-bold">
+              <span className="flex items-center gap-1.5">
+                {visitMsg.type === "ok" ? <CheckCircle2 className="w-4 h-4 text-[#1E7A4D]" /> : <AlertCircle className="w-4 h-4 text-[#C0392B]" />}
+                {visitMsg.text}
+              </span>
+              <button onClick={() => setVisitMsg(null)} className="p-0.5 hover:opacity-75">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            {visitMsg.details?.transaction && (
+              <div className="text-[11px] text-[#1E7A4D]/90 pt-1 border-t border-[#1E7A4D]/20 flex items-center justify-between">
+                <span>Invoice #{visitMsg.details.transaction.invoiceNumber} · {currency} {visitMsg.details.transaction.amount}</span>
+                <span className="font-extrabold">+{visitMsg.details.transaction.pointsEarned} Points Added</span>
+              </div>
+            )}
+            {visitMsg.details?.newRewards?.length > 0 && (
+              <div className="text-[11px] bg-[#1E7A4D]/15 p-2 rounded-xl text-[#1E7A4D] font-bold flex items-center gap-1.5 mt-1">
+                <Sparkles className="w-3.5 h-3.5" />
+                Unlocked Reward: {visitMsg.details.newRewards[0].name}
+              </div>
+            )}
           </div>
         )}
 
-        <form onSubmit={handleCheckIn} className="flex gap-2">
+        <form onSubmit={handleCheckCoupon} className="flex gap-2">
           <div className="relative flex-1">
             <input
               type="text"
@@ -320,18 +406,161 @@ export default function CustomerCardPage() {
               value={visitCodeInput}
               onChange={(e) => setVisitCodeInput(e.target.value.toUpperCase())}
               className="w-full px-3.5 py-2.5 bg-[var(--surface-subtle)] border border-[var(--line)] rounded-xl font-mono text-xs font-bold text-[var(--ink)] placeholder-[var(--ink-3)] uppercase focus:outline-none focus:border-[#C0392B]"
+              required
             />
             <Ticket className="w-3.5 h-3.5 text-[var(--ink-3)] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
           <button
             type="submit"
-            disabled={visitBusy || !visitCodeInput.trim()}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer shrink-0 transition-all"
+            disabled={checkingCode || !visitCodeInput.trim()}
+            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer shrink-0 transition-all flex items-center gap-1.5"
           >
-            {visitBusy ? "Logging…" : "Check In"}
+            {checkingCode ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Checking…
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-3.5 h-3.5" />
+                Check Code
+              </>
+            )}
           </button>
         </form>
       </div>
+
+      {/* Invoice & Bill Popup Modal (Opens only when coupon is verified) */}
+      {showBillModal && (
+        <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-[var(--surface)] border border-[var(--line)] rounded-3xl p-6 shadow-2xl text-[var(--ink)] space-y-5 animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-start justify-between border-b border-[var(--line)] pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center text-white font-bold shadow-md shadow-[#C0392B]/30 shrink-0">
+                  <Receipt className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black tracking-tight text-[var(--ink)] leading-tight">
+                    Record Bill & Earn Points
+                  </h3>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <span className="px-2 py-0.5 rounded-md bg-[#1E7A4D]/10 text-[#1E7A4D] font-bold text-[10px] uppercase">
+                      ✓ {verifiedBranch?.name || "Branch Verified"}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-[var(--surface-subtle)] border border-[var(--line)] font-mono font-bold text-[10px] text-[#C0392B]">
+                      {verifiedCoupon}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowBillModal(false)}
+                className="p-1 rounded-xl text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--surface-subtle)] transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Error in modal */}
+            {modalErr && (
+              <div className="p-3 rounded-xl bg-[#C0392B]/10 border border-[#C0392B]/25 text-[#C0392B] text-xs font-bold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{modalErr}</span>
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleConfirmBill} className="space-y-4">
+              <div>
+                <label className="block text-xs font-extrabold uppercase text-[var(--ink-2)] tracking-wider mb-1.5">
+                  Invoice / Bill Number *
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. INV-1002"
+                    value={invoiceInput}
+                    onChange={(e) => setInvoiceInput(e.target.value.toUpperCase())}
+                    className="w-full px-4 py-3 bg-[var(--surface-subtle)] border border-[var(--line-2)] rounded-xl font-mono text-sm font-bold text-[var(--ink)] placeholder-[var(--ink-3)] uppercase focus:outline-none focus:border-[#C0392B]"
+                    autoFocus
+                  />
+                  <Receipt className="w-4 h-4 text-[var(--ink-3)] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+                <p className="text-[10px] text-[var(--ink-3)] mt-1 font-medium">
+                  Enter unique receipt # from the cashier bill (no duplicate entries).
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-extrabold uppercase text-[var(--ink-2)] tracking-wider mb-1.5">
+                  Total Bill Payment ({currency}) *
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    required
+                    placeholder="e.g. 150.00"
+                    value={billAmountInput}
+                    onChange={(e) => setBillAmountInput(e.target.value)}
+                    className="w-full px-4 py-3 bg-[var(--surface-subtle)] border border-[var(--line-2)] rounded-xl text-sm font-bold text-[var(--ink)] placeholder-[var(--ink-3)] focus:outline-none focus:border-[#C0392B]"
+                  />
+                  <Coins className="w-4 h-4 text-[var(--ink-3)] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Dynamic live points preview */}
+              {billAmountInput && Number(billAmountInput) > 0 && (
+                <div className="p-3 rounded-2xl bg-gradient-to-r from-[#E5A844]/15 to-[#C68A1E]/10 border border-[#E5A844]/30 flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] font-extrabold uppercase tracking-wider text-[#9E690B]">
+                      Points to Earn
+                    </div>
+                    <div className="text-xs font-semibold text-[var(--ink-2)]">
+                      Rate: 1 pt per {currency} {loyaltyRules?.spendAedForPoints || 10}
+                    </div>
+                  </div>
+                  <div className="text-lg font-black text-[#C68A1E]">
+                    +{Math.floor((Number(billAmountInput) / (loyaltyRules?.spendAedForPoints || 10)) * (loyaltyRules?.pointsEarnedPerSpend || 1))} pts
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowBillModal(false)}
+                  className="flex-1 py-3 px-4 rounded-xl bg-[var(--surface-subtle)] border border-[var(--line)] text-xs font-bold text-[var(--ink-2)] hover:bg-[var(--line)] transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={billSubmitting || !invoiceInput.trim() || !billAmountInput || Number(billAmountInput) <= 0}
+                  className="flex-[2] py-3 px-4 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  {billSubmitting ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Adding Points…
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      OK, Confirm & Earn Points
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Next Milestones ("Almost there") */}
       {nextTargets?.length > 0 && (
