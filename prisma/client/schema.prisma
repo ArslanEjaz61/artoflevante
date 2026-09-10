@@ -29,10 +29,14 @@ model Branch {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 
-  homeCustomers Customer[]    @relation("HomeBranch")
+  dailyCode          String?
+  dailyCodeExpiresAt DateTime?
+
+  homeCustomers Customer[]      @relation("HomeBranch")
   staff         Staff[]
   transactions  Transaction[]
   offers        OfferBranch[]
+  visits        CustomerVisit[]
 
   @@index([isActive])
 }
@@ -63,6 +67,7 @@ model Customer {
   transactions    Transaction[]
   pointsLedger    PointsLedger[]
   customerRewards CustomerReward[]
+  visits          CustomerVisit[]
 
   @@index([homeBranchId])
   @@index([createdAt])
@@ -298,4 +303,23 @@ model Setting {
   key       String   @id
   value     String
   updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------- customer visits
+
+model CustomerVisit {
+  id            String   @id @default(cuid())
+  customerId    String
+  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  branchId      String
+  branch        Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  couponCode    String
+  pointsEarned  Int      @default(0)
+  checkInMethod String   @default("CUSTOMER_PORTAL") // "CUSTOMER_PORTAL" | "STAFF_POS" | "QR_SCAN"
+  note          String?
+  createdAt     DateTime @default(now())
+
+  @@index([customerId, createdAt])
+  @@index([branchId, createdAt])
+  @@index([createdAt])
 }

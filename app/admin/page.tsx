@@ -52,6 +52,10 @@ import {
   Lock,
   KeyRound,
   Key,
+  UserPlus,
+  Ticket,
+  Copy,
+  RotateCw,
 } from "lucide-react";
 
 function formatRelativeTime(iso?: string | null): string {
@@ -73,7 +77,7 @@ function formatMoney(cur: string, n: number): string {
 export default function AdminPage() {
   const [session, setSession] = useState<any>(null);
   const [login, setLogin] = useState({ username: "", pin: "" });
-  const [tab, setTab] = useState<"overview" | "customers" | "offers" | "branches" | "staff" | "audit" | "settings">("overview");
+  const [tab, setTab] = useState<"overview" | "customers" | "offers" | "branches" | "staff" | "visits" | "audit" | "settings">("overview");
   const [data, setData] = useState<any>(null);
   const [busy, setBusy] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -165,6 +169,49 @@ export default function AdminPage() {
   const [pinSaving, setPinSaving] = useState(false);
   const [pinMsg, setPinMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
+  // Staff tab & CRUD
+  const [staffData, setStaffData] = useState<any[]>([]);
+  const [staffSearch, setStaffSearch] = useState("");
+  const [staffRoleFilter, setStaffRoleFilter] = useState("all");
+  const [staffBranchFilter, setStaffBranchFilter] = useState("all");
+  const [showCreateStaffModal, setShowCreateStaffModal] = useState(false);
+  const [showEditStaffModal, setShowEditStaffModal] = useState(false);
+  const [showDeleteStaffModal, setShowDeleteStaffModal] = useState(false);
+  const [staffToDelete, setStaffToDelete] = useState<any>(null);
+  const [staffForm, setStaffForm] = useState<{
+    id?: string;
+    username: string;
+    name: string;
+    pin: string;
+    role: string;
+    branchId: string;
+    isActive: boolean;
+  }>({
+    username: "",
+    name: "",
+    pin: "",
+    role: "CASHIER",
+    branchId: "",
+    isActive: true,
+  });
+  const [staffMsg, setStaffMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  // Visits tab & 24h Daily Codes
+  const [visitsData, setVisitsData] = useState<any[]>([]);
+  const [branchCodes, setBranchCodes] = useState<any[]>([]);
+  const [visitMetrics, setVisitMetrics] = useState<any>({
+    totalVisits: 0,
+    todayVisits: 0,
+    uniqueCustomersToday: 0,
+    topBranchName: "None",
+  });
+  const [visitSearch, setVisitSearch] = useState("");
+  const [visitBranchFilter, setVisitBranchFilter] = useState("all");
+  const [visitDateFilter, setVisitDateFilter] = useState("all");
+  const [visitMsg, setVisitMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [rotatingBranchId, setRotatingBranchId] = useState<string | null>(null);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
   // Simulator Test Inputs
   const [simBillAmount, setSimBillAmount] = useState("250");
   const [simPointsBalance, setSimPointsBalance] = useState("500");
@@ -234,6 +281,32 @@ export default function AdminPage() {
     } catch { }
   }, []);
 
+  const loadStaff = useCallback(async () => {
+    try {
+      const r = await fetch("/api/admin/staff");
+      const d = await r.json();
+      if (r.ok && d.staff) {
+        setStaffData(d.staff);
+      }
+    } catch { }
+  }, []);
+
+  const loadVisits = useCallback(async () => {
+    try {
+      const r = await fetch(
+        `/api/admin/visits?branchId=${encodeURIComponent(visitBranchFilter)}&dateRange=${encodeURIComponent(
+          visitDateFilter
+        )}&q=${encodeURIComponent(visitSearch)}`
+      );
+      const d = await r.json();
+      if (r.ok) {
+        if (d.visits) setVisitsData(d.visits);
+        if (d.branchCodes) setBranchCodes(d.branchCodes);
+        if (d.metrics) setVisitMetrics(d.metrics);
+      }
+    } catch { }
+  }, [visitBranchFilter, visitDateFilter, visitSearch]);
+
   useEffect(() => {
     loadOverview();
   }, [loadOverview]);
@@ -244,7 +317,15 @@ export default function AdminPage() {
     if (session && tab === "offers") loadOffers();
     if (session && tab === "branches") loadBranches();
     if (session && tab === "settings") loadSettings();
-  }, [session, tab, loadCustomers, loadAudit, loadOffers, loadBranches, loadSettings]);
+    if (session && tab === "staff") {
+      loadStaff();
+      loadBranches();
+    }
+    if (session && tab === "visits") {
+      loadVisits();
+      loadBranches();
+    }
+  }, [session, tab, loadCustomers, loadAudit, loadOffers, loadBranches, loadSettings, loadStaff, loadVisits]);
 
   // Branch CRUD Handlers
   async function handleCreateBranch(e: React.FormEvent) {
@@ -411,6 +492,154 @@ export default function AdminPage() {
     }
   }
 
+  // Staff CRUD Handlers
+  async function handleCreateStaff(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setStaffMsg(null);
+    try {
+      const r = await fetch("/api/admin/staff", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(staffForm),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Failed to create staff account.");
+      setStaffMsg({ type: "ok", text: d.message || `Staff account '${d.staff.name}' created successfully!` });
+      setShowCreateStaffModal(false);
+      setStaffForm({
+        username: "",
+        name: "",
+        pin: "",
+        role: "CASHIER",
+        branchId: "",
+        isActive: true,
+      });
+      loadStaff();
+      loadOverview();
+    } catch (err2: any) {
+      setStaffMsg({ type: "err", text: String(err2.message || err2) });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleUpdateStaff(e: React.FormEvent) {
+    e.preventDefault();
+    if (!staffForm.id) return;
+    setBusy(true);
+    setStaffMsg(null);
+    try {
+      const r = await fetch("/api/admin/staff", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(staffForm),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Failed to update staff account.");
+      setStaffMsg({ type: "ok", text: d.message || `Staff account '${d.staff.name}' updated successfully!` });
+      setShowEditStaffModal(false);
+      loadStaff();
+      loadOverview();
+    } catch (err2: any) {
+      setStaffMsg({ type: "err", text: String(err2.message || err2) });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleDeleteStaff() {
+    if (!staffToDelete) return;
+    setBusy(true);
+    setStaffMsg(null);
+    try {
+      const r = await fetch(`/api/admin/staff?id=${staffToDelete.id}`, {
+        method: "DELETE",
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Failed to remove staff account.");
+      setStaffMsg({ type: "ok", text: d.message || "Staff account removed successfully." });
+      setShowDeleteStaffModal(false);
+      setStaffToDelete(null);
+      loadStaff();
+      loadOverview();
+    } catch (err2: any) {
+      setStaffMsg({ type: "err", text: String(err2.message || err2) });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleToggleStaff(staff: any) {
+    try {
+      const r = await fetch("/api/admin/staff", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: staff.id,
+          isActive: !staff.isActive,
+        }),
+      });
+      if (r.ok) {
+        loadStaff();
+        loadOverview();
+      }
+    } catch { }
+  }
+
+  function openEditStaff(s: any) {
+    setStaffForm({
+      id: s.id,
+      username: s.username || "",
+      name: s.name || "",
+      pin: "",
+      role: s.role || "CASHIER",
+      branchId: s.branchId || "",
+      isActive: s.isActive,
+    });
+    setStaffMsg(null);
+    setShowEditStaffModal(true);
+  }
+
+  function openDeleteStaff(s: any) {
+    setStaffToDelete(s);
+    setStaffMsg(null);
+    setShowDeleteStaffModal(true);
+  }
+
+  // Visit & Coupon Code Handlers
+  async function handleRotateBranchCode(branchId: string) {
+    setRotatingBranchId(branchId);
+    setVisitMsg(null);
+    setBranchMsg(null);
+    try {
+      const r = await fetch("/api/admin/visits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ branchId, action: "rotate" }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Failed to rotate code.");
+      const successText = d.message || "24-Hour Coupon Code rotated successfully.";
+      setVisitMsg({ type: "ok", text: successText });
+      setBranchMsg({ type: "ok", text: successText });
+      loadVisits();
+      loadBranches();
+    } catch (err2: any) {
+      const errText = String(err2.message || err2);
+      setVisitMsg({ type: "err", text: errText });
+      setBranchMsg({ type: "err", text: errText });
+    } finally {
+      setRotatingBranchId(null);
+    }
+  }
+
+  function copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text);
+    setCopiedCode(text);
+    setTimeout(() => setCopiedCode(null), 2500);
+  }
+
   async function createOffer(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -562,6 +791,23 @@ export default function AdminPage() {
     return matchQ && matchCity;
   });
 
+  // Filtered staff for Staff Tab
+  const filteredStaff = staffData.filter((s: any) => {
+    const qLower = staffSearch.toLowerCase();
+    const matchQ =
+      !staffSearch ||
+      s.name.toLowerCase().includes(qLower) ||
+      s.username.toLowerCase().includes(qLower) ||
+      (s.branch?.name && s.branch.name.toLowerCase().includes(qLower)) ||
+      s.role.toLowerCase().includes(qLower);
+    const matchRole = staffRoleFilter === "all" || s.role === staffRoleFilter;
+    const matchBranch =
+      staffBranchFilter === "all" ||
+      (staffBranchFilter === "hq" && !s.branchId) ||
+      s.branchId === staffBranchFilter;
+    return matchQ && matchRole && matchBranch;
+  });
+
   // Conversion keys configured in top calculator widget
   const conversionKeys = [
     "spend_aed_for_points",
@@ -689,6 +935,20 @@ export default function AdminPage() {
           >
             <Store className="w-4 h-4" />
             <span>Staff & Tills</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setTab("visits");
+              setMobileMenuOpen(false);
+            }}
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "visits"
+                ? "bg-gradient-to-r from-[#C0392B] to-[#96291D] text-white shadow-lg shadow-[#C0392B]/30"
+                : "text-[#C8BCB5] hover:bg-[#251E1C] hover:text-white"
+              }`}
+          >
+            <MapPin className="w-4 h-4" />
+            <span>Branch Visits & Codes</span>
           </button>
 
           <button
@@ -1312,13 +1572,17 @@ export default function AdminPage() {
             <div className="space-y-6">
               {branchMsg && (
                 <div
-                  className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between ${branchMsg.type === "ok"
+                  className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between shadow-sm ${branchMsg.type === "ok"
                       ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
                       : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
                     }`}
                 >
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    {branchMsg.type === "ok" ? (
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    ) : (
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                    )}
                     <span>{branchMsg.text}</span>
                   </div>
                   <button onClick={() => setBranchMsg(null)}>
@@ -1326,6 +1590,118 @@ export default function AdminPage() {
                   </button>
                 </div>
               )}
+
+              {/* 24-Hour Daily Coupon Passcode Spotlight Grid */}
+              <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
+                      <Ticket className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-extrabold text-[#1E1815] flex items-center gap-2">
+                        Today's 24-Hour Branch Visit Coupon Codes
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#1E7A4D]/15 text-[#1E7A4D] border border-[#1E7A4D]/30">
+                          Auto-Generated 24H
+                        </span>
+                      </h2>
+                      <p className="text-xs text-[#7A6E67] mt-0.5">
+                        Unique 24-hour passcodes for customer dine-in check-ins. Codes rotate automatically every 24 hours or on-demand.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setBranchForm({
+                          code: "",
+                          name: "",
+                          nameAr: "",
+                          city: "Dubai",
+                          address: "",
+                          addressAr: "",
+                          phone: "",
+                          hours: "10:00 AM – 11:00 PM",
+                          isActive: true,
+                        });
+                        setBranchMsg(null);
+                        setShowCreateBranchModal(true);
+                      }}
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-sm transition-all cursor-pointer shrink-0"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add Branch</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Active Coupon Codes Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-2">
+                  {allBranches.filter((b: any) => b.isActive !== false).map((b: any) => {
+                    const isCopied = copiedCode === b.dailyCode;
+                    const isRotating = rotatingBranchId === b.id;
+
+                    return (
+                      <div
+                        key={`code-card-${b.id || b.code}`}
+                        className="p-4 rounded-2xl border border-[#EAE3DC] bg-gradient-to-b from-[#FAF7F4] to-white hover:border-[#D0C6BE] transition-all shadow-xs"
+                      >
+                        <div className="flex items-center justify-between mb-2.5">
+                          <div className="min-w-0">
+                            <span className="font-extrabold text-xs text-[#1E1815] truncate block">
+                              {b.name}
+                            </span>
+                            <span className="text-[10px] font-bold text-[#7A6E67]">
+                              {b.code} • {b.city || "Dubai"}
+                            </span>
+                          </div>
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#1E7A4D] animate-pulse" />
+                            Active Today
+                          </span>
+                        </div>
+
+                        {/* Coupon Code Display */}
+                        <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-white border border-[#E0D7CF] mb-2.5">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Ticket className="w-4 h-4 text-[#C0392B] shrink-0" />
+                            <span className="font-mono text-sm font-black text-[#C0392B] tracking-wider truncate">
+                              {b.dailyCode || "GENERATING..."}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              onClick={() => b.dailyCode && copyToClipboard(b.dailyCode)}
+                              disabled={!b.dailyCode}
+                              title="Copy Coupon Code"
+                              className="px-2.5 py-1 rounded-lg border border-[#EAE3DC] bg-[#FAF7F4] hover:bg-[#FAF0E6] text-[11px] font-bold text-[#4A3F39] flex items-center gap-1 transition-colors cursor-pointer"
+                            >
+                              <Copy className="w-3 h-3 text-[#C0392B]" />
+                              <span>{isCopied ? "Copied!" : "Copy"}</span>
+                            </button>
+
+                            <button
+                              onClick={() => handleRotateBranchCode(b.id)}
+                              disabled={isRotating}
+                              title="Regenerate 24-Hour Code Now"
+                              className="p-1 rounded-lg border border-[#EAE3DC] bg-[#FAF7F4] hover:bg-[#FAF0E6] text-[#4A3F39] hover:text-[#C0392B] transition-colors cursor-pointer"
+                            >
+                              <RotateCw className={`w-3.5 h-3.5 ${isRotating ? "animate-spin text-[#C0392B]" : ""}`} />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between text-[10px] text-[#7A6E67]">
+                          <span>Valid: 24h Auto-Refreshed</span>
+                          <span>{b.visitCount ?? 0} Customer Visits</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
 
               {/* Branch Quick Stats */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1360,7 +1736,7 @@ export default function AdminPage() {
                       type="text"
                       value={branchSearch}
                       onChange={(e) => setBranchSearch(e.target.value)}
-                      placeholder="Search branches by code, name, city…"
+                      placeholder="Search branches by code, name, city, coupon…"
                       className="w-full pl-10 pr-4 py-2.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#C0392B]"
                     />
                   </div>
@@ -1389,6 +1765,7 @@ export default function AdminPage() {
                       <tr>
                         <th className="pb-3 px-3">Code</th>
                         <th className="pb-3 px-3">Branch Name</th>
+                        <th className="pb-3 px-3">24H Visit Coupon</th>
                         <th className="pb-3 px-3">City & Address</th>
                         <th className="pb-3 px-3">Contact & Hours</th>
                         <th className="pb-3 px-3">Status</th>
@@ -1399,84 +1776,121 @@ export default function AdminPage() {
                     </thead>
                     <tbody className="divide-y divide-[#EFE8E1]">
                       {filteredBranches.length > 0 ? (
-                        filteredBranches.map((b: any) => (
-                          <tr key={b.id || b.code} className="hover:bg-[#FAF7F4] transition-colors">
-                            <td className="py-3 px-3 font-mono font-bold text-[#C0392B]">
-                              <span className="px-2 py-1 rounded-lg bg-[#C0392B]/10 border border-[#C0392B]/20">
-                                {b.code}
-                              </span>
-                            </td>
-                            <td className="py-3 px-3">
-                              <div className="font-extrabold text-[#1E1815]">{b.name}</div>
-                              {b.nameAr && <div className="text-[11px] text-[#7A6E67]">{b.nameAr}</div>}
-                            </td>
-                            <td className="py-3 px-3">
-                              <div className="font-semibold text-[#1E1815] flex items-center gap-1">
-                                <MapPin className="w-3 h-3 text-[#C68A1E]" />
-                                <span>{b.city || "Dubai"}</span>
-                              </div>
-                              <div className="text-[11px] text-[#7A6E67] truncate max-w-[200px]">
-                                {b.address || "—"}
-                              </div>
-                            </td>
-                            <td className="py-3 px-3 text-[11px] text-[#7A6E67]">
-                              {b.phone && (
-                                <div className="flex items-center gap-1 font-mono">
-                                  <Phone className="w-3 h-3 text-[#7A6E67]" />
-                                  <span>{b.phone}</span>
+                        filteredBranches.map((b: any) => {
+                          const isCopied = copiedCode === b.dailyCode;
+                          const isRotating = rotatingBranchId === b.id;
+
+                          return (
+                            <tr key={b.id || b.code} className="hover:bg-[#FAF7F4] transition-colors">
+                              <td className="py-3 px-3 font-mono font-bold text-[#C0392B]">
+                                <span className="px-2 py-1 rounded-lg bg-[#C0392B]/10 border border-[#C0392B]/20">
+                                  {b.code}
+                                </span>
+                              </td>
+                              <td className="py-3 px-3">
+                                <div className="font-extrabold text-[#1E1815]">{b.name}</div>
+                                {b.nameAr && <div className="text-[11px] text-[#7A6E67]">{b.nameAr}</div>}
+                              </td>
+                              <td className="py-3 px-3">
+                                {b.dailyCode ? (
+                                  <div className="inline-flex items-center gap-1.5 p-1 px-2 rounded-xl bg-[#FAF7F4] border border-[#E0D7CF]">
+                                    <Ticket className="w-3.5 h-3.5 text-[#C0392B] shrink-0" />
+                                    <span className="font-mono font-black text-xs text-[#C0392B] tracking-wider">
+                                      {b.dailyCode}
+                                    </span>
+                                    <button
+                                      onClick={() => copyToClipboard(b.dailyCode)}
+                                      title="Copy 24H Coupon Code"
+                                      className="p-1 rounded hover:bg-white text-[#7A6E67] hover:text-[#C0392B] transition-colors cursor-pointer ml-1"
+                                    >
+                                      <Copy className="w-3 h-3" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleRotateBranchCode(b.id)}
+                                      disabled={isRotating}
+                                      title="Rotate 24H Code"
+                                      className="p-1 rounded hover:bg-white text-[#7A6E67] hover:text-[#C0392B] transition-colors cursor-pointer"
+                                    >
+                                      <RotateCw className={`w-3 h-3 ${isRotating ? "animate-spin text-[#C0392B]" : ""}`} />
+                                    </button>
+                                    {isCopied && (
+                                      <span className="text-[9px] font-bold text-[#1E7A4D] bg-[#1E7A4D]/10 px-1.5 py-0.5 rounded">
+                                        Copied!
+                                      </span>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span className="text-[#7A6E67] text-[11px]">—</span>
+                                )}
+                              </td>
+                              <td className="py-3 px-3">
+                                <div className="font-semibold text-[#1E1815] flex items-center gap-1">
+                                  <MapPin className="w-3 h-3 text-[#C68A1E]" />
+                                  <span>{b.city || "Dubai"}</span>
                                 </div>
-                              )}
-                              <div>{b.hours || "10:00 AM – 11:00 PM"}</div>
-                            </td>
-                            <td className="py-3 px-3">
-                              <button
-                                onClick={() => handleToggleBranch(b)}
-                                className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer transition-all ${b.isActive !== false
-                                    ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30 hover:bg-[#1E7A4D]/20"
-                                    : "bg-[#7A6E67]/10 text-[#7A6E67] border border-[#7A6E67]/30 hover:bg-[#7A6E67]/20"
-                                  }`}
-                              >
-                                <span
-                                  className={`w-1.5 h-1.5 rounded-full ${b.isActive !== false ? "bg-[#1E7A4D]" : "bg-[#7A6E67]"
+                                <div className="text-[11px] text-[#7A6E67] truncate max-w-[180px]">
+                                  {b.address || "—"}
+                                </div>
+                              </td>
+                              <td className="py-3 px-3 text-[11px] text-[#7A6E67]">
+                                {b.phone && (
+                                  <div className="flex items-center gap-1 font-mono">
+                                    <Phone className="w-3 h-3 text-[#7A6E67]" />
+                                    <span>{b.phone}</span>
+                                  </div>
+                                )}
+                                <div>{b.hours || "10:00 AM – 11:00 PM"}</div>
+                              </td>
+                              <td className="py-3 px-3">
+                                <button
+                                  onClick={() => handleToggleBranch(b)}
+                                  className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer transition-all ${b.isActive !== false
+                                      ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30 hover:bg-[#1E7A4D]/20"
+                                      : "bg-[#7A6E67]/10 text-[#7A6E67] border border-[#7A6E67]/30 hover:bg-[#7A6E67]/20"
                                     }`}
-                                />
-                                <span>{b.isActive !== false ? "Active" : "Inactive"}</span>
-                              </button>
-                            </td>
-                            <td className="py-3 px-3 text-[#7A6E67]">
-                              <div className="font-semibold text-[#1E1815]">
-                                {b.staffCount ?? b.staff ?? 0} Staff
-                              </div>
-                              <div className="text-[10px]">
-                                {b.transactionCount ?? b.visits ?? 0} Transactions
-                              </div>
-                            </td>
-                            <td className="py-3 px-3 font-black text-[#C0392B]">
-                              {formatMoney(cur, b.totalRevenue || b.revenue || 0)}
-                            </td>
-                            <td className="py-3 px-3 text-right">
-                              <div className="inline-flex items-center gap-1">
-                                <button
-                                  onClick={() => openEditBranch(b)}
-                                  title="Edit Branch Details"
-                                  className="p-1.5 rounded-lg border border-[#EAE3DC] bg-white hover:bg-[#FAF7F4] text-[#4A3F39] hover:text-[#C0392B] transition-colors cursor-pointer"
                                 >
-                                  <Edit2 className="w-3.5 h-3.5" />
+                                  <span
+                                    className={`w-1.5 h-1.5 rounded-full ${b.isActive !== false ? "bg-[#1E7A4D]" : "bg-[#7A6E67]"
+                                      }`}
+                                  />
+                                  <span>{b.isActive !== false ? "Active" : "Inactive"}</span>
                                 </button>
-                                <button
-                                  onClick={() => openDeleteBranch(b)}
-                                  title="Delete / Deactivate Branch"
-                                  className="p-1.5 rounded-lg border border-[#EAE3DC] bg-white hover:bg-[#C0392B]/10 text-[#4A3F39] hover:text-[#C0392B] transition-colors cursor-pointer"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
+                              </td>
+                              <td className="py-3 px-3 text-[#7A6E67]">
+                                <div className="font-semibold text-[#1E1815]">
+                                  {b.staffCount ?? b.staff ?? 0} Staff
+                                </div>
+                                <div className="text-[10px]">
+                                  {b.visitCount ?? b.visits ?? b.transactionCount ?? 0} Visits / Txs
+                                </div>
+                              </td>
+                              <td className="py-3 px-3 font-black text-[#C0392B]">
+                                {formatMoney(cur, b.totalRevenue || b.revenue || 0)}
+                              </td>
+                              <td className="py-3 px-3 text-right">
+                                <div className="inline-flex items-center gap-1">
+                                  <button
+                                    onClick={() => openEditBranch(b)}
+                                    title="Edit Branch Details"
+                                    className="p-1.5 rounded-lg border border-[#EAE3DC] bg-white hover:bg-[#FAF7F4] text-[#4A3F39] hover:text-[#C0392B] transition-colors cursor-pointer"
+                                  >
+                                    <Edit2 className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => openDeleteBranch(b)}
+                                    title="Delete / Deactivate Branch"
+                                    className="p-1.5 rounded-lg border border-[#EAE3DC] bg-white hover:bg-[#C0392B]/10 text-[#4A3F39] hover:text-[#C0392B] transition-colors cursor-pointer"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
                       ) : (
                         <tr>
-                          <td colSpan={8} className="text-center py-8 text-xs text-[#7A6E67]">
+                          <td colSpan={9} className="text-center py-8 text-xs text-[#7A6E67]">
                             No branches found matching search criteria.
                           </td>
                         </tr>
@@ -1489,54 +1903,542 @@ export default function AdminPage() {
           )}
 
           {/* ============================================================== */}
-          {/* TAB 5: STAFF & TILLS                                           */}
+          {/* TAB 5: STAFF & POS TILL ACCOUNTS                               */}
           {/* ============================================================== */}
           {tab === "staff" && (
-            <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="font-extrabold text-base text-[#1E1815]">Staff POS Accounts</h2>
-                  <p className="text-xs text-[#7A6E67]">
-                    Cashier & Manager credentials configured for terminal tills.
-                  </p>
+            <div className="space-y-6">
+              {staffMsg && (
+                <div
+                  className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between ${staffMsg.type === "ok"
+                      ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
+                      : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                    }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {staffMsg.type === "ok" ? <Check className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
+                    <span>{staffMsg.text}</span>
+                  </div>
+                  <button onClick={() => setStaffMsg(null)}>
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
-                <div className="px-3 py-1.5 rounded-xl bg-[#FAF7F4] border border-[#EAE3DC] text-xs font-bold text-[#4A3F39]">
-                  {data?.staffCount ?? "14"} Active Tills
+              )}
+
+              {/* Staff Management Header Card */}
+              <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
+                      <Users className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-black tracking-tight text-[#1E1815]">
+                        Staff & Terminal POS Accounts
+                      </h2>
+                      <p className="text-xs text-[#7A6E67] mt-0.5">
+                        Manage cashier till logins, store managers, assigned outlet branches, and security PIN credentials.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => {
+                        setStaffForm({
+                          username: "",
+                          name: "",
+                          pin: "",
+                          role: "CASHIER",
+                          branchId: "",
+                          isActive: true,
+                        });
+                        setStaffMsg(null);
+                        setShowCreateStaffModal(true);
+                      }}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer shrink-0"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      <span>Add Staff Account</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Filter and Search Toolbar */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6 pt-5 border-t border-[#EAE3DC]">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search by name, username, branch, or role…"
+                      value={staffSearch}
+                      onChange={(e) => setStaffSearch(e.target.value)}
+                      className="w-full pl-9 pr-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#C0392B]"
+                    />
+                    <Search className="w-4 h-4 text-[#8C7F78] absolute left-3 top-1/2 -translate-y-1/2" />
+                  </div>
+
+                  <div>
+                    <select
+                      value={staffRoleFilter}
+                      onChange={(e) => setStaffRoleFilter(e.target.value)}
+                      className="w-full px-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B]"
+                    >
+                      <option value="all">All System Roles</option>
+                      <option value="CASHIER">Cashiers (POS Front Tills)</option>
+                      <option value="BRANCH_MANAGER">Branch Managers</option>
+                      <option value="COMPANY_ADMIN">Company Admins</option>
+                      <option value="SUPER_ADMIN">Super Administrators</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <select
+                      value={staffBranchFilter}
+                      onChange={(e) => setStaffBranchFilter(e.target.value)}
+                      className="w-full px-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B]"
+                    >
+                      <option value="all">All Outlet Assignments</option>
+                      <option value="hq">🏢 Corporate Head Office (All Outlets)</option>
+                      {allBranches.map((b: any) => (
+                        <option key={b.id} value={b.id}>
+                          {b.name} ({b.code}) - {b.city || "Dubai"}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Staff Data Table */}
+                <div className="mt-5 overflow-x-auto rounded-2xl border border-[#EAE3DC]">
+                  <table className="w-full text-left text-xs text-[#1E1815]">
+                    <thead className="bg-[#FAF7F4] border-b border-[#EAE3DC] text-[11px] uppercase tracking-wider text-[#7A6E67] font-bold">
+                      <tr>
+                        <th className="py-3 px-4">Staff Member</th>
+                        <th className="py-3 px-4">Login Username</th>
+                        <th className="py-3 px-4">Assigned Branch / Outlet</th>
+                        <th className="py-3 px-4">System Role</th>
+                        <th className="py-3 px-4">Till Activity</th>
+                        <th className="py-3 px-4">Account Status</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#EFE8E1] bg-white">
+                      {filteredStaff.length > 0 ? (
+                        filteredStaff.map((s) => (
+                          <tr key={s.id} className="hover:bg-[#FAF7F4]/60 transition-colors">
+                            <td className="py-3.5 px-4">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#EAE3DC] to-[#DCD3CB] flex items-center justify-center font-bold text-[#4A3F39] text-xs shrink-0">
+                                  {s.name ? s.name.charAt(0).toUpperCase() : "U"}
+                                </div>
+                                <div>
+                                  <div className="font-extrabold text-xs text-[#1E1815]">{s.name}</div>
+                                  <div className="text-[10px] text-[#7A6E67]">
+                                    Joined {new Date(s.createdAt).toLocaleDateString()}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3.5 px-4 font-mono font-bold text-xs text-[#4A3F39]">
+                              @{s.username}
+                            </td>
+                            <td className="py-3.5 px-4">
+                              {s.branch ? (
+                                <div className="flex items-center gap-1.5">
+                                  <Store className="w-3.5 h-3.5 text-[#C0392B]" />
+                                  <span className="font-bold text-xs text-[#1E1815]">
+                                    {s.branch.name}
+                                  </span>
+                                  <span className="text-[10px] font-mono text-[#8C7F78]">
+                                    ({s.branch.code})
+                                  </span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-1.5 text-[#7A6E67]">
+                                  <Building2 className="w-3.5 h-3.5 text-[#C68A1E]" />
+                                  <span className="font-semibold text-xs text-[#7A6E67]">
+                                    Corporate / All Outlets
+                                  </span>
+                                </div>
+                              )}
+                            </td>
+                            <td className="py-3.5 px-4">
+                              {s.role === "SUPER_ADMIN" && (
+                                <span className="px-2.5 py-1 rounded-full bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/20 text-[10px] font-black uppercase tracking-wider">
+                                  SUPER ADMIN
+                                </span>
+                              )}
+                              {s.role === "COMPANY_ADMIN" && (
+                                <span className="px-2.5 py-1 rounded-full bg-[#7C3AED]/10 text-[#7C3AED] border border-[#7C3AED]/20 text-[10px] font-black uppercase tracking-wider">
+                                  COMPANY ADMIN
+                                </span>
+                              )}
+                              {s.role === "BRANCH_MANAGER" && (
+                                <span className="px-2.5 py-1 rounded-full bg-[#C68A1E]/10 text-[#9E690B] border border-[#C68A1E]/20 text-[10px] font-black uppercase tracking-wider">
+                                  BRANCH MANAGER
+                                </span>
+                              )}
+                              {s.role === "CASHIER" && (
+                                <span className="px-2.5 py-1 rounded-full bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20 text-[10px] font-black uppercase tracking-wider">
+                                  CASHIER (POS TILL)
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3.5 px-4 font-semibold text-xs text-[#4A3F39]">
+                              <span className="px-2 py-0.5 rounded-lg bg-[#FAF7F4] border border-[#EAE3DC] font-mono text-[11px]">
+                                {s.transactionCount ?? 0} txs
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-4">
+                              <button
+                                type="button"
+                                onClick={() => handleToggleStaff(s)}
+                                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black cursor-pointer transition-colors ${s.isActive
+                                    ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20 hover:bg-[#1E7A4D]/20"
+                                    : "bg-[#7A6E67]/10 text-[#7A6E67] border border-[#7A6E67]/20 hover:bg-[#7A6E67]/20"
+                                  }`}
+                              >
+                                <span
+                                  className={`w-1.5 h-1.5 rounded-full ${s.isActive ? "bg-[#1E7A4D]" : "bg-[#7A6E67]"
+                                    }`}
+                                />
+                                <span>{s.isActive ? "ACTIVE" : "INACTIVE"}</span>
+                              </button>
+                            </td>
+                            <td className="py-3.5 px-4 text-right">
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => openEditStaff(s)}
+                                  className="p-1.5 rounded-lg text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4] transition-colors cursor-pointer"
+                                  title="Edit staff details & reset PIN"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => openDeleteStaff(s)}
+                                  className="p-1.5 rounded-lg text-[#C0392B] hover:bg-[#C0392B]/10 transition-colors cursor-pointer"
+                                  title="Delete / Deactivate staff account"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={7} className="text-center py-8 text-xs text-[#7A6E67]">
+                            No staff accounts found matching your filters.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ============================================================== */}
+          {/* TAB: BRANCH VISITS & 24-HOUR DAILY COUPON PASSCODES            */}
+          {/* ============================================================== */}
+          {tab === "visits" && (
+            <div className="space-y-6">
+              {visitMsg && (
+                <div
+                  className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between ${visitMsg.type === "ok"
+                      ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
+                      : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                    }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {visitMsg.type === "ok" ? <Check className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
+                    <span>{visitMsg.text}</span>
+                  </div>
+                  <button onClick={() => setVisitMsg(null)}>
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
+              {/* Visit Metrics KPI Row */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-2xs">
+                  <div className="text-[11px] font-bold text-[#7A6E67] uppercase tracking-wider">
+                    Total Visits (All Time)
+                  </div>
+                  <div className="text-2xl font-black text-[#1E1815] mt-1">
+                    {visitMetrics.totalVisits ?? 0}
+                  </div>
+                  <div className="text-[10px] text-[#1E7A4D] font-semibold mt-1">
+                    Verified Customer Check-ins
+                  </div>
+                </div>
+
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-2xs">
+                  <div className="text-[11px] font-bold text-[#7A6E67] uppercase tracking-wider">
+                    Today&apos;s Check-ins
+                  </div>
+                  <div className="text-2xl font-black text-[#C0392B] mt-1">
+                    {visitMetrics.todayVisits ?? 0}
+                  </div>
+                  <div className="text-[10px] text-[#7A6E67] font-semibold mt-1">
+                    Since Midnight
+                  </div>
+                </div>
+
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-2xs">
+                  <div className="text-[11px] font-bold text-[#7A6E67] uppercase tracking-wider">
+                    Unique Customers Today
+                  </div>
+                  <div className="text-2xl font-black text-[#C68A1E] mt-1">
+                    {visitMetrics.uniqueCustomersToday ?? 0}
+                  </div>
+                  <div className="text-[10px] text-[#7A6E67] font-semibold mt-1">
+                    Individual Diners
+                  </div>
+                </div>
+
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-2xs">
+                  <div className="text-[11px] font-bold text-[#7A6E67] uppercase tracking-wider">
+                    Top Visited Outlet
+                  </div>
+                  <div className="text-sm font-black text-[#1E1815] mt-2 truncate">
+                    {visitMetrics.topBranchName || "None"}
+                  </div>
+                  <div className="text-[10px] text-[#7A6E67] font-semibold mt-1">
+                    Leading Foot Traffic
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                <div className="p-4 rounded-2xl border border-[#EAE3DC] bg-[#FAF7F4]">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono font-bold text-xs text-[#C0392B]">admin</span>
-                    <span className="px-2 py-0.5 rounded-full bg-[#C0392B]/10 text-[#C0392B] text-[10px] font-black">
-                      SUPER_ADMIN
-                    </span>
+              {/* Active 24-Hour Daily Branch Coupon Passcodes Card */}
+              <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 shadow-sm space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EAE3DC] pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
+                      <Ticket className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-black tracking-tight text-[#1E1815] flex items-center gap-2">
+                        <span>Active 24-Hour Daily Branch Coupon Codes</span>
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20 text-[10px] font-black uppercase tracking-wider">
+                          Auto-Rotates 24H
+                        </span>
+                      </h3>
+                      <p className="text-xs text-[#7A6E67] mt-0.5">
+                        These daily codes refresh automatically every 24 hours. Display them at tables/tills so customers can check in.
+                      </p>
+                    </div>
                   </div>
-                  <div className="font-extrabold text-sm text-[#1E1815]">Corporate Head Office</div>
-                  <div className="text-xs text-[#7A6E67] mt-1">PIN: 246810</div>
                 </div>
 
-                <div className="p-4 rounded-2xl border border-[#EAE3DC] bg-[#FAF7F4]">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono font-bold text-xs text-[#C68A1E]">manager</span>
-                    <span className="px-2 py-0.5 rounded-full bg-[#C68A1E]/10 text-[#C68A1E] text-[10px] font-black">
-                      BRANCH_MANAGER
-                    </span>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+                  {branchCodes.map((bc) => {
+                    const isRotating = rotatingBranchId === bc.branchId;
+                    const isCopied = copiedCode === bc.dailyCode;
+                    return (
+                      <div
+                        key={bc.branchId}
+                        className="p-5 rounded-2xl border border-[#EAE3DC] bg-[#FAF7F4] flex flex-col justify-between space-y-4 shadow-2xs hover:border-[#C0392B]/40 transition-all"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            <span className="text-xs font-black text-[#1E1815] flex items-center gap-1.5 truncate">
+                              <Store className="w-3.5 h-3.5 text-[#C0392B] shrink-0" />
+                              <span className="truncate">{bc.branchName}</span>
+                            </span>
+                            <span className="font-mono text-[10px] font-bold text-[#8C7F78] px-2 py-0.5 bg-white border border-[#EAE3DC] rounded-md shrink-0">
+                              {bc.branchCode}
+                            </span>
+                          </div>
+
+                          <div className="bg-white border-2 border-dashed border-[#C0392B]/30 rounded-xl p-3 flex items-center justify-between gap-2">
+                            <div className="font-mono font-black text-lg text-[#C0392B] tracking-wider">
+                              {bc.dailyCode}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => copyToClipboard(bc.dailyCode)}
+                              className="px-2.5 py-1.5 rounded-lg bg-[#FAF7F4] hover:bg-[#EAE3DC] text-[11px] font-bold text-[#4A3F39] flex items-center gap-1 transition-colors cursor-pointer shrink-0"
+                              title="Copy code to clipboard"
+                            >
+                              <Copy className="w-3 h-3" />
+                              <span>{isCopied ? "Copied!" : "Copy"}</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="pt-2 border-t border-[#EAE3DC] flex items-center justify-between text-[11px]">
+                          <span className="text-[#7A6E67]">
+                            Valid until:{" "}
+                            <strong className="text-[#1E1815]">
+                              {new Date(bc.dailyCodeExpiresAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                            </strong>
+                          </span>
+                          <button
+                            type="button"
+                            disabled={isRotating}
+                            onClick={() => handleRotateBranchCode(bc.branchId)}
+                            className="flex items-center gap-1 text-[10px] font-bold text-[#C0392B] hover:text-[#96291D] cursor-pointer disabled:opacity-50"
+                            title="Generate a brand new code now"
+                          >
+                            <RotateCw className={`w-3 h-3 ${isRotating ? "animate-spin" : ""}`} />
+                            <span>{isRotating ? "Refreshing…" : "Rotate Code"}</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Customer Visits Ledger Card */}
+              <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 shadow-sm space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h3 className="font-extrabold text-base text-[#1E1815]">Customer Visit Check-in Ledger</h3>
+                    <p className="text-xs text-[#7A6E67]">
+                      Real-time log of customer outlet visits recorded via 24-hour daily coupon codes and till scans.
+                    </p>
                   </div>
-                  <div className="font-extrabold text-sm text-[#1E1815]">The Dubai Mall</div>
-                  <div className="text-xs text-[#7A6E67] mt-1">PIN: 135790</div>
+                  <span className="text-xs text-[#7A6E67] font-semibold">{visitsData.length} Records Loaded</span>
                 </div>
 
-                <div className="p-4 rounded-2xl border border-[#EAE3DC] bg-[#FAF7F4]">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono font-bold text-xs text-[#1E7A4D]">cashier</span>
-                    <span className="px-2 py-0.5 rounded-full bg-[#1E7A4D]/10 text-[#1E7A4D] text-[10px] font-black">
-                      CASHIER
-                    </span>
+                {/* Filter Toolbar */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-[#EAE3DC]">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search customer, phone, branch, or code…"
+                      value={visitSearch}
+                      onChange={(e) => setVisitSearch(e.target.value)}
+                      className="w-full pl-9 pr-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#C0392B]"
+                    />
+                    <Search className="w-4 h-4 text-[#8C7F78] absolute left-3 top-1/2 -translate-y-1/2" />
                   </div>
-                  <div className="font-extrabold text-sm text-[#1E1815]">Front Desk POS Till 1</div>
-                  <div className="text-xs text-[#7A6E67] mt-1">PIN: 112233</div>
+
+                  <div>
+                    <select
+                      value={visitBranchFilter}
+                      onChange={(e) => setVisitBranchFilter(e.target.value)}
+                      className="w-full px-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B]"
+                    >
+                      <option value="all">All Outlet Branches</option>
+                      {allBranches.map((b: any) => (
+                        <option key={b.id} value={b.id}>
+                          {b.name} ({b.code}) - {b.city || "Dubai"}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <select
+                      value={visitDateFilter}
+                      onChange={(e) => setVisitDateFilter(e.target.value)}
+                      className="w-full px-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B]"
+                    >
+                      <option value="all">All Dates History</option>
+                      <option value="today">Today Only (Since 00:00)</option>
+                      <option value="7days">Past 7 Days</option>
+                      <option value="30days">Past 30 Days</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Visits Table */}
+                <div className="overflow-x-auto rounded-2xl border border-[#EAE3DC] mt-2">
+                  <table className="w-full text-left text-xs text-[#1E1815]">
+                    <thead className="bg-[#FAF7F4] border-b border-[#EAE3DC] text-[11px] uppercase tracking-wider text-[#7A6E67] font-bold">
+                      <tr>
+                        <th className="py-3 px-4">Customer</th>
+                        <th className="py-3 px-4">Branch Visited</th>
+                        <th className="py-3 px-4">24H Code Used</th>
+                        <th className="py-3 px-4">Check-in Method</th>
+                        <th className="py-3 px-4">Visit #</th>
+                        <th className="py-3 px-4">Points</th>
+                        <th className="py-3 px-4 text-right">Timestamp</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#EFE8E1] bg-white">
+                      {visitsData.length > 0 ? (
+                        visitsData.map((v) => (
+                          <tr key={v.id} className="hover:bg-[#FAF7F4]/60 transition-colors">
+                            <td className="py-3.5 px-4">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#EAE3DC] to-[#DCD3CB] flex items-center justify-center font-bold text-[#4A3F39] text-xs shrink-0">
+                                  {v.customer?.name ? v.customer.name.charAt(0).toUpperCase() : "C"}
+                                </div>
+                                <div>
+                                  <div className="font-extrabold text-xs text-[#1E1815]">
+                                    {v.customer?.name || "Member"}
+                                  </div>
+                                  <div className="font-mono text-[10px] text-[#7A6E67]">
+                                    {v.customer?.mobile}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3.5 px-4">
+                              <div className="flex items-center gap-1.5">
+                                <Store className="w-3.5 h-3.5 text-[#C0392B]" />
+                                <span className="font-bold text-xs text-[#1E1815]">
+                                  {v.branch?.name}
+                                </span>
+                                <span className="text-[10px] font-mono text-[#8C7F78]">
+                                  ({v.branch?.code})
+                                </span>
+                              </div>
+                            </td>
+                            <td className="py-3.5 px-4">
+                              <span className="px-2.5 py-1 rounded-lg bg-[#FAF7F4] border border-[#EAE3DC] font-mono font-bold text-[11px] text-[#C0392B]">
+                                {v.couponCode}
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-4">
+                              {v.checkInMethod === "CUSTOMER_PORTAL" ? (
+                                <span className="px-2 py-0.5 rounded-full bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20 text-[10px] font-black uppercase">
+                                  Self Check-in
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 rounded-full bg-[#7C3AED]/10 text-[#7C3AED] border border-[#7C3AED]/20 text-[10px] font-black uppercase">
+                                  Staff POS
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3.5 px-4 font-mono font-bold text-xs text-[#4A3F39]">
+                              Visit #{v.customer?.visitCount ?? 1}
+                            </td>
+                            <td className="py-3.5 px-4">
+                              {v.pointsEarned > 0 ? (
+                                <span className="font-bold text-xs text-[#1E7A4D]">
+                                  +{v.pointsEarned} pts
+                                </span>
+                              ) : (
+                                <span className="text-[#7A6E67] text-[11px]">—</span>
+                              )}
+                            </td>
+                            <td className="py-3.5 px-4 text-right">
+                              <div className="font-mono text-xs text-[#1E1815]">
+                                {new Date(v.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                              </div>
+                              <div className="text-[10px] text-[#7A6E67]">
+                                {new Date(v.createdAt).toLocaleDateString()}
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={7} className="text-center py-8 text-xs text-[#7A6E67]">
+                            No customer visits recorded yet matching your filter criteria.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -2590,6 +3492,332 @@ export default function AdminPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: CREATE STAFF ACCOUNT                                     */}
+      {/* ============================================================== */}
+      {showCreateStaffModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-extrabold text-lg text-[#1E1815] flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-[#C0392B]" />
+                Add New Staff Member
+              </h3>
+              <button
+                onClick={() => setShowCreateStaffModal(false)}
+                className="p-1 rounded-lg text-[#7A6E67] hover:bg-[#FAF7F4]"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {staffMsg && (
+              <div
+                className={`p-3 rounded-xl text-xs font-semibold mb-4 ${staffMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#C0392B]/10 text-[#C0392B]"
+                  }`}
+              >
+                {staffMsg.text}
+              </div>
+            )}
+
+            <form onSubmit={handleCreateStaff} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Tariq Al Nuaimi"
+                  value={staffForm.name}
+                  onChange={(e) => setStaffForm({ ...staffForm, name: e.target.value })}
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                    Login Username *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. tariq_pos1"
+                    value={staffForm.username}
+                    onChange={(e) => setStaffForm({ ...staffForm, username: e.target.value })}
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                    Security PIN / Password *
+                  </label>
+                  <input
+                    type="password"
+                    inputMode="numeric"
+                    required
+                    minLength={4}
+                    placeholder="Min 4 digits"
+                    value={staffForm.pin}
+                    onChange={(e) => setStaffForm({ ...staffForm, pin: e.target.value })}
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                    System Role *
+                  </label>
+                  <select
+                    value={staffForm.role}
+                    onChange={(e) => setStaffForm({ ...staffForm, role: e.target.value })}
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                  >
+                    <option value="CASHIER">Cashier (POS Till)</option>
+                    <option value="BRANCH_MANAGER">Branch Manager</option>
+                    <option value="COMPANY_ADMIN">Company Administrator</option>
+                    <option value="SUPER_ADMIN">Super Administrator</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                    Assigned Outlet Branch *
+                  </label>
+                  <select
+                    value={staffForm.branchId}
+                    onChange={(e) => setStaffForm({ ...staffForm, branchId: e.target.value })}
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                  >
+                    <option value="">🏢 Corporate / All Outlets</option>
+                    {allBranches.map((b: any) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name} ({b.code})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                <input
+                  type="checkbox"
+                  id="sActive"
+                  checked={staffForm.isActive}
+                  onChange={(e) => setStaffForm({ ...staffForm, isActive: e.target.checked })}
+                  className="w-4 h-4 rounded text-[#C0392B] focus:ring-[#C0392B]"
+                />
+                <label htmlFor="sActive" className="text-xs font-bold text-[#1E1815] cursor-pointer">
+                  Account is Active & Allowed to Sign In to POS / Admin
+                </label>
+              </div>
+
+              <div className="pt-3 border-t border-[#EAE3DC] flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateStaffModal(false)}
+                  className="px-4 py-2 rounded-xl border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:bg-[#FAF7F4]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
+                >
+                  {busy ? "Creating…" : "Create Staff Account"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: EDIT STAFF DETAILS & RESET PIN                           */}
+      {/* ============================================================== */}
+      {showEditStaffModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-extrabold text-lg text-[#1E1815] flex items-center gap-2">
+                <Edit2 className="w-5 h-5 text-[#C0392B]" />
+                Edit Staff Member & Reset PIN
+              </h3>
+              <button
+                onClick={() => setShowEditStaffModal(false)}
+                className="p-1 rounded-lg text-[#7A6E67] hover:bg-[#FAF7F4]"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {staffMsg && (
+              <div
+                className={`p-3 rounded-xl text-xs font-semibold mb-4 ${staffMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#C0392B]/10 text-[#C0392B]"
+                  }`}
+              >
+                {staffMsg.text}
+              </div>
+            )}
+
+            <form onSubmit={handleUpdateStaff} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={staffForm.name}
+                  onChange={(e) => setStaffForm({ ...staffForm, name: e.target.value })}
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                    Login Username *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={staffForm.username}
+                    onChange={(e) => setStaffForm({ ...staffForm, username: e.target.value })}
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                    Reset PIN / Password (Optional)
+                  </label>
+                  <input
+                    type="password"
+                    inputMode="numeric"
+                    minLength={4}
+                    placeholder="Leave blank to keep current"
+                    value={staffForm.pin}
+                    onChange={(e) => setStaffForm({ ...staffForm, pin: e.target.value })}
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                    System Role *
+                  </label>
+                  <select
+                    value={staffForm.role}
+                    onChange={(e) => setStaffForm({ ...staffForm, role: e.target.value })}
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                  >
+                    <option value="CASHIER">Cashier (POS Till)</option>
+                    <option value="BRANCH_MANAGER">Branch Manager</option>
+                    <option value="COMPANY_ADMIN">Company Administrator</option>
+                    <option value="SUPER_ADMIN">Super Administrator</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                    Assigned Outlet Branch *
+                  </label>
+                  <select
+                    value={staffForm.branchId}
+                    onChange={(e) => setStaffForm({ ...staffForm, branchId: e.target.value })}
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                  >
+                    <option value="">🏢 Corporate / All Outlets</option>
+                    {allBranches.map((b: any) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name} ({b.code})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                <input
+                  type="checkbox"
+                  id="sActiveEdit"
+                  checked={staffForm.isActive}
+                  onChange={(e) => setStaffForm({ ...staffForm, isActive: e.target.checked })}
+                  className="w-4 h-4 rounded text-[#C0392B] focus:ring-[#C0392B]"
+                />
+                <label htmlFor="sActiveEdit" className="text-xs font-bold text-[#1E1815] cursor-pointer">
+                  Account is Active & Allowed to Sign In
+                </label>
+              </div>
+
+              <div className="pt-3 border-t border-[#EAE3DC] flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEditStaffModal(false)}
+                  className="px-4 py-2 rounded-xl border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:bg-[#FAF7F4]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
+                >
+                  {busy ? "Updating…" : "Update Staff Account"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: DELETE / DEACTIVATE STAFF CONFIRMATION                  */}
+      {/* ============================================================== */}
+      {showDeleteStaffModal && staffToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl">
+            <div className="w-12 h-12 rounded-2xl bg-[#C0392B]/10 text-[#C0392B] flex items-center justify-center mb-4">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+
+            <h3 className="font-black text-lg text-[#1E1815] mb-1">
+              Delete Staff: {staffToDelete.name}?
+            </h3>
+            <p className="text-xs text-[#7A6E67] leading-relaxed mb-4">
+              Are you sure you want to remove{" "}
+              <strong className="text-[#1E1815]">{staffToDelete.name} (@{staffToDelete.username})</strong>?
+              If this staff account has processed historical till transactions, it will be safely deactivated to preserve financial audit history.
+            </p>
+
+            <div className="pt-3 border-t border-[#EAE3DC] flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteStaffModal(false);
+                  setStaffToDelete(null);
+                }}
+                className="px-4 py-2 rounded-xl border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:bg-[#FAF7F4]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteStaff}
+                disabled={busy}
+                className="px-5 py-2 rounded-xl bg-[#C0392B] hover:bg-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
+              >
+                {busy ? "Processing…" : "Confirm Delete"}
+              </button>
+            </div>
           </div>
         </div>
       )}

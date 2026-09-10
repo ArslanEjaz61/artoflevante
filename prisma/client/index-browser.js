@@ -132,7 +132,9 @@ exports.Prisma.BranchScalarFieldEnum = {
   hours: 'hours',
   city: 'city',
   isActive: 'isActive',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  dailyCode: 'dailyCode',
+  dailyCodeExpiresAt: 'dailyCodeExpiresAt'
 };
 
 exports.Prisma.CustomerScalarFieldEnum = {
@@ -277,6 +279,17 @@ exports.Prisma.SettingScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CustomerVisitScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  branchId: 'branchId',
+  couponCode: 'couponCode',
+  pointsEarned: 'pointsEarned',
+  checkInMethod: 'checkInMethod',
+  note: 'note',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -337,7 +350,8 @@ exports.Prisma.ModelName = {
   Offer: 'Offer',
   OfferBranch: 'OfferBranch',
   AuditLog: 'AuditLog',
-  Setting: 'Setting'
+  Setting: 'Setting',
+  CustomerVisit: 'CustomerVisit'
 };
 
 /**

@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/adminScope";
 import { canAccessAllBranches } from "@/lib/session";
+import { getOrRotateBranchDailyCode } from "@/lib/visits";
 
-// GET: List all branches with rich metrics (staff count, customer count, transaction count, revenue)
+// GET: List all branches with rich metrics (staff count, customer count, transaction count, revenue, and live 24h coupon code)
 export async function GET() {
   const { error, status, session } = await requireAdmin();
   if (error || !session) {
@@ -19,6 +20,7 @@ export async function GET() {
             homeCustomers: true,
             transactions: true,
             offers: true,
+            visits: true,
           },
         },
         transactions: {
@@ -29,29 +31,45 @@ export async function GET() {
       orderBy: [{ isActive: "desc" }, { code: "asc" }],
     });
 
-    const formattedBranches = branches.map((b) => {
-      const totalRevenue = b.transactions.reduce((acc, t) => acc + Number(t.amount || 0), 0);
-      const totalPoints = b.transactions.reduce((acc, t) => acc + Number(t.pointsEarned || 0), 0);
-      return {
-        id: b.id,
-        code: b.code,
-        name: b.name,
-        nameAr: b.nameAr,
-        city: b.city || "Dubai",
-        address: b.address,
-        addressAr: b.addressAr,
-        phone: b.phone,
-        hours: b.hours,
-        isActive: b.isActive,
-        createdAt: b.createdAt,
-        staffCount: b._count.staff,
-        customerCount: b._count.homeCustomers,
-        transactionCount: b._count.transactions,
-        activeOffersCount: b._count.offers,
-        totalRevenue,
-        totalPoints,
-      };
-    });
+    const formattedBranches = await Promise.all(
+      branches.map(async (b) => {
+        const totalRevenue = b.transactions.reduce((acc, t) => acc + Number(t.amount || 0), 0);
+        const totalPoints = b.transactions.reduce((acc, t) => acc + Number(t.pointsEarned || 0), 0);
+        
+        let dailyCode = b.dailyCode;
+        let dailyCodeExpiresAt = b.dailyCodeExpiresAt ? b.dailyCodeExpiresAt.toISOString() : null;
+        try {
+          const codeInfo = await getOrRotateBranchDailyCode(b);
+          dailyCode = codeInfo.dailyCode;
+          dailyCodeExpiresAt = codeInfo.dailyCodeExpiresAt.toISOString();
+        } catch {
+          // fallback if error
+        }
+
+        return {
+          id: b.id,
+          code: b.code,
+          name: b.name,
+          nameAr: b.nameAr,
+          city: b.city || "Dubai",
+          address: b.address,
+          addressAr: b.addressAr,
+          phone: b.phone,
+          hours: b.hours,
+          isActive: b.isActive,
+          createdAt: b.createdAt,
+          staffCount: b._count.staff,
+          customerCount: b._count.homeCustomers,
+          transactionCount: b._count.transactions,
+          visitCount: b._count.visits,
+          activeOffersCount: b._count.offers,
+          totalRevenue,
+          totalPoints,
+          dailyCode,
+          dailyCodeExpiresAt,
+        };
+      })
+    );
 
     return NextResponse.json({
       ok: true,

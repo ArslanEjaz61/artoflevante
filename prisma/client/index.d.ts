@@ -78,6 +78,11 @@ export type AuditLog = $Result.DefaultSelection<Prisma.$AuditLogPayload>
  * 
  */
 export type Setting = $Result.DefaultSelection<Prisma.$SettingPayload>
+/**
+ * Model CustomerVisit
+ * 
+ */
+export type CustomerVisit = $Result.DefaultSelection<Prisma.$CustomerVisitPayload>
 
 /**
  * Enums
@@ -374,6 +379,16 @@ export class PrismaClient<
     * ```
     */
   get setting(): Prisma.SettingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.customerVisit`: Exposes CRUD operations for the **CustomerVisit** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CustomerVisits
+    * const customerVisits = await prisma.customerVisit.findMany()
+    * ```
+    */
+  get customerVisit(): Prisma.CustomerVisitDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -827,7 +842,8 @@ export namespace Prisma {
     Offer: 'Offer',
     OfferBranch: 'OfferBranch',
     AuditLog: 'AuditLog',
-    Setting: 'Setting'
+    Setting: 'Setting',
+    CustomerVisit: 'CustomerVisit'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -846,7 +862,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "branch" | "customer" | "otpCode" | "qrToken" | "staff" | "transaction" | "pointsLedger" | "reward" | "customerReward" | "offer" | "offerBranch" | "auditLog" | "setting"
+      modelProps: "branch" | "customer" | "otpCode" | "qrToken" | "staff" | "transaction" | "pointsLedger" | "reward" | "customerReward" | "offer" | "offerBranch" | "auditLog" | "setting" | "customerVisit"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1812,6 +1828,80 @@ export namespace Prisma {
           }
         }
       }
+      CustomerVisit: {
+        payload: Prisma.$CustomerVisitPayload<ExtArgs>
+        fields: Prisma.CustomerVisitFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CustomerVisitFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerVisitPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CustomerVisitFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerVisitPayload>
+          }
+          findFirst: {
+            args: Prisma.CustomerVisitFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerVisitPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CustomerVisitFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerVisitPayload>
+          }
+          findMany: {
+            args: Prisma.CustomerVisitFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerVisitPayload>[]
+          }
+          create: {
+            args: Prisma.CustomerVisitCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerVisitPayload>
+          }
+          createMany: {
+            args: Prisma.CustomerVisitCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CustomerVisitCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerVisitPayload>[]
+          }
+          delete: {
+            args: Prisma.CustomerVisitDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerVisitPayload>
+          }
+          update: {
+            args: Prisma.CustomerVisitUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerVisitPayload>
+          }
+          deleteMany: {
+            args: Prisma.CustomerVisitDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CustomerVisitUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CustomerVisitUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerVisitPayload>[]
+          }
+          upsert: {
+            args: Prisma.CustomerVisitUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomerVisitPayload>
+          }
+          aggregate: {
+            args: Prisma.CustomerVisitAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCustomerVisit>
+          }
+          groupBy: {
+            args: Prisma.CustomerVisitGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CustomerVisitGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CustomerVisitCountArgs<ExtArgs>
+            result: $Utils.Optional<CustomerVisitCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1921,6 +2011,7 @@ export namespace Prisma {
     offerBranch?: OfferBranchOmit
     auditLog?: AuditLogOmit
     setting?: SettingOmit
+    customerVisit?: CustomerVisitOmit
   }
 
   /* Types for Logging */
@@ -2005,6 +2096,7 @@ export namespace Prisma {
     staff: number
     transactions: number
     offers: number
+    visits: number
   }
 
   export type BranchCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2012,6 +2104,7 @@ export namespace Prisma {
     staff?: boolean | BranchCountOutputTypeCountStaffArgs
     transactions?: boolean | BranchCountOutputTypeCountTransactionsArgs
     offers?: boolean | BranchCountOutputTypeCountOffersArgs
+    visits?: boolean | BranchCountOutputTypeCountVisitsArgs
   }
 
   // Custom InputTypes
@@ -2053,6 +2146,13 @@ export namespace Prisma {
     where?: OfferBranchWhereInput
   }
 
+  /**
+   * BranchCountOutputType without action
+   */
+  export type BranchCountOutputTypeCountVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CustomerVisitWhereInput
+  }
+
 
   /**
    * Count Type CustomerCountOutputType
@@ -2063,6 +2163,7 @@ export namespace Prisma {
     transactions: number
     pointsLedger: number
     customerRewards: number
+    visits: number
   }
 
   export type CustomerCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2070,6 +2171,7 @@ export namespace Prisma {
     transactions?: boolean | CustomerCountOutputTypeCountTransactionsArgs
     pointsLedger?: boolean | CustomerCountOutputTypeCountPointsLedgerArgs
     customerRewards?: boolean | CustomerCountOutputTypeCountCustomerRewardsArgs
+    visits?: boolean | CustomerCountOutputTypeCountVisitsArgs
   }
 
   // Custom InputTypes
@@ -2109,6 +2211,13 @@ export namespace Prisma {
    */
   export type CustomerCountOutputTypeCountCustomerRewardsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CustomerRewardWhereInput
+  }
+
+  /**
+   * CustomerCountOutputType without action
+   */
+  export type CustomerCountOutputTypeCountVisitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CustomerVisitWhereInput
   }
 
 
@@ -2280,6 +2389,8 @@ export namespace Prisma {
     city: string | null
     isActive: boolean | null
     createdAt: Date | null
+    dailyCode: string | null
+    dailyCodeExpiresAt: Date | null
   }
 
   export type BranchMaxAggregateOutputType = {
@@ -2294,6 +2405,8 @@ export namespace Prisma {
     city: string | null
     isActive: boolean | null
     createdAt: Date | null
+    dailyCode: string | null
+    dailyCodeExpiresAt: Date | null
   }
 
   export type BranchCountAggregateOutputType = {
@@ -2308,6 +2421,8 @@ export namespace Prisma {
     city: number
     isActive: number
     createdAt: number
+    dailyCode: number
+    dailyCodeExpiresAt: number
     _all: number
   }
 
@@ -2324,6 +2439,8 @@ export namespace Prisma {
     city?: true
     isActive?: true
     createdAt?: true
+    dailyCode?: true
+    dailyCodeExpiresAt?: true
   }
 
   export type BranchMaxAggregateInputType = {
@@ -2338,6 +2455,8 @@ export namespace Prisma {
     city?: true
     isActive?: true
     createdAt?: true
+    dailyCode?: true
+    dailyCodeExpiresAt?: true
   }
 
   export type BranchCountAggregateInputType = {
@@ -2352,6 +2471,8 @@ export namespace Prisma {
     city?: true
     isActive?: true
     createdAt?: true
+    dailyCode?: true
+    dailyCodeExpiresAt?: true
     _all?: true
   }
 
@@ -2439,6 +2560,8 @@ export namespace Prisma {
     city: string | null
     isActive: boolean
     createdAt: Date
+    dailyCode: string | null
+    dailyCodeExpiresAt: Date | null
     _count: BranchCountAggregateOutputType | null
     _min: BranchMinAggregateOutputType | null
     _max: BranchMaxAggregateOutputType | null
@@ -2470,10 +2593,13 @@ export namespace Prisma {
     city?: boolean
     isActive?: boolean
     createdAt?: boolean
+    dailyCode?: boolean
+    dailyCodeExpiresAt?: boolean
     homeCustomers?: boolean | Branch$homeCustomersArgs<ExtArgs>
     staff?: boolean | Branch$staffArgs<ExtArgs>
     transactions?: boolean | Branch$transactionsArgs<ExtArgs>
     offers?: boolean | Branch$offersArgs<ExtArgs>
+    visits?: boolean | Branch$visitsArgs<ExtArgs>
     _count?: boolean | BranchCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["branch"]>
 
@@ -2489,6 +2615,8 @@ export namespace Prisma {
     city?: boolean
     isActive?: boolean
     createdAt?: boolean
+    dailyCode?: boolean
+    dailyCodeExpiresAt?: boolean
   }, ExtArgs["result"]["branch"]>
 
   export type BranchSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2503,6 +2631,8 @@ export namespace Prisma {
     city?: boolean
     isActive?: boolean
     createdAt?: boolean
+    dailyCode?: boolean
+    dailyCodeExpiresAt?: boolean
   }, ExtArgs["result"]["branch"]>
 
   export type BranchSelectScalar = {
@@ -2517,14 +2647,17 @@ export namespace Prisma {
     city?: boolean
     isActive?: boolean
     createdAt?: boolean
+    dailyCode?: boolean
+    dailyCodeExpiresAt?: boolean
   }
 
-  export type BranchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "name" | "nameAr" | "address" | "addressAr" | "phone" | "hours" | "city" | "isActive" | "createdAt", ExtArgs["result"]["branch"]>
+  export type BranchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "name" | "nameAr" | "address" | "addressAr" | "phone" | "hours" | "city" | "isActive" | "createdAt" | "dailyCode" | "dailyCodeExpiresAt", ExtArgs["result"]["branch"]>
   export type BranchInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     homeCustomers?: boolean | Branch$homeCustomersArgs<ExtArgs>
     staff?: boolean | Branch$staffArgs<ExtArgs>
     transactions?: boolean | Branch$transactionsArgs<ExtArgs>
     offers?: boolean | Branch$offersArgs<ExtArgs>
+    visits?: boolean | Branch$visitsArgs<ExtArgs>
     _count?: boolean | BranchCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type BranchIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2537,6 +2670,7 @@ export namespace Prisma {
       staff: Prisma.$StaffPayload<ExtArgs>[]
       transactions: Prisma.$TransactionPayload<ExtArgs>[]
       offers: Prisma.$OfferBranchPayload<ExtArgs>[]
+      visits: Prisma.$CustomerVisitPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2550,6 +2684,8 @@ export namespace Prisma {
       city: string | null
       isActive: boolean
       createdAt: Date
+      dailyCode: string | null
+      dailyCodeExpiresAt: Date | null
     }, ExtArgs["result"]["branch"]>
     composites: {}
   }
@@ -2948,6 +3084,7 @@ export namespace Prisma {
     staff<T extends Branch$staffArgs<ExtArgs> = {}>(args?: Subset<T, Branch$staffArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     transactions<T extends Branch$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     offers<T extends Branch$offersArgs<ExtArgs> = {}>(args?: Subset<T, Branch$offersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OfferBranchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    visits<T extends Branch$visitsArgs<ExtArgs> = {}>(args?: Subset<T, Branch$visitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2988,6 +3125,8 @@ export namespace Prisma {
     readonly city: FieldRef<"Branch", 'String'>
     readonly isActive: FieldRef<"Branch", 'Boolean'>
     readonly createdAt: FieldRef<"Branch", 'DateTime'>
+    readonly dailyCode: FieldRef<"Branch", 'String'>
+    readonly dailyCodeExpiresAt: FieldRef<"Branch", 'DateTime'>
   }
     
 
@@ -3472,6 +3611,30 @@ export namespace Prisma {
   }
 
   /**
+   * Branch.visits
+   */
+  export type Branch$visitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerVisit
+     */
+    select?: CustomerVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerVisit
+     */
+    omit?: CustomerVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerVisitInclude<ExtArgs> | null
+    where?: CustomerVisitWhereInput
+    orderBy?: CustomerVisitOrderByWithRelationInput | CustomerVisitOrderByWithRelationInput[]
+    cursor?: CustomerVisitWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CustomerVisitScalarFieldEnum | CustomerVisitScalarFieldEnum[]
+  }
+
+  /**
    * Branch without action
    */
   export type BranchDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3773,6 +3936,7 @@ export namespace Prisma {
     transactions?: boolean | Customer$transactionsArgs<ExtArgs>
     pointsLedger?: boolean | Customer$pointsLedgerArgs<ExtArgs>
     customerRewards?: boolean | Customer$customerRewardsArgs<ExtArgs>
+    visits?: boolean | Customer$visitsArgs<ExtArgs>
     _count?: boolean | CustomerCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["customer"]>
 
@@ -3836,6 +4000,7 @@ export namespace Prisma {
     transactions?: boolean | Customer$transactionsArgs<ExtArgs>
     pointsLedger?: boolean | Customer$pointsLedgerArgs<ExtArgs>
     customerRewards?: boolean | Customer$customerRewardsArgs<ExtArgs>
+    visits?: boolean | Customer$visitsArgs<ExtArgs>
     _count?: boolean | CustomerCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CustomerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3853,6 +4018,7 @@ export namespace Prisma {
       transactions: Prisma.$TransactionPayload<ExtArgs>[]
       pointsLedger: Prisma.$PointsLedgerPayload<ExtArgs>[]
       customerRewards: Prisma.$CustomerRewardPayload<ExtArgs>[]
+      visits: Prisma.$CustomerVisitPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4268,6 +4434,7 @@ export namespace Prisma {
     transactions<T extends Customer$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, Customer$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     pointsLedger<T extends Customer$pointsLedgerArgs<ExtArgs> = {}>(args?: Subset<T, Customer$pointsLedgerArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PointsLedgerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     customerRewards<T extends Customer$customerRewardsArgs<ExtArgs> = {}>(args?: Subset<T, Customer$customerRewardsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerRewardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    visits<T extends Customer$visitsArgs<ExtArgs> = {}>(args?: Subset<T, Customer$visitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4819,6 +4986,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: CustomerRewardScalarFieldEnum | CustomerRewardScalarFieldEnum[]
+  }
+
+  /**
+   * Customer.visits
+   */
+  export type Customer$visitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerVisit
+     */
+    select?: CustomerVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerVisit
+     */
+    omit?: CustomerVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerVisitInclude<ExtArgs> | null
+    where?: CustomerVisitWhereInput
+    orderBy?: CustomerVisitOrderByWithRelationInput | CustomerVisitOrderByWithRelationInput[]
+    cursor?: CustomerVisitWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CustomerVisitScalarFieldEnum | CustomerVisitScalarFieldEnum[]
   }
 
   /**
@@ -17299,6 +17490,1145 @@ export namespace Prisma {
 
 
   /**
+   * Model CustomerVisit
+   */
+
+  export type AggregateCustomerVisit = {
+    _count: CustomerVisitCountAggregateOutputType | null
+    _avg: CustomerVisitAvgAggregateOutputType | null
+    _sum: CustomerVisitSumAggregateOutputType | null
+    _min: CustomerVisitMinAggregateOutputType | null
+    _max: CustomerVisitMaxAggregateOutputType | null
+  }
+
+  export type CustomerVisitAvgAggregateOutputType = {
+    pointsEarned: number | null
+  }
+
+  export type CustomerVisitSumAggregateOutputType = {
+    pointsEarned: number | null
+  }
+
+  export type CustomerVisitMinAggregateOutputType = {
+    id: string | null
+    customerId: string | null
+    branchId: string | null
+    couponCode: string | null
+    pointsEarned: number | null
+    checkInMethod: string | null
+    note: string | null
+    createdAt: Date | null
+  }
+
+  export type CustomerVisitMaxAggregateOutputType = {
+    id: string | null
+    customerId: string | null
+    branchId: string | null
+    couponCode: string | null
+    pointsEarned: number | null
+    checkInMethod: string | null
+    note: string | null
+    createdAt: Date | null
+  }
+
+  export type CustomerVisitCountAggregateOutputType = {
+    id: number
+    customerId: number
+    branchId: number
+    couponCode: number
+    pointsEarned: number
+    checkInMethod: number
+    note: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type CustomerVisitAvgAggregateInputType = {
+    pointsEarned?: true
+  }
+
+  export type CustomerVisitSumAggregateInputType = {
+    pointsEarned?: true
+  }
+
+  export type CustomerVisitMinAggregateInputType = {
+    id?: true
+    customerId?: true
+    branchId?: true
+    couponCode?: true
+    pointsEarned?: true
+    checkInMethod?: true
+    note?: true
+    createdAt?: true
+  }
+
+  export type CustomerVisitMaxAggregateInputType = {
+    id?: true
+    customerId?: true
+    branchId?: true
+    couponCode?: true
+    pointsEarned?: true
+    checkInMethod?: true
+    note?: true
+    createdAt?: true
+  }
+
+  export type CustomerVisitCountAggregateInputType = {
+    id?: true
+    customerId?: true
+    branchId?: true
+    couponCode?: true
+    pointsEarned?: true
+    checkInMethod?: true
+    note?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type CustomerVisitAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CustomerVisit to aggregate.
+     */
+    where?: CustomerVisitWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomerVisits to fetch.
+     */
+    orderBy?: CustomerVisitOrderByWithRelationInput | CustomerVisitOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CustomerVisitWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomerVisits from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomerVisits.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CustomerVisits
+    **/
+    _count?: true | CustomerVisitCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CustomerVisitAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CustomerVisitSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CustomerVisitMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CustomerVisitMaxAggregateInputType
+  }
+
+  export type GetCustomerVisitAggregateType<T extends CustomerVisitAggregateArgs> = {
+        [P in keyof T & keyof AggregateCustomerVisit]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCustomerVisit[P]>
+      : GetScalarType<T[P], AggregateCustomerVisit[P]>
+  }
+
+
+
+
+  export type CustomerVisitGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CustomerVisitWhereInput
+    orderBy?: CustomerVisitOrderByWithAggregationInput | CustomerVisitOrderByWithAggregationInput[]
+    by: CustomerVisitScalarFieldEnum[] | CustomerVisitScalarFieldEnum
+    having?: CustomerVisitScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CustomerVisitCountAggregateInputType | true
+    _avg?: CustomerVisitAvgAggregateInputType
+    _sum?: CustomerVisitSumAggregateInputType
+    _min?: CustomerVisitMinAggregateInputType
+    _max?: CustomerVisitMaxAggregateInputType
+  }
+
+  export type CustomerVisitGroupByOutputType = {
+    id: string
+    customerId: string
+    branchId: string
+    couponCode: string
+    pointsEarned: number
+    checkInMethod: string
+    note: string | null
+    createdAt: Date
+    _count: CustomerVisitCountAggregateOutputType | null
+    _avg: CustomerVisitAvgAggregateOutputType | null
+    _sum: CustomerVisitSumAggregateOutputType | null
+    _min: CustomerVisitMinAggregateOutputType | null
+    _max: CustomerVisitMaxAggregateOutputType | null
+  }
+
+  type GetCustomerVisitGroupByPayload<T extends CustomerVisitGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CustomerVisitGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CustomerVisitGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CustomerVisitGroupByOutputType[P]>
+            : GetScalarType<T[P], CustomerVisitGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CustomerVisitSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    customerId?: boolean
+    branchId?: boolean
+    couponCode?: boolean
+    pointsEarned?: boolean
+    checkInMethod?: boolean
+    note?: boolean
+    createdAt?: boolean
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["customerVisit"]>
+
+  export type CustomerVisitSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    customerId?: boolean
+    branchId?: boolean
+    couponCode?: boolean
+    pointsEarned?: boolean
+    checkInMethod?: boolean
+    note?: boolean
+    createdAt?: boolean
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["customerVisit"]>
+
+  export type CustomerVisitSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    customerId?: boolean
+    branchId?: boolean
+    couponCode?: boolean
+    pointsEarned?: boolean
+    checkInMethod?: boolean
+    note?: boolean
+    createdAt?: boolean
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["customerVisit"]>
+
+  export type CustomerVisitSelectScalar = {
+    id?: boolean
+    customerId?: boolean
+    branchId?: boolean
+    couponCode?: boolean
+    pointsEarned?: boolean
+    checkInMethod?: boolean
+    note?: boolean
+    createdAt?: boolean
+  }
+
+  export type CustomerVisitOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "customerId" | "branchId" | "couponCode" | "pointsEarned" | "checkInMethod" | "note" | "createdAt", ExtArgs["result"]["customerVisit"]>
+  export type CustomerVisitInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }
+  export type CustomerVisitIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }
+  export type CustomerVisitIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    customer?: boolean | CustomerDefaultArgs<ExtArgs>
+    branch?: boolean | BranchDefaultArgs<ExtArgs>
+  }
+
+  export type $CustomerVisitPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CustomerVisit"
+    objects: {
+      customer: Prisma.$CustomerPayload<ExtArgs>
+      branch: Prisma.$BranchPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      customerId: string
+      branchId: string
+      couponCode: string
+      pointsEarned: number
+      checkInMethod: string
+      note: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["customerVisit"]>
+    composites: {}
+  }
+
+  type CustomerVisitGetPayload<S extends boolean | null | undefined | CustomerVisitDefaultArgs> = $Result.GetResult<Prisma.$CustomerVisitPayload, S>
+
+  type CustomerVisitCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CustomerVisitFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CustomerVisitCountAggregateInputType | true
+    }
+
+  export interface CustomerVisitDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CustomerVisit'], meta: { name: 'CustomerVisit' } }
+    /**
+     * Find zero or one CustomerVisit that matches the filter.
+     * @param {CustomerVisitFindUniqueArgs} args - Arguments to find a CustomerVisit
+     * @example
+     * // Get one CustomerVisit
+     * const customerVisit = await prisma.customerVisit.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CustomerVisitFindUniqueArgs>(args: SelectSubset<T, CustomerVisitFindUniqueArgs<ExtArgs>>): Prisma__CustomerVisitClient<$Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CustomerVisit that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CustomerVisitFindUniqueOrThrowArgs} args - Arguments to find a CustomerVisit
+     * @example
+     * // Get one CustomerVisit
+     * const customerVisit = await prisma.customerVisit.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CustomerVisitFindUniqueOrThrowArgs>(args: SelectSubset<T, CustomerVisitFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CustomerVisitClient<$Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CustomerVisit that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerVisitFindFirstArgs} args - Arguments to find a CustomerVisit
+     * @example
+     * // Get one CustomerVisit
+     * const customerVisit = await prisma.customerVisit.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CustomerVisitFindFirstArgs>(args?: SelectSubset<T, CustomerVisitFindFirstArgs<ExtArgs>>): Prisma__CustomerVisitClient<$Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CustomerVisit that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerVisitFindFirstOrThrowArgs} args - Arguments to find a CustomerVisit
+     * @example
+     * // Get one CustomerVisit
+     * const customerVisit = await prisma.customerVisit.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CustomerVisitFindFirstOrThrowArgs>(args?: SelectSubset<T, CustomerVisitFindFirstOrThrowArgs<ExtArgs>>): Prisma__CustomerVisitClient<$Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CustomerVisits that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerVisitFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CustomerVisits
+     * const customerVisits = await prisma.customerVisit.findMany()
+     * 
+     * // Get first 10 CustomerVisits
+     * const customerVisits = await prisma.customerVisit.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const customerVisitWithIdOnly = await prisma.customerVisit.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CustomerVisitFindManyArgs>(args?: SelectSubset<T, CustomerVisitFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CustomerVisit.
+     * @param {CustomerVisitCreateArgs} args - Arguments to create a CustomerVisit.
+     * @example
+     * // Create one CustomerVisit
+     * const CustomerVisit = await prisma.customerVisit.create({
+     *   data: {
+     *     // ... data to create a CustomerVisit
+     *   }
+     * })
+     * 
+     */
+    create<T extends CustomerVisitCreateArgs>(args: SelectSubset<T, CustomerVisitCreateArgs<ExtArgs>>): Prisma__CustomerVisitClient<$Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CustomerVisits.
+     * @param {CustomerVisitCreateManyArgs} args - Arguments to create many CustomerVisits.
+     * @example
+     * // Create many CustomerVisits
+     * const customerVisit = await prisma.customerVisit.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CustomerVisitCreateManyArgs>(args?: SelectSubset<T, CustomerVisitCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CustomerVisits and returns the data saved in the database.
+     * @param {CustomerVisitCreateManyAndReturnArgs} args - Arguments to create many CustomerVisits.
+     * @example
+     * // Create many CustomerVisits
+     * const customerVisit = await prisma.customerVisit.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CustomerVisits and only return the `id`
+     * const customerVisitWithIdOnly = await prisma.customerVisit.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CustomerVisitCreateManyAndReturnArgs>(args?: SelectSubset<T, CustomerVisitCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CustomerVisit.
+     * @param {CustomerVisitDeleteArgs} args - Arguments to delete one CustomerVisit.
+     * @example
+     * // Delete one CustomerVisit
+     * const CustomerVisit = await prisma.customerVisit.delete({
+     *   where: {
+     *     // ... filter to delete one CustomerVisit
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CustomerVisitDeleteArgs>(args: SelectSubset<T, CustomerVisitDeleteArgs<ExtArgs>>): Prisma__CustomerVisitClient<$Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CustomerVisit.
+     * @param {CustomerVisitUpdateArgs} args - Arguments to update one CustomerVisit.
+     * @example
+     * // Update one CustomerVisit
+     * const customerVisit = await prisma.customerVisit.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CustomerVisitUpdateArgs>(args: SelectSubset<T, CustomerVisitUpdateArgs<ExtArgs>>): Prisma__CustomerVisitClient<$Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CustomerVisits.
+     * @param {CustomerVisitDeleteManyArgs} args - Arguments to filter CustomerVisits to delete.
+     * @example
+     * // Delete a few CustomerVisits
+     * const { count } = await prisma.customerVisit.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CustomerVisitDeleteManyArgs>(args?: SelectSubset<T, CustomerVisitDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CustomerVisits.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerVisitUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CustomerVisits
+     * const customerVisit = await prisma.customerVisit.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CustomerVisitUpdateManyArgs>(args: SelectSubset<T, CustomerVisitUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CustomerVisits and returns the data updated in the database.
+     * @param {CustomerVisitUpdateManyAndReturnArgs} args - Arguments to update many CustomerVisits.
+     * @example
+     * // Update many CustomerVisits
+     * const customerVisit = await prisma.customerVisit.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CustomerVisits and only return the `id`
+     * const customerVisitWithIdOnly = await prisma.customerVisit.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CustomerVisitUpdateManyAndReturnArgs>(args: SelectSubset<T, CustomerVisitUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CustomerVisit.
+     * @param {CustomerVisitUpsertArgs} args - Arguments to update or create a CustomerVisit.
+     * @example
+     * // Update or create a CustomerVisit
+     * const customerVisit = await prisma.customerVisit.upsert({
+     *   create: {
+     *     // ... data to create a CustomerVisit
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CustomerVisit we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CustomerVisitUpsertArgs>(args: SelectSubset<T, CustomerVisitUpsertArgs<ExtArgs>>): Prisma__CustomerVisitClient<$Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CustomerVisits.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerVisitCountArgs} args - Arguments to filter CustomerVisits to count.
+     * @example
+     * // Count the number of CustomerVisits
+     * const count = await prisma.customerVisit.count({
+     *   where: {
+     *     // ... the filter for the CustomerVisits we want to count
+     *   }
+     * })
+    **/
+    count<T extends CustomerVisitCountArgs>(
+      args?: Subset<T, CustomerVisitCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CustomerVisitCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CustomerVisit.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerVisitAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CustomerVisitAggregateArgs>(args: Subset<T, CustomerVisitAggregateArgs>): Prisma.PrismaPromise<GetCustomerVisitAggregateType<T>>
+
+    /**
+     * Group by CustomerVisit.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomerVisitGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CustomerVisitGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CustomerVisitGroupByArgs['orderBy'] }
+        : { orderBy?: CustomerVisitGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CustomerVisitGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCustomerVisitGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CustomerVisit model
+   */
+  readonly fields: CustomerVisitFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CustomerVisit.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CustomerVisitClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    customer<T extends CustomerDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CustomerDefaultArgs<ExtArgs>>): Prisma__CustomerClient<$Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    branch<T extends BranchDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BranchDefaultArgs<ExtArgs>>): Prisma__BranchClient<$Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CustomerVisit model
+   */
+  interface CustomerVisitFieldRefs {
+    readonly id: FieldRef<"CustomerVisit", 'String'>
+    readonly customerId: FieldRef<"CustomerVisit", 'String'>
+    readonly branchId: FieldRef<"CustomerVisit", 'String'>
+    readonly couponCode: FieldRef<"CustomerVisit", 'String'>
+    readonly pointsEarned: FieldRef<"CustomerVisit", 'Int'>
+    readonly checkInMethod: FieldRef<"CustomerVisit", 'String'>
+    readonly note: FieldRef<"CustomerVisit", 'String'>
+    readonly createdAt: FieldRef<"CustomerVisit", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CustomerVisit findUnique
+   */
+  export type CustomerVisitFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerVisit
+     */
+    select?: CustomerVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerVisit
+     */
+    omit?: CustomerVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerVisitInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomerVisit to fetch.
+     */
+    where: CustomerVisitWhereUniqueInput
+  }
+
+  /**
+   * CustomerVisit findUniqueOrThrow
+   */
+  export type CustomerVisitFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerVisit
+     */
+    select?: CustomerVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerVisit
+     */
+    omit?: CustomerVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerVisitInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomerVisit to fetch.
+     */
+    where: CustomerVisitWhereUniqueInput
+  }
+
+  /**
+   * CustomerVisit findFirst
+   */
+  export type CustomerVisitFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerVisit
+     */
+    select?: CustomerVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerVisit
+     */
+    omit?: CustomerVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerVisitInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomerVisit to fetch.
+     */
+    where?: CustomerVisitWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomerVisits to fetch.
+     */
+    orderBy?: CustomerVisitOrderByWithRelationInput | CustomerVisitOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CustomerVisits.
+     */
+    cursor?: CustomerVisitWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomerVisits from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomerVisits.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CustomerVisits.
+     */
+    distinct?: CustomerVisitScalarFieldEnum | CustomerVisitScalarFieldEnum[]
+  }
+
+  /**
+   * CustomerVisit findFirstOrThrow
+   */
+  export type CustomerVisitFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerVisit
+     */
+    select?: CustomerVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerVisit
+     */
+    omit?: CustomerVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerVisitInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomerVisit to fetch.
+     */
+    where?: CustomerVisitWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomerVisits to fetch.
+     */
+    orderBy?: CustomerVisitOrderByWithRelationInput | CustomerVisitOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CustomerVisits.
+     */
+    cursor?: CustomerVisitWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomerVisits from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomerVisits.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CustomerVisits.
+     */
+    distinct?: CustomerVisitScalarFieldEnum | CustomerVisitScalarFieldEnum[]
+  }
+
+  /**
+   * CustomerVisit findMany
+   */
+  export type CustomerVisitFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerVisit
+     */
+    select?: CustomerVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerVisit
+     */
+    omit?: CustomerVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerVisitInclude<ExtArgs> | null
+    /**
+     * Filter, which CustomerVisits to fetch.
+     */
+    where?: CustomerVisitWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomerVisits to fetch.
+     */
+    orderBy?: CustomerVisitOrderByWithRelationInput | CustomerVisitOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CustomerVisits.
+     */
+    cursor?: CustomerVisitWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomerVisits from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomerVisits.
+     */
+    skip?: number
+    distinct?: CustomerVisitScalarFieldEnum | CustomerVisitScalarFieldEnum[]
+  }
+
+  /**
+   * CustomerVisit create
+   */
+  export type CustomerVisitCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerVisit
+     */
+    select?: CustomerVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerVisit
+     */
+    omit?: CustomerVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerVisitInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CustomerVisit.
+     */
+    data: XOR<CustomerVisitCreateInput, CustomerVisitUncheckedCreateInput>
+  }
+
+  /**
+   * CustomerVisit createMany
+   */
+  export type CustomerVisitCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CustomerVisits.
+     */
+    data: CustomerVisitCreateManyInput | CustomerVisitCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CustomerVisit createManyAndReturn
+   */
+  export type CustomerVisitCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerVisit
+     */
+    select?: CustomerVisitSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerVisit
+     */
+    omit?: CustomerVisitOmit<ExtArgs> | null
+    /**
+     * The data used to create many CustomerVisits.
+     */
+    data: CustomerVisitCreateManyInput | CustomerVisitCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerVisitIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CustomerVisit update
+   */
+  export type CustomerVisitUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerVisit
+     */
+    select?: CustomerVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerVisit
+     */
+    omit?: CustomerVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerVisitInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CustomerVisit.
+     */
+    data: XOR<CustomerVisitUpdateInput, CustomerVisitUncheckedUpdateInput>
+    /**
+     * Choose, which CustomerVisit to update.
+     */
+    where: CustomerVisitWhereUniqueInput
+  }
+
+  /**
+   * CustomerVisit updateMany
+   */
+  export type CustomerVisitUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CustomerVisits.
+     */
+    data: XOR<CustomerVisitUpdateManyMutationInput, CustomerVisitUncheckedUpdateManyInput>
+    /**
+     * Filter which CustomerVisits to update
+     */
+    where?: CustomerVisitWhereInput
+    /**
+     * Limit how many CustomerVisits to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CustomerVisit updateManyAndReturn
+   */
+  export type CustomerVisitUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerVisit
+     */
+    select?: CustomerVisitSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerVisit
+     */
+    omit?: CustomerVisitOmit<ExtArgs> | null
+    /**
+     * The data used to update CustomerVisits.
+     */
+    data: XOR<CustomerVisitUpdateManyMutationInput, CustomerVisitUncheckedUpdateManyInput>
+    /**
+     * Filter which CustomerVisits to update
+     */
+    where?: CustomerVisitWhereInput
+    /**
+     * Limit how many CustomerVisits to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerVisitIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CustomerVisit upsert
+   */
+  export type CustomerVisitUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerVisit
+     */
+    select?: CustomerVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerVisit
+     */
+    omit?: CustomerVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerVisitInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CustomerVisit to update in case it exists.
+     */
+    where: CustomerVisitWhereUniqueInput
+    /**
+     * In case the CustomerVisit found by the `where` argument doesn't exist, create a new CustomerVisit with this data.
+     */
+    create: XOR<CustomerVisitCreateInput, CustomerVisitUncheckedCreateInput>
+    /**
+     * In case the CustomerVisit was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CustomerVisitUpdateInput, CustomerVisitUncheckedUpdateInput>
+  }
+
+  /**
+   * CustomerVisit delete
+   */
+  export type CustomerVisitDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerVisit
+     */
+    select?: CustomerVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerVisit
+     */
+    omit?: CustomerVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerVisitInclude<ExtArgs> | null
+    /**
+     * Filter which CustomerVisit to delete.
+     */
+    where: CustomerVisitWhereUniqueInput
+  }
+
+  /**
+   * CustomerVisit deleteMany
+   */
+  export type CustomerVisitDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CustomerVisits to delete
+     */
+    where?: CustomerVisitWhereInput
+    /**
+     * Limit how many CustomerVisits to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CustomerVisit without action
+   */
+  export type CustomerVisitDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomerVisit
+     */
+    select?: CustomerVisitSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomerVisit
+     */
+    omit?: CustomerVisitOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerVisitInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -17323,7 +18653,9 @@ export namespace Prisma {
     hours: 'hours',
     city: 'city',
     isActive: 'isActive',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    dailyCode: 'dailyCode',
+    dailyCodeExpiresAt: 'dailyCodeExpiresAt'
   };
 
   export type BranchScalarFieldEnum = (typeof BranchScalarFieldEnum)[keyof typeof BranchScalarFieldEnum]
@@ -17505,6 +18837,20 @@ export namespace Prisma {
   };
 
   export type SettingScalarFieldEnum = (typeof SettingScalarFieldEnum)[keyof typeof SettingScalarFieldEnum]
+
+
+  export const CustomerVisitScalarFieldEnum: {
+    id: 'id',
+    customerId: 'customerId',
+    branchId: 'branchId',
+    couponCode: 'couponCode',
+    pointsEarned: 'pointsEarned',
+    checkInMethod: 'checkInMethod',
+    note: 'note',
+    createdAt: 'createdAt'
+  };
+
+  export type CustomerVisitScalarFieldEnum = (typeof CustomerVisitScalarFieldEnum)[keyof typeof CustomerVisitScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -17704,10 +19050,13 @@ export namespace Prisma {
     city?: StringNullableFilter<"Branch"> | string | null
     isActive?: BoolFilter<"Branch"> | boolean
     createdAt?: DateTimeFilter<"Branch"> | Date | string
+    dailyCode?: StringNullableFilter<"Branch"> | string | null
+    dailyCodeExpiresAt?: DateTimeNullableFilter<"Branch"> | Date | string | null
     homeCustomers?: CustomerListRelationFilter
     staff?: StaffListRelationFilter
     transactions?: TransactionListRelationFilter
     offers?: OfferBranchListRelationFilter
+    visits?: CustomerVisitListRelationFilter
   }
 
   export type BranchOrderByWithRelationInput = {
@@ -17722,10 +19071,13 @@ export namespace Prisma {
     city?: SortOrderInput | SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
+    dailyCode?: SortOrderInput | SortOrder
+    dailyCodeExpiresAt?: SortOrderInput | SortOrder
     homeCustomers?: CustomerOrderByRelationAggregateInput
     staff?: StaffOrderByRelationAggregateInput
     transactions?: TransactionOrderByRelationAggregateInput
     offers?: OfferBranchOrderByRelationAggregateInput
+    visits?: CustomerVisitOrderByRelationAggregateInput
   }
 
   export type BranchWhereUniqueInput = Prisma.AtLeast<{
@@ -17743,10 +19095,13 @@ export namespace Prisma {
     city?: StringNullableFilter<"Branch"> | string | null
     isActive?: BoolFilter<"Branch"> | boolean
     createdAt?: DateTimeFilter<"Branch"> | Date | string
+    dailyCode?: StringNullableFilter<"Branch"> | string | null
+    dailyCodeExpiresAt?: DateTimeNullableFilter<"Branch"> | Date | string | null
     homeCustomers?: CustomerListRelationFilter
     staff?: StaffListRelationFilter
     transactions?: TransactionListRelationFilter
     offers?: OfferBranchListRelationFilter
+    visits?: CustomerVisitListRelationFilter
   }, "id" | "code">
 
   export type BranchOrderByWithAggregationInput = {
@@ -17761,6 +19116,8 @@ export namespace Prisma {
     city?: SortOrderInput | SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
+    dailyCode?: SortOrderInput | SortOrder
+    dailyCodeExpiresAt?: SortOrderInput | SortOrder
     _count?: BranchCountOrderByAggregateInput
     _max?: BranchMaxOrderByAggregateInput
     _min?: BranchMinOrderByAggregateInput
@@ -17781,6 +19138,8 @@ export namespace Prisma {
     city?: StringNullableWithAggregatesFilter<"Branch"> | string | null
     isActive?: BoolWithAggregatesFilter<"Branch"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Branch"> | Date | string
+    dailyCode?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    dailyCodeExpiresAt?: DateTimeNullableWithAggregatesFilter<"Branch"> | Date | string | null
   }
 
   export type CustomerWhereInput = {
@@ -17806,6 +19165,7 @@ export namespace Prisma {
     transactions?: TransactionListRelationFilter
     pointsLedger?: PointsLedgerListRelationFilter
     customerRewards?: CustomerRewardListRelationFilter
+    visits?: CustomerVisitListRelationFilter
   }
 
   export type CustomerOrderByWithRelationInput = {
@@ -17828,6 +19188,7 @@ export namespace Prisma {
     transactions?: TransactionOrderByRelationAggregateInput
     pointsLedger?: PointsLedgerOrderByRelationAggregateInput
     customerRewards?: CustomerRewardOrderByRelationAggregateInput
+    visits?: CustomerVisitOrderByRelationAggregateInput
   }
 
   export type CustomerWhereUniqueInput = Prisma.AtLeast<{
@@ -17853,6 +19214,7 @@ export namespace Prisma {
     transactions?: TransactionListRelationFilter
     pointsLedger?: PointsLedgerListRelationFilter
     customerRewards?: CustomerRewardListRelationFilter
+    visits?: CustomerVisitListRelationFilter
   }, "id" | "mobile">
 
   export type CustomerOrderByWithAggregationInput = {
@@ -18723,6 +20085,81 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Setting"> | Date | string
   }
 
+  export type CustomerVisitWhereInput = {
+    AND?: CustomerVisitWhereInput | CustomerVisitWhereInput[]
+    OR?: CustomerVisitWhereInput[]
+    NOT?: CustomerVisitWhereInput | CustomerVisitWhereInput[]
+    id?: StringFilter<"CustomerVisit"> | string
+    customerId?: StringFilter<"CustomerVisit"> | string
+    branchId?: StringFilter<"CustomerVisit"> | string
+    couponCode?: StringFilter<"CustomerVisit"> | string
+    pointsEarned?: IntFilter<"CustomerVisit"> | number
+    checkInMethod?: StringFilter<"CustomerVisit"> | string
+    note?: StringNullableFilter<"CustomerVisit"> | string | null
+    createdAt?: DateTimeFilter<"CustomerVisit"> | Date | string
+    customer?: XOR<CustomerScalarRelationFilter, CustomerWhereInput>
+    branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
+  }
+
+  export type CustomerVisitOrderByWithRelationInput = {
+    id?: SortOrder
+    customerId?: SortOrder
+    branchId?: SortOrder
+    couponCode?: SortOrder
+    pointsEarned?: SortOrder
+    checkInMethod?: SortOrder
+    note?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    customer?: CustomerOrderByWithRelationInput
+    branch?: BranchOrderByWithRelationInput
+  }
+
+  export type CustomerVisitWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CustomerVisitWhereInput | CustomerVisitWhereInput[]
+    OR?: CustomerVisitWhereInput[]
+    NOT?: CustomerVisitWhereInput | CustomerVisitWhereInput[]
+    customerId?: StringFilter<"CustomerVisit"> | string
+    branchId?: StringFilter<"CustomerVisit"> | string
+    couponCode?: StringFilter<"CustomerVisit"> | string
+    pointsEarned?: IntFilter<"CustomerVisit"> | number
+    checkInMethod?: StringFilter<"CustomerVisit"> | string
+    note?: StringNullableFilter<"CustomerVisit"> | string | null
+    createdAt?: DateTimeFilter<"CustomerVisit"> | Date | string
+    customer?: XOR<CustomerScalarRelationFilter, CustomerWhereInput>
+    branch?: XOR<BranchScalarRelationFilter, BranchWhereInput>
+  }, "id">
+
+  export type CustomerVisitOrderByWithAggregationInput = {
+    id?: SortOrder
+    customerId?: SortOrder
+    branchId?: SortOrder
+    couponCode?: SortOrder
+    pointsEarned?: SortOrder
+    checkInMethod?: SortOrder
+    note?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: CustomerVisitCountOrderByAggregateInput
+    _avg?: CustomerVisitAvgOrderByAggregateInput
+    _max?: CustomerVisitMaxOrderByAggregateInput
+    _min?: CustomerVisitMinOrderByAggregateInput
+    _sum?: CustomerVisitSumOrderByAggregateInput
+  }
+
+  export type CustomerVisitScalarWhereWithAggregatesInput = {
+    AND?: CustomerVisitScalarWhereWithAggregatesInput | CustomerVisitScalarWhereWithAggregatesInput[]
+    OR?: CustomerVisitScalarWhereWithAggregatesInput[]
+    NOT?: CustomerVisitScalarWhereWithAggregatesInput | CustomerVisitScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CustomerVisit"> | string
+    customerId?: StringWithAggregatesFilter<"CustomerVisit"> | string
+    branchId?: StringWithAggregatesFilter<"CustomerVisit"> | string
+    couponCode?: StringWithAggregatesFilter<"CustomerVisit"> | string
+    pointsEarned?: IntWithAggregatesFilter<"CustomerVisit"> | number
+    checkInMethod?: StringWithAggregatesFilter<"CustomerVisit"> | string
+    note?: StringNullableWithAggregatesFilter<"CustomerVisit"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"CustomerVisit"> | Date | string
+  }
+
   export type BranchCreateInput = {
     id?: string
     code: string
@@ -18735,10 +20172,13 @@ export namespace Prisma {
     city?: string | null
     isActive?: boolean
     createdAt?: Date | string
+    dailyCode?: string | null
+    dailyCodeExpiresAt?: Date | string | null
     homeCustomers?: CustomerCreateNestedManyWithoutHomeBranchInput
     staff?: StaffCreateNestedManyWithoutBranchInput
     transactions?: TransactionCreateNestedManyWithoutBranchInput
     offers?: OfferBranchCreateNestedManyWithoutBranchInput
+    visits?: CustomerVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateInput = {
@@ -18753,10 +20193,13 @@ export namespace Prisma {
     city?: string | null
     isActive?: boolean
     createdAt?: Date | string
+    dailyCode?: string | null
+    dailyCodeExpiresAt?: Date | string | null
     homeCustomers?: CustomerUncheckedCreateNestedManyWithoutHomeBranchInput
     staff?: StaffUncheckedCreateNestedManyWithoutBranchInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutBranchInput
     offers?: OfferBranchUncheckedCreateNestedManyWithoutBranchInput
+    visits?: CustomerVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUpdateInput = {
@@ -18771,10 +20214,13 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     homeCustomers?: CustomerUpdateManyWithoutHomeBranchNestedInput
     staff?: StaffUpdateManyWithoutBranchNestedInput
     transactions?: TransactionUpdateManyWithoutBranchNestedInput
     offers?: OfferBranchUpdateManyWithoutBranchNestedInput
+    visits?: CustomerVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateInput = {
@@ -18789,10 +20235,13 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     homeCustomers?: CustomerUncheckedUpdateManyWithoutHomeBranchNestedInput
     staff?: StaffUncheckedUpdateManyWithoutBranchNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutBranchNestedInput
     offers?: OfferBranchUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: CustomerVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchCreateManyInput = {
@@ -18807,6 +20256,8 @@ export namespace Prisma {
     city?: string | null
     isActive?: boolean
     createdAt?: Date | string
+    dailyCode?: string | null
+    dailyCodeExpiresAt?: Date | string | null
   }
 
   export type BranchUpdateManyMutationInput = {
@@ -18821,6 +20272,8 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type BranchUncheckedUpdateManyInput = {
@@ -18835,6 +20288,8 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type CustomerCreateInput = {
@@ -18856,6 +20311,7 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutCustomerInput
     pointsLedger?: PointsLedgerCreateNestedManyWithoutCustomerInput
     customerRewards?: CustomerRewardCreateNestedManyWithoutCustomerInput
+    visits?: CustomerVisitCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUncheckedCreateInput = {
@@ -18877,6 +20333,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutCustomerInput
     pointsLedger?: PointsLedgerUncheckedCreateNestedManyWithoutCustomerInput
     customerRewards?: CustomerRewardUncheckedCreateNestedManyWithoutCustomerInput
+    visits?: CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUpdateInput = {
@@ -18898,6 +20355,7 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutCustomerNestedInput
     pointsLedger?: PointsLedgerUpdateManyWithoutCustomerNestedInput
     customerRewards?: CustomerRewardUpdateManyWithoutCustomerNestedInput
+    visits?: CustomerVisitUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateInput = {
@@ -18919,6 +20377,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutCustomerNestedInput
     pointsLedger?: PointsLedgerUncheckedUpdateManyWithoutCustomerNestedInput
     customerRewards?: CustomerRewardUncheckedUpdateManyWithoutCustomerNestedInput
+    visits?: CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerCreateManyInput = {
@@ -19858,6 +21317,81 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CustomerVisitCreateInput = {
+    id?: string
+    couponCode: string
+    pointsEarned?: number
+    checkInMethod?: string
+    note?: string | null
+    createdAt?: Date | string
+    customer: CustomerCreateNestedOneWithoutVisitsInput
+    branch: BranchCreateNestedOneWithoutVisitsInput
+  }
+
+  export type CustomerVisitUncheckedCreateInput = {
+    id?: string
+    customerId: string
+    branchId: string
+    couponCode: string
+    pointsEarned?: number
+    checkInMethod?: string
+    note?: string | null
+    createdAt?: Date | string
+  }
+
+  export type CustomerVisitUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    couponCode?: StringFieldUpdateOperationsInput | string
+    pointsEarned?: IntFieldUpdateOperationsInput | number
+    checkInMethod?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: CustomerUpdateOneRequiredWithoutVisitsNestedInput
+    branch?: BranchUpdateOneRequiredWithoutVisitsNestedInput
+  }
+
+  export type CustomerVisitUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    branchId?: StringFieldUpdateOperationsInput | string
+    couponCode?: StringFieldUpdateOperationsInput | string
+    pointsEarned?: IntFieldUpdateOperationsInput | number
+    checkInMethod?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomerVisitCreateManyInput = {
+    id?: string
+    customerId: string
+    branchId: string
+    couponCode: string
+    pointsEarned?: number
+    checkInMethod?: string
+    note?: string | null
+    createdAt?: Date | string
+  }
+
+  export type CustomerVisitUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    couponCode?: StringFieldUpdateOperationsInput | string
+    pointsEarned?: IntFieldUpdateOperationsInput | number
+    checkInMethod?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomerVisitUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    branchId?: StringFieldUpdateOperationsInput | string
+    couponCode?: StringFieldUpdateOperationsInput | string
+    pointsEarned?: IntFieldUpdateOperationsInput | number
+    checkInMethod?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -19904,6 +21438,17 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type CustomerListRelationFilter = {
     every?: CustomerWhereInput
     some?: CustomerWhereInput
@@ -19928,6 +21473,12 @@ export namespace Prisma {
     none?: OfferBranchWhereInput
   }
 
+  export type CustomerVisitListRelationFilter = {
+    every?: CustomerVisitWhereInput
+    some?: CustomerVisitWhereInput
+    none?: CustomerVisitWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -19949,6 +21500,10 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type CustomerVisitOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type BranchCountOrderByAggregateInput = {
     id?: SortOrder
     code?: SortOrder
@@ -19961,6 +21516,8 @@ export namespace Prisma {
     city?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
+    dailyCode?: SortOrder
+    dailyCodeExpiresAt?: SortOrder
   }
 
   export type BranchMaxOrderByAggregateInput = {
@@ -19975,6 +21532,8 @@ export namespace Prisma {
     city?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
+    dailyCode?: SortOrder
+    dailyCodeExpiresAt?: SortOrder
   }
 
   export type BranchMinOrderByAggregateInput = {
@@ -19989,6 +21548,8 @@ export namespace Prisma {
     city?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
+    dailyCode?: SortOrder
+    dailyCodeExpiresAt?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -20049,7 +21610,7 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -20057,7 +21618,10 @@ export namespace Prisma {
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -20178,20 +21742,6 @@ export namespace Prisma {
     pointsBalance?: SortOrder
     visitCount?: SortOrder
     totalSpend?: SortOrder
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -20824,6 +22374,47 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type CustomerVisitCountOrderByAggregateInput = {
+    id?: SortOrder
+    customerId?: SortOrder
+    branchId?: SortOrder
+    couponCode?: SortOrder
+    pointsEarned?: SortOrder
+    checkInMethod?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CustomerVisitAvgOrderByAggregateInput = {
+    pointsEarned?: SortOrder
+  }
+
+  export type CustomerVisitMaxOrderByAggregateInput = {
+    id?: SortOrder
+    customerId?: SortOrder
+    branchId?: SortOrder
+    couponCode?: SortOrder
+    pointsEarned?: SortOrder
+    checkInMethod?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CustomerVisitMinOrderByAggregateInput = {
+    id?: SortOrder
+    customerId?: SortOrder
+    branchId?: SortOrder
+    couponCode?: SortOrder
+    pointsEarned?: SortOrder
+    checkInMethod?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CustomerVisitSumOrderByAggregateInput = {
+    pointsEarned?: SortOrder
+  }
+
   export type CustomerCreateNestedManyWithoutHomeBranchInput = {
     create?: XOR<CustomerCreateWithoutHomeBranchInput, CustomerUncheckedCreateWithoutHomeBranchInput> | CustomerCreateWithoutHomeBranchInput[] | CustomerUncheckedCreateWithoutHomeBranchInput[]
     connectOrCreate?: CustomerCreateOrConnectWithoutHomeBranchInput | CustomerCreateOrConnectWithoutHomeBranchInput[]
@@ -20850,6 +22441,13 @@ export namespace Prisma {
     connectOrCreate?: OfferBranchCreateOrConnectWithoutBranchInput | OfferBranchCreateOrConnectWithoutBranchInput[]
     createMany?: OfferBranchCreateManyBranchInputEnvelope
     connect?: OfferBranchWhereUniqueInput | OfferBranchWhereUniqueInput[]
+  }
+
+  export type CustomerVisitCreateNestedManyWithoutBranchInput = {
+    create?: XOR<CustomerVisitCreateWithoutBranchInput, CustomerVisitUncheckedCreateWithoutBranchInput> | CustomerVisitCreateWithoutBranchInput[] | CustomerVisitUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: CustomerVisitCreateOrConnectWithoutBranchInput | CustomerVisitCreateOrConnectWithoutBranchInput[]
+    createMany?: CustomerVisitCreateManyBranchInputEnvelope
+    connect?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
   }
 
   export type CustomerUncheckedCreateNestedManyWithoutHomeBranchInput = {
@@ -20880,6 +22478,13 @@ export namespace Prisma {
     connect?: OfferBranchWhereUniqueInput | OfferBranchWhereUniqueInput[]
   }
 
+  export type CustomerVisitUncheckedCreateNestedManyWithoutBranchInput = {
+    create?: XOR<CustomerVisitCreateWithoutBranchInput, CustomerVisitUncheckedCreateWithoutBranchInput> | CustomerVisitCreateWithoutBranchInput[] | CustomerVisitUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: CustomerVisitCreateOrConnectWithoutBranchInput | CustomerVisitCreateOrConnectWithoutBranchInput[]
+    createMany?: CustomerVisitCreateManyBranchInputEnvelope
+    connect?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -20894,6 +22499,10 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
   }
 
   export type CustomerUpdateManyWithoutHomeBranchNestedInput = {
@@ -20952,6 +22561,20 @@ export namespace Prisma {
     deleteMany?: OfferBranchScalarWhereInput | OfferBranchScalarWhereInput[]
   }
 
+  export type CustomerVisitUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<CustomerVisitCreateWithoutBranchInput, CustomerVisitUncheckedCreateWithoutBranchInput> | CustomerVisitCreateWithoutBranchInput[] | CustomerVisitUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: CustomerVisitCreateOrConnectWithoutBranchInput | CustomerVisitCreateOrConnectWithoutBranchInput[]
+    upsert?: CustomerVisitUpsertWithWhereUniqueWithoutBranchInput | CustomerVisitUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: CustomerVisitCreateManyBranchInputEnvelope
+    set?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+    disconnect?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+    delete?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+    connect?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+    update?: CustomerVisitUpdateWithWhereUniqueWithoutBranchInput | CustomerVisitUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: CustomerVisitUpdateManyWithWhereWithoutBranchInput | CustomerVisitUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: CustomerVisitScalarWhereInput | CustomerVisitScalarWhereInput[]
+  }
+
   export type CustomerUncheckedUpdateManyWithoutHomeBranchNestedInput = {
     create?: XOR<CustomerCreateWithoutHomeBranchInput, CustomerUncheckedCreateWithoutHomeBranchInput> | CustomerCreateWithoutHomeBranchInput[] | CustomerUncheckedCreateWithoutHomeBranchInput[]
     connectOrCreate?: CustomerCreateOrConnectWithoutHomeBranchInput | CustomerCreateOrConnectWithoutHomeBranchInput[]
@@ -21008,6 +22631,20 @@ export namespace Prisma {
     deleteMany?: OfferBranchScalarWhereInput | OfferBranchScalarWhereInput[]
   }
 
+  export type CustomerVisitUncheckedUpdateManyWithoutBranchNestedInput = {
+    create?: XOR<CustomerVisitCreateWithoutBranchInput, CustomerVisitUncheckedCreateWithoutBranchInput> | CustomerVisitCreateWithoutBranchInput[] | CustomerVisitUncheckedCreateWithoutBranchInput[]
+    connectOrCreate?: CustomerVisitCreateOrConnectWithoutBranchInput | CustomerVisitCreateOrConnectWithoutBranchInput[]
+    upsert?: CustomerVisitUpsertWithWhereUniqueWithoutBranchInput | CustomerVisitUpsertWithWhereUniqueWithoutBranchInput[]
+    createMany?: CustomerVisitCreateManyBranchInputEnvelope
+    set?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+    disconnect?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+    delete?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+    connect?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+    update?: CustomerVisitUpdateWithWhereUniqueWithoutBranchInput | CustomerVisitUpdateWithWhereUniqueWithoutBranchInput[]
+    updateMany?: CustomerVisitUpdateManyWithWhereWithoutBranchInput | CustomerVisitUpdateManyWithWhereWithoutBranchInput[]
+    deleteMany?: CustomerVisitScalarWhereInput | CustomerVisitScalarWhereInput[]
+  }
+
   export type BranchCreateNestedOneWithoutHomeCustomersInput = {
     create?: XOR<BranchCreateWithoutHomeCustomersInput, BranchUncheckedCreateWithoutHomeCustomersInput>
     connectOrCreate?: BranchCreateOrConnectWithoutHomeCustomersInput
@@ -21042,6 +22679,13 @@ export namespace Prisma {
     connect?: CustomerRewardWhereUniqueInput | CustomerRewardWhereUniqueInput[]
   }
 
+  export type CustomerVisitCreateNestedManyWithoutCustomerInput = {
+    create?: XOR<CustomerVisitCreateWithoutCustomerInput, CustomerVisitUncheckedCreateWithoutCustomerInput> | CustomerVisitCreateWithoutCustomerInput[] | CustomerVisitUncheckedCreateWithoutCustomerInput[]
+    connectOrCreate?: CustomerVisitCreateOrConnectWithoutCustomerInput | CustomerVisitCreateOrConnectWithoutCustomerInput[]
+    createMany?: CustomerVisitCreateManyCustomerInputEnvelope
+    connect?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+  }
+
   export type QrTokenUncheckedCreateNestedManyWithoutCustomerInput = {
     create?: XOR<QrTokenCreateWithoutCustomerInput, QrTokenUncheckedCreateWithoutCustomerInput> | QrTokenCreateWithoutCustomerInput[] | QrTokenUncheckedCreateWithoutCustomerInput[]
     connectOrCreate?: QrTokenCreateOrConnectWithoutCustomerInput | QrTokenCreateOrConnectWithoutCustomerInput[]
@@ -21070,8 +22714,11 @@ export namespace Prisma {
     connect?: CustomerRewardWhereUniqueInput | CustomerRewardWhereUniqueInput[]
   }
 
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
+  export type CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput = {
+    create?: XOR<CustomerVisitCreateWithoutCustomerInput, CustomerVisitUncheckedCreateWithoutCustomerInput> | CustomerVisitCreateWithoutCustomerInput[] | CustomerVisitUncheckedCreateWithoutCustomerInput[]
+    connectOrCreate?: CustomerVisitCreateOrConnectWithoutCustomerInput | CustomerVisitCreateOrConnectWithoutCustomerInput[]
+    createMany?: CustomerVisitCreateManyCustomerInputEnvelope
+    connect?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -21156,6 +22803,20 @@ export namespace Prisma {
     deleteMany?: CustomerRewardScalarWhereInput | CustomerRewardScalarWhereInput[]
   }
 
+  export type CustomerVisitUpdateManyWithoutCustomerNestedInput = {
+    create?: XOR<CustomerVisitCreateWithoutCustomerInput, CustomerVisitUncheckedCreateWithoutCustomerInput> | CustomerVisitCreateWithoutCustomerInput[] | CustomerVisitUncheckedCreateWithoutCustomerInput[]
+    connectOrCreate?: CustomerVisitCreateOrConnectWithoutCustomerInput | CustomerVisitCreateOrConnectWithoutCustomerInput[]
+    upsert?: CustomerVisitUpsertWithWhereUniqueWithoutCustomerInput | CustomerVisitUpsertWithWhereUniqueWithoutCustomerInput[]
+    createMany?: CustomerVisitCreateManyCustomerInputEnvelope
+    set?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+    disconnect?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+    delete?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+    connect?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+    update?: CustomerVisitUpdateWithWhereUniqueWithoutCustomerInput | CustomerVisitUpdateWithWhereUniqueWithoutCustomerInput[]
+    updateMany?: CustomerVisitUpdateManyWithWhereWithoutCustomerInput | CustomerVisitUpdateManyWithWhereWithoutCustomerInput[]
+    deleteMany?: CustomerVisitScalarWhereInput | CustomerVisitScalarWhereInput[]
+  }
+
   export type QrTokenUncheckedUpdateManyWithoutCustomerNestedInput = {
     create?: XOR<QrTokenCreateWithoutCustomerInput, QrTokenUncheckedCreateWithoutCustomerInput> | QrTokenCreateWithoutCustomerInput[] | QrTokenUncheckedCreateWithoutCustomerInput[]
     connectOrCreate?: QrTokenCreateOrConnectWithoutCustomerInput | QrTokenCreateOrConnectWithoutCustomerInput[]
@@ -21210,6 +22871,20 @@ export namespace Prisma {
     update?: CustomerRewardUpdateWithWhereUniqueWithoutCustomerInput | CustomerRewardUpdateWithWhereUniqueWithoutCustomerInput[]
     updateMany?: CustomerRewardUpdateManyWithWhereWithoutCustomerInput | CustomerRewardUpdateManyWithWhereWithoutCustomerInput[]
     deleteMany?: CustomerRewardScalarWhereInput | CustomerRewardScalarWhereInput[]
+  }
+
+  export type CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput = {
+    create?: XOR<CustomerVisitCreateWithoutCustomerInput, CustomerVisitUncheckedCreateWithoutCustomerInput> | CustomerVisitCreateWithoutCustomerInput[] | CustomerVisitUncheckedCreateWithoutCustomerInput[]
+    connectOrCreate?: CustomerVisitCreateOrConnectWithoutCustomerInput | CustomerVisitCreateOrConnectWithoutCustomerInput[]
+    upsert?: CustomerVisitUpsertWithWhereUniqueWithoutCustomerInput | CustomerVisitUpsertWithWhereUniqueWithoutCustomerInput[]
+    createMany?: CustomerVisitCreateManyCustomerInputEnvelope
+    set?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+    disconnect?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+    delete?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+    connect?: CustomerVisitWhereUniqueInput | CustomerVisitWhereUniqueInput[]
+    update?: CustomerVisitUpdateWithWhereUniqueWithoutCustomerInput | CustomerVisitUpdateWithWhereUniqueWithoutCustomerInput[]
+    updateMany?: CustomerVisitUpdateManyWithWhereWithoutCustomerInput | CustomerVisitUpdateManyWithWhereWithoutCustomerInput[]
+    deleteMany?: CustomerVisitScalarWhereInput | CustomerVisitScalarWhereInput[]
   }
 
   export type CustomerCreateNestedOneWithoutQrTokensInput = {
@@ -21676,6 +23351,34 @@ export namespace Prisma {
     update?: XOR<XOR<StaffUpdateToOneWithWhereWithoutAuditLogsInput, StaffUpdateWithoutAuditLogsInput>, StaffUncheckedUpdateWithoutAuditLogsInput>
   }
 
+  export type CustomerCreateNestedOneWithoutVisitsInput = {
+    create?: XOR<CustomerCreateWithoutVisitsInput, CustomerUncheckedCreateWithoutVisitsInput>
+    connectOrCreate?: CustomerCreateOrConnectWithoutVisitsInput
+    connect?: CustomerWhereUniqueInput
+  }
+
+  export type BranchCreateNestedOneWithoutVisitsInput = {
+    create?: XOR<BranchCreateWithoutVisitsInput, BranchUncheckedCreateWithoutVisitsInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutVisitsInput
+    connect?: BranchWhereUniqueInput
+  }
+
+  export type CustomerUpdateOneRequiredWithoutVisitsNestedInput = {
+    create?: XOR<CustomerCreateWithoutVisitsInput, CustomerUncheckedCreateWithoutVisitsInput>
+    connectOrCreate?: CustomerCreateOrConnectWithoutVisitsInput
+    upsert?: CustomerUpsertWithoutVisitsInput
+    connect?: CustomerWhereUniqueInput
+    update?: XOR<XOR<CustomerUpdateToOneWithWhereWithoutVisitsInput, CustomerUpdateWithoutVisitsInput>, CustomerUncheckedUpdateWithoutVisitsInput>
+  }
+
+  export type BranchUpdateOneRequiredWithoutVisitsNestedInput = {
+    create?: XOR<BranchCreateWithoutVisitsInput, BranchUncheckedCreateWithoutVisitsInput>
+    connectOrCreate?: BranchCreateOrConnectWithoutVisitsInput
+    upsert?: BranchUpsertWithoutVisitsInput
+    connect?: BranchWhereUniqueInput
+    update?: XOR<XOR<BranchUpdateToOneWithWhereWithoutVisitsInput, BranchUpdateWithoutVisitsInput>, BranchUncheckedUpdateWithoutVisitsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -21718,6 +23421,17 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
@@ -21798,28 +23512,6 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
-  export type NestedDecimalFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
-  }
-
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -21832,6 +23524,17 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedDecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -21996,6 +23699,7 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutCustomerInput
     pointsLedger?: PointsLedgerCreateNestedManyWithoutCustomerInput
     customerRewards?: CustomerRewardCreateNestedManyWithoutCustomerInput
+    visits?: CustomerVisitCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUncheckedCreateWithoutHomeBranchInput = {
@@ -22016,6 +23720,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutCustomerInput
     pointsLedger?: PointsLedgerUncheckedCreateNestedManyWithoutCustomerInput
     customerRewards?: CustomerRewardUncheckedCreateNestedManyWithoutCustomerInput
+    visits?: CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerCreateOrConnectWithoutHomeBranchInput = {
@@ -22121,6 +23826,36 @@ export namespace Prisma {
 
   export type OfferBranchCreateManyBranchInputEnvelope = {
     data: OfferBranchCreateManyBranchInput | OfferBranchCreateManyBranchInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CustomerVisitCreateWithoutBranchInput = {
+    id?: string
+    couponCode: string
+    pointsEarned?: number
+    checkInMethod?: string
+    note?: string | null
+    createdAt?: Date | string
+    customer: CustomerCreateNestedOneWithoutVisitsInput
+  }
+
+  export type CustomerVisitUncheckedCreateWithoutBranchInput = {
+    id?: string
+    customerId: string
+    couponCode: string
+    pointsEarned?: number
+    checkInMethod?: string
+    note?: string | null
+    createdAt?: Date | string
+  }
+
+  export type CustomerVisitCreateOrConnectWithoutBranchInput = {
+    where: CustomerVisitWhereUniqueInput
+    create: XOR<CustomerVisitCreateWithoutBranchInput, CustomerVisitUncheckedCreateWithoutBranchInput>
+  }
+
+  export type CustomerVisitCreateManyBranchInputEnvelope = {
+    data: CustomerVisitCreateManyBranchInput | CustomerVisitCreateManyBranchInput[]
     skipDuplicates?: boolean
   }
 
@@ -22249,6 +23984,36 @@ export namespace Prisma {
     branchId?: StringFilter<"OfferBranch"> | string
   }
 
+  export type CustomerVisitUpsertWithWhereUniqueWithoutBranchInput = {
+    where: CustomerVisitWhereUniqueInput
+    update: XOR<CustomerVisitUpdateWithoutBranchInput, CustomerVisitUncheckedUpdateWithoutBranchInput>
+    create: XOR<CustomerVisitCreateWithoutBranchInput, CustomerVisitUncheckedCreateWithoutBranchInput>
+  }
+
+  export type CustomerVisitUpdateWithWhereUniqueWithoutBranchInput = {
+    where: CustomerVisitWhereUniqueInput
+    data: XOR<CustomerVisitUpdateWithoutBranchInput, CustomerVisitUncheckedUpdateWithoutBranchInput>
+  }
+
+  export type CustomerVisitUpdateManyWithWhereWithoutBranchInput = {
+    where: CustomerVisitScalarWhereInput
+    data: XOR<CustomerVisitUpdateManyMutationInput, CustomerVisitUncheckedUpdateManyWithoutBranchInput>
+  }
+
+  export type CustomerVisitScalarWhereInput = {
+    AND?: CustomerVisitScalarWhereInput | CustomerVisitScalarWhereInput[]
+    OR?: CustomerVisitScalarWhereInput[]
+    NOT?: CustomerVisitScalarWhereInput | CustomerVisitScalarWhereInput[]
+    id?: StringFilter<"CustomerVisit"> | string
+    customerId?: StringFilter<"CustomerVisit"> | string
+    branchId?: StringFilter<"CustomerVisit"> | string
+    couponCode?: StringFilter<"CustomerVisit"> | string
+    pointsEarned?: IntFilter<"CustomerVisit"> | number
+    checkInMethod?: StringFilter<"CustomerVisit"> | string
+    note?: StringNullableFilter<"CustomerVisit"> | string | null
+    createdAt?: DateTimeFilter<"CustomerVisit"> | Date | string
+  }
+
   export type BranchCreateWithoutHomeCustomersInput = {
     id?: string
     code: string
@@ -22261,9 +24026,12 @@ export namespace Prisma {
     city?: string | null
     isActive?: boolean
     createdAt?: Date | string
+    dailyCode?: string | null
+    dailyCodeExpiresAt?: Date | string | null
     staff?: StaffCreateNestedManyWithoutBranchInput
     transactions?: TransactionCreateNestedManyWithoutBranchInput
     offers?: OfferBranchCreateNestedManyWithoutBranchInput
+    visits?: CustomerVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutHomeCustomersInput = {
@@ -22278,9 +24046,12 @@ export namespace Prisma {
     city?: string | null
     isActive?: boolean
     createdAt?: Date | string
+    dailyCode?: string | null
+    dailyCodeExpiresAt?: Date | string | null
     staff?: StaffUncheckedCreateNestedManyWithoutBranchInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutBranchInput
     offers?: OfferBranchUncheckedCreateNestedManyWithoutBranchInput
+    visits?: CustomerVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutHomeCustomersInput = {
@@ -22416,6 +24187,36 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type CustomerVisitCreateWithoutCustomerInput = {
+    id?: string
+    couponCode: string
+    pointsEarned?: number
+    checkInMethod?: string
+    note?: string | null
+    createdAt?: Date | string
+    branch: BranchCreateNestedOneWithoutVisitsInput
+  }
+
+  export type CustomerVisitUncheckedCreateWithoutCustomerInput = {
+    id?: string
+    branchId: string
+    couponCode: string
+    pointsEarned?: number
+    checkInMethod?: string
+    note?: string | null
+    createdAt?: Date | string
+  }
+
+  export type CustomerVisitCreateOrConnectWithoutCustomerInput = {
+    where: CustomerVisitWhereUniqueInput
+    create: XOR<CustomerVisitCreateWithoutCustomerInput, CustomerVisitUncheckedCreateWithoutCustomerInput>
+  }
+
+  export type CustomerVisitCreateManyCustomerInputEnvelope = {
+    data: CustomerVisitCreateManyCustomerInput | CustomerVisitCreateManyCustomerInput[]
+    skipDuplicates?: boolean
+  }
+
   export type BranchUpsertWithoutHomeCustomersInput = {
     update: XOR<BranchUpdateWithoutHomeCustomersInput, BranchUncheckedUpdateWithoutHomeCustomersInput>
     create: XOR<BranchCreateWithoutHomeCustomersInput, BranchUncheckedCreateWithoutHomeCustomersInput>
@@ -22439,9 +24240,12 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     staff?: StaffUpdateManyWithoutBranchNestedInput
     transactions?: TransactionUpdateManyWithoutBranchNestedInput
     offers?: OfferBranchUpdateManyWithoutBranchNestedInput
+    visits?: CustomerVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutHomeCustomersInput = {
@@ -22456,9 +24260,12 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     staff?: StaffUncheckedUpdateManyWithoutBranchNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutBranchNestedInput
     offers?: OfferBranchUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: CustomerVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type QrTokenUpsertWithWhereUniqueWithoutCustomerInput = {
@@ -22565,6 +24372,22 @@ export namespace Prisma {
     redeemedTxId?: StringNullableFilter<"CustomerReward"> | string | null
   }
 
+  export type CustomerVisitUpsertWithWhereUniqueWithoutCustomerInput = {
+    where: CustomerVisitWhereUniqueInput
+    update: XOR<CustomerVisitUpdateWithoutCustomerInput, CustomerVisitUncheckedUpdateWithoutCustomerInput>
+    create: XOR<CustomerVisitCreateWithoutCustomerInput, CustomerVisitUncheckedCreateWithoutCustomerInput>
+  }
+
+  export type CustomerVisitUpdateWithWhereUniqueWithoutCustomerInput = {
+    where: CustomerVisitWhereUniqueInput
+    data: XOR<CustomerVisitUpdateWithoutCustomerInput, CustomerVisitUncheckedUpdateWithoutCustomerInput>
+  }
+
+  export type CustomerVisitUpdateManyWithWhereWithoutCustomerInput = {
+    where: CustomerVisitScalarWhereInput
+    data: XOR<CustomerVisitUpdateManyMutationInput, CustomerVisitUncheckedUpdateManyWithoutCustomerInput>
+  }
+
   export type CustomerCreateWithoutQrTokensInput = {
     id?: string
     mobile: string
@@ -22583,6 +24406,7 @@ export namespace Prisma {
     transactions?: TransactionCreateNestedManyWithoutCustomerInput
     pointsLedger?: PointsLedgerCreateNestedManyWithoutCustomerInput
     customerRewards?: CustomerRewardCreateNestedManyWithoutCustomerInput
+    visits?: CustomerVisitCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUncheckedCreateWithoutQrTokensInput = {
@@ -22603,6 +24427,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedCreateNestedManyWithoutCustomerInput
     pointsLedger?: PointsLedgerUncheckedCreateNestedManyWithoutCustomerInput
     customerRewards?: CustomerRewardUncheckedCreateNestedManyWithoutCustomerInput
+    visits?: CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerCreateOrConnectWithoutQrTokensInput = {
@@ -22639,6 +24464,7 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutCustomerNestedInput
     pointsLedger?: PointsLedgerUpdateManyWithoutCustomerNestedInput
     customerRewards?: CustomerRewardUpdateManyWithoutCustomerNestedInput
+    visits?: CustomerVisitUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateWithoutQrTokensInput = {
@@ -22659,6 +24485,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutCustomerNestedInput
     pointsLedger?: PointsLedgerUncheckedUpdateManyWithoutCustomerNestedInput
     customerRewards?: CustomerRewardUncheckedUpdateManyWithoutCustomerNestedInput
+    visits?: CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   }
 
   export type BranchCreateWithoutStaffInput = {
@@ -22673,9 +24500,12 @@ export namespace Prisma {
     city?: string | null
     isActive?: boolean
     createdAt?: Date | string
+    dailyCode?: string | null
+    dailyCodeExpiresAt?: Date | string | null
     homeCustomers?: CustomerCreateNestedManyWithoutHomeBranchInput
     transactions?: TransactionCreateNestedManyWithoutBranchInput
     offers?: OfferBranchCreateNestedManyWithoutBranchInput
+    visits?: CustomerVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutStaffInput = {
@@ -22690,9 +24520,12 @@ export namespace Prisma {
     city?: string | null
     isActive?: boolean
     createdAt?: Date | string
+    dailyCode?: string | null
+    dailyCodeExpiresAt?: Date | string | null
     homeCustomers?: CustomerUncheckedCreateNestedManyWithoutHomeBranchInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutBranchInput
     offers?: OfferBranchUncheckedCreateNestedManyWithoutBranchInput
+    visits?: CustomerVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutStaffInput = {
@@ -22795,9 +24628,12 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     homeCustomers?: CustomerUpdateManyWithoutHomeBranchNestedInput
     transactions?: TransactionUpdateManyWithoutBranchNestedInput
     offers?: OfferBranchUpdateManyWithoutBranchNestedInput
+    visits?: CustomerVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutStaffInput = {
@@ -22812,9 +24648,12 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     homeCustomers?: CustomerUncheckedUpdateManyWithoutHomeBranchNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutBranchNestedInput
     offers?: OfferBranchUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: CustomerVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type TransactionUpsertWithWhereUniqueWithoutStaffInput = {
@@ -22881,6 +24720,7 @@ export namespace Prisma {
     qrTokens?: QrTokenCreateNestedManyWithoutCustomerInput
     pointsLedger?: PointsLedgerCreateNestedManyWithoutCustomerInput
     customerRewards?: CustomerRewardCreateNestedManyWithoutCustomerInput
+    visits?: CustomerVisitCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUncheckedCreateWithoutTransactionsInput = {
@@ -22901,6 +24741,7 @@ export namespace Prisma {
     qrTokens?: QrTokenUncheckedCreateNestedManyWithoutCustomerInput
     pointsLedger?: PointsLedgerUncheckedCreateNestedManyWithoutCustomerInput
     customerRewards?: CustomerRewardUncheckedCreateNestedManyWithoutCustomerInput
+    visits?: CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerCreateOrConnectWithoutTransactionsInput = {
@@ -22920,9 +24761,12 @@ export namespace Prisma {
     city?: string | null
     isActive?: boolean
     createdAt?: Date | string
+    dailyCode?: string | null
+    dailyCodeExpiresAt?: Date | string | null
     homeCustomers?: CustomerCreateNestedManyWithoutHomeBranchInput
     staff?: StaffCreateNestedManyWithoutBranchInput
     offers?: OfferBranchCreateNestedManyWithoutBranchInput
+    visits?: CustomerVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutTransactionsInput = {
@@ -22937,9 +24781,12 @@ export namespace Prisma {
     city?: string | null
     isActive?: boolean
     createdAt?: Date | string
+    dailyCode?: string | null
+    dailyCodeExpiresAt?: Date | string | null
     homeCustomers?: CustomerUncheckedCreateNestedManyWithoutHomeBranchInput
     staff?: StaffUncheckedCreateNestedManyWithoutBranchInput
     offers?: OfferBranchUncheckedCreateNestedManyWithoutBranchInput
+    visits?: CustomerVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutTransactionsInput = {
@@ -23067,6 +24914,7 @@ export namespace Prisma {
     qrTokens?: QrTokenUpdateManyWithoutCustomerNestedInput
     pointsLedger?: PointsLedgerUpdateManyWithoutCustomerNestedInput
     customerRewards?: CustomerRewardUpdateManyWithoutCustomerNestedInput
+    visits?: CustomerVisitUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateWithoutTransactionsInput = {
@@ -23087,6 +24935,7 @@ export namespace Prisma {
     qrTokens?: QrTokenUncheckedUpdateManyWithoutCustomerNestedInput
     pointsLedger?: PointsLedgerUncheckedUpdateManyWithoutCustomerNestedInput
     customerRewards?: CustomerRewardUncheckedUpdateManyWithoutCustomerNestedInput
+    visits?: CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   }
 
   export type BranchUpsertWithoutTransactionsInput = {
@@ -23112,9 +24961,12 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     homeCustomers?: CustomerUpdateManyWithoutHomeBranchNestedInput
     staff?: StaffUpdateManyWithoutBranchNestedInput
     offers?: OfferBranchUpdateManyWithoutBranchNestedInput
+    visits?: CustomerVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutTransactionsInput = {
@@ -23129,9 +24981,12 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     homeCustomers?: CustomerUncheckedUpdateManyWithoutHomeBranchNestedInput
     staff?: StaffUncheckedUpdateManyWithoutBranchNestedInput
     offers?: OfferBranchUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: CustomerVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type StaffUpsertWithoutTransactionsInput = {
@@ -23221,6 +25076,7 @@ export namespace Prisma {
     qrTokens?: QrTokenCreateNestedManyWithoutCustomerInput
     transactions?: TransactionCreateNestedManyWithoutCustomerInput
     customerRewards?: CustomerRewardCreateNestedManyWithoutCustomerInput
+    visits?: CustomerVisitCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUncheckedCreateWithoutPointsLedgerInput = {
@@ -23241,6 +25097,7 @@ export namespace Prisma {
     qrTokens?: QrTokenUncheckedCreateNestedManyWithoutCustomerInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutCustomerInput
     customerRewards?: CustomerRewardUncheckedCreateNestedManyWithoutCustomerInput
+    visits?: CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerCreateOrConnectWithoutPointsLedgerInput = {
@@ -23314,6 +25171,7 @@ export namespace Prisma {
     qrTokens?: QrTokenUpdateManyWithoutCustomerNestedInput
     transactions?: TransactionUpdateManyWithoutCustomerNestedInput
     customerRewards?: CustomerRewardUpdateManyWithoutCustomerNestedInput
+    visits?: CustomerVisitUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateWithoutPointsLedgerInput = {
@@ -23334,6 +25192,7 @@ export namespace Prisma {
     qrTokens?: QrTokenUncheckedUpdateManyWithoutCustomerNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutCustomerNestedInput
     customerRewards?: CustomerRewardUncheckedUpdateManyWithoutCustomerNestedInput
+    visits?: CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   }
 
   export type TransactionUpsertWithoutPointsLedgerInput = {
@@ -23443,6 +25302,7 @@ export namespace Prisma {
     qrTokens?: QrTokenCreateNestedManyWithoutCustomerInput
     transactions?: TransactionCreateNestedManyWithoutCustomerInput
     pointsLedger?: PointsLedgerCreateNestedManyWithoutCustomerInput
+    visits?: CustomerVisitCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUncheckedCreateWithoutCustomerRewardsInput = {
@@ -23463,6 +25323,7 @@ export namespace Prisma {
     qrTokens?: QrTokenUncheckedCreateNestedManyWithoutCustomerInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutCustomerInput
     pointsLedger?: PointsLedgerUncheckedCreateNestedManyWithoutCustomerInput
+    visits?: CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerCreateOrConnectWithoutCustomerRewardsInput = {
@@ -23571,6 +25432,7 @@ export namespace Prisma {
     qrTokens?: QrTokenUpdateManyWithoutCustomerNestedInput
     transactions?: TransactionUpdateManyWithoutCustomerNestedInput
     pointsLedger?: PointsLedgerUpdateManyWithoutCustomerNestedInput
+    visits?: CustomerVisitUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateWithoutCustomerRewardsInput = {
@@ -23591,6 +25453,7 @@ export namespace Prisma {
     qrTokens?: QrTokenUncheckedUpdateManyWithoutCustomerNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutCustomerNestedInput
     pointsLedger?: PointsLedgerUncheckedUpdateManyWithoutCustomerNestedInput
+    visits?: CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   }
 
   export type RewardUpsertWithoutCustomerRewardsInput = {
@@ -23758,9 +25621,12 @@ export namespace Prisma {
     city?: string | null
     isActive?: boolean
     createdAt?: Date | string
+    dailyCode?: string | null
+    dailyCodeExpiresAt?: Date | string | null
     homeCustomers?: CustomerCreateNestedManyWithoutHomeBranchInput
     staff?: StaffCreateNestedManyWithoutBranchInput
     transactions?: TransactionCreateNestedManyWithoutBranchInput
+    visits?: CustomerVisitCreateNestedManyWithoutBranchInput
   }
 
   export type BranchUncheckedCreateWithoutOffersInput = {
@@ -23775,9 +25641,12 @@ export namespace Prisma {
     city?: string | null
     isActive?: boolean
     createdAt?: Date | string
+    dailyCode?: string | null
+    dailyCodeExpiresAt?: Date | string | null
     homeCustomers?: CustomerUncheckedCreateNestedManyWithoutHomeBranchInput
     staff?: StaffUncheckedCreateNestedManyWithoutBranchInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutBranchInput
+    visits?: CustomerVisitUncheckedCreateNestedManyWithoutBranchInput
   }
 
   export type BranchCreateOrConnectWithoutOffersInput = {
@@ -23849,9 +25718,12 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     homeCustomers?: CustomerUpdateManyWithoutHomeBranchNestedInput
     staff?: StaffUpdateManyWithoutBranchNestedInput
     transactions?: TransactionUpdateManyWithoutBranchNestedInput
+    visits?: CustomerVisitUpdateManyWithoutBranchNestedInput
   }
 
   export type BranchUncheckedUpdateWithoutOffersInput = {
@@ -23866,9 +25738,12 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     homeCustomers?: CustomerUncheckedUpdateManyWithoutHomeBranchNestedInput
     staff?: StaffUncheckedUpdateManyWithoutBranchNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutBranchNestedInput
+    visits?: CustomerVisitUncheckedUpdateManyWithoutBranchNestedInput
   }
 
   export type StaffCreateWithoutAuditLogsInput = {
@@ -23939,6 +25814,202 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutStaffNestedInput
   }
 
+  export type CustomerCreateWithoutVisitsInput = {
+    id?: string
+    mobile: string
+    name: string
+    email?: string | null
+    birthday?: Date | string | null
+    language?: string
+    isBlocked?: boolean
+    pointsBalance?: number
+    visitCount?: number
+    totalSpend?: Decimal | DecimalJsLike | number | string
+    lastVisitAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    homeBranch?: BranchCreateNestedOneWithoutHomeCustomersInput
+    qrTokens?: QrTokenCreateNestedManyWithoutCustomerInput
+    transactions?: TransactionCreateNestedManyWithoutCustomerInput
+    pointsLedger?: PointsLedgerCreateNestedManyWithoutCustomerInput
+    customerRewards?: CustomerRewardCreateNestedManyWithoutCustomerInput
+  }
+
+  export type CustomerUncheckedCreateWithoutVisitsInput = {
+    id?: string
+    mobile: string
+    name: string
+    email?: string | null
+    birthday?: Date | string | null
+    language?: string
+    isBlocked?: boolean
+    homeBranchId?: string | null
+    pointsBalance?: number
+    visitCount?: number
+    totalSpend?: Decimal | DecimalJsLike | number | string
+    lastVisitAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    qrTokens?: QrTokenUncheckedCreateNestedManyWithoutCustomerInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutCustomerInput
+    pointsLedger?: PointsLedgerUncheckedCreateNestedManyWithoutCustomerInput
+    customerRewards?: CustomerRewardUncheckedCreateNestedManyWithoutCustomerInput
+  }
+
+  export type CustomerCreateOrConnectWithoutVisitsInput = {
+    where: CustomerWhereUniqueInput
+    create: XOR<CustomerCreateWithoutVisitsInput, CustomerUncheckedCreateWithoutVisitsInput>
+  }
+
+  export type BranchCreateWithoutVisitsInput = {
+    id?: string
+    code: string
+    name: string
+    nameAr?: string | null
+    address?: string | null
+    addressAr?: string | null
+    phone?: string | null
+    hours?: string | null
+    city?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    dailyCode?: string | null
+    dailyCodeExpiresAt?: Date | string | null
+    homeCustomers?: CustomerCreateNestedManyWithoutHomeBranchInput
+    staff?: StaffCreateNestedManyWithoutBranchInput
+    transactions?: TransactionCreateNestedManyWithoutBranchInput
+    offers?: OfferBranchCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchUncheckedCreateWithoutVisitsInput = {
+    id?: string
+    code: string
+    name: string
+    nameAr?: string | null
+    address?: string | null
+    addressAr?: string | null
+    phone?: string | null
+    hours?: string | null
+    city?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    dailyCode?: string | null
+    dailyCodeExpiresAt?: Date | string | null
+    homeCustomers?: CustomerUncheckedCreateNestedManyWithoutHomeBranchInput
+    staff?: StaffUncheckedCreateNestedManyWithoutBranchInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutBranchInput
+    offers?: OfferBranchUncheckedCreateNestedManyWithoutBranchInput
+  }
+
+  export type BranchCreateOrConnectWithoutVisitsInput = {
+    where: BranchWhereUniqueInput
+    create: XOR<BranchCreateWithoutVisitsInput, BranchUncheckedCreateWithoutVisitsInput>
+  }
+
+  export type CustomerUpsertWithoutVisitsInput = {
+    update: XOR<CustomerUpdateWithoutVisitsInput, CustomerUncheckedUpdateWithoutVisitsInput>
+    create: XOR<CustomerCreateWithoutVisitsInput, CustomerUncheckedCreateWithoutVisitsInput>
+    where?: CustomerWhereInput
+  }
+
+  export type CustomerUpdateToOneWithWhereWithoutVisitsInput = {
+    where?: CustomerWhereInput
+    data: XOR<CustomerUpdateWithoutVisitsInput, CustomerUncheckedUpdateWithoutVisitsInput>
+  }
+
+  export type CustomerUpdateWithoutVisitsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    birthday?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    language?: StringFieldUpdateOperationsInput | string
+    isBlocked?: BoolFieldUpdateOperationsInput | boolean
+    pointsBalance?: IntFieldUpdateOperationsInput | number
+    visitCount?: IntFieldUpdateOperationsInput | number
+    totalSpend?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    lastVisitAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    homeBranch?: BranchUpdateOneWithoutHomeCustomersNestedInput
+    qrTokens?: QrTokenUpdateManyWithoutCustomerNestedInput
+    transactions?: TransactionUpdateManyWithoutCustomerNestedInput
+    pointsLedger?: PointsLedgerUpdateManyWithoutCustomerNestedInput
+    customerRewards?: CustomerRewardUpdateManyWithoutCustomerNestedInput
+  }
+
+  export type CustomerUncheckedUpdateWithoutVisitsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    mobile?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    birthday?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    language?: StringFieldUpdateOperationsInput | string
+    isBlocked?: BoolFieldUpdateOperationsInput | boolean
+    homeBranchId?: NullableStringFieldUpdateOperationsInput | string | null
+    pointsBalance?: IntFieldUpdateOperationsInput | number
+    visitCount?: IntFieldUpdateOperationsInput | number
+    totalSpend?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    lastVisitAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    qrTokens?: QrTokenUncheckedUpdateManyWithoutCustomerNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutCustomerNestedInput
+    pointsLedger?: PointsLedgerUncheckedUpdateManyWithoutCustomerNestedInput
+    customerRewards?: CustomerRewardUncheckedUpdateManyWithoutCustomerNestedInput
+  }
+
+  export type BranchUpsertWithoutVisitsInput = {
+    update: XOR<BranchUpdateWithoutVisitsInput, BranchUncheckedUpdateWithoutVisitsInput>
+    create: XOR<BranchCreateWithoutVisitsInput, BranchUncheckedCreateWithoutVisitsInput>
+    where?: BranchWhereInput
+  }
+
+  export type BranchUpdateToOneWithWhereWithoutVisitsInput = {
+    where?: BranchWhereInput
+    data: XOR<BranchUpdateWithoutVisitsInput, BranchUncheckedUpdateWithoutVisitsInput>
+  }
+
+  export type BranchUpdateWithoutVisitsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressAr?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    hours?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    homeCustomers?: CustomerUpdateManyWithoutHomeBranchNestedInput
+    staff?: StaffUpdateManyWithoutBranchNestedInput
+    transactions?: TransactionUpdateManyWithoutBranchNestedInput
+    offers?: OfferBranchUpdateManyWithoutBranchNestedInput
+  }
+
+  export type BranchUncheckedUpdateWithoutVisitsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    nameAr?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    addressAr?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    hours?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
+    dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    homeCustomers?: CustomerUncheckedUpdateManyWithoutHomeBranchNestedInput
+    staff?: StaffUncheckedUpdateManyWithoutBranchNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutBranchNestedInput
+    offers?: OfferBranchUncheckedUpdateManyWithoutBranchNestedInput
+  }
+
   export type CustomerCreateManyHomeBranchInput = {
     id?: string
     mobile: string
@@ -23984,6 +26055,16 @@ export namespace Prisma {
     offerId: string
   }
 
+  export type CustomerVisitCreateManyBranchInput = {
+    id?: string
+    customerId: string
+    couponCode: string
+    pointsEarned?: number
+    checkInMethod?: string
+    note?: string | null
+    createdAt?: Date | string
+  }
+
   export type CustomerUpdateWithoutHomeBranchInput = {
     id?: StringFieldUpdateOperationsInput | string
     mobile?: StringFieldUpdateOperationsInput | string
@@ -24002,6 +26083,7 @@ export namespace Prisma {
     transactions?: TransactionUpdateManyWithoutCustomerNestedInput
     pointsLedger?: PointsLedgerUpdateManyWithoutCustomerNestedInput
     customerRewards?: CustomerRewardUpdateManyWithoutCustomerNestedInput
+    visits?: CustomerVisitUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateWithoutHomeBranchInput = {
@@ -24022,6 +26104,7 @@ export namespace Prisma {
     transactions?: TransactionUncheckedUpdateManyWithoutCustomerNestedInput
     pointsLedger?: PointsLedgerUncheckedUpdateManyWithoutCustomerNestedInput
     customerRewards?: CustomerRewardUncheckedUpdateManyWithoutCustomerNestedInput
+    visits?: CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateManyWithoutHomeBranchInput = {
@@ -24135,6 +26218,36 @@ export namespace Prisma {
     offerId?: StringFieldUpdateOperationsInput | string
   }
 
+  export type CustomerVisitUpdateWithoutBranchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    couponCode?: StringFieldUpdateOperationsInput | string
+    pointsEarned?: IntFieldUpdateOperationsInput | number
+    checkInMethod?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: CustomerUpdateOneRequiredWithoutVisitsNestedInput
+  }
+
+  export type CustomerVisitUncheckedUpdateWithoutBranchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    couponCode?: StringFieldUpdateOperationsInput | string
+    pointsEarned?: IntFieldUpdateOperationsInput | number
+    checkInMethod?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomerVisitUncheckedUpdateManyWithoutBranchInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
+    couponCode?: StringFieldUpdateOperationsInput | string
+    pointsEarned?: IntFieldUpdateOperationsInput | number
+    checkInMethod?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type QrTokenCreateManyCustomerInput = {
     id?: string
     token: string
@@ -24175,6 +26288,16 @@ export namespace Prisma {
     expiresAt?: Date | string | null
     redeemedAt?: Date | string | null
     redeemedTxId?: string | null
+  }
+
+  export type CustomerVisitCreateManyCustomerInput = {
+    id?: string
+    branchId: string
+    couponCode: string
+    pointsEarned?: number
+    checkInMethod?: string
+    note?: string | null
+    createdAt?: Date | string
   }
 
   export type QrTokenUpdateWithoutCustomerInput = {
@@ -24305,6 +26428,36 @@ export namespace Prisma {
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     redeemedTxId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CustomerVisitUpdateWithoutCustomerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    couponCode?: StringFieldUpdateOperationsInput | string
+    pointsEarned?: IntFieldUpdateOperationsInput | number
+    checkInMethod?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    branch?: BranchUpdateOneRequiredWithoutVisitsNestedInput
+  }
+
+  export type CustomerVisitUncheckedUpdateWithoutCustomerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    branchId?: StringFieldUpdateOperationsInput | string
+    couponCode?: StringFieldUpdateOperationsInput | string
+    pointsEarned?: IntFieldUpdateOperationsInput | number
+    checkInMethod?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomerVisitUncheckedUpdateManyWithoutCustomerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    branchId?: StringFieldUpdateOperationsInput | string
+    couponCode?: StringFieldUpdateOperationsInput | string
+    pointsEarned?: IntFieldUpdateOperationsInput | number
+    checkInMethod?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TransactionCreateManyStaffInput = {

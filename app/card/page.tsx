@@ -16,6 +16,10 @@ import {
   Edit3,
   CheckCircle2,
   AlertCircle,
+  MapPin,
+  Ticket,
+  Check,
+  X,
 } from "lucide-react";
 
 const BRAND = process.env.NEXT_PUBLIC_APP_NAME || "Loyalty Club";
@@ -40,6 +44,34 @@ export default function CustomerCardPage() {
   const [profile, setProfile] = useState({ name: "", email: "", birthday: "" });
   const [profileBusy, setProfileBusy] = useState(false);
   const [profileMsg, setProfileMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  // Branch Visit Self Check-in
+  const [visitCodeInput, setVisitCodeInput] = useState("");
+  const [visitBusy, setVisitBusy] = useState(false);
+  const [visitMsg, setVisitMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  async function handleCheckIn(e: React.FormEvent) {
+    e.preventDefault();
+    if (!visitCodeInput.trim()) return;
+    setVisitBusy(true);
+    setVisitMsg(null);
+    try {
+      const r = await fetch("/api/visits/check-in", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ couponCode: visitCodeInput }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Could not check in visit.");
+      setVisitMsg({ type: "ok", text: d.message || "Visit checked in successfully!" });
+      setVisitCodeInput("");
+      loadCard();
+    } catch (err2: any) {
+      setVisitMsg({ type: "err", text: String(err2.message || err2) });
+    } finally {
+      setVisitBusy(false);
+    }
+  }
 
   const loadCard = useCallback(async () => {
     try {
@@ -207,6 +239,61 @@ export default function CustomerCardPage() {
           <div className="text-2xl font-black text-[var(--ink)] leading-none">{Math.round(customer.totalSpend)}</div>
           <div className="text-[11px] font-bold text-[var(--ink-3)] uppercase tracking-wider mt-1.5">{currency} Spent</div>
         </div>
+      </div>
+
+      {/* Branch Visit Self Check-in Banner / Form */}
+      <div className="bg-[var(--surface)] border border-[var(--line)] rounded-3xl p-5 mb-5 shadow-sm space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#C0392B]/10 text-[#C0392B] flex items-center justify-center font-bold">
+              <MapPin className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-sm font-extrabold text-[var(--ink)] leading-tight">
+                Dine-in Check-in
+              </div>
+              <div className="text-[11px] text-[var(--ink-3)]">
+                Enter today&apos;s 24H branch code to log your visit
+              </div>
+            </div>
+          </div>
+          <span className="px-2 py-0.5 rounded-full bg-[#1E7A4D]/10 text-[#1E7A4D] text-[10px] font-black uppercase">
+            24h Passcode
+          </span>
+        </div>
+
+        {visitMsg && (
+          <div
+            className={`p-3 rounded-xl text-xs font-semibold flex items-center justify-between ${
+              visitMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20" : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/20"
+            }`}
+          >
+            <span>{visitMsg.text}</span>
+            <button onClick={() => setVisitMsg(null)}>
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
+        <form onSubmit={handleCheckIn} className="flex gap-2">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              placeholder="e.g. 1015-7K9A"
+              value={visitCodeInput}
+              onChange={(e) => setVisitCodeInput(e.target.value.toUpperCase())}
+              className="w-full px-3.5 py-2.5 bg-[var(--surface-subtle)] border border-[var(--line)] rounded-xl font-mono text-xs font-bold text-[var(--ink)] placeholder-[var(--ink-3)] uppercase focus:outline-none focus:border-[#C0392B]"
+            />
+            <Ticket className="w-3.5 h-3.5 text-[var(--ink-3)] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+          <button
+            type="submit"
+            disabled={visitBusy || !visitCodeInput.trim()}
+            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer shrink-0 transition-all"
+          >
+            {visitBusy ? "Logging…" : "Check In"}
+          </button>
+        </form>
       </div>
 
       {/* Next Milestones ("Almost there") */}
