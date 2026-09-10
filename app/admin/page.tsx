@@ -134,6 +134,8 @@ export default function AdminPage() {
     phone: string;
     hours: string;
     isActive: boolean;
+    dailyCode: string;
+    dailyCodeExpiresAt: string;
   }>({
     code: "",
     name: "",
@@ -144,6 +146,8 @@ export default function AdminPage() {
     phone: "",
     hours: "10:00 AM – 11:00 PM",
     isActive: true,
+    dailyCode: "",
+    dailyCodeExpiresAt: "",
   });
   const [branchMsg, setBranchMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
@@ -327,6 +331,17 @@ export default function AdminPage() {
     }
   }, [session, tab, loadCustomers, loadAudit, loadOffers, loadBranches, loadSettings, loadStaff, loadVisits]);
 
+  // Branch Coupon Generator Helper
+  function generateRandomCouponCode(prefix: string) {
+    const cleanPrefix = String(prefix || "VISIT").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let suffix = "";
+    for (let i = 0; i < 4; i++) {
+      suffix += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return `${cleanPrefix}-${suffix}`;
+  }
+
   // Branch CRUD Handlers
   async function handleCreateBranch(e: React.FormEvent) {
     e.preventDefault();
@@ -340,7 +355,7 @@ export default function AdminPage() {
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Failed to create branch.");
-      setBranchMsg({ type: "ok", text: `Branch '${d.branch.name}' created successfully!` });
+      setBranchMsg({ type: "ok", text: `Branch '${d.branch.name}' created successfully with 24H Coupon '${d.branch.dailyCode}'!` });
       setShowCreateBranchModal(false);
       setBranchForm({
         code: "",
@@ -352,6 +367,8 @@ export default function AdminPage() {
         phone: "",
         hours: "10:00 AM – 11:00 PM",
         isActive: true,
+        dailyCode: "",
+        dailyCodeExpiresAt: "",
       });
       loadBranches();
       loadOverview();
@@ -437,6 +454,8 @@ export default function AdminPage() {
       phone: b.phone || "",
       hours: b.hours || "",
       isActive: b.isActive,
+      dailyCode: b.dailyCode || "",
+      dailyCodeExpiresAt: b.dailyCodeExpiresAt || "",
     });
     setBranchMsg(null);
     setShowEditBranchModal(true);
@@ -1025,6 +1044,7 @@ export default function AdminPage() {
             {tab === "branches" && (
               <button
                 onClick={() => {
+                  const initialCode = generateRandomCouponCode("1015");
                   setBranchForm({
                     code: "",
                     name: "",
@@ -1035,6 +1055,8 @@ export default function AdminPage() {
                     phone: "",
                     hours: "10:00 AM – 11:00 PM",
                     isActive: true,
+                    dailyCode: initialCode,
+                    dailyCodeExpiresAt: "",
                   });
                   setBranchMsg(null);
                   setShowCreateBranchModal(true);
@@ -1614,6 +1636,7 @@ export default function AdminPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => {
+                        const initialCode = generateRandomCouponCode("1015");
                         setBranchForm({
                           code: "",
                           name: "",
@@ -1624,6 +1647,8 @@ export default function AdminPage() {
                           phone: "",
                           hours: "10:00 AM – 11:00 PM",
                           isActive: true,
+                          dailyCode: initialCode,
+                          dailyCodeExpiresAt: "",
                         });
                         setBranchMsg(null);
                         setShowCreateBranchModal(true);
@@ -3025,7 +3050,7 @@ export default function AdminPage() {
       {/* ============================================================== */}
       {showCreateBranchModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-extrabold text-lg text-[#1E1815] flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-[#C0392B]" />
@@ -3059,7 +3084,14 @@ export default function AdminPage() {
                     required
                     placeholder="e.g. 1015"
                     value={branchForm.code}
-                    onChange={(e) => setBranchForm({ ...branchForm, code: e.target.value })}
+                    onChange={(e) => {
+                      const newCode = e.target.value;
+                      setBranchForm({
+                        ...branchForm,
+                        code: newCode,
+                        dailyCode: branchForm.dailyCode || generateRandomCouponCode(newCode || "1015"),
+                      });
+                    }}
                     className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
                   />
                 </div>
@@ -3102,6 +3134,56 @@ export default function AdminPage() {
                   onChange={(e) => setBranchForm({ ...branchForm, nameAr: e.target.value })}
                   className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
                 />
+              </div>
+
+              {/* 24-Hour Coupon Generator & Validity Engine */}
+              <div className="p-4 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Ticket className="w-4 h-4 text-[#C0392B]" />
+                    <span className="font-extrabold text-xs text-[#1E1815]">
+                      24-Hour Visit Coupon Passcode
+                    </span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#1E7A4D] animate-pulse" />
+                    Auto 24H Validity
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      placeholder="e.g. 1015-7K9A"
+                      value={branchForm.dailyCode}
+                      onChange={(e) => setBranchForm({ ...branchForm, dailyCode: e.target.value.toUpperCase() })}
+                      className="w-full px-3.5 py-2.5 text-xs bg-white border border-[#E0D7CF] rounded-xl font-mono font-black text-[#C0392B] tracking-wider focus:outline-none focus:border-[#C0392B]"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const fresh = generateRandomCouponCode(branchForm.code || "1015");
+                      setBranchForm({ ...branchForm, dailyCode: fresh });
+                    }}
+                    title="Generate Fresh 24H Coupon Code"
+                    className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-[#EAE3DC] bg-white hover:bg-[#FAF0E6] text-xs font-bold text-[#4A3F39] hover:text-[#C0392B] transition-colors cursor-pointer shrink-0"
+                  >
+                    <RotateCw className="w-3.5 h-3.5 text-[#C0392B]" />
+                    <span>Generate</span>
+                  </button>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-[#7A6E67] pt-1">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-[#C68A1E] shrink-0" />
+                    <span>Valid: Auto-refreshed every 24 Hours</span>
+                  </div>
+                  <span className="text-[#C0392B] font-bold text-[10px]">
+                    🚫 1-Time Use Per Customer
+                  </span>
+                </div>
               </div>
 
               <div>
@@ -3179,7 +3261,7 @@ export default function AdminPage() {
       {/* ============================================================== */}
       {showEditBranchModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-extrabold text-lg text-[#1E1815] flex items-center gap-2">
                 <Edit2 className="w-5 h-5 text-[#C0392B]" />
@@ -3252,6 +3334,60 @@ export default function AdminPage() {
                   onChange={(e) => setBranchForm({ ...branchForm, nameAr: e.target.value })}
                   className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
                 />
+              </div>
+
+              {/* 24-Hour Coupon Generator & Validity Engine in Edit */}
+              <div className="p-4 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Ticket className="w-4 h-4 text-[#C0392B]" />
+                    <span className="font-extrabold text-xs text-[#1E1815]">
+                      Active 24-Hour Visit Coupon Code
+                    </span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#1E7A4D] animate-pulse" />
+                    24H Auto-Rotating
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      placeholder="e.g. 1015-7K9A"
+                      value={branchForm.dailyCode}
+                      onChange={(e) => setBranchForm({ ...branchForm, dailyCode: e.target.value.toUpperCase() })}
+                      className="w-full px-3.5 py-2.5 text-xs bg-white border border-[#E0D7CF] rounded-xl font-mono font-black text-[#C0392B] tracking-wider focus:outline-none focus:border-[#C0392B]"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const fresh = generateRandomCouponCode(branchForm.code || "1015");
+                      setBranchForm({ ...branchForm, dailyCode: fresh });
+                    }}
+                    title="Regenerate 24H Coupon Code"
+                    className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-[#EAE3DC] bg-white hover:bg-[#FAF0E6] text-xs font-bold text-[#4A3F39] hover:text-[#C0392B] transition-colors cursor-pointer shrink-0"
+                  >
+                    <RotateCw className="w-3.5 h-3.5 text-[#C0392B]" />
+                    <span>Rotate Now</span>
+                  </button>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-[#7A6E67] pt-1">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-[#C68A1E] shrink-0" />
+                    <span>
+                      {branchForm.dailyCodeExpiresAt
+                        ? `Expiry: ${new Date(branchForm.dailyCodeExpiresAt).toLocaleString()}`
+                        : "Valid for 24 Hours"}
+                    </span>
+                  </div>
+                  <span className="text-[#C0392B] font-bold text-[10px]">
+                    🚫 1-Time Use Per Customer
+                  </span>
+                </div>
               </div>
 
               <div>

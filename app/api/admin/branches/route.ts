@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/adminScope";
 import { canAccessAllBranches } from "@/lib/session";
-import { getOrRotateBranchDailyCode } from "@/lib/visits";
+import { getOrRotateBranchDailyCode, generateBranchDailyCode } from "@/lib/visits";
 
 // GET: List all branches with rich metrics (staff count, customer count, transaction count, revenue, and live 24h coupon code)
 export async function GET() {
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const { code, name, nameAr, city, address, addressAr, phone, hours, isActive } = body || {};
+  const { code, name, nameAr, city, address, addressAr, phone, hours, isActive, dailyCode } = body || {};
 
   if (!code || String(code).trim().length < 2) {
     return NextResponse.json({ error: "Branch code is required (e.g. 1015)." }, { status: 400 });
@@ -120,6 +120,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Branch code '${cleanCode}' is already in use by '${existing.name}'.` }, { status: 409 });
   }
 
+  const initialCode = dailyCode ? String(dailyCode).trim().toUpperCase() : generateBranchDailyCode(cleanCode);
+  const initialExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
   try {
     const branch = await prisma.branch.create({
       data: {
@@ -132,6 +135,8 @@ export async function POST(req: NextRequest) {
         phone: phone ? String(phone).trim() : null,
         hours: hours ? String(hours).trim() : null,
         isActive: isActive !== false,
+        dailyCode: initialCode,
+        dailyCodeExpiresAt: initialExpiresAt,
       },
     });
 
@@ -146,6 +151,7 @@ export async function POST(req: NextRequest) {
           code: branch.code,
           name: branch.name,
           city: branch.city,
+          dailyCode: branch.dailyCode,
         },
       },
     });
@@ -175,7 +181,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const { id, code, name, nameAr, city, address, addressAr, phone, hours, isActive } = body || {};
+  const { id, code, name, nameAr, city, address, addressAr, phone, hours, isActive, dailyCode, rotateCode } = body || {};
 
   if (!id) {
     return NextResponse.json({ error: "Branch ID is required." }, { status: 400 });
@@ -201,6 +207,17 @@ export async function PUT(req: NextRequest) {
     }
   }
 
+  let newDailyCode = branch.dailyCode;
+  let newExpiresAt = branch.dailyCodeExpiresAt;
+
+  if (rotateCode) {
+    newDailyCode = generateBranchDailyCode(cleanCode);
+    newExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  } else if (dailyCode && String(dailyCode).trim() !== branch.dailyCode) {
+    newDailyCode = String(dailyCode).trim().toUpperCase();
+    newExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  }
+
   try {
     const updated = await prisma.branch.update({
       where: { id: branch.id },
@@ -214,6 +231,8 @@ export async function PUT(req: NextRequest) {
         phone: phone !== undefined ? (phone ? String(phone).trim() : null) : branch.phone,
         hours: hours !== undefined ? (hours ? String(hours).trim() : null) : branch.hours,
         isActive: isActive !== undefined ? Boolean(isActive) : branch.isActive,
+        dailyCode: newDailyCode,
+        dailyCodeExpiresAt: newExpiresAt,
       },
     });
 
@@ -228,6 +247,7 @@ export async function PUT(req: NextRequest) {
           code: updated.code,
           name: updated.name,
           isActive: updated.isActive,
+          dailyCode: updated.dailyCode,
         },
       },
     });

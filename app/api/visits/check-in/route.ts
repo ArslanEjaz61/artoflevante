@@ -76,19 +76,34 @@ export async function POST(req: NextRequest) {
 
     const matchedBranch = matchingEntry.branch;
 
-    // 3. Anti-abuse check: Has customer already checked into this branch in the past 12 hours?
-    const past12Hours = new Date(Date.now() - 12 * 60 * 60 * 1000);
+    // 3. Strict anti-abuse checks:
+    // Check A: Has customer already applied/redeemed this specific coupon code before?
+    const existingCodeUse = await prisma.customerVisit.findFirst({
+      where: {
+        customerId: targetCustomerId,
+        couponCode: matchingEntry.dailyCode,
+      },
+    });
+
+    if (existingCodeUse) {
+      return NextResponse.json({
+        error: "You have already used this coupon code. This coupon cannot be applied again to your account.",
+      }, { status: 400 });
+    }
+
+    // Check B: Has customer already checked into this branch in the past 24 hours?
+    const past24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const existingRecentVisit = await prisma.customerVisit.findFirst({
       where: {
         customerId: targetCustomerId,
         branchId: matchedBranch.id,
-        createdAt: { gte: past12Hours },
+        createdAt: { gte: past24Hours },
       },
     });
 
     if (existingRecentVisit) {
       return NextResponse.json({
-        error: `You have already checked into ${matchedBranch.name} today. Your visit is already logged!`,
+        error: `You have already checked into ${matchedBranch.name} in the past 24 hours. Your visit is already logged!`,
       }, { status: 400 });
     }
 
