@@ -83,6 +83,16 @@ export default function HomePage() {
   const [branchCode, setBranchCode] = useState("");
 
   useEffect(() => {
+    fetch("/api/card")
+      .then((r) => {
+        if (r.ok) {
+          router.push("/dashboard");
+        }
+      })
+      .catch(() => {});
+  }, [router]);
+
+  useEffect(() => {
     try {
       const b = new URLSearchParams(window.location.search).get("b");
       if (b) setBranchCode(b);
@@ -113,6 +123,11 @@ export default function HomePage() {
 
   const setField = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setF((x) => ({ ...x, [k]: e.target.value }));
+  };
+
+  const handleMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digitsOnly = e.target.value.replace(/\D/g, "");
+    setF((x) => ({ ...x, mobile: digitsOnly }));
   };
 
   async function sendCode(e?: React.FormEvent) {
@@ -157,7 +172,7 @@ export default function HomePage() {
         setWelcomeGift(d.welcome);
         setShowWelcomeModal(true);
       } else {
-        router.push("/card");
+        router.push("/dashboard");
       }
     } catch (e2: any) {
       setErr(String(e2.message || e2));
@@ -186,20 +201,54 @@ export default function HomePage() {
       <main className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-3xl p-6 sm:p-7 shadow-xl shadow-black/[0.03] transition-all">
         {stage === "form" ? (
           <div>
+            {/* Segmented Mode Selector: Join Now vs Sign In */}
+            <div className="flex bg-[var(--surface-subtle)] p-1.5 rounded-2xl border border-[var(--line)] mb-6">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("register");
+                  setErr("");
+                }}
+                className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  mode === "register"
+                    ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/25"
+                    : "text-[var(--ink-2)] hover:text-[var(--ink)] hover:bg-[var(--surface)]"
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                Join Now (Register)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("login");
+                  setErr("");
+                }}
+                className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  mode === "login"
+                    ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/25"
+                    : "text-[var(--ink-2)] hover:text-[var(--ink)] hover:bg-[var(--surface)]"
+                }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                Sign In (Login)
+              </button>
+            </div>
+
             <div className="mb-6">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FBEAE7] text-[#C0392B] text-xs font-bold mb-2.5">
                 <Sparkles className="w-3.5 h-3.5" />
                 {mode === "register"
-                  ? `Instant ${programInfo.welcomeDiscountPercent}% Voucher + ${programInfo.welcomeBonusPoints} Pts Gift`
-                  : "Welcome Back"}
+                  ? `Instant ${programInfo.welcomeDiscountPercent}% Voucher + ${programInfo.welcomeBonusPoints} Pts Bonus`
+                  : "Member Direct Access"}
               </div>
               <h2 className="text-2xl font-black tracking-tight text-[var(--ink)]">
-                {mode === "register" ? "Join the club" : "Sign in to your card"}
+                {mode === "register" ? "Join the VIP Club" : "Sign in to your card"}
               </h2>
               <p className="text-sm text-[var(--ink-2)] mt-1.5 leading-relaxed">
                 {mode === "register"
-                  ? `Register now. Get +${programInfo.welcomeBonusPoints} points bonus and ${programInfo.welcomeDiscountPercent}% off your order.`
-                  : "Enter your mobile number to receive a secure login code."}
+                  ? `Register now. Get +${programInfo.welcomeBonusPoints} points credited to your wallet and a ${programInfo.welcomeDiscountPercent}% discount voucher instantly.`
+                  : "Enter your registered mobile number to receive a secure login code."}
               </p>
             </div>
 
@@ -211,7 +260,7 @@ export default function HomePage() {
                   </label>
                   <input
                     id="name"
-                    className="w-full px-4 py-3 text-base bg-[var(--surface)] border border-[var(--line-2)] rounded-xl text-[var(--ink)] placeholder-[var(--ink-3)] focus:outline-none focus:border-[#C0392B] transition-colors"
+                    className="w-full px-4 py-3 text-base bg-[var(--surface)] border border-[var(--line-2)] rounded-xl text-[var(--ink)] placeholder-[var(--ink-3)] focus:outline-none focus:border-[#C0392B] transition-colors font-medium"
                     placeholder="e.g. Imran Sheikh"
                     value={f.name}
                     onChange={setField("name")}
@@ -240,11 +289,34 @@ export default function HomePage() {
                   </select>
                   <input
                     id="mobile"
-                    className="flex-1 min-w-0 px-4 py-3 text-base bg-[var(--surface)] border border-[var(--line-2)] rounded-xl text-[var(--ink)] placeholder-[var(--ink-3)] focus:outline-none focus:border-[#C0392B] transition-colors"
-                    inputMode="tel"
-                    placeholder="50 123 4567"
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    className="flex-1 min-w-0 px-4 py-3 text-base bg-[var(--surface)] border border-[var(--line-2)] rounded-xl text-[var(--ink)] placeholder-[var(--ink-3)] focus:outline-none focus:border-[#C0392B] font-mono tracking-wider transition-colors"
+                    placeholder="501234567"
                     value={f.mobile}
-                    onChange={setField("mobile")}
+                    onChange={handleMobileChange}
+                    onKeyDown={(e) => {
+                      if (
+                        [
+                          "Backspace",
+                          "Delete",
+                          "Tab",
+                          "ArrowLeft",
+                          "ArrowRight",
+                          "ArrowUp",
+                          "ArrowDown",
+                          "Enter",
+                        ].includes(e.key) ||
+                        e.ctrlKey ||
+                        e.metaKey
+                      ) {
+                        return;
+                      }
+                      if (!/^\d$/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                     autoComplete="tel"
                     required
                   />
@@ -261,7 +333,7 @@ export default function HomePage() {
                       id="email"
                       type="email"
                       className="w-full px-4 py-3 text-base bg-[var(--surface)] border border-[var(--line-2)] rounded-xl text-[var(--ink)] placeholder-[var(--ink-3)] focus:outline-none focus:border-[#C0392B] transition-colors"
-                      placeholder="you@example.com"
+                      placeholder="name@example.com"
                       value={f.email}
                       onChange={setField("email")}
                       autoComplete="email"
@@ -270,12 +342,12 @@ export default function HomePage() {
 
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-[var(--ink-2)] mb-1.5" htmlFor="birthday">
-                      Birthday <span className="text-[var(--ink-3)] font-normal normal-case">— for your birthday treat</span>
+                      Birthday <span className="text-[var(--ink-3)] font-normal normal-case">(for birthday surprises)</span>
                     </label>
                     <input
                       id="birthday"
                       type="date"
-                      className="w-full px-4 py-3 text-base bg-[var(--surface)] border border-[var(--line-2)] rounded-xl text-[var(--ink)] focus:outline-none focus:border-[#C0392B] transition-colors"
+                      className="w-full px-4 py-3 text-sm bg-[var(--surface)] border border-[var(--line-2)] rounded-xl text-[var(--ink)] focus:outline-none focus:border-[#C0392B] transition-colors"
                       value={f.birthday}
                       onChange={setField("birthday")}
                     />
@@ -338,11 +410,11 @@ export default function HomePage() {
                 {busy ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin-custom" />
-                    Sending Code…
+                    {mode === "register" ? "Creating Membership…" : "Sending Login Code…"}
                   </>
                 ) : (
                   <>
-                    Send Verification Code
+                    {mode === "register" ? "Register & Get Welcome Gifts" : "Sign In & Send Code"}
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -365,9 +437,9 @@ export default function HomePage() {
                       setMode("login");
                       setErr("");
                     }}
-                    className="font-bold text-[#C0392B] hover:underline"
+                    className="font-bold text-[#C0392B] hover:underline cursor-pointer"
                   >
-                    Sign in
+                    Sign in here
                   </button>
                 </>
               ) : (
@@ -379,9 +451,9 @@ export default function HomePage() {
                       setMode("register");
                       setErr("");
                     }}
-                    className="font-bold text-[#C0392B] hover:underline"
+                    className="font-bold text-[#C0392B] hover:underline cursor-pointer"
                   >
-                    Join now
+                    Join now & get rewards
                   </button>
                 </>
               )}
@@ -520,7 +592,7 @@ export default function HomePage() {
 
             {/* Action Button */}
             <button
-              onClick={() => router.push("/card")}
+              onClick={() => router.push("/dashboard")}
               className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-sm shadow-xl shadow-[#C0392B]/25 flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
               <span>Open My Digital VIP Card</span>
@@ -529,17 +601,6 @@ export default function HomePage() {
           </div>
         </div>
       )}
-
-      {/* Footer Navigation Links */}
-      <footer className="w-full flex items-center justify-center gap-6 mt-8 text-xs font-semibold text-[var(--ink-3)]">
-        <a href="/staff" className="hover:text-[#C0392B] transition-colors">
-          Staff Till Sign-in →
-        </a>
-        <span>·</span>
-        <a href="/admin" className="hover:text-[#C0392B] transition-colors">
-          Management Admin →
-        </a>
-      </footer>
     </div>
   );
 }

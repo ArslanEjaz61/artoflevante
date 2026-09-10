@@ -22,7 +22,26 @@ export async function GET() {
 
   const ttl = (await getNumber("qr_token_ttl_seconds")) || 180;
   const settings = await getSettings();
+  const cur = settings.currency || "AED";
   const pointsCashValue = await pointsToCurrency(customer.pointsBalance);
+
+  // Dynamic Redemption Settings
+  const pointsRequired = Number(settings.points_required_for_redemption || 100);
+  const valuePerRedemption = Number(settings.currency_value_per_redemption_points || 10);
+  const spendAedForPoints = Number(settings.spend_aed_for_points || 10);
+  const pointsEarnedPerSpend = Number(settings.points_earned_per_spend || 1);
+
+  // Dynamic Points Redemption Calculations
+  const pointsBal = customer.pointsBalance || 0;
+  const unlockedTiers = Math.floor(pointsBal / pointsRequired);
+  const nextTierPoints = (unlockedTiers + 1) * pointsRequired;
+  const pointsNeeded = nextTierPoints - pointsBal;
+  const nextTierValue = (unlockedTiers + 1) * valuePerRedemption;
+  const currentUnlockedValue = unlockedTiers * valuePerRedemption;
+  const progressPercent = Math.min(
+    100,
+    Math.round(((pointsBal % pointsRequired) / pointsRequired) * 100)
+  );
 
   // Retire outstanding tokens
   await prisma.qrToken.deleteMany({ where: { customerId, usedAt: null } });
@@ -91,18 +110,41 @@ export async function GET() {
       everywhere: o.branches.length === 0,
     }));
 
-  const nextTargets = allRewards
+  // Dynamic nextTargets list (Points Redemption + Visit Milestones)
+  const dynamicPointsTarget = {
+    id: "points_redemption_dynamic",
+    name: `${cur} ${nextTierValue} reward`,
+    kind: "points" as const,
+    need: pointsNeeded,
+    current: pointsBal % pointsRequired,
+    threshold: pointsRequired,
+    nextTierPoints,
+    progressPercent,
+    tierValue: nextTierValue,
+    unlockedTiers,
+    unlockedValue: currentUnlockedValue,
+    isReadyToRedeem: unlockedTiers > 0,
+  };
+
+  const visitTargets = allRewards
+    .filter((r) => r.type === "VISITS")
     .map((r) => {
-      if (r.type === "POINTS") {
-        const need = r.threshold - customer.pointsBalance;
-        return need > 0 ? { name: r.name, kind: "points", need } : null;
-      }
       const into = customer.visitCount % r.threshold;
       const need = r.threshold - into;
-      return { name: r.name, kind: "visits", need };
+      return {
+        id: r.id,
+        name: r.name,
+        nameAr: r.nameAr,
+        kind: "visits" as const,
+        need,
+        threshold: r.threshold,
+        current: into,
+        progressPercent: Math.min(100, Math.round((into / r.threshold) * 100)),
+      };
     })
-    .filter(Boolean)
-    .slice(0, 2);
+    .sort((a, b) => a.need - b.need);
+
+  const nextTargets = [dynamicPointsTarget, ...visitTargets];
 
   return NextResponse.json({
     customer: {
@@ -140,12 +182,25 @@ export async function GET() {
     })),
     offers,
     nextTargets,
-    currency: settings.currency || "AED",
+    redemptionStatus: {
+      pointsBalance: pointsBal,
+      pointsRequired,
+      valuePerRedemption,
+      pointsCashValue,
+      unlockedTiers,
+      unlockedValue: currentUnlockedValue,
+      nextTierPoints,
+      pointsNeeded,
+      nextTierValue,
+      progressPercent,
+      isReadyToRedeem: unlockedTiers > 0,
+    },
+    currency: cur,
     loyaltyRules: {
-      spendAedForPoints: Number(settings.spend_aed_for_points || 10),
-      pointsEarnedPerSpend: Number(settings.points_earned_per_spend || 1),
-      pointsRequiredForRedemption: Number(settings.points_required_for_redemption || 100),
-      currencyValuePerRedemptionPoints: Number(settings.currency_value_per_redemption_points || 5),
+      spendAedForPoints,
+      pointsEarnedPerSpend,
+      pointsRequiredForRedemption: pointsRequired,
+      currencyValuePerRedemptionPoints: valuePerRedemption,
       welcomeDiscountPercent: Number(settings.welcome_discount_percent || 10),
       welcomeBonusPoints: Number(settings.welcome_bonus_points || 50),
       pointsCashValue,

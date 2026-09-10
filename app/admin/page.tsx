@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
@@ -105,6 +106,7 @@ function formatMoney(cur: string, n: number): string {
 }
 
 export default function AdminPage() {
+  const router = useRouter();
   const [session, setSession] = useState<any>(null);
   const [login, setLogin] = useState({ username: "", pin: "" });
   const [tab, setTab] = useState<"overview" | "customers" | "offers" | "branches" | "staff" | "visits" | "audit" | "settings">("overview");
@@ -254,6 +256,32 @@ export default function AdminPage() {
   const [simBillAmount, setSimBillAmount] = useState("250");
   const [simPointsBalance, setSimPointsBalance] = useState("500");
 
+  // Visit Milestone Rewards state (Kitny visit pr kya free mily ga)
+  const [visitRewardsList, setVisitRewardsList] = useState<any[]>([]);
+  const [showVisitRewardModal, setShowVisitRewardModal] = useState(false);
+  const [showDeleteVisitRewardModal, setShowDeleteVisitRewardModal] = useState(false);
+  const [visitRewardToDelete, setVisitRewardToDelete] = useState<any>(null);
+  const [editingVisitRewardId, setEditingVisitRewardId] = useState<string | null>(null);
+  const [visitRewardForm, setVisitRewardForm] = useState<{
+    name: string;
+    nameAr: string;
+    description: string;
+    descriptionAr: string;
+    threshold: number | string;
+    validDays: number | string;
+    isActive: boolean;
+  }>({
+    name: "",
+    nameAr: "",
+    description: "",
+    descriptionAr: "",
+    threshold: 5,
+    validDays: 30,
+    isActive: true,
+  });
+  const [visitRewardSaving, setVisitRewardSaving] = useState(false);
+  const [visitRewardMsg, setVisitRewardMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
   const loadOverview = useCallback(async () => {
     setErr("");
     setRefreshing(true);
@@ -263,6 +291,10 @@ export default function AdminPage() {
           overviewDateFilter
         )}`
       );
+      if (r.status === 401 || r.status === 403) {
+        router.push("/admin/login");
+        return;
+      }
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Could not load admin overview.");
       setData(d);
@@ -272,7 +304,7 @@ export default function AdminPage() {
     } finally {
       setRefreshing(false);
     }
-  }, [overviewBranchFilter, overviewDateFilter]);
+  }, [overviewBranchFilter, overviewDateFilter, router]);
 
   const loadCustomers = useCallback(async () => {
     try {
@@ -323,6 +355,16 @@ export default function AdminPage() {
     } catch { }
   }, []);
 
+  const loadVisitRewards = useCallback(async () => {
+    try {
+      const r = await fetch("/api/admin/visit-rewards");
+      const d = await r.json();
+      if (r.ok && d.rewards) {
+        setVisitRewardsList(d.rewards);
+      }
+    } catch { }
+  }, []);
+
   const loadStaff = useCallback(async () => {
     try {
       const r = await fetch("/api/admin/staff");
@@ -358,7 +400,10 @@ export default function AdminPage() {
     if (session && tab === "audit") loadAudit();
     if (session && tab === "offers") loadOffers();
     if (session && tab === "branches") loadBranches();
-    if (session && tab === "settings") loadSettings();
+    if (session && tab === "settings") {
+      loadSettings();
+      loadVisitRewards();
+    }
     if (session && tab === "staff") {
       loadStaff();
       loadBranches();
@@ -367,7 +412,7 @@ export default function AdminPage() {
       loadVisits();
       loadBranches();
     }
-  }, [session, tab, loadCustomers, loadAudit, loadOffers, loadBranches, loadSettings, loadStaff, loadVisits]);
+  }, [session, tab, loadCustomers, loadAudit, loadOffers, loadBranches, loadSettings, loadVisitRewards, loadStaff, loadVisits]);
 
   // Branch Coupon Generator Helper
   function generateRandomCouponCode(prefix: string) {
@@ -547,6 +592,120 @@ export default function AdminPage() {
     } finally {
       setPinSaving(false);
     }
+  }
+
+  // Visit Milestone Rewards Handlers (Kitny visit pr kya free mily ga)
+  async function handleSaveVisitReward(e: React.FormEvent) {
+    e.preventDefault();
+    setVisitRewardSaving(true);
+    setVisitRewardMsg(null);
+    try {
+      const method = editingVisitRewardId ? "PATCH" : "POST";
+      const payload = editingVisitRewardId
+        ? { id: editingVisitRewardId, ...visitRewardForm }
+        : visitRewardForm;
+
+      const r = await fetch("/api/admin/visit-rewards", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Failed to save visit milestone reward.");
+
+      setVisitRewardMsg({ type: "ok", text: d.message || "Visit milestone reward rule saved live!" });
+      setShowVisitRewardModal(false);
+      setEditingVisitRewardId(null);
+      setVisitRewardForm({
+        name: "",
+        nameAr: "",
+        description: "",
+        descriptionAr: "",
+        threshold: 5,
+        validDays: 30,
+        isActive: true,
+      });
+      loadVisitRewards();
+      loadOverview();
+    } catch (err2: any) {
+      setVisitRewardMsg({ type: "err", text: String(err2.message || err2) });
+    } finally {
+      setVisitRewardSaving(false);
+    }
+  }
+
+  async function handleToggleVisitReward(reward: any) {
+    try {
+      const r = await fetch("/api/admin/visit-rewards", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: reward.id,
+          isActive: !reward.isActive,
+        }),
+      });
+      if (r.ok) {
+        loadVisitRewards();
+      }
+    } catch { }
+  }
+
+  async function handleDeleteVisitReward() {
+    if (!visitRewardToDelete) return;
+    setBusy(true);
+    setVisitRewardMsg(null);
+    try {
+      const r = await fetch(`/api/admin/visit-rewards?id=${visitRewardToDelete.id}`, {
+        method: "DELETE",
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Failed to delete visit milestone reward.");
+      setVisitRewardMsg({ type: "ok", text: d.message || "Visit milestone removed successfully." });
+      setShowDeleteVisitRewardModal(false);
+      setVisitRewardToDelete(null);
+      loadVisitRewards();
+      loadOverview();
+    } catch (err2: any) {
+      setVisitRewardMsg({ type: "err", text: String(err2.message || err2) });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function openCreateVisitReward() {
+    setEditingVisitRewardId(null);
+    setVisitRewardForm({
+      name: "",
+      nameAr: "",
+      description: "",
+      descriptionAr: "",
+      threshold: 5,
+      validDays: 30,
+      isActive: true,
+    });
+    setVisitRewardMsg(null);
+    setShowVisitRewardModal(true);
+  }
+
+  function openEditVisitReward(item: any) {
+    setEditingVisitRewardId(item.id);
+    setVisitRewardForm({
+      name: item.name || "",
+      nameAr: item.nameAr || "",
+      description: item.description || "",
+      descriptionAr: item.descriptionAr || "",
+      threshold: item.threshold || 5,
+      validDays: item.validDays || 30,
+      isActive: item.isActive !== undefined ? item.isActive : true,
+    });
+    setVisitRewardMsg(null);
+    setShowVisitRewardModal(true);
+  }
+
+  function openDeleteVisitReward(item: any) {
+    setVisitRewardToDelete(item);
+    setVisitRewardMsg(null);
+    setShowDeleteVisitRewardModal(true);
   }
 
   // Staff CRUD Handlers
@@ -757,74 +916,9 @@ export default function AdminPage() {
   // ===================== SIGNED OUT LOGIN VIEW =====================
   if (!session) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#120F0E] via-[#1B1716] to-[#251D1A] text-white">
-        <div className="w-full max-w-md bg-[#1B1716]/95 border border-[#3E3430] backdrop-blur-xl rounded-3xl p-7 sm:p-8 shadow-2xl shadow-black/60">
-          <div className="flex items-center gap-3.5 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center text-white font-black text-lg shadow-lg shadow-[#C0392B]/30">
-              LC
-            </div>
-            <div>
-              <h1 className="text-xl font-black tracking-tight text-white leading-none">Loyalty Club</h1>
-              <p className="text-xs font-semibold text-[#B8ADA6] uppercase tracking-wider mt-1">
-                Executive Portal
-              </p>
-            </div>
-          </div>
-
-          <h2 className="text-2xl font-black tracking-tight text-white mb-2">Management Sign In</h2>
-          <p className="text-sm text-[#B8ADA6] mb-6">Enter your administrative username and PIN.</p>
-
-          <form onSubmit={doLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[#B8ADA6] mb-1.5" htmlFor="au">
-                Username
-              </label>
-              <input
-                id="au"
-                className="w-full px-4 py-3 text-base bg-[#241F1D] border border-[#3E3430] rounded-xl text-white placeholder-[#8C7F78] focus:outline-none focus:border-[#C0392B] transition-colors"
-                value={login.username}
-                onChange={(e) => setLogin({ ...login, username: e.target.value })}
-                autoComplete="username"
-                placeholder="e.g. admin or manager"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[#B8ADA6] mb-1.5" htmlFor="ap">
-                Security PIN Code
-              </label>
-              <input
-                id="ap"
-                type="password"
-                inputMode="numeric"
-                className="w-full px-4 py-3 text-base bg-[#241F1D] border border-[#3E3430] rounded-xl text-white focus:outline-none focus:border-[#C0392B] font-mono tracking-widest transition-colors"
-                value={login.pin}
-                onChange={(e) => setLogin({ ...login, pin: e.target.value })}
-                placeholder="••••••"
-                required
-              />
-            </div>
-
-            {err && (
-              <div className="p-3 bg-[#C0392B]/20 border border-[#C0392B]/40 rounded-xl text-xs text-[#F87171] font-medium flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0" />
-                <span>{err}</span>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={busy}
-              className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] hover:to-[#822319] text-white font-bold text-sm tracking-wide shadow-lg shadow-[#C0392B]/30 hover:shadow-xl transition-all disabled:opacity-50 cursor-pointer"
-            >
-              {busy ? "Authenticating…" : "Open Dashboard"}
-            </button>
-          </form>
-
-          <div className="mt-8 pt-6 border-t border-[#2F2724] text-center text-xs text-[#8C7F78]">
-            Super Admin Demo: <span className="text-white font-mono font-bold">admin / 246810</span>
-          </div>
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-[#120F0E] via-[#1B1716] to-[#251D1A] text-white">
+        <div className="w-8 h-8 border-3 border-[#C0392B]/30 border-t-[#C0392B] rounded-full animate-spin mb-3" />
+        <p className="text-xs font-semibold text-[#B8ADA6]">Connecting to Executive Control…</p>
       </div>
     );
   }
@@ -898,9 +992,9 @@ export default function AdminPage() {
       : "0.0";
 
   return (
-    <div className="min-h-screen bg-[#F8F5F2] text-[#221C1A] flex flex-col md:flex-row">
+    <div className="h-screen overflow-hidden bg-[#F8F5F2] text-[#221C1A] flex flex-col md:flex-row">
       {/* ===================== SIDEBAR NAVIGATION ===================== */}
-      <aside className="w-full md:w-64 bg-[#181312] text-white flex-shrink-0 flex flex-col border-r border-[#2A2320]">
+      <aside className="w-full md:w-64 h-auto md:h-screen bg-[#181312] text-white flex-shrink-0 flex flex-col border-r border-[#2A2320] overflow-y-auto">
         {/* Brand Header */}
         <div className="p-5 flex items-center justify-between border-b border-[#2A2320]">
           <div className="flex items-center gap-3">
@@ -1048,7 +1142,7 @@ export default function AdminPage() {
               <div className="text-[10px] text-[#A69B95] truncate font-medium">{session.role}</div>
             </div>
             <a
-              href="/api/staff/logout"
+              href="/api/admin/logout"
               title="Sign Out"
               className="p-1.5 rounded-lg text-[#A69B95] hover:text-white hover:bg-[#2A2320] transition-colors"
             >
@@ -2902,6 +2996,176 @@ export default function AdminPage() {
                 </div>
               )}
 
+              {/* ========================================================= */}
+              {/* VISIT MILESTONES & FREE REWARDS ENGINE                    */}
+              {/* (Kitny visit pr kiya free mily ga - Admin Control)       */}
+              {/* ========================================================= */}
+              {settingsCategory === "loyalty" && (
+                <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[#EAE3DC] shadow-sm space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EAE3DC] pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
+                        <Gift className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-black tracking-tight text-[#1E1815] flex items-center gap-2">
+                          <span>Visit Milestone & Free Perks Engine</span>
+                          <span className="px-2.5 py-0.5 rounded-full bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20 text-[10px] font-black uppercase tracking-wider">
+                            {visitRewardsList.length} Milestones Configured
+                          </span>
+                        </h3>
+                        <p className="text-xs text-[#7A6E67] mt-0.5">
+                          Admin Rule: Kitny visit par customer ko kya free mily ga (Automated reward unlocks on dining check-in).
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={openCreateVisitReward}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer shrink-0"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add Visit Milestone</span>
+                    </button>
+                  </div>
+
+                  {visitRewardMsg && (
+                    <div
+                      className={`p-3.5 rounded-2xl text-xs font-bold flex items-center justify-between ${
+                        visitRewardMsg.type === "ok"
+                          ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
+                          : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {visitRewardMsg.type === "ok" ? (
+                          <Check className="w-4 h-4 shrink-0" />
+                        ) : (
+                          <AlertCircle className="w-4 h-4 shrink-0" />
+                        )}
+                        <span>{visitRewardMsg.text}</span>
+                      </div>
+                      <button onClick={() => setVisitRewardMsg(null)}>
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Milestone Cards Grid */}
+                  {visitRewardsList.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {visitRewardsList.map((reward, index) => (
+                        <div
+                          key={reward.id}
+                          className={`p-5 rounded-2xl border transition-all flex flex-col justify-between relative overflow-hidden ${
+                            reward.isActive
+                              ? "bg-[#FAF7F4] border-[#EAE3DC] shadow-2xs hover:shadow-md"
+                              : "bg-[#F5F2EF]/60 border-[#E5DDD6] opacity-70"
+                          }`}
+                        >
+                          {/* Top Badge & Actions */}
+                          <div>
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <span className="px-3 py-1 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] text-white font-black text-xs tracking-wider shadow-xs flex items-center gap-1.5">
+                                  <Sparkles className="w-3.5 h-3.5" />
+                                  <span>{reward.threshold} VISITS</span>
+                                </span>
+                                <span className="text-[10px] font-bold text-[#7A6E67] uppercase tracking-wider">
+                                  Tier #{index + 1}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => openEditVisitReward(reward)}
+                                  className="p-1.5 rounded-lg text-[#7A6E67] hover:text-[#1E1815] hover:bg-white transition-colors cursor-pointer"
+                                  title="Edit Milestone"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => openDeleteVisitReward(reward)}
+                                  className="p-1.5 rounded-lg text-[#C0392B] hover:bg-[#C0392B]/10 transition-colors cursor-pointer"
+                                  title="Delete Milestone"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+
+                            <h4 className="font-extrabold text-sm text-[#1E1815] mb-1">
+                              {reward.name}
+                            </h4>
+                            {reward.nameAr && (
+                              <div className="text-xs text-[#7A6E67] font-semibold mb-2" dir="rtl">
+                                {reward.nameAr}
+                              </div>
+                            )}
+                            <p className="text-xs text-[#7A6E67] leading-relaxed mb-4">
+                              {reward.description || `Unlocked automatically when diner hits visit #${reward.threshold}.`}
+                            </p>
+                          </div>
+
+                          {/* Bottom Meta & Status */}
+                          <div className="pt-3 border-t border-[#EAE3DC] space-y-2">
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="text-[#7A6E67] flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-[#C68A1E]" />
+                                <span>Valid for {reward.validDays || 30} days</span>
+                              </span>
+                              <span className="font-mono font-bold text-[#1E7A4D]">
+                                {reward.claimCount || 0} Claimed
+                              </span>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-1">
+                              <span className="text-[10px] text-[#8C7F78] uppercase font-bold tracking-wider">
+                                Status
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleToggleVisitReward(reward)}
+                                className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black cursor-pointer transition-colors ${
+                                  reward.isActive
+                                    ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20 hover:bg-[#1E7A4D]/20"
+                                    : "bg-[#7A6E67]/10 text-[#7A6E67] border border-[#7A6E67]/20 hover:bg-[#7A6E67]/20"
+                                }`}
+                              >
+                                <span
+                                  className={`w-1.5 h-1.5 rounded-full ${
+                                    reward.isActive ? "bg-[#1E7A4D]" : "bg-[#7A6E67]"
+                                  }`}
+                                />
+                                <span>{reward.isActive ? "ACTIVE" : "PAUSED"}</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-10 bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl p-6">
+                      <Gift className="w-10 h-10 text-[#C0392B]/40 mx-auto mb-2" />
+                      <h4 className="font-bold text-sm text-[#1E1815]">No Visit Milestone Rules Configured</h4>
+                      <p className="text-xs text-[#7A6E67] max-w-md mx-auto mt-1 mb-4">
+                        Create visit milestones (e.g. 5 visits = Free Drink, 10 visits = Free Dessert) so diners automatically unlock rewards upon dining!
+                      </p>
+                      <button
+                        type="button"
+                        onClick={openCreateVisitReward}
+                        className="px-4 py-2 bg-[#C0392B] text-white font-bold text-xs rounded-xl shadow-md cursor-pointer hover:bg-[#A83226]"
+                      >
+                        Create First Milestone Reward
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* General / Category Settings Form */}
               {settingsCategory !== "password" && (
                 <form onSubmit={handleSaveSettings} className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm space-y-6">
@@ -4079,6 +4343,186 @@ export default function AdminPage() {
                 className="px-5 py-2 rounded-xl bg-[#C0392B] hover:bg-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
               >
                 {busy ? "Processing…" : "Confirm Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: CREATE / EDIT VISIT MILESTONE REWARD                    */}
+      {/* ============================================================== */}
+      {showVisitRewardModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-extrabold text-lg text-[#1E1815] flex items-center gap-2">
+                <Gift className="w-5 h-5 text-[#C0392B]" />
+                {editingVisitRewardId ? "Edit Visit Milestone Reward" : "Add New Visit Milestone Reward"}
+              </h3>
+              <button
+                onClick={() => setShowVisitRewardModal(false)}
+                className="p-1 rounded-lg text-[#7A6E67] hover:bg-[#FAF7F4]"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveVisitReward} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                    Visit Milestone Threshold *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      required
+                      min={1}
+                      max={500}
+                      value={visitRewardForm.threshold}
+                      onChange={(e) => setVisitRewardForm({ ...visitRewardForm, threshold: e.target.value })}
+                      placeholder="e.g. 5, 10, 20"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8C7F78]">
+                      Visits
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                    Validity (Days after unlock) *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      required
+                      min={1}
+                      max={365}
+                      value={visitRewardForm.validDays}
+                      onChange={(e) => setVisitRewardForm({ ...visitRewardForm, validDays: e.target.value })}
+                      placeholder="e.g. 30"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8C7F78]">
+                      Days
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                  Free Reward / Item Name (English) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Free Signature Coffee / Beverage or Free Chef Dessert"
+                  value={visitRewardForm.name}
+                  onChange={(e) => setVisitRewardForm({ ...visitRewardForm, name: e.target.value })}
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-bold focus:outline-none focus:border-[#C0392B]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                  Free Reward / Item Name (Arabic - Optional)
+                </label>
+                <input
+                  type="text"
+                  dir="rtl"
+                  placeholder="مثال: مشروب مجاني مميز / حلوى مجانية"
+                  value={visitRewardForm.nameAr}
+                  onChange={(e) => setVisitRewardForm({ ...visitRewardForm, nameAr: e.target.value })}
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                  Customer Description / Wallet Instructions
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Enjoy any complimentary signature beverage on your 5th dining visit!"
+                  value={visitRewardForm.description}
+                  onChange={(e) => setVisitRewardForm({ ...visitRewardForm, description: e.target.value })}
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                <input
+                  type="checkbox"
+                  id="vrActive"
+                  checked={visitRewardForm.isActive}
+                  onChange={(e) => setVisitRewardForm({ ...visitRewardForm, isActive: e.target.checked })}
+                  className="w-4 h-4 rounded text-[#C0392B] focus:ring-[#C0392B]"
+                />
+                <label htmlFor="vrActive" className="text-xs font-bold text-[#1E1815] cursor-pointer">
+                  Milestone Rule is Active & Automatically Issued upon reaching visits
+                </label>
+              </div>
+
+              <div className="pt-3 border-t border-[#EAE3DC] flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowVisitRewardModal(false)}
+                  className="px-4 py-2 rounded-xl border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:bg-[#FAF7F4]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={visitRewardSaving}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
+                >
+                  {visitRewardSaving ? "Saving…" : editingVisitRewardId ? "Update Milestone" : "Save Milestone"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: DELETE VISIT MILESTONE REWARD                           */}
+      {/* ============================================================== */}
+      {showDeleteVisitRewardModal && visitRewardToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl">
+            <div className="w-12 h-12 rounded-2xl bg-[#C0392B]/10 text-[#C0392B] flex items-center justify-center mb-4">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+
+            <h3 className="font-black text-lg text-[#1E1815] mb-1">
+              Delete Milestone: {visitRewardToDelete.threshold} Visits?
+            </h3>
+            <p className="text-xs text-[#7A6E67] leading-relaxed mb-4">
+              Are you sure you want to remove the <strong className="text-[#1E1815]">{visitRewardToDelete.name}</strong> milestone rule? Customers who have already unlocked their vouchers will keep them until expiry, but new visits will no longer trigger this rule.
+            </p>
+
+            <div className="pt-3 border-t border-[#EAE3DC] flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteVisitRewardModal(false);
+                  setVisitRewardToDelete(null);
+                }}
+                className="px-4 py-2 rounded-xl border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:bg-[#FAF7F4]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteVisitReward}
+                disabled={busy}
+                className="px-5 py-2 rounded-xl bg-[#C0392B] hover:bg-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
+              >
+                {busy ? "Deleting…" : "Confirm Delete"}
               </button>
             </div>
           </div>

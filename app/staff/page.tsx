@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import jsQR from "jsqr";
 import {
   Camera,
@@ -18,7 +19,9 @@ import {
 } from "lucide-react";
 
 export default function StaffPage() {
+  const router = useRouter();
   const [staff, setStaff] = useState<any>(null);
+  const [loadingSession, setLoadingSession] = useState(true);
   const [login, setLogin] = useState({ username: "", pin: "" });
   const [scanned, setScanned] = useState<any>(null);
   const [manualToken, setManualToken] = useState("");
@@ -36,6 +39,26 @@ export default function StaffPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const loopRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    fetch("/api/staff/session")
+      .then((r) => {
+        if (r.status === 401) {
+          router.push("/staff/login");
+          return;
+        }
+        return r.json();
+      })
+      .then((d) => {
+        if (d?.ok && d.staff) {
+          setStaff(d.staff);
+        } else {
+          router.push("/staff/login");
+        }
+      })
+      .catch(() => router.push("/staff/login"))
+      .finally(() => setLoadingSession(false));
+  }, [router]);
 
   useEffect(() => {
     setCanScan(
@@ -232,83 +255,12 @@ export default function StaffPage() {
     }
   }
 
-  // Signed out state
+  // Signed out state (while checking or redirecting)
   if (!staff) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 max-w-md mx-auto">
-        <div className="w-full flex items-center gap-3 mb-6">
-          <div className="w-11 h-11 rounded-2xl bg-[#1E7A4D] flex items-center justify-center text-white font-extrabold text-base shadow-md">
-            ST
-          </div>
-          <div>
-            <h1 className="text-xl font-extrabold text-[var(--ink)] leading-none">Staff Till POS</h1>
-            <p className="text-xs font-semibold text-[var(--ink-3)] uppercase tracking-wider mt-1">
-              Counter Terminal Sign-In
-            </p>
-          </div>
-        </div>
-
-        <div className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-3xl p-6 sm:p-7 shadow-xl shadow-black/[0.03]">
-          <h2 className="text-2xl font-black text-[var(--ink)] mb-2">Cashier Login</h2>
-          <p className="text-sm text-[var(--ink-2)] mb-6">Enter your counter username and PIN.</p>
-
-          <form onSubmit={doLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[var(--ink-2)] mb-1.5" htmlFor="su">
-                Username
-              </label>
-              <input
-                id="su"
-                className="w-full px-4 py-3 text-base bg-[var(--surface)] border border-[var(--line-2)] rounded-xl text-[var(--ink)] focus:outline-none focus:border-[#1E7A4D]"
-                value={login.username}
-                onChange={(e) => setLogin({ ...login, username: e.target.value })}
-                autoComplete="username"
-                placeholder="e.g. cashier or manager"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[var(--ink-2)] mb-1.5" htmlFor="sp">
-                PIN Code
-              </label>
-              <input
-                id="sp"
-                type="password"
-                inputMode="numeric"
-                className="w-full px-4 py-3 text-base bg-[var(--surface)] border border-[var(--line-2)] rounded-xl text-[var(--ink)] focus:outline-none focus:border-[#1E7A4D] font-mono tracking-widest"
-                value={login.pin}
-                onChange={(e) => setLogin({ ...login, pin: e.target.value })}
-                placeholder="••••••"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={busy}
-              className="w-full py-3.5 px-6 rounded-xl bg-[#1E7A4D] hover:bg-[#155A38] text-white font-bold text-base flex items-center justify-center gap-2 shadow-lg shadow-[#1E7A4D]/25 disabled:opacity-50 transition-all cursor-pointer"
-            >
-              {busy ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin-custom" />
-                  Verifying PIN…
-                </>
-              ) : (
-                "Sign In to Till"
-              )}
-            </button>
-          </form>
-
-          {err && (
-            <div className="mt-4 p-3.5 rounded-xl bg-[#FBEAE7] border border-[#C0392B]/20 text-[#C0392B] text-sm font-semibold">
-              {err}
-            </div>
-          )}
-
-          <div className="mt-6 pt-5 border-t border-[var(--line)] text-center text-xs text-[var(--ink-3)]">
-            Default Demo PINs: <span className="font-mono text-[var(--ink)] font-bold">cashier (112233)</span> ·{" "}
-            <span className="font-mono text-[var(--ink)] font-bold">manager (135790)</span>
-          </div>
-        </div>
+        <div className="w-8 h-8 border-3 border-[#1E7A4D]/30 border-t-[#1E7A4D] rounded-full animate-spin mb-3" />
+        <p className="text-xs font-semibold text-[var(--ink-2)]">Connecting to Staff Till…</p>
       </div>
     );
   }
@@ -330,13 +282,13 @@ export default function StaffPage() {
             </div>
           </div>
         </div>
-        <button
-          onClick={() => setStaff(null)}
-          className="p-2 text-[var(--ink-3)] hover:text-[#C0392B] rounded-lg hover:bg-[var(--surface-subtle)]"
+        <a
+          href="/api/staff/logout"
+          className="p-2 text-[var(--ink-3)] hover:text-[#C0392B] rounded-lg hover:bg-[var(--surface-subtle)] transition-colors cursor-pointer"
           title="Sign Out"
         >
           <LogOut className="w-4 h-4" />
-        </button>
+        </a>
       </header>
 
       {/* Transaction Result Success Modal/Card */}
