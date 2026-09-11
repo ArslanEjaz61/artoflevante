@@ -6,11 +6,12 @@ export const metadata: Metadata = {
   description: "Collect points, unlock rewards and enjoy exclusive member offers at every branch.",
   icons: {
     icon: [
+      { url: "/lofoe.png", type: "image/png" },
       { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/icon.svg", type: "image/svg+xml" },
     ],
-    shortcut: "/favicon.svg",
-    apple: "/favicon.svg",
+    shortcut: "/lofoe.png",
+    apple: "/lofoe.png",
   },
   appleWebApp: {
     capable: true,

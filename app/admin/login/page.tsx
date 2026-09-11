@@ -60,11 +60,12 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md bg-[#1B1716]/95 border border-[#3E3430] backdrop-blur-xl rounded-3xl p-7 sm:p-8 shadow-2xl shadow-black/60">
         {/* Brand Header */}
         <div className="flex items-center gap-3.5 mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center text-white font-black text-lg shadow-lg shadow-[#C0392B]/30">
-            LC
+          <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-[#D4AF37]/60 shadow-lg bg-[#801313] flex items-center justify-center p-0.5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/lofoe.png" alt="Bombay Chowpatty" className="w-full h-full object-contain" />
           </div>
           <div>
-            <h1 className="text-xl font-black tracking-tight text-white leading-none">Loyalty Club</h1>
+            <h1 className="text-xl font-black tracking-tight text-white leading-none">Bombay Chowpatty</h1>
             <p className="text-xs font-semibold text-[#B8ADA6] uppercase tracking-wider mt-1">
               Executive Portal
             </p>
