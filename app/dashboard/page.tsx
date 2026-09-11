@@ -26,6 +26,7 @@ import {
   History,
   Menu,
 } from "lucide-react";
+import QRCode from "qrcode";
 
 function getTimeGreeting(): string {
   const hour = new Date().getHours();
@@ -55,6 +56,46 @@ export default function CustomerDashboardPage() {
   const [profile, setProfile] = useState({ name: "", email: "", birthday: "" });
   const [profileBusy, setProfileBusy] = useState(false);
   const [profileMsg, setProfileMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  // Customer Portal QR Modal State
+  const [showPortalQrModal, setShowPortalQrModal] = useState(false);
+  const [portalQrDataUrl, setPortalQrDataUrl] = useState<string>("");
+  const [portalUrl, setPortalUrl] = useState<string>("");
+  const [copiedPortalLink, setCopiedPortalLink] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const url = window.location.origin;
+      setPortalUrl(url);
+      QRCode.toDataURL(url, {
+        margin: 1,
+        width: 400,
+        color: {
+          dark: "#721424",
+          light: "#FFFFFF",
+        },
+      })
+        .then((dataUrl) => setPortalQrDataUrl(dataUrl))
+        .catch(() => {});
+    }
+  }, []);
+
+  const handleSharePortalLink = async () => {
+    const url = portalUrl || (typeof window !== "undefined" ? window.location.origin : "");
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: "Bombay Chowpatty Loyalty",
+          text: "Scan or tap to join Bombay Chowpatty Loyalty Club and get exclusive rewards!",
+          url: url,
+        });
+      } catch {}
+    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(url);
+      setCopiedPortalLink(true);
+      setTimeout(() => setCopiedPortalLink(false), 3000);
+    }
+  };
 
   // Toast message for share / install
   const [toast, setToast] = useState<string | null>(null);
@@ -211,13 +252,18 @@ export default function CustomerDashboardPage() {
       const r = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(profile),
+        body: JSON.stringify({
+          name: profile.name.trim(),
+          email: profile.email.trim(),
+          birthday: profile.birthday || null,
+        }),
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Could not save details.");
-      setProfileMsg({ type: "ok", text: "Profile updated successfully." });
+      setToast("Profile updated successfully!");
       setEditing(false);
-      loadCard();
+      await loadCard();
+      setTimeout(() => setToast(null), 3000);
     } catch (e2: any) {
       setProfileMsg({ type: "err", text: String(e2.message || e2) });
     } finally {
@@ -299,7 +345,7 @@ export default function CustomerDashboardPage() {
       <header className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           {/* Brand Logo Avatar */}
-          <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 border border-[#D4AF37]/40 shadow-xs bg-[#801313] flex items-center justify-center">
+          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-[#D4AF37]/60 shadow-sm bg-[#801313] flex items-center justify-center p-0.5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/lofoe.png" alt="Brand Logo" className="w-full h-full object-contain" />
           </div>
@@ -352,19 +398,28 @@ export default function CustomerDashboardPage() {
       </div>
 
       {/* ============================================================== */}
-      {/* 3. TWO ACTION BUTTONS (Share / Install)                        */}
+      {/* 3. ACTION BUTTONS (Share with a friend, QR Code & Install)     */}
       {/* ============================================================== */}
-      <div className="space-y-2.5 mb-4">
-        <button
-          onClick={handleShare}
-          className="w-full bg-white hover:bg-[#FAF7F4] border border-[#EAE3DC] text-[#801313] rounded-2xl py-3 px-4 font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.99]"
-        >
-          <Share2 className="w-4 h-4 text-[#801313]" />
-          <span>Share with a friend</span>
-        </button>
+      <div className="space-y-2 mb-4">
+        <div className="grid grid-cols-2 gap-2.5">
+          <button
+            onClick={handleShare}
+            className="bg-white hover:bg-[#FAF7F4] border border-[#EAE3DC] text-[#801313] rounded-2xl py-3 px-3 font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.99]"
+          >
+            <Share2 className="w-4 h-4 text-[#801313]" />
+            <span>Share with a friend</span>
+          </button>
+          <button
+            onClick={() => setShowPortalQrModal(true)}
+            className="bg-white hover:bg-[#FAF7F4] border border-[#EAE3DC] text-[#801313] rounded-2xl py-3 px-3 font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.99]"
+          >
+            <QrCode className="w-4 h-4 text-[#801313]" />
+            <span>QR Code</span>
+          </button>
+        </div>
         <button
           onClick={handleInstall}
-          className="w-full bg-white hover:bg-[#FAF7F4] border border-[#EAE3DC] text-[#801313] rounded-2xl py-3 px-4 font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.99]"
+          className="w-full bg-white hover:bg-[#FAF7F4] border border-[#EAE3DC] text-[#801313] rounded-2xl py-2.5 px-4 font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.99]"
         >
           <Download className="w-4 h-4 text-[#801313]" />
           <span>Install loyalty app</span>
@@ -746,6 +801,17 @@ export default function CustomerDashboardPage() {
               </div>
             ) : (
               <form onSubmit={saveProfile} className="space-y-3">
+                {profileMsg && (
+                  <div
+                    className={`p-3 rounded-xl text-xs font-semibold ${
+                      profileMsg.type === "ok"
+                        ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                        : "bg-red-50 text-red-800 border border-red-200"
+                    }`}
+                  >
+                    {profileMsg.text}
+                  </div>
+                )}
                 <div>
                   <label className="block text-[10px] font-extrabold uppercase text-[#7A6E67] mb-1">Full Name</label>
                   <input
@@ -886,6 +952,69 @@ export default function CustomerDashboardPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* 13. CUSTOMER PORTAL QR CODE MODAL (Matches Image 3)            */}
+      {/* ============================================================== */}
+      {showPortalQrModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#FAF7F4] border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-sm w-full shadow-2xl relative text-center animate-in fade-in zoom-in-95 duration-200">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowPortalQrModal(false)}
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white hover:bg-[#EFE9E2] border border-[#EAE3DC] text-[#7A6E67] hover:text-[#1E1815] flex items-center justify-center cursor-pointer transition-colors"
+              title="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Modal Header */}
+            <div className="pr-8 mb-4">
+              <h3 className="text-lg font-black text-[#1E1815] tracking-tight">
+                Customer Portal QR Code
+              </h3>
+              <p className="text-[11px] text-[#7A6E67] mt-1 leading-snug">
+                Guests can scan this code to register or open their loyalty account.
+              </p>
+            </div>
+
+            {/* QR Code Container */}
+            <div className="bg-white p-3.5 rounded-3xl border border-[#EAE3DC] shadow-xs inline-block my-2">
+              {portalQrDataUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={portalQrDataUrl}
+                  alt="Customer Portal QR Code"
+                  className="w-52 h-52 sm:w-60 sm:h-60 object-contain mx-auto"
+                />
+              ) : (
+                <div className="w-52 h-52 flex items-center justify-center">
+                  <div className="w-8 h-8 border-3 border-[#801313]/20 border-t-[#801313] rounded-full animate-spin" />
+                </div>
+              )}
+            </div>
+
+            {/* Subtext & URL Display */}
+            <div className="my-3 space-y-1">
+              <div className="text-xs font-semibold text-[#7A6E67]">
+                Scan to join Bombay Chowpatty Loyalty
+              </div>
+              <div className="text-[10px] font-mono text-[#801313] break-all px-2 font-bold select-all bg-white/70 py-1.5 rounded-lg border border-[#EAE3DC]/60">
+                {portalUrl || "https://bombaychowpatty.ae"}
+              </div>
+            </div>
+
+            {/* Share Link Button */}
+            <button
+              onClick={handleSharePortalLink}
+              className="w-full mt-2 py-3 px-5 rounded-2xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
+            >
+              <Share2 className="w-4 h-4" />
+              <span>{copiedPortalLink ? "Link Copied to Clipboard!" : "SHARE LINK"}</span>
+            </button>
           </div>
         </div>
       )}

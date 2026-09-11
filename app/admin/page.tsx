@@ -1096,20 +1096,20 @@ export default function AdminPage() {
       {/* ===================== SIDEBAR NAVIGATION ===================== */}
       {/* Fixed drawer sliding from left on mobile, permanent left sidebar on desktop */}
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-50 w-72 md:w-64 h-full bg-[#181312] text-white flex-shrink-0 flex flex-col border-r border-[#2A2320] shadow-2xl md:shadow-none transition-transform duration-300 ease-in-out ${
+        className={`fixed md:static inset-y-0 left-0 z-50 w-72 md:w-64 h-full bg-[#FAF7F4] text-[#1E1815] flex-shrink-0 flex flex-col border-r border-[#EAE3DC] shadow-xl md:shadow-none transition-transform duration-300 ease-in-out ${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
         {/* Brand Header */}
-        <div className="p-5 flex items-center justify-between border-b border-[#2A2320]">
+        <div className="p-5 flex items-center justify-between border-b border-[#EAE3DC]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-[#D4AF37]/60 shadow-lg bg-[#801313] flex items-center justify-center p-0.5">
+            <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-[#D4AF37]/60 shadow-md bg-[#801313] flex items-center justify-center p-0.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/lofoe.png" alt="Bombay Chowpatty" className="w-full h-full object-contain" />
             </div>
             <div>
-              <div className="font-extrabold text-base tracking-tight leading-tight">Bombay Chowpatty</div>
-              <div className="text-[11px] text-[#A69B95] uppercase tracking-wider font-semibold">
+              <div className="font-extrabold text-base tracking-tight leading-tight text-[#1E1815]">Bombay Chowpatty</div>
+              <div className="text-[11px] text-[#7A6E67] uppercase tracking-wider font-semibold">
                 Admin Control
               </div>
             </div>
@@ -1117,7 +1117,7 @@ export default function AdminPage() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(false)}
-            className="md:hidden p-2 rounded-xl bg-[#2A2320] text-[#D8CDC6] hover:text-white hover:bg-[#382F2B] transition-colors cursor-pointer"
+            className="md:hidden p-2 rounded-xl bg-[#EFE9E2] text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#E5DDD4] transition-colors cursor-pointer"
             aria-label="Close navigation"
           >
             <X className="w-5 h-5" />
@@ -1132,8 +1132,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "overview"
-                ? "bg-gradient-to-r from-[#C0392B] to-[#96291D] text-white shadow-lg shadow-[#C0392B]/30"
-                : "text-[#C8BCB5] hover:bg-[#251E1C] hover:text-white"
+                ? "bg-[#801313] text-white shadow-xs"
+                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <LayoutDashboard className="w-4 h-4" />
@@ -1146,8 +1146,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "customers"
-                ? "bg-gradient-to-r from-[#C0392B] to-[#96291D] text-white shadow-lg shadow-[#C0392B]/30"
-                : "text-[#C8BCB5] hover:bg-[#251E1C] hover:text-white"
+                ? "bg-[#801313] text-white shadow-xs"
+                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <Users className="w-4 h-4" />
@@ -1160,8 +1160,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "offers"
-                ? "bg-gradient-to-r from-[#C0392B] to-[#96291D] text-white shadow-lg shadow-[#C0392B]/30"
-                : "text-[#C8BCB5] hover:bg-[#251E1C] hover:text-white"
+                ? "bg-[#801313] text-white shadow-xs"
+                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <Tag className="w-4 h-4" />
@@ -1174,8 +1174,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "branches"
-                ? "bg-gradient-to-r from-[#C0392B] to-[#96291D] text-white shadow-lg shadow-[#C0392B]/30"
-                : "text-[#C8BCB5] hover:bg-[#251E1C] hover:text-white"
+                ? "bg-[#801313] text-white shadow-xs"
+                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <Building2 className="w-4 h-4" />
@@ -1188,8 +1188,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "staff"
-                ? "bg-gradient-to-r from-[#C0392B] to-[#96291D] text-white shadow-lg shadow-[#C0392B]/30"
-                : "text-[#C8BCB5] hover:bg-[#251E1C] hover:text-white"
+                ? "bg-[#801313] text-white shadow-xs"
+                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <Store className="w-4 h-4" />
@@ -1202,8 +1202,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "visits"
-                ? "bg-gradient-to-r from-[#C0392B] to-[#96291D] text-white shadow-lg shadow-[#C0392B]/30"
-                : "text-[#C8BCB5] hover:bg-[#251E1C] hover:text-white"
+                ? "bg-[#801313] text-white shadow-xs"
+                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <MapPin className="w-4 h-4" />
@@ -1216,8 +1216,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "settings"
-                ? "bg-gradient-to-r from-[#C0392B] to-[#96291D] text-white shadow-lg shadow-[#C0392B]/30"
-                : "text-[#C8BCB5] hover:bg-[#251E1C] hover:text-white"
+                ? "bg-[#801313] text-white shadow-xs"
+                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <Settings className="w-4 h-4" />
@@ -1230,8 +1230,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "audit"
-                ? "bg-gradient-to-r from-[#C0392B] to-[#96291D] text-white shadow-lg shadow-[#C0392B]/30"
-                : "text-[#C8BCB5] hover:bg-[#251E1C] hover:text-white"
+                ? "bg-[#801313] text-white shadow-xs"
+                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <ShieldCheck className="w-4 h-4" />
@@ -1240,19 +1240,19 @@ export default function AdminPage() {
         </div>
 
         {/* User Card & Sign Out */}
-        <div className="p-4 border-t border-[#2A2320] bg-[#140F0E]">
+        <div className="p-4 border-t border-[#EAE3DC] bg-[#FAF7F4]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[#362A26] border border-[#52413C] flex items-center justify-center font-bold text-xs text-[#E5D7D0]">
+            <div className="w-9 h-9 rounded-full bg-[#801313]/10 border border-[#801313]/20 flex items-center justify-center font-bold text-xs text-[#801313]">
               {session.name ? session.name.slice(0, 2).toUpperCase() : "AD"}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-bold text-xs text-white truncate">{session.name}</div>
-              <div className="text-[10px] text-[#A69B95] truncate font-medium">{session.role}</div>
+              <div className="font-bold text-xs text-[#1E1815] truncate">{session.name}</div>
+              <div className="text-[10px] text-[#7A6E67] truncate font-medium">{session.role}</div>
             </div>
             <a
               href="/api/admin/logout"
               title="Sign Out"
-              className="p-1.5 rounded-lg text-[#A69B95] hover:text-white hover:bg-[#2A2320] transition-colors"
+              className="p-1.5 rounded-lg text-[#7A6E67] hover:text-[#801313] hover:bg-[#EFE9E2] transition-colors"
             >
               <LogOut className="w-4 h-4" />
             </a>

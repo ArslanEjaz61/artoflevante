@@ -48,45 +48,45 @@ export default function AdminLoginPage() {
 
   if (checking) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-[#120F0E] via-[#1B1716] to-[#251D1A] text-white">
-        <div className="w-8 h-8 border-3 border-[#C0392B]/30 border-t-[#C0392B] rounded-full animate-spin mb-3" />
-        <p className="text-xs font-semibold text-[#B8ADA6]">Verifying executive session…</p>
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#F8F5F0] text-[#1E1815]">
+        <div className="w-8 h-8 border-3 border-[#801313]/20 border-t-[#801313] rounded-full animate-spin mb-3" />
+        <p className="text-xs font-semibold text-[#7A6E67]">Verifying executive session…</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#120F0E] via-[#1B1716] to-[#251D1A] text-white">
-      <div className="w-full max-w-md bg-[#1B1716]/95 border border-[#3E3430] backdrop-blur-xl rounded-3xl p-7 sm:p-8 shadow-2xl shadow-black/60">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#F8F5F0] text-[#1E1815]">
+      <div className="w-full max-w-md bg-white border border-[#EAE3DC] rounded-3xl p-7 sm:p-8 shadow-xl">
         {/* Brand Header */}
         <div className="flex items-center gap-3.5 mb-6">
-          <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-[#D4AF37]/60 shadow-lg bg-[#801313] flex items-center justify-center p-0.5">
+          <div className="w-16 h-16 rounded-full overflow-hidden shrink-0 border-2 border-[#D4AF37]/60 shadow-md bg-[#801313] flex items-center justify-center p-1">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/lofoe.png" alt="Bombay Chowpatty" className="w-full h-full object-contain" />
           </div>
           <div>
-            <h1 className="text-xl font-black tracking-tight text-white leading-none">Bombay Chowpatty</h1>
-            <p className="text-xs font-semibold text-[#B8ADA6] uppercase tracking-wider mt-1">
+            <h1 className="text-xl font-black tracking-tight text-[#1E1815] leading-none">Bombay Chowpatty</h1>
+            <p className="text-xs font-semibold text-[#7A6E67] uppercase tracking-wider mt-1">
               Executive Portal
             </p>
           </div>
         </div>
 
-        <h2 className="text-2xl font-black tracking-tight text-white mb-1.5">Management Sign In</h2>
-        <p className="text-sm text-[#B8ADA6] mb-6">
+        <h2 className="text-2xl font-black tracking-tight text-[#1E1815] mb-1.5">Management Sign In</h2>
+        <p className="text-xs text-[#7A6E67] mb-6 leading-relaxed">
           Enter your administrative username and security PIN to access the management control center.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#B8ADA6] mb-1.5" htmlFor="admin-u">
+            <label className="block text-[10px] font-extrabold uppercase tracking-wider text-[#7A6E67] mb-1.5" htmlFor="admin-u">
               Admin Username
             </label>
             <div className="relative">
               <input
                 id="admin-u"
                 type="text"
-                className="w-full px-4 py-3 bg-[#241F1D] border border-[#3E3430] rounded-xl text-white placeholder-[#8C7F78] focus:outline-none focus:border-[#C0392B] transition-colors font-medium text-sm"
+                className="w-full px-4 py-3 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#801313] transition-colors font-medium text-sm"
                 value={form.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
                 autoComplete="username"
@@ -99,7 +99,7 @@ export default function AdminLoginPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#B8ADA6] mb-1.5" htmlFor="admin-p">
+            <label className="block text-[10px] font-extrabold uppercase tracking-wider text-[#7A6E67] mb-1.5" htmlFor="admin-p">
               Security PIN Code
             </label>
             <div className="relative">
@@ -108,7 +108,7 @@ export default function AdminLoginPage() {
                 type="password"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                className="w-full px-4 py-3 bg-[#241F1D] border border-[#3E3430] rounded-xl text-white focus:outline-none focus:border-[#C0392B] font-mono tracking-widest transition-colors text-sm"
+                className="w-full px-4 py-3 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313] font-mono tracking-widest transition-colors text-sm"
                 value={form.pin}
                 onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, "") })}
                 onKeyDown={(e) => {
@@ -131,7 +131,7 @@ export default function AdminLoginPage() {
           </div>
 
           {err && (
-            <div className="p-3.5 bg-[#C0392B]/20 border border-[#C0392B]/40 rounded-xl text-xs text-[#F87171] font-semibold flex items-center gap-2 animate-in fade-in">
+            <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 font-semibold flex items-center gap-2 animate-in fade-in">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{err}</span>
             </div>
@@ -140,7 +140,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={busy || !form.username.trim() || !form.pin.trim()}
-            className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] hover:to-[#822319] text-white font-bold text-sm tracking-wide shadow-lg shadow-[#C0392B]/30 hover:shadow-xl transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-3.5 px-6 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-sm tracking-wide shadow-md hover:shadow-lg transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
           >
             {busy ? (
               <>

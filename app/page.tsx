@@ -275,8 +275,8 @@ export default function HomePage() {
           <div className="absolute -bottom-16 -left-16 w-60 h-60 rounded-full border border-white/5 pointer-events-none" />
 
           {/* Circular Brand Mascot Logo with Gold Border */}
-          <div className="relative mb-6 mt-2">
-            <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-1 bg-gradient-to-tr from-[#D4AF37] via-[#F6D375] to-[#AA7C11] shadow-xl flex items-center justify-center">
+          <div className="relative mb-6 mt-1">
+            <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-full p-1 bg-gradient-to-tr from-[#D4AF37] via-[#F6D375] to-[#AA7C11] shadow-2xl flex items-center justify-center">
               <div className="w-full h-full rounded-full bg-[#801313] overflow-hidden flex items-center justify-center p-1.5">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
