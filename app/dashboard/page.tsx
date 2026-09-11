@@ -454,8 +454,9 @@ export default function CustomerDashboardPage() {
       </div>
 
       {/* ============================================================== */}
-      {/* 5. DINE-IN CHECK-IN CARD (Placed directly ABOVE QR Scan Card!)  */}
+      {/* 5. DINE-IN CHECK-IN CARD (Temporarily Hidden as requested)      */}
       {/* ============================================================== */}
+      {/* 
       <div className="bg-white rounded-3xl p-5 border border-[#EAE3DC] shadow-xs mb-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -514,6 +515,7 @@ export default function CustomerDashboardPage() {
           </button>
         </form>
       </div>
+      */}
 
       {/* ============================================================== */}
       {/* 6. MEMBERSHIP QR CARD                                          */}
