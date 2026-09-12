@@ -20,6 +20,7 @@ import {
   Share2,
   Download,
 } from "lucide-react";
+import { usePwaInstall } from "@/lib/usePwaInstall";
 
 const BRAND = process.env.NEXT_PUBLIC_APP_NAME || "Bombay Chowpatty Loyalty";
 
@@ -43,6 +44,7 @@ function matchBranch(list: Branch[], raw: string): Branch | null {
 
 export default function HomePage() {
   const router = useRouter();
+  const { triggerInstall, isInstalled, isIos } = usePwaInstall();
   const [view, setView] = useState<"hero" | "form" | "code">("hero");
   const [mode, setMode] = useState<"register" | "login">("register");
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -172,9 +174,18 @@ export default function HomePage() {
     }
   }
 
-  function handleInstall() {
-    setToast("To install, tap Share in browser & select 'Add to Home Screen'");
-    setTimeout(() => setToast(null), 4000);
+  async function handleInstall() {
+    const outcome = await triggerInstall();
+    if (outcome === "accepted") {
+      setToast("App installed successfully! Shortcut added to home screen.");
+      setTimeout(() => setToast(null), 4000);
+    } else if (outcome === "ios_guide") {
+      setToast("iOS: Tap Share icon ⎋ at bottom of Safari & select 'Add to Home Screen' ⊞");
+      setTimeout(() => setToast(null), 6000);
+    } else if (outcome === "unavailable") {
+      setToast("To add shortcut, open browser menu (⋮ or ⎋) & tap 'Install app' / 'Add to Home screen'");
+      setTimeout(() => setToast(null), 5000);
+    }
   }
 
   async function sendCode(e?: React.FormEvent) {

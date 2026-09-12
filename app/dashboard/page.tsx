@@ -27,6 +27,7 @@ import {
   Menu,
 } from "lucide-react";
 import QRCode from "qrcode";
+import { usePwaInstall } from "@/lib/usePwaInstall";
 
 function getTimeGreeting(): string {
   const hour = new Date().getHours();
@@ -96,6 +97,9 @@ export default function CustomerDashboardPage() {
       setTimeout(() => setCopiedPortalLink(false), 3000);
     }
   };
+
+  // PWA Install hook
+  const { triggerInstall, isInstalled, isIos } = usePwaInstall();
 
   // Toast message for share / install
   const [toast, setToast] = useState<string | null>(null);
@@ -228,9 +232,18 @@ export default function CustomerDashboardPage() {
     }
   }
 
-  function handleInstall() {
-    setToast("To install, tap Share in browser & select 'Add to Home Screen'");
-    setTimeout(() => setToast(null), 4000);
+  async function handleInstall() {
+    const outcome = await triggerInstall();
+    if (outcome === "accepted") {
+      setToast("App installed successfully! Shortcut added to home screen.");
+      setTimeout(() => setToast(null), 4000);
+    } else if (outcome === "ios_guide") {
+      setToast("iOS: Tap Share icon ⎋ at bottom of Safari & select 'Add to Home Screen' ⊞");
+      setTimeout(() => setToast(null), 6000);
+    } else if (outcome === "unavailable") {
+      setToast("To add shortcut, open browser menu (⋮ or ⎋) & tap 'Install app' / 'Add to Home screen'");
+      setTimeout(() => setToast(null), 5000);
+    }
   }
 
   function openEditor() {

@@ -1160,8 +1160,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "offers"
-                ? "bg-[#801313] text-white shadow-xs"
-                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
+              ? "bg-[#801313] text-white shadow-xs"
+              : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <Tag className="w-4 h-4" />

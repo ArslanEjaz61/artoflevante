@@ -4,10 +4,17 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Loyalty Club",
   description: "Collect points, unlock rewards and enjoy exclusive member offers at every branch.",
+  manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/lofoe.png",
-    shortcut: "/lofoe.png",
-    apple: "/lofoe.png",
+    icon: [
+      { url: "/lofoe.png?v=2", type: "image/png" },
+      { url: "/icon-192.png?v=2", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png?v=2", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: "/lofoe.png?v=2",
+    apple: [
+      { url: "/lofoe.png?v=2", sizes: "180x180", type: "image/png" },
+    ],
   },
   appleWebApp: {
     capable: true,
@@ -17,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#C0392B",
+  themeColor: "#801313",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -30,8 +37,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" type="image/png" href="/lofoe.png?v=2" />
+        <link rel="shortcut icon" type="image/png" href="/lofoe.png?v=2" />
+        <link rel="apple-touch-icon" href="/lofoe.png?v=2" />
+      </head>
       <body
-        className="antialiased selection:bg-[#C0392B] selection:text-white"
+        className="antialiased selection:bg-[#801313] selection:text-white"
         suppressHydrationWarning
       >
         {children}
