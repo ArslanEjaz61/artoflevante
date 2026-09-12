@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import QRCode from "qrcode";
 import { usePwaInstall } from "@/lib/usePwaInstall";
+import { InstallGuideModal } from "@/components/InstallGuideModal";
 
 function getTimeGreeting(): string {
   const hour = new Date().getHours();
@@ -99,7 +100,8 @@ export default function CustomerDashboardPage() {
   };
 
   // PWA Install hook
-  const { triggerInstall, isInstalled, isIos } = usePwaInstall();
+  const { triggerInstall, isInstallable, isInstalled, isIos } = usePwaInstall();
+  const [showInstallGuide, setShowInstallGuide] = useState(false);
 
   // Toast message for share / install
   const [toast, setToast] = useState<string | null>(null);
@@ -233,17 +235,16 @@ export default function CustomerDashboardPage() {
   }
 
   async function handleInstall() {
-    const outcome = await triggerInstall();
-    if (outcome === "accepted") {
-      setToast("App installed successfully! Shortcut added to home screen.");
-      setTimeout(() => setToast(null), 4000);
-    } else if (outcome === "ios_guide") {
-      setToast("iOS: Tap Share icon ⎋ at bottom of Safari & select 'Add to Home Screen' ⊞");
-      setTimeout(() => setToast(null), 6000);
-    } else if (outcome === "unavailable") {
-      setToast("To add shortcut, open browser menu (⋮ or ⎋) & tap 'Install app' / 'Add to Home screen'");
-      setTimeout(() => setToast(null), 5000);
+    if (isInstallable) {
+      const outcome = await triggerInstall();
+      if (outcome === "accepted") {
+        setToast("App installed successfully! Shortcut added to home screen.");
+        setTimeout(() => setToast(null), 4000);
+        return;
+      }
     }
+    // Open the sleek install guide modal with exact instructions for their device
+    setShowInstallGuide(true);
   }
 
   function openEditor() {
@@ -1033,6 +1034,14 @@ export default function CustomerDashboardPage() {
           </div>
         </div>
       )}
+
+      {/* PWA Install Guide Modal */}
+      <InstallGuideModal
+        isOpen={showInstallGuide}
+        onClose={() => setShowInstallGuide(false)}
+        onTriggerNative={triggerInstall}
+        isNativeAvailable={isInstallable}
+      />
     </div>
   );
 }
