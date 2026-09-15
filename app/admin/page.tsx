@@ -183,7 +183,8 @@ export default function AdminPage() {
     currencyValuePerRedemptionPoints: 5,
   });
   const [outletActionView, setOutletActionView] = useState<"all" | "points" | "redeem" | "vouchers">("all");
-  const [outletActionMode, setOutletActionMode] = useState<"points" | "visit" | "reward">("points");
+  const [outletActionMode, setOutletActionMode] = useState<"points" | "visit" | "reward" | "redeem_points">("points");
+  const [showAdminGivePointsModal, setShowAdminGivePointsModal] = useState(false);
   const [outletInvoiceNumber, setOutletInvoiceNumber] = useState("");
   const [outletBillAmount, setOutletBillAmount] = useState("");
   const [outletSelectedRewardId, setOutletSelectedRewardId] = useState<string | null>(null);
@@ -3437,64 +3438,64 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  {/* 3 Action Mode Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Card 1: Give points */}
+                  {/* 4 Action Mode Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Card 1: Give loyalty points */}
                     <button
                       type="button"
                       onClick={() => {
                         setOutletActionMode("points");
+                        setShowAdminGivePointsModal(true);
                         setOutletBillErr("");
                       }}
-                      className={`p-5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
+                      className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
                         outletActionMode === "points"
                           ? "bg-[#FAF7F4] border-[#801313] shadow-sm ring-2 ring-[#801313]/20"
                           : "bg-white border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4]/40"
                       }`}
                     >
                       <div className="text-[#801313] mb-3">
-                        <RibbonIcon className="w-8 h-8 text-[#801313]" />
+                        <RibbonIcon className="w-7 h-7 text-[#801313]" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-base text-[#1E1815] leading-snug">
-                          Give points
+                        <h3 className="font-bold text-sm sm:text-base text-[#1E1815] leading-snug">
+                          Give loyalty points
                         </h3>
-                        <p className="text-xs text-[#7A6E67] font-medium mt-1">
-                          Invoice number + total amount
+                        <p className="text-[11px] text-[#7A6E67] font-medium mt-1">
+                          Invoice # + bill amount
                         </p>
                       </div>
                       {outletActionMode === "points" && (
-                        <div className="absolute top-3.5 right-3.5 w-2 h-2 rounded-full bg-[#801313]" />
+                        <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#801313]" />
                       )}
                     </button>
 
-                    {/* Card 2: Give visit */}
+                    {/* Card 2: Redeem points */}
                     <button
                       type="button"
                       onClick={() => {
-                        setOutletActionMode("visit");
-                        setOutletVisitErr("");
-                        setOutletVisitSuccessReceipt(null);
+                        setOutletActionMode("redeem_points");
+                        setOutletBillErr("");
                       }}
-                      className={`p-5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
-                        outletActionMode === "visit"
+                      className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
+                        outletActionMode === "redeem_points"
                           ? "bg-[#FAF7F4] border-[#801313] shadow-sm ring-2 ring-[#801313]/20"
                           : "bg-white border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4]/40"
                       }`}
                     >
                       <div className="text-[#801313] mb-3">
-                        <StampIcon className="w-8 h-8 text-[#801313]" />
+                        <Coins className="w-7 h-7 text-[#801313]" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-base text-[#1E1815] leading-snug">
-                          Give visit
+                        <h3 className="font-bold text-sm sm:text-base text-[#1E1815] leading-snug">
+                          Redeem points
                         </h3>
-                        <p className="text-xs text-[#7A6E67] font-medium mt-1">
-                          Add one outlet-specific visit
+                        <p className="text-[11px] text-[#7A6E67] font-medium mt-1">
+                          Direct cash bill discount
                         </p>
                       </div>
-                      {outletActionMode === "visit" && (
-                        <div className="absolute top-3.5 right-3.5 w-2 h-2 rounded-full bg-[#801313]" />
+                      {outletActionMode === "redeem_points" && (
+                        <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#801313]" />
                       )}
                     </button>
 
@@ -3506,100 +3507,358 @@ export default function AdminPage() {
                         setOutletRewardErr("");
                         setOutletRewardSuccessReceipt(null);
                       }}
-                      className={`p-5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
+                      className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
                         outletActionMode === "reward"
                           ? "bg-[#FAF7F4] border-[#801313] shadow-sm ring-2 ring-[#801313]/20"
                           : "bg-white border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4]/40"
                       }`}
                     >
                       <div className="flex items-center justify-between mb-3 text-[#801313]">
-                        <Gift className="w-8 h-8 text-[#801313] stroke-[1.8]" />
+                        <Gift className="w-7 h-7 text-[#801313] stroke-[1.8]" />
                         {outletAvailableRewards.length > 0 && (
-                          <span className="px-2 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-[10px] font-black uppercase">
+                          <span className="px-2 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-[9px] font-black uppercase">
                             {outletAvailableRewards.length} AVAILABLE
                           </span>
                         )}
                       </div>
                       <div>
-                        <h3 className="font-bold text-base text-[#1E1815] leading-snug">
+                        <h3 className="font-bold text-sm sm:text-base text-[#1E1815] leading-snug">
                           Redeem visit offer
                         </h3>
-                        <p className="text-xs text-[#7A6E67] font-medium mt-1">
-                          Redeem an unlocked visit-path gift
+                        <p className="text-[11px] text-[#7A6E67] font-medium mt-1">
+                          Unlocked member vouchers & gifts
                         </p>
                       </div>
                       {outletActionMode === "reward" && (
-                        <div className="absolute top-3.5 right-3.5 w-2 h-2 rounded-full bg-[#801313]" />
+                        <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#801313]" />
+                      )}
+                    </button>
+
+                    {/* Card 4: Give visit */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOutletActionMode("visit");
+                        setOutletVisitErr("");
+                        setOutletVisitSuccessReceipt(null);
+                      }}
+                      className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
+                        outletActionMode === "visit"
+                          ? "bg-[#FAF7F4] border-[#801313] shadow-sm ring-2 ring-[#801313]/20"
+                          : "bg-white border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4]/40"
+                      }`}
+                    >
+                      <div className="text-[#801313] mb-3">
+                        <StampIcon className="w-7 h-7 text-[#801313]" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-sm sm:text-base text-[#1E1815] leading-snug">
+                          Give visit
+                        </h3>
+                        <p className="text-[11px] text-[#7A6E67] font-medium mt-1">
+                          Add one outlet-specific visit
+                        </p>
+                      </div>
+                      {outletActionMode === "visit" && (
+                        <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#801313]" />
                       )}
                     </button>
                   </div>
+
+                  {/* GIVE LOYALTY POINTS POPUP MODAL (Exact match to Image 1) */}
+                  {showAdminGivePointsModal && (
+                    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+                      <div className="w-full max-w-md bg-[#FAF7F4] border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 shadow-2xl relative text-left animate-in zoom-in-95 duration-200 space-y-5">
+                        {/* Close button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowAdminGivePointsModal(false);
+                            setOutletBillErr("");
+                          }}
+                          className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white hover:bg-[#EFE9E2] border border-[#EAE3DC] text-[#7A6E67] hover:text-[#1E1815] flex items-center justify-center transition-colors cursor-pointer"
+                          title="Close"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+
+                        {/* Header */}
+                        <div className="pr-8">
+                          <h3 className="text-xl font-black text-[#1E1815] tracking-tight">
+                            Give loyalty points
+                          </h3>
+                          <p className="text-xs text-[#7A6E67] font-semibold mt-1">
+                            {outletCustomer.name} · {allBranches.find((b: any) => b.id === outletBranchId)?.name || outletCustomer.homeBranch?.name || "Dubai Festival City"}
+                          </p>
+                        </div>
+
+                        <form
+                          onSubmit={async (e) => {
+                            await handleAdminRecordSale(e);
+                            setShowAdminGivePointsModal(false);
+                          }}
+                          className="space-y-4"
+                        >
+                          {/* Invoice input */}
+                          <div>
+                            <label className="block text-xs font-bold text-[#1E1815] mb-1.5" htmlFor="admin-modal-inv-input">
+                              Invoice number
+                            </label>
+                            <input
+                              id="admin-modal-inv-input"
+                              type="text"
+                              placeholder="Enter invoice number"
+                              value={outletInvoiceNumber}
+                              onChange={(e) => setOutletInvoiceNumber(e.target.value.toUpperCase())}
+                              required
+                              autoFocus
+                              className="w-full px-4 py-3 bg-[#F7F3EE] border border-[#D5C7BC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#9E9188] focus:outline-none focus:border-[#801313] focus:bg-white shadow-inner"
+                            />
+                          </div>
+
+                          {/* Total amount */}
+                          <div>
+                            <label className="block text-xs font-bold text-[#1E1815] mb-1.5" htmlFor="admin-modal-amt-input">
+                              Total amount
+                            </label>
+                            <div className="relative">
+                              <input
+                                id="admin-modal-amt-input"
+                                type="number"
+                                step="0.01"
+                                min="0.01"
+                                placeholder={`${outletLoyaltyRules.currency} 0.00`}
+                                value={outletBillAmount}
+                                onChange={(e) => setOutletBillAmount(e.target.value)}
+                                required
+                                className="w-full px-4 py-3 bg-[#F7F3EE] border border-[#D5C7BC] rounded-xl text-base font-bold text-[#801313] placeholder:text-[#9E9188] focus:outline-none focus:border-[#801313] focus:bg-white shadow-inner"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="text-[11px] text-[#7A6E67] font-medium leading-relaxed">
+                            {outletLoyaltyRules.currency} {outletLoyaltyRules.spendAedForPoints} = {outletLoyaltyRules.pointsEarnedPerSpend} point(s). Minimum spend {outletLoyaltyRules.currency} 1. Duplicate invoices are blocked.
+                          </div>
+
+                          {/* Dynamic points preview */}
+                          {outletParsedAmount > 0 && (
+                            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 font-bold flex items-center justify-between">
+                              <span>Points customer will earn:</span>
+                              <span className="font-mono text-emerald-700 font-extrabold text-sm">+{outletEstimatedPointsToEarn} pts</span>
+                            </div>
+                          )}
+
+                          {outletBillErr && (
+                            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-bold flex items-center gap-2">
+                              <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                              <span>{outletBillErr}</span>
+                            </div>
+                          )}
+
+                          <button
+                            type="submit"
+                            disabled={outletSubmittingBill || !outletInvoiceNumber.trim() || !outletBillAmount.trim() || Number(outletBillAmount) <= 0}
+                            className="w-full py-4 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                          >
+                            {outletSubmittingBill ? (
+                              <>
+                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <span>RECORDING…</span>
+                              </>
+                            ) : (
+                              <span>CONFIRM</span>
+                            )}
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  )}
 
                   {/* ACTION PANEL 1: GIVE POINTS */}
                   {outletActionMode === "points" && (
                     <div className="pt-2 animate-in fade-in duration-200">
                       {!outletSuccessReceipt ? (
-                        <form onSubmit={handleAdminRecordSale} className="space-y-5">
-                          {/* Invoice & Bill Amount Inputs */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="p-6 rounded-3xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-5">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <div>
-                              <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="admin-inv-input">
-                                Invoice / Receipt #
-                              </label>
-                              <input
-                                id="admin-inv-input"
-                                type="text"
-                                placeholder="E.G. INV-10982"
-                                value={outletInvoiceNumber}
-                                onChange={(e) => setOutletInvoiceNumber(e.target.value.toUpperCase())}
-                                required
-                                className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
-                              />
+                              <h4 className="font-extrabold text-base text-[#1E1815]">Give Loyalty Points on Dine-in Bill</h4>
+                              <p className="text-xs text-[#7A6E67] mt-0.5">
+                                Enter invoice # and bill amount to award points and stamp visit.
+                              </p>
                             </div>
-
-                            <div>
-                              <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="admin-amount-input">
-                                Bill Amount ({outletLoyaltyRules.currency})
-                              </label>
-                              <input
-                                id="admin-amount-input"
-                                type="number"
-                                step="0.01"
-                                min="0.01"
-                                placeholder="0.00"
-                                value={outletBillAmount}
-                                onChange={(e) => setOutletBillAmount(e.target.value)}
-                                required
-                                className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
-                              />
-                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setShowAdminGivePointsModal(true)}
+                              className="py-2.5 px-5 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider shadow-sm transition-all active:scale-[0.98] cursor-pointer shrink-0"
+                            >
+                              OPEN MODAL DIALOG
+                            </button>
                           </div>
 
-                          {/* Auto Visit Notice */}
-                          <div className="p-3.5 rounded-xl bg-[#FAF7F4] border border-[#EAE3DC] flex items-center justify-between text-xs font-medium text-[#7A6E67]">
-                            <div className="flex items-center gap-2">
-                              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                              <span>
-                                Recording this bill will automatically credit <strong className="text-[#1E1815]">+{outletEstimatedPointsToEarn} points</strong> and stamp <strong className="text-[#1E1815]">+1 visit</strong> for {outletCustomer.name}.
-                              </span>
-                            </div>
-                          </div>
+                          <form onSubmit={handleAdminRecordSale} className="space-y-4 pt-2 border-t border-[#EAE3DC]">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="admin-inv-input">
+                                  Invoice / Receipt #
+                                </label>
+                                <input
+                                  id="admin-inv-input"
+                                  type="text"
+                                  placeholder="E.G. INV-10982"
+                                  value={outletInvoiceNumber}
+                                  onChange={(e) => setOutletInvoiceNumber(e.target.value.toUpperCase())}
+                                  required
+                                  className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                                />
+                              </div>
 
-                          {/* Points Direct Cash Redemption Controls */}
-                          <div className="p-4.5 rounded-2xl bg-[#FFFBF0] border border-[#E5A93C]/40 space-y-3">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                              <div>
+                                <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="admin-amount-input">
+                                  Bill Amount ({outletLoyaltyRules.currency})
+                                </label>
+                                <input
+                                  id="admin-amount-input"
+                                  type="number"
+                                  step="0.01"
+                                  min="0.01"
+                                  placeholder="0.00"
+                                  value={outletBillAmount}
+                                  onChange={(e) => setOutletBillAmount(e.target.value)}
+                                  required
+                                  className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Auto Visit Notice */}
+                            <div className="p-3.5 rounded-xl bg-white border border-[#EAE3DC] flex items-center justify-between text-xs font-medium text-[#7A6E67]">
                               <div className="flex items-center gap-2">
-                                <Coins className="w-4 h-4 text-[#C68A1E]" />
-                                <span className="text-xs font-black uppercase tracking-wider text-[#1E1815]">
-                                  Redeem Points for Direct Cash Discount
+                                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                                <span>
+                                  Recording this bill will automatically credit <strong className="text-[#1E1815]">+{outletEstimatedPointsToEarn} points</strong> and stamp <strong className="text-[#1E1815]">+1 visit</strong> for {outletCustomer.name}.
                                 </span>
                               </div>
-                              <span className="text-xs font-bold text-[#C68A1E]">
-                                {outletLoyaltyRules.pointsRequiredForRedemption} pts = {outletLoyaltyRules.currency} {outletLoyaltyRules.currencyValuePerRedemptionPoints} off
-                              </span>
                             </div>
 
-                            {outletCustomer.pointsBalance >= outletLoyaltyRules.pointsRequiredForRedemption ? (
-                              <div className="space-y-3">
+                            {outletBillErr && (
+                              <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-bold flex items-center gap-2">
+                                <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                                <span>{outletBillErr}</span>
+                              </div>
+                            )}
+
+                            <div className="flex gap-3 pt-2">
+                              <button
+                                type="submit"
+                                disabled={outletSubmittingBill || !outletInvoiceNumber.trim() || !outletBillAmount.trim()}
+                                className="flex-1 py-4 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                              >
+                                {outletSubmittingBill ? (
+                                  <>
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <span>RECORDING TRANSACTION…</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <DollarSign className="w-4 h-4" />
+                                    <span>RECORD SALE &amp; AWARD POINTS</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      ) : (
+                        /* Success Receipt Modal */
+                        <div className="p-7 rounded-3xl bg-emerald-50 border border-emerald-200 text-center space-y-5 animate-in fade-in zoom-in duration-200">
+                          <div className="w-14 h-14 rounded-full bg-emerald-600 text-white flex items-center justify-center mx-auto shadow-md">
+                            <Check className="w-7 h-7 stroke-[3]" />
+                          </div>
+                          <div>
+                            <h3 className="font-serif font-black text-2xl text-emerald-950">Sale &amp; Points Succeeded!</h3>
+                            <p className="text-xs text-emerald-800 font-medium mt-1">
+                              Invoice #{outletSuccessReceipt.transaction?.invoiceNumber} recorded successfully.
+                            </p>
+                          </div>
+
+                          <div className="max-w-sm mx-auto bg-white rounded-2xl p-4.5 border border-emerald-200 text-xs text-left space-y-2 font-medium shadow-sm">
+                            <div className="flex justify-between">
+                              <span className="text-[#7A6E67]">Gross Bill:</span>
+                              <span className="font-bold">{outletLoyaltyRules.currency} {Number(outletSuccessReceipt.transaction?.amount || 0).toFixed(2)}</span>
+                            </div>
+
+                            {outletSuccessReceipt.transaction?.discountGiven > 0 && (
+                              <div className="flex justify-between text-red-700">
+                                <span>Total Discount:</span>
+                                <span className="font-bold font-mono">-{outletLoyaltyRules.currency} {Number(outletSuccessReceipt.transaction.discountGiven).toFixed(2)}</span>
+                              </div>
+                            )}
+
+                            {outletSuccessReceipt.pointsRedeemed && (
+                              <div className="flex justify-between text-red-700">
+                                <span>Points Redeemed:</span>
+                                <span className="font-bold font-mono">-{outletSuccessReceipt.pointsRedeemed.points} pts</span>
+                              </div>
+                            )}
+
+                            <div className="flex justify-between text-emerald-800">
+                              <span>Points Awarded:</span>
+                              <span className="font-black font-mono">+{outletSuccessReceipt.transaction?.pointsEarned || 0} pts</span>
+                            </div>
+
+                            <div className="flex justify-between text-blue-800">
+                              <span>Visit Count:</span>
+                              <span className="font-black font-mono">Visit #{outletSuccessReceipt.customer?.visitCount} (Stamped)</span>
+                            </div>
+
+                            <div className="flex justify-between pt-2 border-t border-[#EAE3DC]">
+                              <span className="text-[#7A6E67]">Customer New Balance:</span>
+                              <span className="font-black text-sm text-[#801313] font-mono">{outletSuccessReceipt.customer?.pointsBalance} pts</span>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              setOutletCustomer(null);
+                              setOutletSuccessReceipt(null);
+                              setOutletMobileInput("");
+                              setOutletQrInput("");
+                            }}
+                            className="w-full max-w-sm mx-auto py-3.5 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+                          >
+                            NEXT CUSTOMER
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* ACTION PANEL 2: REDEEM POINTS FOR CASH DISCOUNT */}
+                  {outletActionMode === "redeem_points" && (
+                    <div className="pt-2 animate-in fade-in duration-200">
+                      {!outletSuccessReceipt ? (
+                        <form onSubmit={handleAdminRecordSale} className="p-6 rounded-3xl bg-[#FFFBF0] border border-[#E5A93C]/40 space-y-5">
+                          <div className="flex items-center justify-between pb-3 border-b border-[#E5A93C]/30">
+                            <div className="flex items-center gap-2.5">
+                              <Coins className="w-6 h-6 text-[#C68A1E]" />
+                              <div>
+                                <h4 className="font-extrabold text-base text-[#1E1815]">Redeem Points for Direct Cash Discount</h4>
+                                <p className="text-xs text-[#7A6E67] font-medium">
+                                  Customer currently has <strong className="text-[#801313] font-bold">{outletCustomer.pointsBalance} points</strong> available.
+                                </p>
+                              </div>
+                            </div>
+                            <span className="px-3 py-1 rounded-lg bg-[#E5A93C]/20 text-[#801313] text-xs font-black">
+                              {outletLoyaltyRules.pointsRequiredForRedemption} pts = {outletLoyaltyRules.currency} {outletLoyaltyRules.currencyValuePerRedemptionPoints} off
+                            </span>
+                          </div>
+
+                          {outletCustomer.pointsBalance >= outletLoyaltyRules.pointsRequiredForRedemption ? (
+                            <div className="space-y-4">
+                              <div>
+                                <label className="block text-xs font-bold text-[#1E1815] mb-2">
+                                  Select Points to Redeem:
+                                </label>
                                 <div className="flex flex-wrap items-center gap-2">
                                   {[100, 200, 500].map((pts) => {
                                     if (outletCustomer.pointsBalance < pts) return null;
@@ -3613,9 +3872,9 @@ export default function AdminPage() {
                                           setOutletPointsToRedeem(isSelected ? 0 : pts);
                                           setOutletCustomRedeem("");
                                         }}
-                                        className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                                        className={`px-3.5 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                                           isSelected
-                                            ? "bg-[#801313] text-white border-[#801313] shadow-xs"
+                                            ? "bg-[#801313] text-white border-[#801313] shadow-xs ring-2 ring-[#801313]/20"
                                             : "bg-white text-[#1E1815] border-[#EAE3DC] hover:border-[#801313]"
                                         }`}
                                       >
@@ -3624,6 +3883,7 @@ export default function AdminPage() {
                                     );
                                   })}
 
+                                  {/* Redeem Max Available */}
                                   {(() => {
                                     const maxUnits = Math.floor(outletCustomer.pointsBalance / outletLoyaltyRules.pointsRequiredForRedemption);
                                     const maxPts = maxUnits * outletLoyaltyRules.pointsRequiredForRedemption;
@@ -3638,9 +3898,9 @@ export default function AdminPage() {
                                           setOutletPointsToRedeem(isMaxSelected ? 0 : maxPts);
                                           setOutletCustomRedeem("");
                                         }}
-                                        className={`px-3.5 py-2 rounded-xl text-xs font-black border transition-all cursor-pointer ${
+                                        className={`px-4 py-2.5 rounded-xl text-xs font-black border transition-all cursor-pointer ${
                                           isMaxSelected
-                                            ? "bg-emerald-700 text-white border-emerald-700 shadow-xs"
+                                            ? "bg-emerald-700 text-white border-emerald-700 shadow-xs ring-2 ring-emerald-700/20"
                                             : "bg-white text-[#801313] border-[#EAE3DC] hover:border-[#801313]"
                                         }`}
                                       >
@@ -3662,95 +3922,83 @@ export default function AdminPage() {
                                     </button>
                                   )}
                                 </div>
-
-                                <div className="flex items-center gap-2 pt-2 border-t border-[#E5A93C]/20">
-                                  <label className="text-xs text-[#7A6E67] font-semibold shrink-0">Custom Points:</label>
-                                  <input
-                                    type="number"
-                                    step={outletLoyaltyRules.pointsRequiredForRedemption}
-                                    max={outletCustomer.pointsBalance}
-                                    min={0}
-                                    placeholder={`Multiples of ${outletLoyaltyRules.pointsRequiredForRedemption}`}
-                                    value={outletCustomRedeem}
-                                    onChange={(e) => {
-                                      const v = e.target.value;
-                                      setOutletCustomRedeem(v);
-                                      const num = parseInt(v) || 0;
-                                      if (num <= outletCustomer.pointsBalance && num >= 0) {
-                                        setOutletPointsToRedeem(num);
-                                      }
-                                    }}
-                                    className="w-48 px-3 py-1.5 bg-white border border-[#EAE3DC] rounded-lg text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
-                                  />
-                                  {outletPointsToRedeem > 0 && (
-                                    <span className="text-xs font-bold text-emerald-800">
-                                      = -{outletLoyaltyRules.currency} {outletDirectPointsDiscount.toFixed(2)} discount
-                                    </span>
-                                  )}
-                                </div>
                               </div>
-                            ) : (
-                              <p className="text-xs text-[#7A6E67]">
-                                Customer has {outletCustomer.pointsBalance} points. ({outletLoyaltyRules.pointsRequiredForRedemption} points needed for cash discount redemption).
-                              </p>
-                            )}
-                          </div>
 
-                          {/* Promotional Vouchers */}
-                          {outletAvailableRewards.length > 0 && (
-                            <div className="p-4 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-2.5">
-                              <div className="text-xs font-black tracking-wider uppercase text-[#801313] flex items-center gap-2">
-                                <Tag className="w-3.5 h-3.5 text-[#801313]" />
-                                <span>Apply Promotional Discount Voucher</span>
-                              </div>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                                {outletAvailableRewards.map((reward) => {
-                                  const isSelected = outletSelectedRewardId === reward.id;
-                                  return (
-                                    <button
-                                      key={reward.id}
-                                      type="button"
-                                      onClick={() => setOutletSelectedRewardId(isSelected ? null : reward.id)}
-                                      className={`p-3 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
-                                        isSelected
-                                          ? "bg-white border-[#801313] shadow-2xs ring-1 ring-[#801313]"
-                                          : "bg-white/70 border-[#EAE3DC] hover:border-[#801313]/40"
-                                      }`}
-                                    >
-                                      <div className="min-w-0 pr-2">
-                                        <div className="font-extrabold text-xs text-[#1E1815] truncate">{reward.name}</div>
-                                        <div className="text-[11px] text-[#7A6E67]">
-                                          {reward.isPercent ? `${reward.value}% off` : `${outletLoyaltyRules.currency} ${reward.value} off`}
-                                        </div>
-                                      </div>
-                                      <span
-                                        className={`px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-wider ${
-                                          isSelected ? "bg-[#801313] text-white" : "bg-[#FAF7F4] text-[#801313]"
-                                        }`}
-                                      >
-                                        {isSelected ? "APPLIED ✓" : "SELECT"}
-                                      </span>
-                                    </button>
-                                  );
-                                })}
+                              {/* Custom Points Input */}
+                              <div className="flex items-center gap-2 pt-2">
+                                <label className="text-xs text-[#7A6E67] font-semibold shrink-0">Custom Points:</label>
+                                <input
+                                  type="number"
+                                  step={outletLoyaltyRules.pointsRequiredForRedemption}
+                                  max={outletCustomer.pointsBalance}
+                                  min={0}
+                                  placeholder={`Multiples of ${outletLoyaltyRules.pointsRequiredForRedemption}`}
+                                  value={outletCustomRedeem}
+                                  onChange={(e) => {
+                                    const v = e.target.value;
+                                    setOutletCustomRedeem(v);
+                                    const num = parseInt(v) || 0;
+                                    if (num <= outletCustomer.pointsBalance && num >= 0) {
+                                      setOutletPointsToRedeem(num);
+                                    }
+                                  }}
+                                  className="w-48 px-3.5 py-2 bg-white border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                                />
+                                {outletPointsToRedeem > 0 && (
+                                  <span className="text-xs font-bold text-emerald-800">
+                                    = -{outletLoyaltyRules.currency} {outletDirectPointsDiscount.toFixed(2)} discount
+                                  </span>
+                                )}
                               </div>
                             </div>
+                          ) : (
+                            <p className="text-xs text-[#7A6E67] bg-white p-3.5 rounded-xl border border-[#EAE3DC]">
+                              Customer currently has {outletCustomer.pointsBalance} points. A minimum of {outletLoyaltyRules.pointsRequiredForRedemption} points is needed for direct bill cash discount.
+                            </p>
                           )}
 
-                          {/* Live Calculation Summary */}
+                          {/* Bill inputs */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-[#E5A93C]/30">
+                            <div>
+                              <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="admin-redeem-inv-input">
+                                Invoice / Receipt #
+                              </label>
+                              <input
+                                id="admin-redeem-inv-input"
+                                type="text"
+                                placeholder="E.G. INV-10982"
+                                value={outletInvoiceNumber}
+                                onChange={(e) => setOutletInvoiceNumber(e.target.value.toUpperCase())}
+                                required
+                                className="w-full px-4 py-3 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="admin-redeem-amount-input">
+                                Gross Bill Amount ({outletLoyaltyRules.currency})
+                              </label>
+                              <input
+                                id="admin-redeem-amount-input"
+                                type="number"
+                                step="0.01"
+                                min="0.01"
+                                placeholder="0.00"
+                                value={outletBillAmount}
+                                onChange={(e) => setOutletBillAmount(e.target.value)}
+                                required
+                                className="w-full px-4 py-3 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Calculation Breakdown Summary */}
                           {outletParsedAmount > 0 && (
-                            <div className="p-4.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-2 text-xs">
+                            <div className="p-4 rounded-2xl bg-white border border-[#EAE3DC] space-y-2 text-xs">
                               <div className="flex justify-between items-center text-[#7A6E67]">
                                 <span>Gross Bill Amount:</span>
                                 <span className="font-bold text-[#1E1815]">{outletLoyaltyRules.currency} {outletParsedAmount.toFixed(2)}</span>
                               </div>
-
-                              {outletVoucherDiscount > 0 && (
-                                <div className="flex justify-between items-center text-red-700">
-                                  <span>Voucher Discount ({outletSelectedReward?.name}):</span>
-                                  <span className="font-bold font-mono">-{outletLoyaltyRules.currency} {outletVoucherDiscount.toFixed(2)}</span>
-                                </div>
-                              )}
 
                               {outletDirectPointsDiscount > 0 && (
                                 <div className="flex justify-between items-center text-red-700">
@@ -3760,7 +4008,7 @@ export default function AdminPage() {
                               )}
 
                               <div className="flex justify-between items-center text-emerald-800">
-                                <span>Points Customer Will Earn (+{outletLoyaltyRules.pointsEarnedPerSpend} pt / {outletLoyaltyRules.currency} {outletLoyaltyRules.spendAedForPoints}):</span>
+                                <span>Points Customer Will Earn on Bill:</span>
                                 <span className="font-black font-mono">+{outletEstimatedPointsToEarn} pts</span>
                               </div>
 
@@ -3780,38 +4028,23 @@ export default function AdminPage() {
                             </div>
                           )}
 
-                          {/* Submit and Cancel Buttons */}
-                          <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                            <button
-                              type="submit"
-                              disabled={outletSubmittingBill || !outletInvoiceNumber.trim() || !outletBillAmount.trim()}
-                              className="flex-1 py-4 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
-                            >
-                              {outletSubmittingBill ? (
-                                <>
-                                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                  <span>RECORDING TRANSACTION…</span>
-                                </>
-                              ) : (
-                                <>
-                                  <DollarSign className="w-4 h-4" />
-                                  <span>RECORD SALE &amp; AWARD POINTS</span>
-                                </>
-                              )}
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setOutletCustomer(null);
-                                setOutletMobileInput("");
-                                setOutletQrInput("");
-                              }}
-                              className="py-4 px-8 rounded-xl bg-white hover:bg-[#FAF7F4] border border-[#EAE3DC] text-[#7A6E67] font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
-                            >
-                              CANCEL
-                            </button>
-                          </div>
+                          <button
+                            type="submit"
+                            disabled={outletSubmittingBill || !outletInvoiceNumber.trim() || !outletBillAmount.trim() || outletPointsToRedeem <= 0}
+                            className="w-full py-4 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                          >
+                            {outletSubmittingBill ? (
+                              <>
+                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <span>REDEEMING POINTS…</span>
+                              </>
+                            ) : (
+                              <>
+                                <Coins className="w-4 h-4" />
+                                <span>CONFIRM POINT REDEMPTION ({outletPointsToRedeem} PTS = -{outletLoyaltyRules.currency} {outletDirectPointsDiscount.toFixed(2)})</span>
+                              </>
+                            )}
+                          </button>
                         </form>
                       ) : (
                         /* Success Receipt Modal */

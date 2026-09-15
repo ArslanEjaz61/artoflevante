@@ -184,6 +184,18 @@ export async function POST(req: NextRequest) {
         });
       }
 
+      // Record customer visit so it appears in Branch Visitors tab & analytics
+      await tx.customerVisit.create({
+        data: {
+          customerId: customer.id,
+          branchId: branch.id,
+          couponCode: cleanInvoice,
+          pointsEarned,
+          checkInMethod: "STAFF_POS",
+          note: `Invoice #${cleanInvoice} recorded at ${branch.name}`,
+        },
+      });
+
       // 2. If voucher redeemed, mark redeemed & ledger
       if (redeeming) {
         await tx.customerReward.update({

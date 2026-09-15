@@ -22,6 +22,35 @@ export async function GET(req: NextRequest) {
       orderBy: { name: "asc" },
     });
 
+    // Auto-sync / backfill any past transactions into CustomerVisit
+    const pastTransactions = await prisma.transaction.findMany({
+      where: { isReversed: false },
+      include: { branch: true },
+    });
+
+    for (const trx of pastTransactions) {
+      const exists = await prisma.customerVisit.findFirst({
+        where: {
+          customerId: trx.customerId,
+          branchId: trx.branchId,
+          couponCode: trx.invoiceNumber,
+        },
+      });
+      if (!exists) {
+        await prisma.customerVisit.create({
+          data: {
+            customerId: trx.customerId,
+            branchId: trx.branchId,
+            couponCode: trx.invoiceNumber,
+            pointsEarned: trx.pointsEarned,
+            checkInMethod: "STAFF_POS",
+            note: `Invoice #${trx.invoiceNumber} recorded at ${trx.branch.name}`,
+            createdAt: trx.createdAt,
+          },
+        });
+      }
+    }
+
     const branchCodes = await Promise.all(
       branches.map(async (b) => {
         const { dailyCode, dailyCodeExpiresAt } = await getOrRotateBranchDailyCode(b);
