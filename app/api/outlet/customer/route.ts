@@ -125,15 +125,16 @@ export async function POST(req: NextRequest) {
         expiresAt: cr.expiresAt,
       }));
 
-    // Fetch recent 5 transactions for reference
+    // Fetch recent 10 transactions for reference
     const recentTransactions = await prisma.transaction.findMany({
       where: { customerId: customer.id },
       include: {
         branch: { select: { name: true, city: true } },
         customerRewards: { include: { reward: true } },
+        pointsLedger: true,
       },
       orderBy: { createdAt: "desc" },
-      take: 5,
+      take: 10,
     });
 
     return NextResponse.json({
@@ -151,16 +152,27 @@ export async function POST(req: NextRequest) {
         memberSince: customer.createdAt,
       },
       availableRewards: validRewards,
-      recentTransactions: recentTransactions.map((t) => ({
-        id: t.id,
-        invoiceNumber: t.invoiceNumber,
-        amount: Number(t.amount),
-        pointsEarned: t.pointsEarned,
-        discountGiven: Number(t.discountGiven || 0),
-        redeemedRewards: t.customerRewards.map((cr) => cr.reward.name),
-        branchName: t.branch?.name,
-        createdAt: t.createdAt,
-      })),
+      recentTransactions: recentTransactions.map((t) => {
+        const grossBill = Number(t.amount);
+        const discountGiven = Number(t.discountGiven || 0);
+        const amountPaid = Math.max(0, grossBill - discountGiven);
+        const redeemedLedger = t.pointsLedger?.filter((pl) => pl.delta < 0) || [];
+        const pointsRedeemed = redeemedLedger.reduce((sum, pl) => sum + Math.abs(pl.delta), 0);
+        return {
+          id: t.id,
+          invoiceNumber: t.invoiceNumber,
+          amount: grossBill,
+          grossBill,
+          discountGiven,
+          amountPaid,
+          pointsEarned: t.pointsEarned,
+          pointsRedeemed,
+          redeemedRewards: t.customerRewards.map((cr) => cr.reward.name),
+          branchName: t.branch?.name,
+          city: t.branch?.city,
+          createdAt: t.createdAt,
+        };
+      }),
       loyaltyRules: {
         currency: settings.currency || "AED",
         spendAedForPoints: Number(settings.spend_aed_for_points || 10),

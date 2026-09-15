@@ -25,6 +25,7 @@ import {
   User,
   History,
   Menu,
+  Clock,
 } from "lucide-react";
 import QRCode from "qrcode";
 import { usePwaInstall } from "@/lib/usePwaInstall";
@@ -49,6 +50,19 @@ function formatRelativeTime(iso?: string | null): string {
   return new Date(iso).toLocaleDateString();
 }
 
+function formatExactDateTime(iso?: string | null): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return d.toLocaleString("en-US", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 export default function CustomerDashboardPage() {
   const router = useRouter();
   const [data, setData] = useState<any>(null);
@@ -58,6 +72,7 @@ export default function CustomerDashboardPage() {
   const [profile, setProfile] = useState({ name: "", email: "", birthday: "" });
   const [profileBusy, setProfileBusy] = useState(false);
   const [profileMsg, setProfileMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
 
   // Customer Portal QR Modal State
   const [showPortalQrModal, setShowPortalQrModal] = useState(false);
@@ -747,10 +762,18 @@ export default function CustomerDashboardPage() {
         {transactions && transactions.length > 0 ? (
           <div className="divide-y divide-[#EFE8E1]">
             {transactions.map((t: any) => (
-              <div key={t.id} className="py-3 flex items-center justify-between first:pt-0 last:pb-0 gap-3">
+              <div
+                key={t.id}
+                onClick={() => setSelectedReceipt(t)}
+                className="py-3 px-2.5 -mx-2 rounded-xl hover:bg-[#FAF7F4] active:bg-[#F2ECE5] transition-all flex items-center justify-between first:pt-2 last:pb-2 gap-3 cursor-pointer group"
+                role="button"
+                tabIndex={0}
+                title="Click to view full receipt breakdown"
+              >
                 <div className="min-w-0 flex-1">
-                  <div className="font-bold text-xs sm:text-sm text-[#1E1815] truncate">
-                    {t.branch || customer.homeBranch?.name || "Branch Visit"}
+                  <div className="font-bold text-xs sm:text-sm text-[#1E1815] group-hover:text-[#801313] transition-colors truncate flex items-center gap-1.5">
+                    <span>{t.branch || customer.homeBranch?.name || "Branch Visit"}</span>
+                    <span className="text-[10px] text-[#A0938C] font-normal group-hover:text-[#801313]">›</span>
                   </div>
                   <div className="text-[10px] text-[#7A6E67] flex items-center gap-1.5 mt-0.5 flex-wrap">
                     {t.invoiceNumber && (
@@ -765,7 +788,7 @@ export default function CustomerDashboardPage() {
                   </div>
                   {t.discountGiven > 0 && (
                     <div className="text-[10px] text-[#801313] font-bold mt-0.5">
-                      Discount: {currency} {Number(t.discountGiven).toFixed(2)}
+                      Discount: -{currency} {Number(t.discountGiven).toFixed(2)}
                       {t.redeemedRewards?.length > 0 && ` (${t.redeemedRewards.join(", ")})`}
                     </div>
                   )}
@@ -1084,6 +1107,103 @@ export default function CustomerDashboardPage() {
             >
               <Share2 className="w-4 h-4" />
               <span>{copiedPortalLink ? "Link Copied to Clipboard!" : "SHARE LINK"}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* 14. DIGITAL RECEIPT DETAILS MODAL (Matches user design)         */}
+      {/* ============================================================== */}
+      {selectedReceipt && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-sm bg-white rounded-3xl p-6 border border-emerald-200 shadow-2xl text-center space-y-4 animate-in zoom-in-95 duration-200 relative">
+            {/* Close Button */}
+            <button
+              onClick={() => setSelectedReceipt(null)}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center transition-colors cursor-pointer"
+              title="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Checkmark Icon */}
+            <div className="w-14 h-14 rounded-full bg-emerald-600 text-white flex items-center justify-center mx-auto shadow-md">
+              <Check className="w-7 h-7 stroke-[3]" />
+            </div>
+
+            {/* Receipt Header */}
+            <div>
+              <h3 className="font-serif font-black text-2xl text-emerald-950">Sale &amp; Points Succeeded!</h3>
+              <p className="text-xs text-emerald-800 font-medium mt-1">
+                Invoice #{selectedReceipt.invoiceNumber} recorded at {selectedReceipt.branch || customer.homeBranch?.name || "Branch"}.
+              </p>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/70 text-emerald-900 text-[11px] font-medium mt-2">
+                <Clock className="w-3.5 h-3.5 text-emerald-700" />
+                <span>{formatExactDateTime(selectedReceipt.createdAt)}</span>
+              </div>
+            </div>
+
+            {/* Breakdown Card */}
+            <div className="bg-[#FAF7F4] rounded-2xl p-4.5 border border-emerald-200/80 text-xs text-left space-y-2.5 font-medium shadow-xs">
+              <div className="flex justify-between items-center">
+                <span className="text-[#7A6E67]">Gross Bill:</span>
+                <span className="font-bold text-[#1E1815] font-mono">
+                  {currency} {Number(selectedReceipt.grossBill ?? selectedReceipt.amount ?? 0).toFixed(2)}
+                </span>
+              </div>
+
+              {Number(selectedReceipt.discountGiven || 0) > 0 && (
+                <div className="flex justify-between items-start text-red-700">
+                  <span>
+                    Total Discount:
+                    {selectedReceipt.redeemedRewards && selectedReceipt.redeemedRewards.length > 0 && (
+                      <span className="block text-[10px] text-red-600 font-normal">
+                        ({selectedReceipt.redeemedRewards.join(", ")})
+                      </span>
+                    )}
+                  </span>
+                  <span className="font-bold font-mono">
+                    -{currency} {Number(selectedReceipt.discountGiven).toFixed(2)}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex justify-between items-center text-[#1E1815] pt-1.5 border-t border-[#EAE3DC]">
+                <span className="font-black text-xs text-[#801313]">Customer Paid (Net):</span>
+                <span className="font-black text-sm text-[#801313] font-mono">
+                  {currency} {Number(
+                    selectedReceipt.amountPaid ??
+                    Math.max(0, Number(selectedReceipt.amount || 0) - Number(selectedReceipt.discountGiven || 0))
+                  ).toFixed(2)}
+                </span>
+              </div>
+
+              {Number(selectedReceipt.pointsRedeemed || 0) > 0 && (
+                <div className="flex justify-between items-center text-red-700 pt-1.5 border-t border-[#EAE3DC]/60">
+                  <span>Points Redeemed:</span>
+                  <span className="font-bold font-mono">-{selectedReceipt.pointsRedeemed} pts</span>
+                </div>
+              )}
+
+              {Number(selectedReceipt.pointsEarned || 0) > 0 && (
+                <div className="flex justify-between items-center text-emerald-800">
+                  <span>Points Awarded:</span>
+                  <span className="font-black font-mono">+{selectedReceipt.pointsEarned} pts</span>
+                </div>
+              )}
+
+              <div className="flex justify-between items-center text-blue-800 pt-1.5 border-t border-[#EAE3DC]/60">
+                <span>Transaction Status:</span>
+                <span className="font-black font-mono">Completed &amp; Stamped ✓</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setSelectedReceipt(null)}
+              className="w-full py-3 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+            >
+              CLOSE RECEIPT
             </button>
           </div>
         </div>
