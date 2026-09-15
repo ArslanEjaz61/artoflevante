@@ -568,26 +568,61 @@ export default function CustomerDashboardPage() {
       </div>
 
       {/* ============================================================== */}
-      {/* 7. FREE VOUCHER (WITH AVAILABLE BADGE) & SPECIAL OFFER CARDS   */}
+      {/* 7. FREE VOUCHERS / REWARDS & SPECIAL OFFER CARDS               */}
       {/* ============================================================== */}
       <div className="space-y-2.5 mb-4">
-        {/* Voucher Card with AVAILABLE Badge (Matches Image 1) */}
-        <div className="bg-white rounded-2xl p-4 border border-[#EAE3DC] shadow-xs flex items-center justify-between">
-          <div className="flex items-center gap-3 min-w-0 pr-2">
-            <div className="w-9 h-9 rounded-xl bg-[#FFF6E5] text-[#C68A1E] flex items-center justify-center shrink-0 border border-[#EFE7D8]">
-              <Gift className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <div className="font-bold text-xs sm:text-sm text-[#1E1815] truncate">
-                {voucherTitle}
+        {/* Available Vouchers List */}
+        {availableRewards.length > 0 ? (
+          availableRewards.map((reward: any) => {
+            const discText = reward.isPercent
+              ? `${reward.value}% OFF`
+              : reward.value > 0
+              ? `${currency} ${reward.value} OFF`
+              : "Complimentary Item";
+            const title = reward.name.includes("%") || reward.name.includes("OFF")
+              ? reward.name
+              : `${reward.name} (${discText})`;
+
+            return (
+              <div key={reward.id} className="bg-white rounded-2xl p-4 border border-[#EAE3DC] shadow-xs flex items-center justify-between">
+                <div className="flex items-center gap-3 min-w-0 pr-2">
+                  <div className="w-9 h-9 rounded-xl bg-[#FFF6E5] text-[#C68A1E] flex items-center justify-center shrink-0 border border-[#EFE7D8]">
+                    <Gift className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-bold text-xs sm:text-sm text-[#1E1815] truncate">
+                      {title}
+                    </div>
+                    <div className="text-[10px] text-[#7A6E67]">Tap to show cashier</div>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
+                  AVAILABLE
+                </span>
               </div>
-              <div className="text-[10px] text-[#7A6E67]">Tap to show cashier</div>
+            );
+          })
+        ) : usedRewards.length > 0 ? (
+          /* Show Most Recent Used / Redeemed Voucher */
+          <div className="bg-white rounded-2xl p-4 border border-[#EAE3DC] shadow-xs flex items-center justify-between opacity-85">
+            <div className="flex items-center gap-3 min-w-0 pr-2">
+              <div className="w-9 h-9 rounded-xl bg-stone-100 text-stone-500 flex items-center justify-center shrink-0 border border-stone-200">
+                <CheckCircle2 className="w-5 h-5 text-stone-600" />
+              </div>
+              <div className="min-w-0">
+                <div className="font-bold text-xs sm:text-sm text-stone-700 truncate line-through">
+                  {usedRewards[0].name}
+                </div>
+                <div className="text-[10px] text-stone-500">
+                  Redeemed &amp; applied at checkout
+                </div>
+              </div>
             </div>
+            <span className="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider bg-stone-100 text-stone-600 border border-stone-300 shrink-0">
+              USED
+            </span>
           </div>
-          <span className="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
-            AVAILABLE
-          </span>
-        </div>
+        ) : null}
 
         {/* Special Offer Card */}
         <div className="bg-white rounded-2xl p-4 border border-[#EAE3DC] shadow-xs flex items-center gap-3.5">

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   LayoutDashboard,
@@ -62,8 +62,52 @@ import {
   Ban,
   QrCode,
   Share2,
+  Camera,
+  ChevronDown,
+  Scan,
+  History,
+  User,
+  PartyPopper,
 } from "lucide-react";
 import QRCode from "qrcode";
+import jsQR from "jsqr";
+import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/mobile";
+
+function StampIcon({ className = "w-7 h-7" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5 21h14" />
+      <path d="M19 17v4" />
+      <path d="M5 17v4" />
+      <path d="M5 17h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3V5a3 3 0 0 0-6 0v2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2z" />
+    </svg>
+  );
+}
+
+function RibbonIcon({ className = "w-7 h-7" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="8" r="6" />
+      <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+    </svg>
+  );
+}
 
 function formatRelativeTime(iso?: string | null): string {
   if (!iso) return "—";
@@ -115,12 +159,387 @@ export default function AdminPage() {
   const router = useRouter();
   const [session, setSession] = useState<any>(null);
   const [login, setLogin] = useState({ username: "", pin: "" });
-  const [tab, setTab] = useState<"overview" | "customers" | "offers" | "branches" | "staff" | "visits" | "audit" | "settings">("overview");
+  const [tab, setTab] = useState<"overview" | "customers" | "offers" | "branches" | "staff" | "visits" | "outlet" | "audit" | "settings">("overview");
   const [data, setData] = useState<any>(null);
   const [busy, setBusy] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [err, setErr] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Outlet POS Terminal Tab States
+  const [outletBranchId, setOutletBranchId] = useState<string>("");
+  const [outletSearchTab, setOutletSearchTab] = useState<"phone" | "qr">("phone");
+  const [outletCountryCode, setOutletCountryCode] = useState(DEFAULT_COUNTRY);
+  const [outletMobileInput, setOutletMobileInput] = useState("");
+  const [outletQrInput, setOutletQrInput] = useState("");
+  const [outletCustomer, setOutletCustomer] = useState<any | null>(null);
+  const [outletAvailableRewards, setOutletAvailableRewards] = useState<any[]>([]);
+  const [outletRecentTransactions, setOutletRecentTransactions] = useState<any[]>([]);
+  const [outletLoyaltyRules, setOutletLoyaltyRules] = useState<any>({
+    currency: "AED",
+    spendAedForPoints: 10,
+    pointsEarnedPerSpend: 1,
+    pointsRequiredForRedemption: 100,
+    currencyValuePerRedemptionPoints: 5,
+  });
+  const [outletActionView, setOutletActionView] = useState<"all" | "points" | "redeem" | "vouchers">("all");
+  const [outletActionMode, setOutletActionMode] = useState<"points" | "visit" | "reward">("points");
+  const [outletInvoiceNumber, setOutletInvoiceNumber] = useState("");
+  const [outletBillAmount, setOutletBillAmount] = useState("");
+  const [outletSelectedRewardId, setOutletSelectedRewardId] = useState<string | null>(null);
+  const [outletPointsToRedeem, setOutletPointsToRedeem] = useState<number>(0);
+  const [outletCustomRedeem, setOutletCustomRedeem] = useState<string>("");
+  const [outletSearchBusy, setOutletSearchBusy] = useState(false);
+  const [outletSearchErr, setOutletSearchErr] = useState("");
+  const [outletSubmittingBill, setOutletSubmittingBill] = useState(false);
+  const [outletBillErr, setOutletBillErr] = useState("");
+  const [outletSuccessReceipt, setOutletSuccessReceipt] = useState<any | null>(null);
+
+  // Visit & Reward states for admin outlet POS
+  const [outletSubmittingVisit, setOutletSubmittingVisit] = useState(false);
+  const [outletVisitSuccessReceipt, setOutletVisitSuccessReceipt] = useState<any | null>(null);
+  const [outletVisitErr, setOutletVisitErr] = useState("");
+  const [outletRedeemingRewardId, setOutletRedeemingRewardId] = useState<string | null>(null);
+  const [outletRewardSuccessReceipt, setOutletRewardSuccessReceipt] = useState<any | null>(null);
+  const [outletRewardErr, setOutletRewardErr] = useState("");
+
+  // Admin Outlet Camera Scanner
+  const [isOutletCameraActive, setIsOutletCameraActive] = useState(false);
+  const [outletCameraHint, setOutletCameraHint] = useState("");
+  const outletVideoRef = useRef<HTMLVideoElement | null>(null);
+  const outletCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const outletStreamRef = useRef<MediaStream | null>(null);
+  const outletLoopRef = useRef<NodeJS.Timeout | null>(null);
+  const outletQrInputRef = useRef<HTMLInputElement | null>(null);
+
+  function stopOutletCamera() {
+    if (outletLoopRef.current) {
+      clearInterval(outletLoopRef.current);
+      outletLoopRef.current = null;
+    }
+    if (outletStreamRef.current) {
+      outletStreamRef.current.getTracks().forEach((t) => t.stop());
+      outletStreamRef.current = null;
+    }
+    if (outletVideoRef.current) outletVideoRef.current.srcObject = null;
+    setIsOutletCameraActive(false);
+    setOutletCameraHint("");
+  }
+
+  const handleAdminLookupCustomer = useCallback(
+    async (e?: React.FormEvent, overrideToken?: string) => {
+      e?.preventDefault();
+      const tokenToSearch = overrideToken || (outletSearchTab === "qr" ? outletQrInput.trim() : "");
+      const mobileToSearch = outletSearchTab === "phone" ? outletMobileInput.trim() : "";
+
+      if (!tokenToSearch && !mobileToSearch) return;
+
+      setOutletSearchBusy(true);
+      setOutletSearchErr("");
+
+      try {
+        const res = await fetch("/api/outlet/customer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mobile: mobileToSearch || undefined,
+            countryCode: outletSearchTab === "phone" ? outletCountryCode : undefined,
+            token: tokenToSearch || undefined,
+          }),
+        });
+
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.error || "Customer not found.");
+
+        setOutletCustomer(d.customer);
+        setOutletAvailableRewards(d.availableRewards || []);
+        setOutletRecentTransactions(d.recentTransactions || []);
+        if (d.loyaltyRules) setOutletLoyaltyRules(d.loyaltyRules);
+
+        setOutletInvoiceNumber("");
+        setOutletBillAmount("");
+        setOutletSelectedRewardId(null);
+        setOutletPointsToRedeem(0);
+        setOutletCustomRedeem("");
+        setOutletBillErr("");
+        setOutletSuccessReceipt(null);
+        setOutletVisitSuccessReceipt(null);
+        setOutletVisitErr("");
+        setOutletRewardSuccessReceipt(null);
+        setOutletRewardErr("");
+        setOutletActionMode("points");
+        setOutletActionView("all");
+
+        stopOutletCamera();
+      } catch (err: any) {
+        setOutletSearchErr(err.message || "Could not find customer profile.");
+      } finally {
+        setOutletSearchBusy(false);
+      }
+    },
+    [outletSearchTab, outletQrInput, outletMobileInput, outletCountryCode]
+  );
+
+  async function startOutletCamera() {
+    setOutletSearchErr("");
+    setOutletCameraHint("Starting camera stream…");
+    setIsOutletCameraActive(true);
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
+        audio: false,
+      });
+      outletStreamRef.current = stream;
+
+      const video = outletVideoRef.current;
+      if (!video) throw new Error("Video element missing");
+
+      video.srcObject = stream;
+      video.setAttribute("playsinline", "true");
+      video.muted = true;
+
+      await new Promise<void>((resolve) => {
+        if (video.readyState >= 1) return resolve();
+        video.onloadedmetadata = () => resolve();
+        setTimeout(resolve, 3000);
+      });
+
+      try {
+        await video.play();
+      } catch {
+        setOutletCameraHint("Tap video to start scanning");
+      }
+
+      setOutletCameraHint("Point camera at customer's membership QR");
+
+      outletLoopRef.current = setInterval(async () => {
+        const v = outletVideoRef.current;
+        if (!v || v.readyState < 2 || !v.videoWidth) return;
+
+        const canvas = outletCanvasRef.current;
+        if (!canvas) return;
+        const w = v.videoWidth;
+        const h = v.videoHeight;
+        if (!w || !h) return;
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        if (!ctx) return;
+        ctx.drawImage(v, 0, 0, w, h);
+        try {
+          const img = ctx.getImageData(0, 0, w, h);
+          const found = jsQR(img.data, w, h, { inversionAttempts: "dontInvert" });
+          if (found && found.data) {
+            stopOutletCamera();
+            setOutletQrInput(found.data);
+            handleAdminLookupCustomer(undefined, found.data);
+          }
+        } catch {}
+      }, 250);
+    } catch (e: any) {
+      setOutletSearchErr("Could not access camera. Please allow camera permissions or enter membership code manually.");
+      stopOutletCamera();
+    }
+  }
+
+  const handleAdminRecordSale = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!outletCustomer) return;
+
+    const availableBranchesList = branchesData?.branches || data?.branches || data?.branchLeaderboard || [];
+    const chosenBranchId = outletBranchId || availableBranchesList[0]?.id;
+    if (!chosenBranchId) {
+      setOutletBillErr("Please select a branch to record this transaction.");
+      return;
+    }
+
+    const val = parseFloat(outletBillAmount);
+    if (!outletInvoiceNumber.trim()) {
+      setOutletBillErr("Please enter the invoice / bill receipt number.");
+      return;
+    }
+    if (!val || val <= 0) {
+      setOutletBillErr("Please enter a valid bill amount greater than 0.");
+      return;
+    }
+
+    if (outletPointsToRedeem > outletCustomer.pointsBalance) {
+      setOutletBillErr(`Customer only has ${outletCustomer.pointsBalance} points available to redeem.`);
+      return;
+    }
+
+    setOutletSubmittingBill(true);
+    setOutletBillErr("");
+
+    try {
+      const res = await fetch("/api/outlet/transaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerId: outletCustomer.id,
+          branchId: chosenBranchId,
+          invoiceNumber: outletInvoiceNumber.trim(),
+          amount: val,
+          redeemRewardId: outletSelectedRewardId || undefined,
+          pointsToRedeem: outletPointsToRedeem > 0 ? outletPointsToRedeem : undefined,
+        }),
+      });
+
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || "Failed to record transaction.");
+
+      setOutletSuccessReceipt(d);
+      setOutletCustomer((prev: any) =>
+        prev
+          ? {
+              ...prev,
+              pointsBalance: d.customer.pointsBalance,
+              visitCount: d.customer.visitCount,
+              totalSpend: (prev.totalSpend || 0) + val,
+            }
+          : null
+      );
+
+      // Immediately sync remaining available rewards
+      if (d.availableRewards) {
+        setOutletAvailableRewards(d.availableRewards);
+      } else if (outletSelectedRewardId) {
+        setOutletAvailableRewards((prev) => prev.filter((r) => r.id !== outletSelectedRewardId));
+      }
+
+      // Prepend new transaction to recent history
+      if (d.transaction) {
+        const chosenBranchName = allBranches.find((b: any) => b.id === chosenBranchId)?.name || "Branch Visit";
+        setOutletRecentTransactions((prev) => [
+          {
+            id: d.transaction.id,
+            invoiceNumber: d.transaction.invoiceNumber,
+            amount: d.transaction.amount,
+            pointsEarned: d.transaction.pointsEarned,
+            discountGiven: d.transaction.discountGiven || 0,
+            redeemedRewards: d.redeemedVoucher ? [d.redeemedVoucher.name] : [],
+            branchName: chosenBranchName,
+            createdAt: d.transaction.createdAt || new Date().toISOString(),
+          },
+          ...prev,
+        ]);
+      }
+
+      loadOverview();
+    } catch (err: any) {
+      setOutletBillErr(err.message || "Failed to record transaction.");
+    } finally {
+      setOutletSubmittingBill(false);
+    }
+  };
+
+  const handleAdminGiveVisit = async () => {
+    if (!outletCustomer) return;
+    const availableBranchesList = branchesData?.branches || data?.branches || data?.branchLeaderboard || [];
+    const chosenBranchId = outletBranchId || availableBranchesList[0]?.id;
+    if (!chosenBranchId) {
+      setOutletVisitErr("Please select a branch to stamp this visit.");
+      return;
+    }
+
+    setOutletSubmittingVisit(true);
+    setOutletVisitErr("");
+    setOutletVisitSuccessReceipt(null);
+
+    try {
+      const res = await fetch("/api/outlet/visit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerId: outletCustomer.id,
+          branchId: chosenBranchId,
+        }),
+      });
+
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || "Failed to stamp visit.");
+
+      setOutletVisitSuccessReceipt(d);
+      setOutletCustomer((prev: any) =>
+        prev
+          ? {
+              ...prev,
+              visitCount: d.customer.visitCount,
+              pointsBalance: d.customer.pointsBalance,
+            }
+          : null
+      );
+      if (d.newlyIssuedRewards && d.newlyIssuedRewards.length > 0) {
+        setOutletAvailableRewards((prev) => [
+          ...prev,
+          ...d.newlyIssuedRewards.map((r: any) => ({
+            id: r.id,
+            name: r.name,
+            description: r.description,
+            value: 0,
+            isPercent: false,
+            type: "VISITS",
+          })),
+        ]);
+      }
+      loadOverview();
+      loadVisits();
+    } catch (err: any) {
+      setOutletVisitErr(err.message || "Failed to stamp visit.");
+    } finally {
+      setOutletSubmittingVisit(false);
+    }
+  };
+
+  const handleAdminRedeemReward = async (rewardId: string) => {
+    if (!outletCustomer) return;
+    const availableBranchesList = branchesData?.branches || data?.branches || data?.branchLeaderboard || [];
+    const chosenBranchId = outletBranchId || availableBranchesList[0]?.id;
+    if (!chosenBranchId) {
+      setOutletRewardErr("Please select a branch to redeem this offer.");
+      return;
+    }
+
+    setOutletRedeemingRewardId(rewardId);
+    setOutletRewardErr("");
+    setOutletRewardSuccessReceipt(null);
+
+    try {
+      const res = await fetch("/api/outlet/redeem-reward", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerId: outletCustomer.id,
+          customerRewardId: rewardId,
+          branchId: chosenBranchId,
+        }),
+      });
+
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || "Failed to redeem reward.");
+
+      setOutletRewardSuccessReceipt(d);
+      setOutletCustomer((prev: any) =>
+        prev
+          ? {
+              ...prev,
+              pointsBalance: d.customer.pointsBalance,
+            }
+          : null
+      );
+      setOutletAvailableRewards(d.availableRewards || []);
+      loadOverview();
+    } catch (err: any) {
+      setOutletRewardErr(err.message || "Failed to redeem reward.");
+    } finally {
+      setOutletRedeemingRewardId(null);
+    }
+  };
 
   // Customers tab
   const [cust, setCust] = useState<any>(null);
@@ -1082,6 +1501,29 @@ export default function AdminPage() {
       ? (((pointsPerSpend * (aedRedemptionVal / reqPoints)) / spendStep) * 100).toFixed(1)
       : "0.0";
 
+  // Outlet POS calculations
+  const outletParsedAmount = parseFloat(outletBillAmount) || 0;
+  const outletSelectedReward = outletAvailableRewards.find((r) => r.id === outletSelectedRewardId);
+  const outletVoucherDiscount = outletSelectedReward
+    ? outletSelectedReward.isPercent
+      ? Math.round(outletParsedAmount * (outletSelectedReward.value / 100) * 100) / 100
+      : outletSelectedReward.value
+    : 0;
+
+  const outletRedemptionUnit = outletLoyaltyRules.pointsRequiredForRedemption || 100;
+  const outletCurrencyPerUnit = outletLoyaltyRules.currencyValuePerRedemptionPoints || 5;
+  const outletDirectPointsDiscount =
+    outletPointsToRedeem > 0 && outletRedemptionUnit > 0
+      ? Math.round(((outletPointsToRedeem / outletRedemptionUnit) * outletCurrencyPerUnit) * 100) / 100
+      : 0;
+
+  const outletTotalDiscount = Math.min(outletParsedAmount, outletVoucherDiscount + outletDirectPointsDiscount);
+  const outletNetPayable = Math.max(0, outletParsedAmount - outletTotalDiscount);
+  const outletEstimatedPointsToEarn =
+    outletLoyaltyRules.spendAedForPoints > 0
+      ? Math.floor((outletParsedAmount / outletLoyaltyRules.spendAedForPoints) * outletLoyaltyRules.pointsEarnedPerSpend)
+      : 0;
+
   return (
     <div className="h-screen overflow-hidden bg-[#F8F5F2] text-[#221C1A] flex flex-col md:flex-row relative">
       {/* Mobile Backdrop Overlay */}
@@ -1212,6 +1654,20 @@ export default function AdminPage() {
 
           <button
             onClick={() => {
+              setTab("outlet");
+              setMobileMenuOpen(false);
+            }}
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "outlet"
+                ? "bg-[#801313] text-white shadow-xs"
+                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
+              }`}
+          >
+            <CreditCard className="w-4 h-4" />
+            <span>Outlet POS Terminal</span>
+          </button>
+
+          <button
+            onClick={() => {
               setTab("settings");
               setMobileMenuOpen(false);
             }}
@@ -1283,6 +1739,7 @@ export default function AdminPage() {
                 {tab === "branches" && "Branch Management"}
                 {tab === "staff" && "Staff POS Accounts & Tills"}
                 {tab === "visits" && "Branch Visitors"}
+                {tab === "outlet" && "Outlet Cashier POS Terminal"}
                 {tab === "settings" && "System & Loyalty Points Engine"}
                 {tab === "audit" && "Security & Activity Audit Log"}
               </h1>
@@ -2684,6 +3141,1023 @@ export default function AdminPage() {
                   </table>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* ============================================================== */}
+          {/* TAB: OUTLET POS / CASHIER TERMINAL                             */}
+          {/* ============================================================== */}
+          {tab === "outlet" && (
+            <div className="space-y-6">
+              {/* 1. Branch Selector Top Bar */}
+              <div className="bg-white border border-[#EAE3DC] rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#801313] to-[#550B0B] text-white flex items-center justify-center font-bold shadow-md shadow-[#801313]/20 shrink-0">
+                    <CreditCard className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-black tracking-widest text-[#801313] uppercase flex items-center gap-1.5">
+                      <Store className="w-3.5 h-3.5" />
+                      <span>Executive Cashier Desk</span>
+                    </div>
+                    <h2 className="text-lg sm:text-xl font-serif font-black text-[#1E1815]">
+                      Outlet POS Terminal
+                    </h2>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <div className="flex items-center gap-2 bg-[#FAF7F4] border border-[#EAE3DC] p-2 rounded-2xl">
+                    <Building2 className="w-4 h-4 text-[#801313] shrink-0 ml-1" />
+                    <span className="text-xs font-bold text-[#7A6E67] uppercase shrink-0">Till Outlet:</span>
+                    <select
+                      value={outletBranchId || (allBranches[0]?.id || "")}
+                      onChange={(e) => {
+                        setOutletBranchId(e.target.value);
+                        setOutletCustomer(null);
+                        setOutletSuccessReceipt(null);
+                      }}
+                      className="bg-transparent text-xs font-bold text-[#1E1815] focus:outline-none cursor-pointer pr-2"
+                    >
+                      {allBranches.map((b: any) => (
+                        <option key={b.id} value={b.id}>
+                          {b.name} ({b.code}) - {b.city || "Dubai"}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {outletCustomer && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOutletCustomer(null);
+                        setOutletSuccessReceipt(null);
+                        setOutletMobileInput("");
+                        setOutletQrInput("");
+                      }}
+                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:text-[#801313] hover:border-[#801313]/40 shadow-2xs transition-colors cursor-pointer"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Switch Customer</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* 2. Customer Lookup Card (When no customer is currently active) */}
+              {!outletCustomer && !outletSuccessReceipt && (
+                <div className="bg-white rounded-3xl sm:rounded-4xl p-6 sm:p-8 border border-[#EAE3DC] shadow-sm space-y-6">
+                  {/* Two Search Tabs */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOutletSearchTab("phone");
+                        stopOutletCamera();
+                        setOutletSearchErr("");
+                      }}
+                      className={`p-4.5 rounded-2xl border text-left flex items-center gap-3.5 transition-all cursor-pointer ${
+                        outletSearchTab === "phone"
+                          ? "bg-[#FAF7F4] border-[#801313] shadow-xs ring-1 ring-[#801313]"
+                          : "bg-white border-[#EAE3DC] hover:border-[#B5AAA2] hover:bg-[#FAF7F4]/50"
+                      }`}
+                    >
+                      <div
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                          outletSearchTab === "phone" ? "bg-[#801313]/10 text-[#801313]" : "bg-[#FAF7F4] text-[#7A6E67]"
+                        }`}
+                      >
+                        <Phone className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="font-extrabold text-sm text-[#1E1815]">Enter mobile number</div>
+                        <div className="text-xs text-[#7A6E67] font-medium">Find a registered customer</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOutletSearchTab("qr");
+                        setOutletSearchErr("");
+                        setTimeout(() => outletQrInputRef.current?.focus(), 50);
+                      }}
+                      className={`p-4.5 rounded-2xl border text-left flex items-center gap-3.5 transition-all cursor-pointer ${
+                        outletSearchTab === "qr"
+                          ? "bg-[#FAF7F4] border-[#801313] shadow-xs ring-1 ring-[#801313]"
+                          : "bg-white border-[#EAE3DC] hover:border-[#B5AAA2] hover:bg-[#FAF7F4]/50"
+                      }`}
+                    >
+                      <div
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                          outletSearchTab === "qr" ? "bg-[#801313]/10 text-[#801313]" : "bg-[#FAF7F4] text-[#7A6E67]"
+                        }`}
+                      >
+                        <Scan className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="font-extrabold text-sm text-[#1E1815]">Scan membership QR</div>
+                        <div className="text-xs text-[#7A6E67] font-medium">Use POS or USB scanner</div>
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* TAB 1: Mobile Search Form */}
+                  {outletSearchTab === "phone" && (
+                    <form onSubmit={handleAdminLookupCustomer} className="animate-in fade-in duration-150">
+                      <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="admin-pos-phone">
+                        Mobile number
+                      </label>
+
+                      <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
+                        <div className="relative shrink-0">
+                          <div className="flex items-center gap-2 px-3.5 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] shadow-2xs">
+                            <Phone className="w-3.5 h-3.5 text-[#7A6E67]" />
+                            <select
+                              value={outletCountryCode}
+                              onChange={(e) => setOutletCountryCode(e.target.value)}
+                              className="bg-transparent font-bold text-xs text-[#1E1815] focus:outline-none cursor-pointer pr-4 appearance-none"
+                            >
+                              {COUNTRIES.map((c) => (
+                                <option key={c.code} value={c.code}>
+                                  {c.name} +{c.code}
+                                </option>
+                              ))}
+                            </select>
+                            <ChevronDown className="w-3.5 h-3.5 text-[#7A6E67] pointer-events-none -ml-2" />
+                          </div>
+                        </div>
+
+                        <input
+                          id="admin-pos-phone"
+                          type="tel"
+                          placeholder="50 123 4567"
+                          value={outletMobileInput}
+                          onChange={(e) => setOutletMobileInput(e.target.value.replace(/[^\d\s]/g, ""))}
+                          autoFocus
+                          required
+                          className="flex-1 px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                        />
+
+                        <button
+                          type="submit"
+                          disabled={!outletMobileInput.trim() || outletSearchBusy}
+                          className="py-3.5 px-7 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
+                        >
+                          {outletSearchBusy ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                              <span>FINDING…</span>
+                            </>
+                          ) : (
+                            <span>OPEN CUSTOMER</span>
+                          )}
+                        </button>
+                      </div>
+
+                      <div className="text-[11px] text-[#7A6E67] font-medium mt-2.5">
+                        Choose the country code and enter the number without the first zero.
+                      </div>
+                    </form>
+                  )}
+
+                  {/* TAB 2: QR Scanner Search Form */}
+                  {outletSearchTab === "qr" && (
+                    <div className="animate-in fade-in duration-150 space-y-4">
+                      <form onSubmit={handleAdminLookupCustomer} className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
+                        <div className="relative flex-1">
+                          <input
+                            ref={outletQrInputRef}
+                            type="text"
+                            placeholder="Scan QR or enter token e.g. 7K9A..."
+                            value={outletQrInput}
+                            onChange={(e) => {
+                              const val = e.target.value.toUpperCase();
+                              setOutletQrInput(val);
+                              if (val.length >= 8 && !val.includes(" ")) {
+                                handleAdminLookupCustomer(undefined, val);
+                              }
+                            }}
+                            autoFocus
+                            className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                          />
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={!outletQrInput.trim() || outletSearchBusy}
+                          className="py-3.5 px-7 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
+                        >
+                          {outletSearchBusy ? "FINDING…" : "LOOKUP QR"}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (isOutletCameraActive) stopOutletCamera();
+                            else startOutletCamera();
+                          }}
+                          className="py-3.5 px-4 rounded-xl bg-[#FAF7F4] hover:bg-[#EAE3DC] border border-[#EAE3DC] text-[#1E1815] font-bold text-xs flex items-center justify-center gap-2 shrink-0 transition-colors cursor-pointer"
+                        >
+                          <Camera className="w-4 h-4 text-[#801313]" />
+                          <span>{isOutletCameraActive ? "Stop Camera" : "Camera Scan"}</span>
+                        </button>
+                      </form>
+
+                      {isOutletCameraActive && (
+                        <div className="mt-4 p-4 rounded-2xl bg-[#1E1815] text-white text-center relative overflow-hidden">
+                          <div className="relative aspect-video max-w-sm mx-auto rounded-xl overflow-hidden bg-black border-2 border-white/20">
+                            <video ref={outletVideoRef} className="w-full h-full object-cover" />
+                            <canvas ref={outletCanvasRef} className="hidden" />
+                            <div className="absolute inset-8 border-2 border-dashed border-[#E5A93C] rounded-lg pointer-events-none animate-pulse" />
+                          </div>
+                          <p className="text-xs text-white/80 font-medium mt-3">{outletCameraHint}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {outletSearchErr && (
+                    <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-bold flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                        <span>{outletSearchErr}</span>
+                      </div>
+                      <button onClick={() => setOutletSearchErr("")} className="cursor-pointer">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 3. Active Customer POS Processing Desk */}
+              {outletCustomer && (
+                <div className="bg-white rounded-3xl sm:rounded-4xl p-6 sm:p-8 border border-[#EAE3DC] shadow-md space-y-6">
+                  {/* Top Customer Summary Header Card (Exact image design) */}
+                  <div className="bg-[#FAF5F0] rounded-2xl p-4.5 sm:p-5 border border-[#EFE8E0] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3.5">
+                      {/* Circular Avatar Icon */}
+                      <div className="w-12 h-12 sm:w-13 sm:h-13 rounded-full border-2 border-[#801313] flex items-center justify-center text-[#801313] shrink-0 bg-white shadow-2xs">
+                        <User className="w-6 h-6 sm:w-7 sm:h-7 stroke-[1.8] text-[#801313]" />
+                      </div>
+                      <div>
+                        <h2 className="font-serif font-black text-xl sm:text-2xl text-[#1E1815] leading-tight">
+                          {outletCustomer.name}
+                        </h2>
+                        <p className="text-xs text-[#7A6E67] font-medium mt-0.5">
+                          Repeat visits: {allBranches.find((b: any) => b.id === outletBranchId)?.name || outletCustomer.homeBranch?.name || "Dubai Festival City"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Stat Columns with Divider */}
+                    <div className="flex items-center gap-4 sm:gap-6 self-start sm:self-center bg-white/70 sm:bg-transparent p-2 sm:p-0 rounded-xl border sm:border-0 border-[#EAE3DC]">
+                      <div className="text-center px-2 sm:px-4">
+                        <div className="font-serif font-black text-xl sm:text-2xl text-[#1E1815] leading-none">
+                          {outletCustomer.pointsBalance}
+                        </div>
+                        <div className="text-[11px] font-semibold text-[#7A6E67] mt-1">
+                          Points
+                        </div>
+                      </div>
+
+                      <div className="w-[1px] h-9 bg-[#E5DDD5]" />
+
+                      <div className="text-center px-2 sm:px-4">
+                        <div className="font-serif font-black text-xl sm:text-2xl text-[#1E1815] leading-none">
+                          {outletCustomer.visitCount}
+                        </div>
+                        <div className="text-[11px] font-semibold text-[#7A6E67] mt-1">
+                          Visits
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3 Action Mode Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Card 1: Give points */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOutletActionMode("points");
+                        setOutletBillErr("");
+                      }}
+                      className={`p-5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
+                        outletActionMode === "points"
+                          ? "bg-[#FAF7F4] border-[#801313] shadow-sm ring-2 ring-[#801313]/20"
+                          : "bg-white border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4]/40"
+                      }`}
+                    >
+                      <div className="text-[#801313] mb-3">
+                        <RibbonIcon className="w-8 h-8 text-[#801313]" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-base text-[#1E1815] leading-snug">
+                          Give points
+                        </h3>
+                        <p className="text-xs text-[#7A6E67] font-medium mt-1">
+                          Invoice number + total amount
+                        </p>
+                      </div>
+                      {outletActionMode === "points" && (
+                        <div className="absolute top-3.5 right-3.5 w-2 h-2 rounded-full bg-[#801313]" />
+                      )}
+                    </button>
+
+                    {/* Card 2: Give visit */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOutletActionMode("visit");
+                        setOutletVisitErr("");
+                        setOutletVisitSuccessReceipt(null);
+                      }}
+                      className={`p-5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
+                        outletActionMode === "visit"
+                          ? "bg-[#FAF7F4] border-[#801313] shadow-sm ring-2 ring-[#801313]/20"
+                          : "bg-white border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4]/40"
+                      }`}
+                    >
+                      <div className="text-[#801313] mb-3">
+                        <StampIcon className="w-8 h-8 text-[#801313]" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-base text-[#1E1815] leading-snug">
+                          Give visit
+                        </h3>
+                        <p className="text-xs text-[#7A6E67] font-medium mt-1">
+                          Add one outlet-specific visit
+                        </p>
+                      </div>
+                      {outletActionMode === "visit" && (
+                        <div className="absolute top-3.5 right-3.5 w-2 h-2 rounded-full bg-[#801313]" />
+                      )}
+                    </button>
+
+                    {/* Card 3: Redeem visit offer */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOutletActionMode("reward");
+                        setOutletRewardErr("");
+                        setOutletRewardSuccessReceipt(null);
+                      }}
+                      className={`p-5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
+                        outletActionMode === "reward"
+                          ? "bg-[#FAF7F4] border-[#801313] shadow-sm ring-2 ring-[#801313]/20"
+                          : "bg-white border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4]/40"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-3 text-[#801313]">
+                        <Gift className="w-8 h-8 text-[#801313] stroke-[1.8]" />
+                        {outletAvailableRewards.length > 0 && (
+                          <span className="px-2 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-[10px] font-black uppercase">
+                            {outletAvailableRewards.length} AVAILABLE
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-base text-[#1E1815] leading-snug">
+                          Redeem visit offer
+                        </h3>
+                        <p className="text-xs text-[#7A6E67] font-medium mt-1">
+                          Redeem an unlocked visit-path gift
+                        </p>
+                      </div>
+                      {outletActionMode === "reward" && (
+                        <div className="absolute top-3.5 right-3.5 w-2 h-2 rounded-full bg-[#801313]" />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* ACTION PANEL 1: GIVE POINTS */}
+                  {outletActionMode === "points" && (
+                    <div className="pt-2 animate-in fade-in duration-200">
+                      {!outletSuccessReceipt ? (
+                        <form onSubmit={handleAdminRecordSale} className="space-y-5">
+                          {/* Invoice & Bill Amount Inputs */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="admin-inv-input">
+                                Invoice / Receipt #
+                              </label>
+                              <input
+                                id="admin-inv-input"
+                                type="text"
+                                placeholder="E.G. INV-10982"
+                                value={outletInvoiceNumber}
+                                onChange={(e) => setOutletInvoiceNumber(e.target.value.toUpperCase())}
+                                required
+                                className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="admin-amount-input">
+                                Bill Amount ({outletLoyaltyRules.currency})
+                              </label>
+                              <input
+                                id="admin-amount-input"
+                                type="number"
+                                step="0.01"
+                                min="0.01"
+                                placeholder="0.00"
+                                value={outletBillAmount}
+                                onChange={(e) => setOutletBillAmount(e.target.value)}
+                                required
+                                className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Auto Visit Notice */}
+                          <div className="p-3.5 rounded-xl bg-[#FAF7F4] border border-[#EAE3DC] flex items-center justify-between text-xs font-medium text-[#7A6E67]">
+                            <div className="flex items-center gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                              <span>
+                                Recording this bill will automatically credit <strong className="text-[#1E1815]">+{outletEstimatedPointsToEarn} points</strong> and stamp <strong className="text-[#1E1815]">+1 visit</strong> for {outletCustomer.name}.
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Points Direct Cash Redemption Controls */}
+                          <div className="p-4.5 rounded-2xl bg-[#FFFBF0] border border-[#E5A93C]/40 space-y-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <Coins className="w-4 h-4 text-[#C68A1E]" />
+                                <span className="text-xs font-black uppercase tracking-wider text-[#1E1815]">
+                                  Redeem Points for Direct Cash Discount
+                                </span>
+                              </div>
+                              <span className="text-xs font-bold text-[#C68A1E]">
+                                {outletLoyaltyRules.pointsRequiredForRedemption} pts = {outletLoyaltyRules.currency} {outletLoyaltyRules.currencyValuePerRedemptionPoints} off
+                              </span>
+                            </div>
+
+                            {outletCustomer.pointsBalance >= outletLoyaltyRules.pointsRequiredForRedemption ? (
+                              <div className="space-y-3">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  {[100, 200, 500].map((pts) => {
+                                    if (outletCustomer.pointsBalance < pts) return null;
+                                    const isSelected = outletPointsToRedeem === pts;
+                                    const offVal = ((pts / outletLoyaltyRules.pointsRequiredForRedemption) * outletLoyaltyRules.currencyValuePerRedemptionPoints).toFixed(2);
+                                    return (
+                                      <button
+                                        key={pts}
+                                        type="button"
+                                        onClick={() => {
+                                          setOutletPointsToRedeem(isSelected ? 0 : pts);
+                                          setOutletCustomRedeem("");
+                                        }}
+                                        className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                                          isSelected
+                                            ? "bg-[#801313] text-white border-[#801313] shadow-xs"
+                                            : "bg-white text-[#1E1815] border-[#EAE3DC] hover:border-[#801313]"
+                                        }`}
+                                      >
+                                        {pts} pts (-{outletLoyaltyRules.currency} {offVal})
+                                      </button>
+                                    );
+                                  })}
+
+                                  {(() => {
+                                    const maxUnits = Math.floor(outletCustomer.pointsBalance / outletLoyaltyRules.pointsRequiredForRedemption);
+                                    const maxPts = maxUnits * outletLoyaltyRules.pointsRequiredForRedemption;
+                                    if (maxPts <= 0) return null;
+                                    const isMaxSelected = outletPointsToRedeem === maxPts;
+                                    const maxOff = ((maxPts / outletLoyaltyRules.pointsRequiredForRedemption) * outletLoyaltyRules.currencyValuePerRedemptionPoints).toFixed(2);
+                                    return (
+                                      <button
+                                        key="max"
+                                        type="button"
+                                        onClick={() => {
+                                          setOutletPointsToRedeem(isMaxSelected ? 0 : maxPts);
+                                          setOutletCustomRedeem("");
+                                        }}
+                                        className={`px-3.5 py-2 rounded-xl text-xs font-black border transition-all cursor-pointer ${
+                                          isMaxSelected
+                                            ? "bg-emerald-700 text-white border-emerald-700 shadow-xs"
+                                            : "bg-white text-[#801313] border-[#EAE3DC] hover:border-[#801313]"
+                                        }`}
+                                      >
+                                        Redeem Max ({maxPts} pts = -{outletLoyaltyRules.currency} {maxOff})
+                                      </button>
+                                    );
+                                  })()}
+
+                                  {outletPointsToRedeem > 0 && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setOutletPointsToRedeem(0);
+                                        setOutletCustomRedeem("");
+                                      }}
+                                      className="px-3 py-2 rounded-xl text-xs font-bold text-[#7A6E67] hover:text-red-700 cursor-pointer"
+                                    >
+                                      Reset
+                                    </button>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center gap-2 pt-2 border-t border-[#E5A93C]/20">
+                                  <label className="text-xs text-[#7A6E67] font-semibold shrink-0">Custom Points:</label>
+                                  <input
+                                    type="number"
+                                    step={outletLoyaltyRules.pointsRequiredForRedemption}
+                                    max={outletCustomer.pointsBalance}
+                                    min={0}
+                                    placeholder={`Multiples of ${outletLoyaltyRules.pointsRequiredForRedemption}`}
+                                    value={outletCustomRedeem}
+                                    onChange={(e) => {
+                                      const v = e.target.value;
+                                      setOutletCustomRedeem(v);
+                                      const num = parseInt(v) || 0;
+                                      if (num <= outletCustomer.pointsBalance && num >= 0) {
+                                        setOutletPointsToRedeem(num);
+                                      }
+                                    }}
+                                    className="w-48 px-3 py-1.5 bg-white border border-[#EAE3DC] rounded-lg text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                                  />
+                                  {outletPointsToRedeem > 0 && (
+                                    <span className="text-xs font-bold text-emerald-800">
+                                      = -{outletLoyaltyRules.currency} {outletDirectPointsDiscount.toFixed(2)} discount
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="text-xs text-[#7A6E67]">
+                                Customer has {outletCustomer.pointsBalance} points. ({outletLoyaltyRules.pointsRequiredForRedemption} points needed for cash discount redemption).
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Promotional Vouchers */}
+                          {outletAvailableRewards.length > 0 && (
+                            <div className="p-4 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-2.5">
+                              <div className="text-xs font-black tracking-wider uppercase text-[#801313] flex items-center gap-2">
+                                <Tag className="w-3.5 h-3.5 text-[#801313]" />
+                                <span>Apply Promotional Discount Voucher</span>
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                {outletAvailableRewards.map((reward) => {
+                                  const isSelected = outletSelectedRewardId === reward.id;
+                                  return (
+                                    <button
+                                      key={reward.id}
+                                      type="button"
+                                      onClick={() => setOutletSelectedRewardId(isSelected ? null : reward.id)}
+                                      className={`p-3 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                                        isSelected
+                                          ? "bg-white border-[#801313] shadow-2xs ring-1 ring-[#801313]"
+                                          : "bg-white/70 border-[#EAE3DC] hover:border-[#801313]/40"
+                                      }`}
+                                    >
+                                      <div className="min-w-0 pr-2">
+                                        <div className="font-extrabold text-xs text-[#1E1815] truncate">{reward.name}</div>
+                                        <div className="text-[11px] text-[#7A6E67]">
+                                          {reward.isPercent ? `${reward.value}% off` : `${outletLoyaltyRules.currency} ${reward.value} off`}
+                                        </div>
+                                      </div>
+                                      <span
+                                        className={`px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-wider ${
+                                          isSelected ? "bg-[#801313] text-white" : "bg-[#FAF7F4] text-[#801313]"
+                                        }`}
+                                      >
+                                        {isSelected ? "APPLIED ✓" : "SELECT"}
+                                      </span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Live Calculation Summary */}
+                          {outletParsedAmount > 0 && (
+                            <div className="p-4.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-2 text-xs">
+                              <div className="flex justify-between items-center text-[#7A6E67]">
+                                <span>Gross Bill Amount:</span>
+                                <span className="font-bold text-[#1E1815]">{outletLoyaltyRules.currency} {outletParsedAmount.toFixed(2)}</span>
+                              </div>
+
+                              {outletVoucherDiscount > 0 && (
+                                <div className="flex justify-between items-center text-red-700">
+                                  <span>Voucher Discount ({outletSelectedReward?.name}):</span>
+                                  <span className="font-bold font-mono">-{outletLoyaltyRules.currency} {outletVoucherDiscount.toFixed(2)}</span>
+                                </div>
+                              )}
+
+                              {outletDirectPointsDiscount > 0 && (
+                                <div className="flex justify-between items-center text-red-700">
+                                  <span>Points Redeemed ({outletPointsToRedeem} pts):</span>
+                                  <span className="font-bold font-mono">-{outletLoyaltyRules.currency} {outletDirectPointsDiscount.toFixed(2)}</span>
+                                </div>
+                              )}
+
+                              <div className="flex justify-between items-center text-emerald-800">
+                                <span>Points Customer Will Earn (+{outletLoyaltyRules.pointsEarnedPerSpend} pt / {outletLoyaltyRules.currency} {outletLoyaltyRules.spendAedForPoints}):</span>
+                                <span className="font-black font-mono">+{outletEstimatedPointsToEarn} pts</span>
+                              </div>
+
+                              <div className="pt-2 border-t border-[#EAE3DC] flex justify-between items-center">
+                                <span className="font-black text-sm text-[#1E1815]">Net Payable by Customer:</span>
+                                <span className="font-black text-base text-[#801313] font-mono">
+                                  {outletLoyaltyRules.currency} {outletNetPayable.toFixed(2)}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
+                          {outletBillErr && (
+                            <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-bold flex items-center gap-2">
+                              <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                              <span>{outletBillErr}</span>
+                            </div>
+                          )}
+
+                          {/* Submit and Cancel Buttons */}
+                          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                            <button
+                              type="submit"
+                              disabled={outletSubmittingBill || !outletInvoiceNumber.trim() || !outletBillAmount.trim()}
+                              className="flex-1 py-4 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                              {outletSubmittingBill ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                  <span>RECORDING TRANSACTION…</span>
+                                </>
+                              ) : (
+                                <>
+                                  <DollarSign className="w-4 h-4" />
+                                  <span>RECORD SALE &amp; AWARD POINTS</span>
+                                </>
+                              )}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setOutletCustomer(null);
+                                setOutletMobileInput("");
+                                setOutletQrInput("");
+                              }}
+                              className="py-4 px-8 rounded-xl bg-white hover:bg-[#FAF7F4] border border-[#EAE3DC] text-[#7A6E67] font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                            >
+                              CANCEL
+                            </button>
+                          </div>
+                        </form>
+                      ) : (
+                        /* Success Receipt Modal */
+                        <div className="p-7 rounded-3xl bg-emerald-50 border border-emerald-200 text-center space-y-5 animate-in fade-in zoom-in duration-200">
+                          <div className="w-14 h-14 rounded-full bg-emerald-600 text-white flex items-center justify-center mx-auto shadow-md">
+                            <Check className="w-7 h-7 stroke-[3]" />
+                          </div>
+                          <div>
+                            <h3 className="font-serif font-black text-2xl text-emerald-950">Sale &amp; Points Succeeded!</h3>
+                            <p className="text-xs text-emerald-800 font-medium mt-1">
+                              Invoice #{outletSuccessReceipt.transaction?.invoiceNumber} recorded successfully.
+                            </p>
+                          </div>
+
+                          <div className="max-w-sm mx-auto bg-white rounded-2xl p-4.5 border border-emerald-200 text-xs text-left space-y-2 font-medium shadow-sm">
+                            <div className="flex justify-between">
+                              <span className="text-[#7A6E67]">Gross Bill:</span>
+                              <span className="font-bold">{outletLoyaltyRules.currency} {Number(outletSuccessReceipt.transaction?.amount || 0).toFixed(2)}</span>
+                            </div>
+
+                            {outletSuccessReceipt.transaction?.discountGiven > 0 && (
+                              <div className="flex justify-between text-red-700">
+                                <span>Total Discount:</span>
+                                <span className="font-bold font-mono">-{outletLoyaltyRules.currency} {Number(outletSuccessReceipt.transaction.discountGiven).toFixed(2)}</span>
+                              </div>
+                            )}
+
+                            {outletSuccessReceipt.pointsRedeemed && (
+                              <div className="flex justify-between text-red-700">
+                                <span>Points Redeemed:</span>
+                                <span className="font-bold font-mono">-{outletSuccessReceipt.pointsRedeemed.points} pts</span>
+                              </div>
+                            )}
+
+                            <div className="flex justify-between text-emerald-800">
+                              <span>Points Awarded:</span>
+                              <span className="font-black font-mono">+{outletSuccessReceipt.transaction?.pointsEarned || 0} pts</span>
+                            </div>
+
+                            <div className="flex justify-between text-blue-800">
+                              <span>Visit Count:</span>
+                              <span className="font-black font-mono">Visit #{outletSuccessReceipt.customer?.visitCount} (Stamped)</span>
+                            </div>
+
+                            <div className="flex justify-between pt-2 border-t border-[#EAE3DC]">
+                              <span className="text-[#7A6E67]">Customer New Balance:</span>
+                              <span className="font-black text-sm text-[#801313] font-mono">{outletSuccessReceipt.customer?.pointsBalance} pts</span>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              setOutletCustomer(null);
+                              setOutletSuccessReceipt(null);
+                              setOutletMobileInput("");
+                              setOutletQrInput("");
+                            }}
+                            className="w-full max-w-sm mx-auto py-3.5 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+                          >
+                            NEXT CUSTOMER
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* ACTION PANEL 2: GIVE VISIT */}
+                  {outletActionMode === "visit" && (
+                    <div className="pt-2 animate-in fade-in duration-200">
+                      {!outletVisitSuccessReceipt ? (
+                        <div className="p-6 rounded-3xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-6 text-center sm:text-left">
+                          <div className="flex flex-col sm:flex-row items-center gap-4">
+                            <div className="w-14 h-14 rounded-2xl bg-[#801313]/10 text-[#801313] flex items-center justify-center shrink-0">
+                              <StampIcon className="w-7 h-7 text-[#801313]" />
+                            </div>
+                            <div>
+                              <div className="text-[11px] font-black tracking-widest text-[#801313] uppercase">
+                                OUTLET VISIT CHECK-IN
+                              </div>
+                              <h3 className="text-xl font-serif font-black text-[#1E1815]">
+                                Stamp 1 physical visit
+                              </h3>
+                              <p className="text-xs text-[#7A6E67] font-medium mt-1">
+                                Adds one verified branch visit stamp for {outletCustomer.name}. Automatically unlocks visit-path milestone gifts (e.g. 5th visit free treat).
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Visits Counter Card */}
+                          <div className="p-4 rounded-2xl bg-white border border-[#EAE3DC] flex items-center justify-around text-center shadow-2xs">
+                            <div>
+                              <div className="text-[10px] font-bold text-[#7A6E67] uppercase">Current Visits</div>
+                              <div className="font-serif font-black text-2xl text-[#1E1815] mt-0.5">
+                                {outletCustomer.visitCount}
+                              </div>
+                            </div>
+                            <ArrowRight className="w-5 h-5 text-[#801313]" />
+                            <div>
+                              <div className="text-[10px] font-bold text-[#801313] uppercase">New Visit Count</div>
+                              <div className="font-serif font-black text-2xl text-[#801313] mt-0.5">
+                                {outletCustomer.visitCount + 1}
+                              </div>
+                            </div>
+                          </div>
+
+                          {outletVisitErr && (
+                            <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-bold flex items-center gap-2">
+                              <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                              <span>{outletVisitErr}</span>
+                            </div>
+                          )}
+
+                          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                            <button
+                              type="button"
+                              onClick={handleAdminGiveVisit}
+                              disabled={outletSubmittingVisit}
+                              className="flex-1 py-4 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                              {outletSubmittingVisit ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                  <span>STAMPING VISIT…</span>
+                                </>
+                              ) : (
+                                <>
+                                  <StampIcon className="w-4 h-4" />
+                                  <span>CONFIRM VISIT STAMP (+1 VISIT)</span>
+                                </>
+                              )}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setOutletActionMode("points")}
+                              className="py-4 px-8 rounded-xl bg-white hover:bg-[#FAF7F4] border border-[#EAE3DC] text-[#7A6E67] font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                            >
+                              BACK
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        /* Visit Success Card */
+                        <div className="p-7 rounded-3xl bg-emerald-50 border border-emerald-200 text-center space-y-5 animate-in fade-in zoom-in duration-200">
+                          <div className="w-14 h-14 rounded-full bg-emerald-600 text-white flex items-center justify-center mx-auto shadow-md">
+                            <Check className="w-7 h-7 stroke-[3]" />
+                          </div>
+                          <div>
+                            <h3 className="font-serif font-black text-2xl text-emerald-950">Visit Stamped Successfully!</h3>
+                            <p className="text-xs text-emerald-800 font-medium mt-1">
+                              Visit #{outletVisitSuccessReceipt.customer?.visitCount} registered for {outletCustomer.name}.
+                            </p>
+                          </div>
+
+                          {outletVisitSuccessReceipt.newlyIssuedRewards && outletVisitSuccessReceipt.newlyIssuedRewards.length > 0 && (
+                            <div className="max-w-md mx-auto p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs text-left space-y-1.5 animate-in fade-in">
+                              <div className="font-black flex items-center gap-1.5 text-amber-950">
+                                <PartyPopper className="w-4 h-4 text-amber-600" />
+                                <span>Milestone Reward Unlocked!</span>
+                              </div>
+                              {outletVisitSuccessReceipt.newlyIssuedRewards.map((r: any) => (
+                                <div key={r.id} className="font-bold pl-5">
+                                  • {r.name} - {r.description || "Unlocked and ready to redeem!"}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-sm mx-auto">
+                            <button
+                              onClick={() => {
+                                setOutletVisitSuccessReceipt(null);
+                                setOutletActionMode("points");
+                              }}
+                              className="flex-1 py-3.5 px-6 rounded-xl bg-white border border-emerald-300 text-emerald-900 font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                            >
+                              GIVE POINTS ON BILL
+                            </button>
+                            <button
+                              onClick={() => {
+                                setOutletCustomer(null);
+                                setOutletVisitSuccessReceipt(null);
+                                setOutletMobileInput("");
+                                setOutletQrInput("");
+                              }}
+                              className="flex-1 py-3.5 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+                            >
+                              NEXT CUSTOMER
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* ACTION PANEL 3: REDEEM VISIT OFFER */}
+                  {outletActionMode === "reward" && (
+                    <div className="pt-2 animate-in fade-in duration-200 space-y-5">
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs font-black tracking-wider uppercase text-[#801313] flex items-center gap-2">
+                          <Gift className="w-4 h-4 text-[#801313]" />
+                          <span>UNLOCKED VISIT OFFERS &amp; MEMBER GIFTS</span>
+                        </div>
+                        <span className="text-xs font-bold text-[#7A6E67]">
+                          {outletAvailableRewards.length} Offer{outletAvailableRewards.length !== 1 ? "s" : ""} Available
+                        </span>
+                      </div>
+
+                      {outletRewardSuccessReceipt && (
+                        <div className="p-4.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex items-center justify-between text-xs font-medium animate-in fade-in">
+                          <div className="flex items-center gap-2.5">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                            <div>
+                              <strong>{outletRewardSuccessReceipt.message}</strong>
+                              <div className="text-[11px] text-emerald-800 mt-0.5">
+                                Gift handed over to customer. Updated balance: {outletRewardSuccessReceipt.customer?.pointsBalance} pts.
+                              </div>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setOutletRewardSuccessReceipt(null)}
+                            className="text-emerald-700 hover:text-emerald-900 cursor-pointer p-1"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+
+                      {outletRewardErr && (
+                        <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-bold flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                          <span>{outletRewardErr}</span>
+                        </div>
+                      )}
+
+                      {outletAvailableRewards.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                          {outletAvailableRewards.map((reward) => {
+                            const isBusy = outletRedeemingRewardId === reward.id;
+                            return (
+                              <div
+                                key={reward.id}
+                                className="p-4.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex flex-col justify-between gap-3.5 shadow-2xs hover:border-[#801313]/40 transition-colors"
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <h4 className="font-extrabold text-sm text-[#1E1815]">{reward.name}</h4>
+                                    </div>
+                                    {reward.description && (
+                                      <p className="text-xs text-[#7A6E67] font-medium mt-1">
+                                        {reward.description}
+                                      </p>
+                                    )}
+                                    <div className="text-[11px] text-[#801313] font-bold mt-1">
+                                      {reward.isPercent
+                                        ? `${reward.value}% Discount Offer`
+                                        : reward.value > 0
+                                        ? `${outletLoyaltyRules.currency} ${reward.value} Value`
+                                        : "Complimentary Item / Milestone Gift"}
+                                    </div>
+                                  </div>
+                                  <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase shrink-0">
+                                    READY
+                                  </span>
+                                </div>
+
+                                <div className="pt-2 border-t border-[#EAE3DC] flex items-center justify-between">
+                                  <span className="text-[10px] text-[#7A6E67] font-mono">
+                                    {reward.expiresAt ? `Valid till ${new Date(reward.expiresAt).toLocaleDateString()}` : "No expiry date"}
+                                  </span>
+
+                                  <button
+                                    type="button"
+                                    disabled={isBusy}
+                                    onClick={() => handleAdminRedeemReward(reward.id)}
+                                    className="px-4 py-2 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                                  >
+                                    {isBusy ? (
+                                      <>
+                                        <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <span>REDEEMING…</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Gift className="w-3.5 h-3.5" />
+                                        <span>REDEEM &amp; DELIVER</span>
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="p-8 rounded-3xl bg-[#FAF7F4] border border-[#EAE3DC] text-center space-y-3">
+                          <div className="w-12 h-12 rounded-full bg-white border border-[#EAE3DC] flex items-center justify-center mx-auto text-[#7A6E67]">
+                            <Gift className="w-6 h-6 text-[#7A6E67]" />
+                          </div>
+                          <div className="font-bold text-sm text-[#1E1815]">No Unlocked Visit Offers Available</div>
+                          <p className="text-xs text-[#7A6E67] max-w-sm mx-auto">
+                            {outletCustomer.name} currently has no pending visit-path gifts or vouchers. Giving visits or points will unlock upcoming tier treats!
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Customer Recent Visits */}
+                  {outletRecentTransactions.length > 0 && (
+                    <div className="pt-4 border-t border-[#EAE3DC]">
+                      <div className="text-xs font-black uppercase tracking-wider text-[#7A6E67] mb-2.5 flex items-center gap-1.5">
+                        <History className="w-3.5 h-3.5" />
+                        <span>Customer Recent Visits &amp; Transactions</span>
+                      </div>
+                      <div className="space-y-2">
+                        {outletRecentTransactions.slice(0, 5).map((t) => (
+                          <div key={t.id} className="p-3.5 rounded-xl bg-[#FAF7F4] border border-[#EAE3DC] flex items-center justify-between text-xs gap-3">
+                            <div className="min-w-0">
+                              <div className="font-bold text-[#1E1815] flex items-center gap-1.5 flex-wrap">
+                                <span>{t.branchName || "Branch Visit"}</span>
+                                <span className="font-mono text-[11px] text-[#7A6E67]">#{t.invoiceNumber}</span>
+                              </div>
+                              <div className="text-[10px] text-[#7A6E67] mt-0.5">{new Date(t.createdAt).toLocaleDateString()}</div>
+                              {t.discountGiven > 0 && (
+                                <div className="text-[11px] font-bold text-red-700 font-mono mt-1 flex items-center gap-1 flex-wrap">
+                                  <span>Discount: -{outletLoyaltyRules.currency} {Number(t.discountGiven).toFixed(2)}</span>
+                                  {t.redeemedRewards && t.redeemedRewards.length > 0 && (
+                                    <span className="text-[#801313] font-sans text-[10px]">({t.redeemedRewards.join(", ")})</span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-right shrink-0">
+                              <div className="font-black text-[#1E1815]">{outletLoyaltyRules.currency} {Number(t.amount || 0).toFixed(2)}</div>
+                              {t.pointsEarned > 0 && (
+                                <div className="text-[10px] font-bold text-emerald-700">+{t.pointsEarned} pts</div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

@@ -289,6 +289,28 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // Fetch updated remaining available rewards
+    const allAvailable = await prisma.customerReward.findMany({
+      where: { customerId: customer.id, status: "AVAILABLE" },
+      include: { reward: true },
+      orderBy: { issuedAt: "asc" },
+    });
+
+    const now = new Date();
+    const availableRewards = allAvailable
+      .filter((cr: any) => !cr.expiresAt || cr.expiresAt > now)
+      .map((cr: any) => ({
+        id: cr.id,
+        rewardId: cr.rewardId,
+        name: cr.reward.name,
+        description: cr.reward.description,
+        value: Number(cr.reward.value),
+        isPercent: cr.reward.isPercent,
+        type: cr.reward.type,
+        threshold: cr.reward.threshold,
+        expiresAt: cr.expiresAt,
+      }));
+
     return NextResponse.json({
       ok: true,
       transaction: {
@@ -310,9 +332,10 @@ export async function POST(req: NextRequest) {
         pointsBalance: result.customer.pointsBalance,
         visitCount: result.customer.visitCount,
       },
-      redeemedVoucher: redeeming ? { name: redeeming.reward.name, value: voucherDiscount } : null,
+      redeemedVoucher: redeeming ? { id: redeeming.id, name: redeeming.reward.name, value: voucherDiscount } : null,
       pointsRedeemed: pointsToRedeem > 0 ? { points: pointsToRedeem, discount: directPointsDiscount } : null,
       newlyIssuedRewards,
+      availableRewards,
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to record transaction." }, { status: 500 });

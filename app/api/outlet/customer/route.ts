@@ -128,7 +128,10 @@ export async function POST(req: NextRequest) {
     // Fetch recent 5 transactions for reference
     const recentTransactions = await prisma.transaction.findMany({
       where: { customerId: customer.id },
-      include: { branch: { select: { name: true, city: true } } },
+      include: {
+        branch: { select: { name: true, city: true } },
+        customerRewards: { include: { reward: true } },
+      },
       orderBy: { createdAt: "desc" },
       take: 5,
     });
@@ -153,7 +156,8 @@ export async function POST(req: NextRequest) {
         invoiceNumber: t.invoiceNumber,
         amount: Number(t.amount),
         pointsEarned: t.pointsEarned,
-        discountGiven: Number(t.discountGiven),
+        discountGiven: Number(t.discountGiven || 0),
+        redeemedRewards: t.customerRewards.map((cr) => cr.reward.name),
         branchName: t.branch?.name,
         createdAt: t.createdAt,
       })),
