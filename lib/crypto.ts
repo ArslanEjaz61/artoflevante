@@ -42,11 +42,9 @@ export function normalizeCode(input?: string | null): string {
   return String(input || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
 
-/** Splits into two groups so it reads aloud cleanly: "K7M2 9XPQ". */
+/** Returns clean uppercase alphanumeric code without any spaces: "K7M29XPQ". */
 export function formatCode(code?: string | null): string {
-  const c = normalizeCode(code);
-  if (c.length !== 8) return c;
-  return `${c.slice(0, 4)} ${c.slice(4)}`;
+  return normalizeCode(code);
 }
 
 /** Six digits, zero-padded. */

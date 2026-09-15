@@ -334,12 +334,19 @@ export default function CustomerDashboardPage() {
   // Milestone calculation from backend data
   const visitTarget = nextTargets?.find((t: any) => t.kind === "visits");
   const currentVisits = customer?.visitCount || 0;
-  const milestoneThreshold = visitTarget?.threshold || 7;
+  const milestoneThreshold = visitTarget?.threshold || 5;
+  const isMilestoneCompleted = (currentVisits > 0 && currentVisits % milestoneThreshold === 0) || currentVisits >= milestoneThreshold;
   const visitsIntoCycle = currentVisits % milestoneThreshold;
-  const visitsNeeded = visitTarget?.need ?? (milestoneThreshold - visitsIntoCycle || milestoneThreshold);
+  const visitsNeeded = visitTarget?.need !== undefined ? visitTarget.need : (isMilestoneCompleted ? 0 : milestoneThreshold - visitsIntoCycle);
   const progressPercent =
     visitTarget?.progressPercent ??
-    Math.min(100, Math.round((visitsIntoCycle / milestoneThreshold) * 100));
+    (isMilestoneCompleted ? 100 : Math.min(100, Math.round((visitsIntoCycle / milestoneThreshold) * 100)));
+
+  // Detect unlocked surprise / visit milestone reward
+  const unlockedSurpriseReward = availableRewards.find(
+    (r: any) => r.type === "VISITS" || r.threshold === milestoneThreshold || r.name?.toLowerCase().includes("free") || r.name?.toLowerCase().includes("item") || r.name?.toLowerCase().includes("visit")
+  );
+  const isSurpriseUnlocked = isMilestoneCompleted || !!unlockedSurpriseReward || visitsNeeded <= 0;
 
   // Dynamic Free Voucher Title / Discount calculation
   const primaryVoucher = availableRewards[0];
@@ -639,24 +646,45 @@ export default function CustomerDashboardPage() {
           </div>
         ) : null}
 
-        {/* Special Offer Card */}
-        <div className="bg-white rounded-2xl p-4 border border-[#EAE3DC] shadow-xs flex items-center gap-3.5">
-          <div className="w-8 h-8 rounded-xl bg-[#801313]/10 text-[#801313] flex items-center justify-center shrink-0">
-            <Sparkles className="w-4 h-4" />
+        {/* Special Offer / Surprise Reward Card */}
+        <div
+          className={`rounded-2xl p-4 border shadow-xs flex items-center justify-between gap-3 transition-all ${
+            isSurpriseUnlocked
+              ? "bg-[#FAF5EE] border-[#D8C7B5] ring-1 ring-[#D8C7B5]/60"
+              : "bg-white border-[#EAE3DC]"
+          }`}
+        >
+          <div className="flex items-center gap-3.5 min-w-0 pr-2">
+            <div
+              className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${
+                isSurpriseUnlocked
+                  ? "bg-[#801313] text-white border-[#801313]"
+                  : "bg-[#801313]/10 text-[#801313] border-[#801313]/15"
+              }`}
+            >
+              {isSurpriseUnlocked ? <Gift className="w-5 h-5" /> : <Sparkles className="w-4 h-4" />}
+            </div>
+            <div className="min-w-0">
+              <div className="text-[9px] font-extrabold tracking-widest text-[#7A6E67] uppercase flex items-center gap-1.5">
+                <span>{isSurpriseUnlocked ? "SURPRISE REWARD UNLOCKED" : "SPECIAL OFFER JUST FOR YOU"}</span>
+              </div>
+              <div className="font-bold text-xs sm:text-sm text-[#1E1815] truncate">
+                {isSurpriseUnlocked
+                  ? (unlockedSurpriseReward?.name || visitTarget?.name || offers?.[0]?.name || "Free Item on 5th Visit")
+                  : (offers?.[0]?.name || "A delicious surprise is coming soon")}
+              </div>
+              <div className="text-[10px] text-[#7A6E67] mt-0.5">
+                {isSurpriseUnlocked
+                  ? (unlockedSurpriseReward?.description || `All ${milestoneThreshold} visits completed! Ready to redeem at the counter.`)
+                  : `Unlocks once you complete ${milestoneThreshold} visits (${visitsNeeded} visit${visitsNeeded > 1 ? "s" : ""} left)`}
+              </div>
+            </div>
           </div>
-          <div className="min-w-0">
-            <div className="text-[9px] font-extrabold tracking-widest text-[#7A6E67] uppercase">
-              SPECIAL OFFER JUST FOR YOU
-            </div>
-            <div className="font-bold text-xs sm:text-sm text-[#1E1815] truncate">
-              {offers?.[0]?.name || (visitsNeeded > 0 ? "A delicious surprise is coming soon" : "Milestone Reward Unlocked!")}
-            </div>
-            <div className="text-[10px] text-[#7A6E67] mt-0.5">
-              {visitsNeeded > 0
-                ? `Unlocks once you complete ${milestoneThreshold} visits (${visitsNeeded} visit${visitsNeeded > 1 ? "s" : ""} left)`
-                : `All ${milestoneThreshold} visits completed! Available on your next order.`}
-            </div>
-          </div>
+          {isSurpriseUnlocked && (
+            <span className="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
+              READY
+            </span>
+          )}
         </div>
       </div>
 

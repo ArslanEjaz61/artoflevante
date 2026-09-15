@@ -165,7 +165,6 @@ export default function OutletPage() {
   const [submittingBill, setSubmittingBill] = useState(false);
   const [billErr, setBillErr] = useState("");
   const [successReceipt, setSuccessReceipt] = useState<any | null>(null);
-  const [showGivePointsModal, setShowGivePointsModal] = useState(false);
 
   // Visit stamp action state
   const [submittingVisit, setSubmittingVisit] = useState(false);
@@ -436,7 +435,6 @@ export default function OutletPage() {
       }
 
       setSuccessReceipt(data);
-      setShowGivePointsModal(false);
       setInvoiceNumber("");
       setBillAmount("");
       setPointsToRedeemInput(0);

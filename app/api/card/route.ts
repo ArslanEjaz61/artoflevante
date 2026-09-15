@@ -3,7 +3,7 @@ import QRCode from "qrcode";
 import { prisma } from "@/lib/db";
 import { getCustomerId } from "@/lib/session";
 import { randomCode, formatCode } from "@/lib/crypto";
-import { getNumber, getSettings, pointsToCurrency } from "@/lib/loyalty";
+import { getNumber, getSettings, pointsToCurrency, newlyEligibleRewards } from "@/lib/loyalty";
 
 export async function GET() {
   const customerId = await getCustomerId();
@@ -72,6 +72,29 @@ export async function GET() {
     errorCorrectionLevel: "M",
     color: { dark: "#141414", light: "#FFFFFF" },
   });
+
+  // Auto-issue any newly eligible visit rewards if milestone reached
+  const held = await prisma.customerReward.findMany({
+    where: { customerId, status: "AVAILABLE" },
+    select: { rewardId: true },
+  });
+  const unlocked = await newlyEligibleRewards({
+    pointsBalance: customer.pointsBalance,
+    visitCount: customer.visitCount,
+    alreadyHeldRewardIds: held.map((h) => h.rewardId),
+  });
+  if (unlocked.length > 0) {
+    for (const r of unlocked) {
+      await prisma.customerReward.create({
+        data: {
+          customerId,
+          rewardId: r.id,
+          status: "AVAILABLE",
+          expiresAt: r.validDays ? new Date(Date.now() + r.validDays * 86400_000) : null,
+        },
+      });
+    }
+  }
 
   const rewards = await prisma.customerReward.findMany({
     where: { customerId },
@@ -142,16 +165,21 @@ export async function GET() {
     .filter((r) => r.type === "VISITS")
     .map((r) => {
       const into = customer.visitCount % r.threshold;
-      const need = r.threshold - into;
+      const isCompleted = customer.visitCount > 0 && into === 0;
+      const need = isCompleted ? 0 : r.threshold - into;
       return {
         id: r.id,
         name: r.name,
         nameAr: r.nameAr,
+        description: r.description,
+        value: Number(r.value),
+        isPercent: r.isPercent,
         kind: "visits" as const,
         need,
         threshold: r.threshold,
-        current: into,
-        progressPercent: Math.min(100, Math.round((into / r.threshold) * 100)),
+        current: isCompleted ? r.threshold : into,
+        progressPercent: isCompleted ? 100 : Math.min(100, Math.round((into / r.threshold) * 100)),
+        isUnlocked: isCompleted,
       };
     })
     .sort((a, b) => a.need - b.need);
