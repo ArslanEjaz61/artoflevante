@@ -25,6 +25,7 @@ export async function GET(
         include: {
           branch: { select: { id: true, name: true, city: true, code: true } },
           staff: { select: { id: true, name: true } },
+          pointsLedger: true,
         },
         orderBy: { createdAt: "desc" },
         take: 50,
@@ -41,6 +42,15 @@ export async function GET(
         take: 50,
       },
       pointsLedger: {
+        include: {
+          transaction: {
+            select: {
+              id: true,
+              invoiceNumber: true,
+              branch: { select: { id: true, name: true, city: true, code: true } },
+            },
+          },
+        },
         orderBy: { createdAt: "desc" },
         take: 50,
       },
@@ -78,17 +88,22 @@ export async function GET(
       lastVisitAt: customer.lastVisitAt,
       createdAt: customer.createdAt,
       cardCode: customer.qrTokens[0]?.token || null,
-      transactions: customer.transactions.map((t) => ({
-        id: t.id,
-        invoiceNumber: t.invoiceNumber,
-        amount: Number(t.amount),
-        pointsEarned: t.pointsEarned,
-        discountGiven: Number(t.discountGiven),
-        isReversed: t.isReversed,
-        branch: t.branch,
-        staffName: t.staff?.name || "Staff",
-        createdAt: t.createdAt,
-      })),
+      transactions: customer.transactions.map((t) => {
+        const redeemedLedger = t.pointsLedger.filter((pl) => pl.delta < 0);
+        const pointsRedeemed = redeemedLedger.reduce((sum, pl) => sum + Math.abs(pl.delta), 0);
+        return {
+          id: t.id,
+          invoiceNumber: t.invoiceNumber,
+          amount: Number(t.amount),
+          pointsEarned: t.pointsEarned,
+          pointsRedeemed,
+          discountGiven: Number(t.discountGiven),
+          isReversed: t.isReversed,
+          branch: t.branch,
+          staffName: t.staff?.name || "Staff",
+          createdAt: t.createdAt,
+        };
+      }),
       rewards: customer.customerRewards.map((cr) => ({
         id: cr.id,
         name: cr.reward.name,
@@ -113,6 +128,8 @@ export async function GET(
         delta: l.delta,
         reason: l.reason,
         note: l.note,
+        branch: l.transaction?.branch || null,
+        invoiceNumber: l.transaction?.invoiceNumber || null,
         createdAt: l.createdAt,
       })),
     },

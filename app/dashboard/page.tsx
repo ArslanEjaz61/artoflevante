@@ -712,24 +712,43 @@ export default function CustomerDashboardPage() {
         {transactions && transactions.length > 0 ? (
           <div className="divide-y divide-[#EFE8E1]">
             {transactions.map((t: any) => (
-              <div key={t.id} className="py-3 flex items-center justify-between first:pt-0 last:pb-0">
-                <div className="min-w-0 pr-3">
+              <div key={t.id} className="py-3 flex items-center justify-between first:pt-0 last:pb-0 gap-3">
+                <div className="min-w-0 flex-1">
                   <div className="font-bold text-xs sm:text-sm text-[#1E1815] truncate">
                     {t.branch || customer.homeBranch?.name || "Branch Visit"}
                   </div>
-                  <div className="text-[10px] text-[#7A6E67] flex items-center gap-2 mt-0.5">
+                  <div className="text-[10px] text-[#7A6E67] flex items-center gap-1.5 mt-0.5 flex-wrap">
+                    {t.invoiceNumber && (
+                      <>
+                        <span className="font-mono font-bold text-[#1E1815]">#{t.invoiceNumber}</span>
+                        <span>•</span>
+                      </>
+                    )}
                     <span>{formatRelativeTime(t.createdAt)}</span>
                     <span>•</span>
                     <span>{new Date(t.createdAt).toLocaleDateString()}</span>
                   </div>
+                  {t.discountGiven > 0 && (
+                    <div className="text-[10px] text-[#801313] font-bold mt-0.5">
+                      Discount: {currency} {Number(t.discountGiven).toFixed(2)}
+                      {t.redeemedRewards?.length > 0 && ` (${t.redeemedRewards.join(", ")})`}
+                    </div>
+                  )}
                 </div>
                 <div className="text-right shrink-0">
                   <div className="font-black text-xs sm:text-sm text-[#1E1815]">
                     {currency} {Number(t.amount || 0).toFixed(2)}
                   </div>
-                  <div className="text-[10px] font-bold text-emerald-700">
-                    +{t.pointsEarned} pts
-                  </div>
+                  {t.pointsEarned > 0 && (
+                    <div className="text-[10px] font-extrabold text-emerald-700">
+                      +{t.pointsEarned} pts
+                    </div>
+                  )}
+                  {t.pointsRedeemed > 0 && (
+                    <div className="text-[10px] font-extrabold text-red-700">
+                      -{t.pointsRedeemed} pts redeemed
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -739,7 +758,7 @@ export default function CustomerDashboardPage() {
             <Receipt className="w-7 h-7 text-[#801313]/30 mx-auto mb-1.5" />
             <p className="font-semibold">No previous visits recorded yet.</p>
             <p className="text-[10px] text-[#A0938C] mt-0.5">
-              Points earned on your dine-in bills will appear here automatically.
+              Points earned and redeemed on your dine-in bills will appear here automatically.
             </p>
           </div>
         )}

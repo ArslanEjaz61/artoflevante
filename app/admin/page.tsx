@@ -5010,6 +5010,7 @@ export default function AdminPage() {
                               <th className="pb-2.5 px-3">Staff</th>
                               <th className="pb-2.5 px-3 text-right">Bill Amount</th>
                               <th className="pb-2.5 px-3 text-right">Points Earned</th>
+                              <th className="pb-2.5 px-3 text-right">Points Redeemed</th>
                               <th className="pb-2.5 px-3 text-right">Discount</th>
                             </tr>
                           </thead>
@@ -5030,7 +5031,10 @@ export default function AdminPage() {
                                   {formatMoney(cur, t.amount)}
                                 </td>
                                 <td className="py-2.5 px-3 font-bold text-emerald-700 text-right">
-                                  +{t.pointsEarned} pts
+                                  {t.pointsEarned > 0 ? `+${t.pointsEarned} pts` : "—"}
+                                </td>
+                                <td className="py-2.5 px-3 font-bold text-red-700 text-right">
+                                  {t.pointsRedeemed > 0 ? `-${t.pointsRedeemed} pts` : "—"}
                                 </td>
                                 <td className="py-2.5 px-3 text-[#7A6E67] text-right">
                                   {t.discountGiven > 0 ? formatMoney(cur, t.discountGiven) : "—"}
@@ -5151,6 +5155,7 @@ export default function AdminPage() {
                           <thead className="border-b border-[#EAE3DC] text-[#7A6E67] uppercase font-bold">
                             <tr>
                               <th className="pb-2.5 px-3">Date & Time</th>
+                              <th className="pb-2.5 px-3">Branch</th>
                               <th className="pb-2.5 px-3">Points Delta</th>
                               <th className="pb-2.5 px-3">Activity / Reason</th>
                               <th className="pb-2.5 px-3">Details / Reference</th>
@@ -5162,6 +5167,9 @@ export default function AdminPage() {
                                 <td className="py-2.5 px-3 text-[#7A6E67]">
                                   {new Date(l.createdAt).toLocaleString()}
                                 </td>
+                                <td className="py-2.5 px-3 font-semibold text-[#1E1815]">
+                                  {l.branch?.name || "—"}
+                                </td>
                                 <td
                                   className={`py-2.5 px-3 font-black ${
                                     l.delta >= 0 ? "text-emerald-700" : "text-[#C0392B]"
@@ -5172,7 +5180,9 @@ export default function AdminPage() {
                                 <td className="py-2.5 px-3 font-bold text-[#1E1815] capitalize">
                                   {l.reason.replace(/_/g, " ")}
                                 </td>
-                                <td className="py-2.5 px-3 text-[#7A6E67]">{l.note || "—"}</td>
+                                <td className="py-2.5 px-3 text-[#7A6E67]">
+                                  {l.note || (l.invoiceNumber ? `Invoice #${l.invoiceNumber}` : "—")}
+                                </td>
                               </tr>
                             ))}
                           </tbody>

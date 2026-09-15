@@ -82,9 +82,13 @@ export async function GET() {
 
   const transactions = await prisma.transaction.findMany({
     where: { customerId, isReversed: false },
-    include: { branch: { select: { name: true, city: true } } },
+    include: {
+      branch: { select: { name: true, city: true } },
+      pointsLedger: true,
+      customerRewards: { include: { reward: true } },
+    },
     orderBy: { createdAt: "desc" },
-    take: 15,
+    take: 20,
   });
 
   const allRewards = await prisma.reward.findMany({
@@ -180,14 +184,22 @@ export async function GET() {
       expiresAt: cr.expiresAt,
       redeemedAt: cr.redeemedAt,
     })),
-    transactions: transactions.map((t) => ({
-      id: t.id,
-      branch: t.branch.name,
-      city: t.branch.city,
-      amount: Number(t.amount),
-      pointsEarned: t.pointsEarned,
-      createdAt: t.createdAt,
-    })),
+    transactions: transactions.map((t) => {
+      const redeemedLedger = t.pointsLedger.filter((pl) => pl.delta < 0);
+      const pointsRedeemed = redeemedLedger.reduce((sum, pl) => sum + Math.abs(pl.delta), 0);
+      return {
+        id: t.id,
+        invoiceNumber: t.invoiceNumber,
+        branch: t.branch.name,
+        city: t.branch.city,
+        amount: Number(t.amount),
+        pointsEarned: t.pointsEarned,
+        pointsRedeemed,
+        discountGiven: Number(t.discountGiven || 0),
+        redeemedRewards: t.customerRewards.map((cr) => cr.reward.name),
+        createdAt: t.createdAt,
+      };
+    }),
     offers,
     nextTargets,
     redemptionStatus: {
