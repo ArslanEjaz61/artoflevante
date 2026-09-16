@@ -3580,6 +3580,39 @@ export default function AdminPage() {
                               </div>
                             </div>
 
+                            <div className="text-[11px] text-[#7A6E67] font-medium leading-relaxed">
+                              {outletLoyaltyRules.currency} {outletLoyaltyRules.spendAedForPoints} = {outletLoyaltyRules.pointsEarnedPerSpend} point(s). Minimum spend {outletLoyaltyRules.currency} 1. Duplicate invoices are blocked.
+                            </div>
+
+                            {/* Dynamic Points Calculation Breakdown */}
+                            {outletParsedAmount > 0 && (
+                              <div className="p-4 rounded-2xl bg-white border border-[#EAE3DC] space-y-2 text-xs shadow-2xs">
+                                <div className="flex justify-between items-center text-[#7A6E67]">
+                                  <span>Gross Bill Amount:</span>
+                                  <span className="font-bold text-[#1E1815]">
+                                    {outletLoyaltyRules.currency} {outletParsedAmount.toFixed(2)}
+                                  </span>
+                                </div>
+
+                                <div className="flex justify-between items-center text-emerald-800 font-medium">
+                                  <span>Points Calculation ({outletLoyaltyRules.currency} {outletLoyaltyRules.spendAedForPoints} = {outletLoyaltyRules.pointsEarnedPerSpend} pt):</span>
+                                  <span className="font-mono text-emerald-700 font-extrabold text-sm">+{outletEstimatedPointsToEarn} pts</span>
+                                </div>
+
+                                <div className="flex justify-between items-center text-blue-900 font-medium">
+                                  <span>Visit Stamp:</span>
+                                  <span className="font-bold font-mono text-blue-700">+1 visit</span>
+                                </div>
+
+                                <div className="pt-2 border-t border-[#EAE3DC] flex justify-between items-center">
+                                  <span className="font-bold text-[#1E1815]">Customer New Total Balance:</span>
+                                  <span className="font-black font-mono text-base text-[#801313]">
+                                    {outletCustomer.pointsBalance + outletEstimatedPointsToEarn} pts
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+
                             {/* Auto Visit Notice */}
                             <div className="p-3.5 rounded-xl bg-white border border-[#EAE3DC] flex items-center justify-between text-xs font-medium text-[#7A6E67]">
                               <div className="flex items-center gap-2">
