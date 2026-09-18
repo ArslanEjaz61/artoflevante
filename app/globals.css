@@ -1,6 +1,17 @@
 @import "tailwindcss";
 
+@theme {
+  /* Display face for the branded member screens (matches the brand artwork). */
+  --font-display: "Montserrat", ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
 :root {
+  /* Brand artwork palette */
+  --bc-cream: #FEF7C5;
+  --bc-red: #970709;
+  --bc-gold: #CC8820;
+  --bc-blush: #F0DBDB;
+
   --paper: #FAF7F4;
   --surface: #FFFFFF;
   --surface-subtle: #F5EFE9;

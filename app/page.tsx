@@ -280,104 +280,107 @@ export default function HomePage() {
       {/* 1. HERO ONBOARDING VIEW (Exact design matching reference)      */}
       {/* ============================================================== */}
       {view === "hero" && (
-        <div className="w-full relative overflow-hidden rounded-[36px] bg-gradient-to-b from-[#6D1322] via-[#63111E] to-[#460A13] text-white p-7 sm:p-8 shadow-2xl border border-white/10 flex flex-col items-center text-center">
-          {/* Subtle Decorative Arc Background Lines */}
-          <div className="absolute -top-12 -right-12 w-64 h-64 rounded-full border border-white/10 pointer-events-none" />
-          <div className="absolute top-1/4 -right-24 w-80 h-80 rounded-full border border-white/5 pointer-events-none" />
-          <div className="absolute -bottom-16 -left-16 w-60 h-60 rounded-full border border-white/5 pointer-events-none" />
+        <div className="w-full relative overflow-hidden rounded-[28px] shadow-2xl">
+          {/* Full-bleed food artwork */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/hero-food.jpg"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          {/* Deep-red wash over the photo, heavier toward the bottom */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(151,7,9,0.74),rgba(104,6,10,0.88)_45%,rgba(48,3,5,0.94))]" />
 
-          {/* Circular Brand Mascot Logo with Gold Border */}
-          <div className="relative mb-6 mt-1">
-            <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-full p-1 bg-gradient-to-tr from-[#D4AF37] via-[#F6D375] to-[#AA7C11] shadow-2xl flex items-center justify-center">
-              <div className="w-full h-full rounded-full bg-[#801313] overflow-hidden flex items-center justify-center p-1.5">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/lofoe.png"
-                  alt="Bombay Chowpatty Logo"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            </div>
-          </div>
+          <div className="relative z-10 px-7 sm:px-8 pt-8 pb-7 flex flex-col items-center text-center text-[#FEF7C5]">
+            {/* Brand roundel */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/bc-roundel.png"
+              alt="Bombay Chowpatty"
+              className="w-[132px] h-[132px] sm:w-[150px] sm:h-[150px] object-contain mb-5"
+            />
 
-          {/* Subheading Badge */}
-          <div className="text-[10px] font-extrabold tracking-[0.2em] text-[#E5A93C] uppercase mb-2">
-            BOMBAY CHOWPATTY LOYALTY
-          </div>
+            <h1 className="font-display font-extrabold uppercase leading-[1.08] tracking-[0.01em] text-[27px] sm:text-[31px]">
+              Bombay Chowpatty
+              <span className="block">Rewards</span>
+            </h1>
 
-          {/* Main Title in Serif */}
-          <h1 className="font-serif text-[32px] sm:text-4xl font-bold leading-[1.15] text-white mb-2">
-            Every visit deserves
-            <span className="block italic text-[#F5C772] font-serif font-normal mt-0.5">
-              something special.
-            </span>
-          </h1>
+            <p className="mt-3 text-[17px] sm:text-[18px] leading-[1.35] text-[#FEF7C5]/95">
+              Love the flavour.
+              <span className="block">Earn the rewards.</span>
+            </p>
 
-          {/* Subtext */}
-          <p className="text-xs sm:text-sm text-white/80 leading-relaxed max-w-[300px] mb-6 font-normal">
-            Join our loyalty family and enjoy rewards made for the flavours you love.
-          </p>
-
-          {/* Welcome Gift Box */}
-          <div className="w-full bg-white/[0.04] border border-white/15 rounded-2xl p-4 mb-6 flex items-center justify-center gap-3 backdrop-blur-xs">
-            <Gift className="w-6 h-6 text-[#E5A93C] shrink-0" />
-            <div className="text-left">
-              <div className="text-[9px] font-extrabold tracking-widest text-[#E5A93C] uppercase">
+            {/* Welcome gift */}
+            <div className="mt-7">
+              <div className="font-display text-[25px] sm:text-[27px] tracking-[0.01em] leading-none">
                 WELCOME GIFT
               </div>
-              <div className="font-serif text-2xl font-black text-white leading-tight">
+              <div className="font-display font-extrabold text-[44px] sm:text-[50px] leading-[1.05] mt-1">
                 {programInfo.welcomeDiscountPercent}% OFF
               </div>
-              <div className="text-[10px] text-white/70">
-                On your first eligible order
+              <div className="font-display text-[19px] sm:text-[21px] leading-tight">
+                on your first order
               </div>
             </div>
-          </div>
 
-          {/* Primary Action Button (JOIN NOW) */}
-          <button
-            onClick={() => {
-              setMode("register");
-              setView("form");
-              setErr("");
-            }}
-            className="w-full py-4 px-6 rounded-2xl bg-white hover:bg-[#FAF7F4] text-[#63111E] font-black text-base tracking-wider uppercase shadow-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer mb-4"
-          >
-            <span>JOIN NOW</span>
-            <ArrowRight className="w-5 h-5" />
-          </button>
+            {/* Claim label + join button */}
+            <div className="mt-7 font-display font-extrabold uppercase tracking-[0.04em] text-[13px]">
+              Claim your {programInfo.welcomeDiscountPercent}% off
+            </div>
 
-          {/* Already a member link */}
-          <div className="text-xs text-white/80 mb-6">
-            Already a member?{" "}
             <button
               onClick={() => {
-                setMode("login");
+                setMode("register");
                 setView("form");
                 setErr("");
               }}
-              className="font-bold text-[#F5C772] hover:underline cursor-pointer ml-1"
+              className="mt-3 w-full max-w-[300px] rounded-full border-[2.5px] border-[#FEF7C5] py-2.5 pl-6 pr-2.5 flex items-center justify-between gap-3 transition-all active:scale-[0.98] hover:bg-[#FEF7C5]/10 cursor-pointer"
             >
-              Open my account
+              <span className="font-display font-extrabold uppercase tracking-[0.03em] text-[22px] sm:text-[24px] leading-none flex-1">
+                Join Now
+              </span>
+              <span className="w-11 h-11 rounded-full border-[2.5px] border-[#FEF7C5] flex items-center justify-center shrink-0">
+                <ChevronRight className="w-6 h-6 stroke-[2.5]" />
+              </span>
             </button>
-          </div>
 
-          {/* Two Action Buttons (Share / Install) */}
-          <div className="w-full grid grid-cols-2 gap-2.5 pt-2 border-t border-white/10">
-            <button
-              onClick={handleShare}
-              className="py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-[11px] font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
-            >
-              <Share2 className="w-3.5 h-3.5 text-white/80" />
-              <span>Share with a friend</span>
-            </button>
-            <button
-              onClick={handleInstall}
-              className="py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-[11px] font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
-            >
-              <Download className="w-3.5 h-3.5 text-white/80" />
-              <span>Install loyalty app</span>
-            </button>
+            <div className="mt-4 text-[15px]">
+              Already a member?{" "}
+              <button
+                onClick={() => {
+                  setMode("login");
+                  setView("form");
+                  setErr("");
+                }}
+                className="font-bold underline-offset-2 hover:underline cursor-pointer"
+              >
+                View My Rewards
+              </button>
+            </div>
+
+            {/* Dotted rule */}
+            <div className="w-full mt-6 border-t-2 border-dotted border-[#FEF7C5]/70" />
+
+            {/* Secondary actions */}
+            <div className="w-full mt-5 grid grid-cols-2 gap-3.5">
+              <button
+                onClick={handleShare}
+                className="rounded-2xl border-2 border-[#FEF7C5] bg-[#970709] py-4 px-2 font-display font-extrabold uppercase leading-[1.15] text-[17px] sm:text-[18px] transition-all active:scale-[0.98] hover:bg-[#B00A0C] cursor-pointer"
+              >
+                Treat
+                <span className="block">a</span>
+                <span className="block">Friend</span>
+              </button>
+              <button
+                onClick={handleInstall}
+                className="rounded-2xl border-2 border-[#FEF7C5] bg-[#970709] py-4 px-2 font-display font-extrabold uppercase leading-[1.15] text-[17px] sm:text-[18px] transition-all active:scale-[0.98] hover:bg-[#B00A0C] cursor-pointer"
+              >
+                Get the
+                <span className="block">Loyalty</span>
+                <span className="block">App</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

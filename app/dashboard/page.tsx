@@ -31,13 +31,6 @@ import QRCode from "qrcode";
 import { usePwaInstall } from "@/lib/usePwaInstall";
 import { InstallGuideModal } from "@/components/InstallGuideModal";
 
-function getTimeGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return "GOOD MORNING";
-  if (hour < 17) return "GOOD AFTERNOON";
-  return "GOOD EVENING";
-}
-
 function formatRelativeTime(iso?: string | null): string {
   if (!iso) return "—";
   const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -366,7 +359,7 @@ export default function CustomerDashboardPage() {
   const firstName = customer?.name ? customer.name.trim().split(" ")[0] : "VIP Member";
 
   return (
-    <div className="min-h-screen bg-[#F8F5F0] text-[#1E1815] pb-24 px-4 pt-5 max-w-md mx-auto selection:bg-[#801313] selection:text-white">
+    <div className="min-h-screen bg-[#F0DBDB] text-[#1E1815] pb-24 px-4 pt-5 max-w-md mx-auto selection:bg-[#801313] selection:text-white">
       {/* Toast Notification */}
       {toast && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#1E1815] text-white px-4 py-2.5 rounded-full text-xs font-bold shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
@@ -381,15 +374,15 @@ export default function CustomerDashboardPage() {
       <header className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           {/* Brand Logo Avatar */}
-          <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 border-2 border-[#D4AF37]/60 shadow-sm bg-[#801313] flex items-center justify-center p-0.5">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/lofoe.png" alt="Brand Logo" className="w-full h-full object-contain" />
+            <img src="/bc-roundel.png" alt="Bombay Chowpatty" className="w-full h-full object-contain" />
           </div>
           <div>
-            <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#7A6E67]">
-              {getTimeGreeting()}
+            <div className="font-display font-bold uppercase tracking-[0.02em] text-[19px] sm:text-[21px] leading-none text-[#FEF7C5] [text-shadow:0_1px_2px_rgba(120,20,20,0.45)]">
+              Welcome Back
             </div>
-            <h1 className="text-2xl font-bold font-serif text-[#1E1815] leading-tight">
+            <h1 className="font-display text-[19px] sm:text-[21px] font-bold text-[#1E1815] leading-tight mt-0.5">
               {firstName}
             </h1>
           </div>
@@ -409,55 +402,56 @@ export default function CustomerDashboardPage() {
       {/* ============================================================== */}
       {/* 2. CULINARY HERO BANNER CARD                                   */}
       {/* ============================================================== */}
-      <div className="relative overflow-hidden rounded-3xl h-56 p-5 sm:p-6 text-white shadow-md flex flex-col justify-end mb-3.5 group">
+      <div className="relative overflow-hidden rounded-3xl min-h-[228px] p-5 sm:p-6 shadow-md flex flex-col justify-between mb-3.5 group">
         {/* Banner Food Photo */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/food_banner.jpg"
-          alt="Culinary Delights"
+          src="/banner-food.jpg"
+          alt=""
+          aria-hidden="true"
           className="w-full h-full object-cover absolute inset-0 transition-transform duration-700 group-hover:scale-105"
         />
-        {/* Dark Vignette Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/25 pointer-events-none" />
+        {/* Warm red wash, matching the brand artwork */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(151,7,9,0.62),rgba(151,7,9,0.42)_45%,rgba(120,10,8,0.66))] pointer-events-none" />
 
         <div className="relative z-10">
-          <div className="text-[9px] font-extrabold tracking-widest text-[#E5A93C] uppercase mb-1">
-            LATEST AT {customer.homeBranch?.name ? customer.homeBranch.name.toUpperCase() : "BOMBAY CHOWPATTY"}
-          </div>
-          <h2 className="font-serif text-2xl sm:text-[26px] font-bold text-white leading-tight mb-1.5">
-            Flavours worth coming back for
+          <h2 className="font-display font-extrabold uppercase text-[#FEF7C5] text-[22px] sm:text-[24px] leading-[1.12] [text-shadow:0_2px_6px_rgba(60,4,4,0.55)]">
+            Double the flavour,
+            <span className="block">double the delight!</span>
           </h2>
-          <p className="text-[11px] text-white/85 leading-relaxed max-w-[280px]">
-            Watch this space for our newest offers and festival wishes.
-          </p>
         </div>
+
+        <p className="relative z-10 font-display font-bold text-[#FEF7C5] text-[17px] sm:text-[18px] leading-[1.25] max-w-[290px] [text-shadow:0_2px_6px_rgba(60,4,4,0.55)]">
+          Watch this space for our
+          <span className="block">deals and discounts.</span>
+        </p>
       </div>
 
       {/* ============================================================== */}
       {/* 3. ACTION BUTTONS (Share with a friend, QR Code & Install)     */}
       {/* ============================================================== */}
-      <div className="space-y-2 mb-4">
+      <div className="space-y-2.5 mb-4">
         <div className="grid grid-cols-2 gap-2.5">
           <button
             onClick={handleShare}
-            className="bg-white hover:bg-[#FAF7F4] border border-[#EAE3DC] text-[#801313] rounded-2xl py-3 px-3 font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.99]"
+            className="bg-white hover:bg-[#FAF7F4] text-[#970709] rounded-2xl py-3.5 px-3 font-display font-bold text-[15px] leading-tight shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.99]"
           >
-            <Share2 className="w-4 h-4 text-[#801313]" />
-            <span>Share with a friend</span>
+            <Share2 className="w-[18px] h-[18px] shrink-0" />
+            <span>Share with a<span className="block">friend</span></span>
           </button>
           <button
             onClick={() => setShowPortalQrModal(true)}
-            className="bg-white hover:bg-[#FAF7F4] border border-[#EAE3DC] text-[#801313] rounded-2xl py-3 px-3 font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.99]"
+            className="bg-white hover:bg-[#FAF7F4] text-[#970709] rounded-2xl py-3.5 px-3 font-display font-bold text-[15px] leading-tight shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.99]"
           >
-            <QrCode className="w-4 h-4 text-[#801313]" />
+            <QrCode className="w-[18px] h-[18px] shrink-0" />
             <span>QR Code</span>
           </button>
         </div>
         <button
           onClick={handleInstall}
-          className="w-full bg-white hover:bg-[#FAF7F4] border border-[#EAE3DC] text-[#801313] rounded-2xl py-2.5 px-4 font-bold text-xs shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.99]"
+          className="w-full bg-white hover:bg-[#FAF7F4] text-[#970709] rounded-2xl py-3 px-4 font-display font-bold text-[15px] shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.99]"
         >
-          <Download className="w-4 h-4 text-[#801313]" />
+          <Download className="w-[18px] h-[18px] shrink-0" />
           <span>Install loyalty app</span>
         </button>
       </div>
@@ -465,26 +459,31 @@ export default function CustomerDashboardPage() {
       {/* ============================================================== */}
       {/* 4. AVAILABLE POINTS VELVET CARD                                */}
       {/* ============================================================== */}
-      <div className="rounded-3xl bg-gradient-to-br from-[#6E1111] via-[#801313] to-[#4A0A0A] p-5 sm:p-6 text-white shadow-md mb-4 relative overflow-hidden">
+      <div className="rounded-3xl bg-[#970709] px-5 sm:px-6 pt-4 pb-5 shadow-md mb-4 relative overflow-hidden">
         {/* Subtle Decorative Background Ring */}
         <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full bg-white/5 blur-xl pointer-events-none" />
 
-        <div className="relative z-10 flex items-center justify-between">
-          <div>
-            <div className="text-[9px] font-extrabold tracking-widest text-[#E5A93C] uppercase">
-              AVAILABLE POINTS
-            </div>
-            <div className="text-4xl sm:text-5xl font-serif font-black text-white leading-none my-2.5">
-              {customer.pointsBalance}
-            </div>
-            <div className="text-[11px] text-white/80 font-medium">
-              {loyaltyRules?.pointsRequiredForRedemption || 100} points = {currency} {loyaltyRules?.currencyValuePerRedemptionPoints || 1} · Tap to redeem
-            </div>
+        <div className="relative z-10">
+          <div className="font-display font-extrabold uppercase tracking-[0.01em] text-[#FEF7C5] text-[24px] sm:text-[26px] leading-tight">
+            Available Points
           </div>
 
-          {/* Golden Ribbon / Medallion Emblem */}
-          <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-[#E5A93C] shrink-0">
-            <Award className="w-9 h-9 text-[#E5A93C] stroke-[1.5]" />
+          <div className="flex items-end justify-between gap-3">
+            <div className="font-display font-extrabold text-[#CC8820] text-[72px] sm:text-[80px] leading-[0.9] -mt-1">
+              {customer.pointsBalance}
+            </div>
+
+            {/* Golden Ribbon / Medallion Emblem */}
+            <Award className="w-[76px] h-[76px] sm:w-[84px] sm:h-[84px] text-[#CC8820] stroke-[1.5] shrink-0 mb-1" />
+          </div>
+
+          <div className="flex items-end justify-between gap-3 -mt-1">
+            <div className="font-display font-bold text-white text-[13px] sm:text-[14px]">
+              {loyaltyRules?.pointsRequiredForRedemption || 100} Points = {currency} {loyaltyRules?.currencyValuePerRedemptionPoints || 1}
+            </div>
+            <div className="font-display font-bold uppercase text-white text-[15px] sm:text-[16px] shrink-0">
+              Tap to redeem
+            </div>
           </div>
         </div>
       </div>
@@ -556,35 +555,35 @@ export default function CustomerDashboardPage() {
       {/* ============================================================== */}
       {/* 6. MEMBERSHIP QR CARD                                          */}
       {/* ============================================================== */}
-      <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-[#EAE3DC] text-center mb-4">
+      <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-sm text-center mb-4">
         {/* Header Label */}
-        <div className="flex items-center justify-center gap-1.5 mb-1">
-          <QrCode className="w-4 h-4 text-[#801313]" />
-          <span className="text-[10px] font-extrabold tracking-widest text-[#7A6E67] uppercase">
-            YOUR MEMBERSHIP QR
+        <div className="flex items-center justify-center gap-2 mb-1.5">
+          <QrCode className="w-[18px] h-[18px] text-[#8A7F7C]" />
+          <span className="font-display text-[15px] font-semibold tracking-[0.06em] text-[#8A7F7C] uppercase">
+            Your Membership QR
           </span>
         </div>
-        <h3 className="text-base sm:text-lg font-black text-[#801313] mb-4">
+        <h3 className="font-display text-[19px] sm:text-[20px] font-bold text-[#970709] mb-5">
           Scan at any outlet
         </h3>
 
         {/* QR Code */}
-        <div className="bg-[#FAF7F4] p-3 rounded-2xl border border-[#EAE3DC] inline-block mb-3.5 shadow-inner">
+        <div className="bg-[#FAF7F4] p-3.5 rounded-2xl inline-block mb-4 shadow-inner">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={qr.image}
             alt="Membership QR"
-            className="w-48 h-48 sm:w-52 sm:h-52 rounded-xl block"
+            className="w-52 h-52 sm:w-56 sm:h-56 rounded-xl block"
           />
         </div>
 
         {/* Monospace Code */}
-        <div className="font-mono text-xs sm:text-sm font-bold text-[#801313] tracking-widest">
+        <div className="font-mono text-[15px] sm:text-base font-bold text-[#970709] tracking-[0.18em]">
           {qr.code}
         </div>
 
         {/* Helper micro-copy */}
-        <p className="text-[11px] text-[#7A6E67] leading-relaxed max-w-xs mx-auto mt-2">
+        <p className="font-display text-[14px] text-[#8A7F7C] leading-[1.45] max-w-[270px] mx-auto mt-2.5">
           Show this QR to the cashier. Scanning opens your loyalty profile without sharing your mobile number.
         </p>
       </div>
