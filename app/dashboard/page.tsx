@@ -402,29 +402,15 @@ export default function CustomerDashboardPage() {
       {/* ============================================================== */}
       {/* 2. CULINARY HERO BANNER CARD                                   */}
       {/* ============================================================== */}
-      <div className="relative overflow-hidden rounded-3xl min-h-[228px] p-5 sm:p-6 shadow-md flex flex-col justify-between mb-3.5 group">
-        {/* Banner Food Photo */}
+      {/* The banner is the supplied artwork, used as-is. */}
+      <div className="rounded-3xl overflow-hidden shadow-md mb-3.5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/banner-food.jpg"
-          alt=""
-          aria-hidden="true"
-          className="w-full h-full object-cover absolute inset-0 transition-transform duration-700 group-hover:scale-105"
+          src="/banner-art.jpg"
+          alt="Double the flavour, double the delight — watch this space for our deals and discounts."
+          className="w-full h-auto block select-none"
+          draggable={false}
         />
-        {/* Warm red wash, matching the brand artwork */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(151,7,9,0.62),rgba(151,7,9,0.42)_45%,rgba(120,10,8,0.66))] pointer-events-none" />
-
-        <div className="relative z-10">
-          <h2 className="font-display font-extrabold uppercase text-[#FEF7C5] text-[22px] sm:text-[24px] leading-[1.12] [text-shadow:0_2px_6px_rgba(60,4,4,0.55)]">
-            Double the flavour,
-            <span className="block">double the delight!</span>
-          </h2>
-        </div>
-
-        <p className="relative z-10 font-display font-bold text-[#FEF7C5] text-[17px] sm:text-[18px] leading-[1.25] max-w-[290px] [text-shadow:0_2px_6px_rgba(60,4,4,0.55)]">
-          Watch this space for our
-          <span className="block">deals and discounts.</span>
-        </p>
       </div>
 
       {/* ============================================================== */}

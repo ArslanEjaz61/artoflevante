@@ -9,16 +9,12 @@ import {
   ShieldCheck,
   Phone,
   CheckCircle2,
-  ChevronRight,
   Store,
   ArrowLeft,
-  Gift,
   Coins,
   Ticket,
   X,
   RotateCw,
-  Share2,
-  Download,
 } from "lucide-react";
 import { usePwaInstall } from "@/lib/usePwaInstall";
 import { InstallGuideModal } from "@/components/InstallGuideModal";
@@ -280,108 +276,53 @@ export default function HomePage() {
       {/* 1. HERO ONBOARDING VIEW (Exact design matching reference)      */}
       {/* ============================================================== */}
       {view === "hero" && (
+        // The welcome screen is the supplied artwork itself. The tappable areas
+        // are transparent overlays positioned as percentages of the image, so
+        // they stay aligned at any width.
         <div className="w-full relative overflow-hidden rounded-[28px] shadow-2xl">
-          {/* Full-bleed food artwork */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/hero-food.jpg"
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 w-full h-full object-cover"
+            src="/welcome-art.jpg"
+            alt={`${BRAND} — join and get ${programInfo.welcomeDiscountPercent}% off your first order`}
+            className="w-full h-auto block select-none"
+            draggable={false}
           />
-          {/* Deep-red wash over the photo, heavier toward the bottom */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(151,7,9,0.74),rgba(104,6,10,0.88)_45%,rgba(48,3,5,0.94))]" />
 
-          <div className="relative z-10 px-7 sm:px-8 pt-8 pb-7 flex flex-col items-center text-center text-[#FEF7C5]">
-            {/* Brand roundel */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/bc-roundel.png"
-              alt="Bombay Chowpatty"
-              className="w-[132px] h-[132px] sm:w-[150px] sm:h-[150px] object-contain mb-5"
-            />
+          <button
+            onClick={() => {
+              setMode("register");
+              setView("form");
+              setErr("");
+            }}
+            aria-label="Join now"
+            className="absolute rounded-full cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FEF7C5]"
+            style={{ left: "17.75%", top: "65.72%", width: "62.97%", height: "7.73%" }}
+          />
 
-            <h1 className="font-display font-extrabold uppercase leading-[1.08] tracking-[0.01em] text-[27px] sm:text-[31px]">
-              Bombay Chowpatty
-              <span className="block">Rewards</span>
-            </h1>
+          <button
+            onClick={() => {
+              setMode("login");
+              setView("form");
+              setErr("");
+            }}
+            aria-label="View my rewards"
+            className="absolute rounded-md cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FEF7C5]"
+            style={{ left: "51.48%", top: "75.14%", width: "36.69%", height: "3.25%" }}
+          />
 
-            <p className="mt-3 text-[17px] sm:text-[18px] leading-[1.35] text-[#FEF7C5]/95">
-              Love the flavour.
-              <span className="block">Earn the rewards.</span>
-            </p>
+          <button
+            onClick={handleShare}
+            aria-label="Treat a friend"
+            className="absolute rounded-xl cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FEF7C5]"
+            style={{ left: "12.09%", top: "82.96%", width: "37.16%", height: "12.89%" }}
+          />
 
-            {/* Welcome gift */}
-            <div className="mt-7">
-              <div className="font-display text-[25px] sm:text-[27px] tracking-[0.01em] leading-none">
-                WELCOME GIFT
-              </div>
-              <div className="font-display font-extrabold text-[44px] sm:text-[50px] leading-[1.05] mt-1">
-                {programInfo.welcomeDiscountPercent}% OFF
-              </div>
-              <div className="font-display text-[19px] sm:text-[21px] leading-tight">
-                on your first order
-              </div>
-            </div>
-
-            {/* Claim label + join button */}
-            <div className="mt-7 font-display font-extrabold uppercase tracking-[0.04em] text-[13px]">
-              Claim your {programInfo.welcomeDiscountPercent}% off
-            </div>
-
-            <button
-              onClick={() => {
-                setMode("register");
-                setView("form");
-                setErr("");
-              }}
-              className="mt-3 w-full max-w-[300px] rounded-full border-[2.5px] border-[#FEF7C5] py-2.5 pl-6 pr-2.5 flex items-center justify-between gap-3 transition-all active:scale-[0.98] hover:bg-[#FEF7C5]/10 cursor-pointer"
-            >
-              <span className="font-display font-extrabold uppercase tracking-[0.03em] text-[22px] sm:text-[24px] leading-none flex-1">
-                Join Now
-              </span>
-              <span className="w-11 h-11 rounded-full border-[2.5px] border-[#FEF7C5] flex items-center justify-center shrink-0">
-                <ChevronRight className="w-6 h-6 stroke-[2.5]" />
-              </span>
-            </button>
-
-            <div className="mt-4 text-[15px]">
-              Already a member?{" "}
-              <button
-                onClick={() => {
-                  setMode("login");
-                  setView("form");
-                  setErr("");
-                }}
-                className="font-bold underline-offset-2 hover:underline cursor-pointer"
-              >
-                View My Rewards
-              </button>
-            </div>
-
-            {/* Dotted rule */}
-            <div className="w-full mt-6 border-t-2 border-dotted border-[#FEF7C5]/70" />
-
-            {/* Secondary actions */}
-            <div className="w-full mt-5 grid grid-cols-2 gap-3.5">
-              <button
-                onClick={handleShare}
-                className="rounded-2xl border-2 border-[#FEF7C5] bg-[#970709] py-4 px-2 font-display font-extrabold uppercase leading-[1.15] text-[17px] sm:text-[18px] transition-all active:scale-[0.98] hover:bg-[#B00A0C] cursor-pointer"
-              >
-                Treat
-                <span className="block">a</span>
-                <span className="block">Friend</span>
-              </button>
-              <button
-                onClick={handleInstall}
-                className="rounded-2xl border-2 border-[#FEF7C5] bg-[#970709] py-4 px-2 font-display font-extrabold uppercase leading-[1.15] text-[17px] sm:text-[18px] transition-all active:scale-[0.98] hover:bg-[#B00A0C] cursor-pointer"
-              >
-                Get the
-                <span className="block">Loyalty</span>
-                <span className="block">App</span>
-              </button>
-            </div>
-          </div>
+          <button
+            onClick={handleInstall}
+            aria-label="Get the loyalty app"
+            className="absolute rounded-xl cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FEF7C5]"
+            style={{ left: "51.02%", top: "82.27%", width: "40.17%", height: "13.99%" }}
+          />
         </div>
       )}
 
