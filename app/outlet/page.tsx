@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
-  Shield,
   Phone,
   QrCode,
   Scan,
@@ -606,8 +605,8 @@ export default function OutletPage() {
   // Render Loading Screen
   if (loadingSession) {
     return (
-      <div className="min-h-screen bg-[#F8F5F0] flex flex-col items-center justify-center p-4">
-        <div className="w-10 h-10 border-3 border-[#801313]/20 border-t-[#801313] rounded-full animate-spin mb-3" />
+      <div className="min-h-screen bg-[#F0DBDB] flex flex-col items-center justify-center p-4">
+        <div className="w-10 h-10 border-3 border-[#970709]/20 border-t-[#970709] rounded-full animate-spin mb-3" />
         <p className="text-xs font-bold text-[#7A6E67] uppercase tracking-wider">Loading Outlet Terminal…</p>
       </div>
     );
@@ -618,20 +617,23 @@ export default function OutletPage() {
   // =========================================================================
   if (screen === "entry" || !activeBranch) {
     return (
-      <div className="min-h-screen bg-[#F8F5F0] flex flex-col items-center justify-center p-4 sm:p-6 selection:bg-[#801313] selection:text-white">
+      <div className="min-h-screen bg-[#F0DBDB] flex flex-col items-center justify-center p-4 sm:p-6 selection:bg-[#970709] selection:text-white">
         <div className="max-w-md w-full bg-white rounded-3xl sm:rounded-4xl p-8 sm:p-10 shadow-sm border border-[#EAE3DC] text-center relative animate-in fade-in zoom-in duration-200">
-          {/* Top Shield Badge */}
-          <div className="w-14 h-14 rounded-full bg-[#801313]/10 flex items-center justify-center mx-auto mb-4.5 text-[#801313]">
-            <Shield className="w-6 h-6 text-[#801313] stroke-[1.8]" />
-          </div>
+          {/* Brand mark */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/bc-roundel.png"
+            alt="Bombay Chowpatty"
+            className="w-20 h-20 object-contain mx-auto mb-4"
+          />
 
           {/* Subtitle */}
-          <div className="text-[11px] font-black tracking-widest text-[#801313] uppercase mb-1.5">
+          <div className="text-[11px] font-black tracking-widest text-[#970709] uppercase mb-1.5">
             OUTLET ENTRY
           </div>
 
           {/* Heading */}
-          <h1 className="text-2xl sm:text-3xl font-serif font-black text-[#1E1815] mb-2.5">
+          <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-[#1E1815] mb-2.5">
             Enter outlet code
           </h1>
 
@@ -654,7 +656,7 @@ export default function OutletPage() {
                 onChange={(e) => setOutletCodeInput(e.target.value.toUpperCase())}
                 autoFocus
                 required
-                className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-black text-[#1E1815] uppercase tracking-wider placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs transition-colors"
+                className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-black text-[#1E1815] uppercase tracking-wider placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs transition-colors"
               />
             </div>
 
@@ -668,7 +670,7 @@ export default function OutletPage() {
             <button
               type="submit"
               disabled={!outletCodeInput.trim() || outletAuthBusy}
-              className="w-full mt-2 py-3.5 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full mt-2 py-3.5 px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {outletAuthBusy ? (
                 <>
@@ -689,7 +691,7 @@ export default function OutletPage() {
                 <button
                   type="button"
                   onClick={() => setOutletCodeInput(sampleBranch.code)}
-                  className="font-bold font-mono text-[#1E1815] hover:text-[#801313] underline cursor-pointer"
+                  className="font-bold font-mono text-[#1E1815] hover:text-[#970709] underline cursor-pointer"
                 >
                   {sampleBranch.code}
                 </button>
@@ -707,27 +709,35 @@ export default function OutletPage() {
   // SCREEN 2: OUTLET LOYALTY DESK
   // =========================================================================
   return (
-    <div className="min-h-screen bg-[#F8F5F0] py-8 px-4 sm:px-6 selection:bg-[#801313] selection:text-white">
+    <div className="min-h-screen bg-[#F0DBDB] py-8 px-4 sm:px-6 selection:bg-[#970709] selection:text-white">
       <div className="max-w-4xl mx-auto">
         {/* Top Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div>
-            <div className="text-[11px] font-black tracking-widest text-[#801313] uppercase mb-1 flex items-center gap-1.5">
-              <Building className="w-3.5 h-3.5" />
-              <span>{activeBranch.name.toUpperCase()}</span>
-              {activeBranch.city && <span className="text-[#7A6E67]">· {activeBranch.city}</span>}
+          <div className="flex items-center gap-3.5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/bc-roundel.png"
+              alt="Bombay Chowpatty"
+              className="w-14 h-14 sm:w-16 sm:h-16 object-contain shrink-0"
+            />
+            <div>
+              <div className="text-[11px] font-black tracking-widest text-[#970709] uppercase mb-1 flex items-center gap-1.5">
+                <Building className="w-3.5 h-3.5" />
+                <span>{activeBranch.name.toUpperCase()}</span>
+                {activeBranch.city && <span className="text-[#7A6E67]">· {activeBranch.city}</span>}
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-display font-extrabold text-[#1E1815]">
+                Outlet loyalty entry
+              </h1>
+              <p className="text-xs sm:text-sm text-[#7A6E67] font-medium mt-0.5">
+                Open the customer profile by mobile number or membership QR.
+              </p>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-serif font-black text-[#1E1815]">
-              Outlet loyalty entry
-            </h1>
-            <p className="text-xs sm:text-sm text-[#7A6E67] font-medium mt-0.5">
-              Open the customer profile by mobile number or membership QR.
-            </p>
           </div>
 
           <button
             onClick={handleSwitchOutlet}
-            className="self-start sm:self-center inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:text-[#801313] hover:border-[#801313]/40 shadow-2xs transition-colors cursor-pointer"
+            className="self-start sm:self-center inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:text-[#970709] hover:border-[#970709]/40 shadow-2xs transition-colors cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Change Outlet</span>
@@ -748,13 +758,13 @@ export default function OutletPage() {
               }}
               className={`p-4.5 rounded-2xl border text-left flex items-center gap-3.5 transition-all cursor-pointer ${
                 searchTab === "phone"
-                  ? "bg-[#FAF7F4] border-[#801313] shadow-xs ring-1 ring-[#801313]"
+                  ? "bg-[#FAF7F4] border-[#970709] shadow-xs ring-1 ring-[#970709]"
                   : "bg-white border-[#EAE3DC] hover:border-[#B5AAA2] hover:bg-[#FAF7F4]/50"
               }`}
             >
               <div
                 className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                  searchTab === "phone" ? "bg-[#801313]/10 text-[#801313]" : "bg-[#FAF7F4] text-[#7A6E67]"
+                  searchTab === "phone" ? "bg-[#970709]/10 text-[#970709]" : "bg-[#FAF7F4] text-[#7A6E67]"
                 }`}
               >
                 <Phone className="w-5 h-5" />
@@ -775,13 +785,13 @@ export default function OutletPage() {
               }}
               className={`p-4.5 rounded-2xl border text-left flex items-center gap-3.5 transition-all cursor-pointer ${
                 searchTab === "qr"
-                  ? "bg-[#FAF7F4] border-[#801313] shadow-xs ring-1 ring-[#801313]"
+                  ? "bg-[#FAF7F4] border-[#970709] shadow-xs ring-1 ring-[#970709]"
                   : "bg-white border-[#EAE3DC] hover:border-[#B5AAA2] hover:bg-[#FAF7F4]/50"
               }`}
             >
               <div
                 className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                  searchTab === "qr" ? "bg-[#801313]/10 text-[#801313]" : "bg-[#FAF7F4] text-[#7A6E67]"
+                  searchTab === "qr" ? "bg-[#970709]/10 text-[#970709]" : "bg-[#FAF7F4] text-[#7A6E67]"
                 }`}
               >
                 <Scan className="w-5 h-5" />
@@ -827,13 +837,13 @@ export default function OutletPage() {
                   onChange={(e) => setMobileInput(e.target.value.replace(/[^\d\s]/g, ""))}
                   autoFocus
                   required
-                  className="flex-1 px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs transition-colors"
+                  className="flex-1 px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs transition-colors"
                 />
 
                 <button
                   type="submit"
                   disabled={!mobileInput.trim() || searchBusy}
-                  className="py-3.5 px-7 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
+                  className="py-3.5 px-7 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
                 >
                   {searchBusy ? (
                     <>
@@ -870,7 +880,7 @@ export default function OutletPage() {
                       }
                     }}
                     autoFocus
-                    className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                    className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                     <span className="flex h-2 w-2 relative">
@@ -883,7 +893,7 @@ export default function OutletPage() {
                 <button
                   type="submit"
                   disabled={!qrInput.trim() || searchBusy}
-                  className="py-3.5 px-7 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
+                  className="py-3.5 px-7 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
                 >
                   {searchBusy ? "FINDING…" : "LOOKUP QR"}
                 </button>
@@ -896,7 +906,7 @@ export default function OutletPage() {
                   }}
                   className="py-3.5 px-4 rounded-xl bg-[#FAF7F4] hover:bg-[#EAE3DC] border border-[#EAE3DC] text-[#1E1815] font-bold text-xs flex items-center justify-center gap-2 shrink-0 transition-colors cursor-pointer"
                 >
-                  <Camera className="w-4 h-4 text-[#801313]" />
+                  <Camera className="w-4 h-4 text-[#970709]" />
                   <span>{isCameraActive ? "Stop Camera" : "Camera Scan"}</span>
                 </button>
               </form>
@@ -906,14 +916,14 @@ export default function OutletPage() {
                   <div className="relative aspect-video max-w-sm mx-auto rounded-xl overflow-hidden bg-black border-2 border-white/20">
                     <video ref={videoRef} className="w-full h-full object-cover" />
                     <canvas ref={canvasRef} className="hidden" />
-                    <div className="absolute inset-8 border-2 border-dashed border-[#E5A93C] rounded-lg pointer-events-none animate-pulse" />
+                    <div className="absolute inset-8 border-2 border-dashed border-[#CC8820] rounded-lg pointer-events-none animate-pulse" />
                   </div>
                   <p className="text-xs text-white/80 font-medium mt-3">{cameraHint}</p>
                 </div>
               )}
 
               <div className="text-[11px] text-[#7A6E67] font-medium flex items-center gap-2">
-                <Zap className="w-3.5 h-3.5 text-[#E5A93C]" />
+                <Zap className="w-3.5 h-3.5 text-[#CC8820]" />
                 <span>USB &amp; Handheld Barcode Scanners will automatically detect customer QR codes immediately.</span>
               </div>
             </div>
@@ -943,11 +953,11 @@ export default function OutletPage() {
             <div className="bg-[#FAF5F0] rounded-2xl p-4.5 sm:p-5 border border-[#EFE8E0] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3.5">
                 {/* Circular Avatar Icon */}
-                <div className="w-12 h-12 sm:w-13 sm:h-13 rounded-full border-2 border-[#801313] flex items-center justify-center text-[#801313] shrink-0 bg-white shadow-2xs">
-                  <User className="w-6 h-6 sm:w-7 sm:h-7 stroke-[1.8] text-[#801313]" />
+                <div className="w-12 h-12 sm:w-13 sm:h-13 rounded-full border-2 border-[#970709] flex items-center justify-center text-[#970709] shrink-0 bg-white shadow-2xs">
+                  <User className="w-6 h-6 sm:w-7 sm:h-7 stroke-[1.8] text-[#970709]" />
                 </div>
                 <div>
-                  <h2 className="font-serif font-black text-xl sm:text-2xl text-[#1E1815] leading-tight">
+                  <h2 className="font-display font-black text-xl sm:text-2xl text-[#1E1815] leading-tight">
                     {customer.name}
                   </h2>
                   <p className="text-xs text-[#7A6E67] font-medium mt-0.5">
@@ -959,7 +969,7 @@ export default function OutletPage() {
               {/* Stat Columns with Divider */}
               <div className="flex items-center gap-4 sm:gap-6 self-start sm:self-center bg-white/70 sm:bg-transparent p-2 sm:p-0 rounded-xl border sm:border-0 border-[#EAE3DC]">
                 <div className="text-center px-2 sm:px-4">
-                  <div className="font-serif font-black text-xl sm:text-2xl text-[#1E1815] leading-none">
+                  <div className="font-display font-black text-xl sm:text-2xl text-[#1E1815] leading-none">
                     {customer.pointsBalance}
                   </div>
                   <div className="text-[11px] font-semibold text-[#7A6E67] mt-1">
@@ -970,7 +980,7 @@ export default function OutletPage() {
                 <div className="w-[1px] h-9 bg-[#E5DDD5]" />
 
                 <div className="text-center px-2 sm:px-4">
-                  <div className="font-serif font-black text-xl sm:text-2xl text-[#1E1815] leading-none">
+                  <div className="font-display font-black text-xl sm:text-2xl text-[#1E1815] leading-none">
                     {customer.visitCount}
                   </div>
                   <div className="text-[11px] font-semibold text-[#7A6E67] mt-1">
@@ -991,12 +1001,12 @@ export default function OutletPage() {
                 }}
                 className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
                   actionMode === "points"
-                    ? "bg-[#FAF7F4] border-[#801313] shadow-sm ring-2 ring-[#801313]/20"
-                    : "bg-white border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4]/40"
+                    ? "bg-[#FAF7F4] border-[#970709] shadow-sm ring-2 ring-[#970709]/20"
+                    : "bg-white border-[#EAE3DC] hover:border-[#970709]/50 hover:bg-[#FAF7F4]/40"
                 }`}
               >
-                <div className="text-[#801313] mb-3">
-                  <RibbonIcon className="w-7 h-7 text-[#801313]" />
+                <div className="text-[#970709] mb-3">
+                  <RibbonIcon className="w-7 h-7 text-[#970709]" />
                 </div>
                 <div>
                   <h3 className="font-bold text-sm sm:text-base text-[#1E1815] leading-snug">
@@ -1007,7 +1017,7 @@ export default function OutletPage() {
                   </p>
                 </div>
                 {actionMode === "points" && (
-                  <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#801313]" />
+                  <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#970709]" />
                 )}
               </button>
 
@@ -1020,12 +1030,12 @@ export default function OutletPage() {
                 }}
                 className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
                   actionMode === "redeem_points"
-                    ? "bg-[#FAF7F4] border-[#801313] shadow-sm ring-2 ring-[#801313]/20"
-                    : "bg-white border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4]/40"
+                    ? "bg-[#FAF7F4] border-[#970709] shadow-sm ring-2 ring-[#970709]/20"
+                    : "bg-white border-[#EAE3DC] hover:border-[#970709]/50 hover:bg-[#FAF7F4]/40"
                 }`}
               >
-                <div className="text-[#C68A1E] mb-3">
-                  <Coins className="w-7 h-7 text-[#C68A1E]" />
+                <div className="text-[#CC8820] mb-3">
+                  <Coins className="w-7 h-7 text-[#CC8820]" />
                 </div>
                 <div>
                   <h3 className="font-bold text-sm sm:text-base text-[#1E1815] leading-snug">
@@ -1036,7 +1046,7 @@ export default function OutletPage() {
                   </p>
                 </div>
                 {actionMode === "redeem_points" && (
-                  <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#801313]" />
+                  <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#970709]" />
                 )}
               </button>
 
@@ -1050,14 +1060,14 @@ export default function OutletPage() {
                 }}
                 className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
                   actionMode === "reward"
-                    ? "bg-[#FAF7F4] border-[#801313] shadow-sm ring-2 ring-[#801313]/20"
-                    : "bg-white border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4]/40"
+                    ? "bg-[#FAF7F4] border-[#970709] shadow-sm ring-2 ring-[#970709]/20"
+                    : "bg-white border-[#EAE3DC] hover:border-[#970709]/50 hover:bg-[#FAF7F4]/40"
                 }`}
               >
-                <div className="flex items-center justify-between mb-3 text-[#801313]">
-                  <Gift className="w-7 h-7 text-[#801313] stroke-[1.8]" />
+                <div className="flex items-center justify-between mb-3 text-[#970709]">
+                  <Gift className="w-7 h-7 text-[#970709] stroke-[1.8]" />
                   {availableRewards.length > 0 && (
-                    <span className="px-2 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-[9px] font-black uppercase">
+                    <span className="px-2 py-0.5 rounded-full bg-[#970709]/10 text-[#970709] text-[9px] font-black uppercase">
                       {availableRewards.length} AVAILABLE
                     </span>
                   )}
@@ -1071,7 +1081,7 @@ export default function OutletPage() {
                   </p>
                 </div>
                 {actionMode === "reward" && (
-                  <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#801313]" />
+                  <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#970709]" />
                 )}
               </button>
             </div>
@@ -1103,7 +1113,7 @@ export default function OutletPage() {
                             value={invoiceNumber}
                             onChange={(e) => setInvoiceNumber(e.target.value.toUpperCase())}
                             required
-                            className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                            className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
                           />
                         </div>
 
@@ -1120,7 +1130,7 @@ export default function OutletPage() {
                             value={billAmount}
                             onChange={(e) => setBillAmount(e.target.value)}
                             required
-                            className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                            className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
                           />
                         </div>
                       </div>
@@ -1151,7 +1161,7 @@ export default function OutletPage() {
 
                           <div className="pt-2 border-t border-[#EAE3DC] flex justify-between items-center">
                             <span className="font-bold text-[#1E1815]">Customer New Total Balance:</span>
-                            <span className="font-black font-mono text-base text-[#801313]">
+                            <span className="font-black font-mono text-base text-[#970709]">
                               {customer.pointsBalance + estimatedPointsToEarn} pts
                             </span>
                           </div>
@@ -1179,7 +1189,7 @@ export default function OutletPage() {
                         <button
                           type="submit"
                           disabled={submittingBill || !invoiceNumber.trim() || !billAmount.trim()}
-                          className="flex-1 py-4 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                          className="flex-1 py-4 px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                         >
                           {submittingBill ? (
                             <>
@@ -1206,18 +1216,18 @@ export default function OutletPage() {
             {actionMode === "redeem_points" && (
               <div className="pt-2 animate-in fade-in duration-200">
                 {!successReceipt ? (
-                  <div className="p-6 rounded-3xl bg-[#FFFBF0] border border-[#E5A93C]/40 space-y-5">
-                    <div className="flex items-center justify-between pb-3 border-b border-[#E5A93C]/30">
+                  <div className="p-6 rounded-3xl bg-[#FFFBF0] border border-[#CC8820]/40 space-y-5">
+                    <div className="flex items-center justify-between pb-3 border-b border-[#CC8820]/30">
                       <div className="flex items-center gap-2.5">
-                        <Coins className="w-6 h-6 text-[#C68A1E]" />
+                        <Coins className="w-6 h-6 text-[#CC8820]" />
                         <div>
                           <h4 className="font-extrabold text-base text-[#1E1815]">Redeem Points for Direct Cash Discount</h4>
                           <p className="text-xs text-[#7A6E67] font-medium">
-                            Customer currently has <strong className="text-[#801313] font-bold">{customer.pointsBalance} points</strong> available.
+                            Customer currently has <strong className="text-[#970709] font-bold">{customer.pointsBalance} points</strong> available.
                           </p>
                         </div>
                       </div>
-                      <span className="px-3 py-1 rounded-lg bg-[#E5A93C]/20 text-[#801313] text-xs font-black">
+                      <span className="px-3 py-1 rounded-lg bg-[#CC8820]/20 text-[#970709] text-xs font-black">
                         {loyaltyRules.pointsRequiredForRedemption} pts = {loyaltyRules.currency} {loyaltyRules.currencyValuePerRedemptionPoints} off
                       </span>
                     </div>
@@ -1243,8 +1253,8 @@ export default function OutletPage() {
                                   }}
                                   className={`px-3.5 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                                     isSelected
-                                      ? "bg-[#801313] text-white border-[#801313] shadow-xs ring-2 ring-[#801313]/20"
-                                      : "bg-white text-[#1E1815] border-[#EAE3DC] hover:border-[#801313]"
+                                      ? "bg-[#970709] text-white border-[#970709] shadow-xs ring-2 ring-[#970709]/20"
+                                      : "bg-white text-[#1E1815] border-[#EAE3DC] hover:border-[#970709]"
                                   }`}
                                 >
                                   {pts} pts (-{loyaltyRules.currency} {offVal})
@@ -1270,7 +1280,7 @@ export default function OutletPage() {
                                   className={`px-4 py-2.5 rounded-xl text-xs font-black border transition-all cursor-pointer ${
                                     isMaxSelected
                                       ? "bg-emerald-700 text-white border-emerald-700 shadow-xs ring-2 ring-emerald-700/20"
-                                      : "bg-white text-[#801313] border-[#EAE3DC] hover:border-[#801313]"
+                                      : "bg-white text-[#970709] border-[#EAE3DC] hover:border-[#970709]"
                                   }`}
                                 >
                                   Redeem Max ({maxPts} pts = -{loyaltyRules.currency} {maxOff})
@@ -1311,7 +1321,7 @@ export default function OutletPage() {
                                 setPointsToRedeemInput(num);
                               }
                             }}
-                            className="w-48 px-3.5 py-2 bg-white border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                            className="w-48 px-3.5 py-2 bg-white border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#970709]"
                           />
                           {pointsToRedeemInput > 0 && (
                             <span className="text-xs font-bold text-emerald-800">
@@ -1321,7 +1331,7 @@ export default function OutletPage() {
                         </div>
 
                         {/* Bill inputs */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-[#E5A93C]/30">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-[#CC8820]/30">
                           <div>
                             <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="redeem-inv-input">
                               Invoice / Receipt #
@@ -1333,7 +1343,7 @@ export default function OutletPage() {
                               value={invoiceNumber}
                               onChange={(e) => setInvoiceNumber(e.target.value.toUpperCase())}
                               required
-                              className="w-full px-4 py-3 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                              className="w-full px-4 py-3 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
                             />
                           </div>
 
@@ -1350,7 +1360,7 @@ export default function OutletPage() {
                               value={billAmount}
                               onChange={(e) => setBillAmount(e.target.value)}
                               required
-                              className="w-full px-4 py-3 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                              className="w-full px-4 py-3 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
                             />
                           </div>
                         </div>
@@ -1377,7 +1387,7 @@ export default function OutletPage() {
 
                             <div className="pt-2 border-t border-[#EAE3DC] flex justify-between items-center">
                               <span className="font-black text-sm text-[#1E1815]">Net Payable by Customer:</span>
-                              <span className="font-black text-base text-[#801313] font-mono">
+                              <span className="font-black text-base text-[#970709] font-mono">
                                 {loyaltyRules.currency} {netPayable.toFixed(2)}
                               </span>
                             </div>
@@ -1394,7 +1404,7 @@ export default function OutletPage() {
                         <button
                           type="submit"
                           disabled={submittingBill || !invoiceNumber.trim() || !billAmount.trim() || pointsToRedeemInput <= 0}
-                          className="w-full py-4 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                          className="w-full py-4 px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                         >
                           {submittingBill ? (
                             <>
@@ -1415,7 +1425,7 @@ export default function OutletPage() {
                           Points Threshold Not Reached
                         </div>
                         <p className="text-xs text-[#7A6E67]">
-                          Customer currently has <strong className="text-[#801313]">{customer.pointsBalance} points</strong>. A minimum of <strong className="text-[#1E1815]">{loyaltyRules.pointsRequiredForRedemption} points</strong> is required to unlock direct bill cash discount redemption.
+                          Customer currently has <strong className="text-[#970709]">{customer.pointsBalance} points</strong>. A minimum of <strong className="text-[#1E1815]">{loyaltyRules.pointsRequiredForRedemption} points</strong> is required to unlock direct bill cash discount redemption.
                         </p>
                       </div>
                     )}
@@ -1432,14 +1442,14 @@ export default function OutletPage() {
                 {!visitSuccessReceipt ? (
                   <div className="p-6 rounded-3xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-6 text-center sm:text-left">
                     <div className="flex flex-col sm:flex-row items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-[#801313]/10 text-[#801313] flex items-center justify-center shrink-0">
-                        <StampIcon className="w-7 h-7 text-[#801313]" />
+                      <div className="w-14 h-14 rounded-2xl bg-[#970709]/10 text-[#970709] flex items-center justify-center shrink-0">
+                        <StampIcon className="w-7 h-7 text-[#970709]" />
                       </div>
                       <div>
-                        <div className="text-[11px] font-black tracking-widest text-[#801313] uppercase">
+                        <div className="text-[11px] font-black tracking-widest text-[#970709] uppercase">
                           OUTLET VISIT CHECK-IN
                         </div>
-                        <h3 className="text-xl font-serif font-black text-[#1E1815]">
+                        <h3 className="text-xl font-display font-black text-[#1E1815]">
                           Stamp 1 physical visit at {activeBranch.name}
                         </h3>
                         <p className="text-xs text-[#7A6E67] font-medium mt-1">
@@ -1452,14 +1462,14 @@ export default function OutletPage() {
                     <div className="p-4 rounded-2xl bg-white border border-[#EAE3DC] flex items-center justify-around text-center shadow-2xs">
                       <div>
                         <div className="text-[10px] font-bold text-[#7A6E67] uppercase">Current Visits</div>
-                        <div className="font-serif font-black text-2xl text-[#1E1815] mt-0.5">
+                        <div className="font-display font-black text-2xl text-[#1E1815] mt-0.5">
                           {customer.visitCount}
                         </div>
                       </div>
-                      <ArrowRight className="w-5 h-5 text-[#801313]" />
+                      <ArrowRight className="w-5 h-5 text-[#970709]" />
                       <div>
-                        <div className="text-[10px] font-bold text-[#801313] uppercase">New Visit Count</div>
-                        <div className="font-serif font-black text-2xl text-[#801313] mt-0.5">
+                        <div className="text-[10px] font-bold text-[#970709] uppercase">New Visit Count</div>
+                        <div className="font-display font-black text-2xl text-[#970709] mt-0.5">
                           {customer.visitCount + 1}
                         </div>
                       </div>
@@ -1477,7 +1487,7 @@ export default function OutletPage() {
                         type="button"
                         onClick={handleGiveVisit}
                         disabled={submittingVisit}
-                        className="flex-1 py-4 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="flex-1 py-4 px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                       >
                         {submittingVisit ? (
                           <>
@@ -1508,7 +1518,7 @@ export default function OutletPage() {
                       <Check className="w-7 h-7 stroke-[3]" />
                     </div>
                     <div>
-                      <h3 className="font-serif font-black text-2xl text-emerald-950">Visit Stamped Successfully!</h3>
+                      <h3 className="font-display font-black text-2xl text-emerald-950">Visit Stamped Successfully!</h3>
                       <p className="text-xs text-emerald-800 font-medium mt-1">
                         Visit #{visitSuccessReceipt.customer?.visitCount} registered for {customer.name} at {activeBranch.name}.
                       </p>
@@ -1546,7 +1556,7 @@ export default function OutletPage() {
                           setQrInput("");
                           setScreen("ready");
                         }}
-                        className="flex-1 py-3.5 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+                        className="flex-1 py-3.5 px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
                       >
                         NEXT CUSTOMER
                       </button>
@@ -1562,8 +1572,8 @@ export default function OutletPage() {
             {actionMode === "reward" && (
               <div className="pt-2 animate-in fade-in duration-200 space-y-5">
                 <div className="flex items-center justify-between">
-                  <div className="text-xs font-black tracking-wider uppercase text-[#801313] flex items-center gap-2">
-                    <Gift className="w-4 h-4 text-[#801313]" />
+                  <div className="text-xs font-black tracking-wider uppercase text-[#970709] flex items-center gap-2">
+                    <Gift className="w-4 h-4 text-[#970709]" />
                     <span>UNLOCKED VISIT OFFERS &amp; MEMBER GIFTS</span>
                   </div>
                   <span className="text-xs font-bold text-[#7A6E67]">
@@ -1605,7 +1615,7 @@ export default function OutletPage() {
                       return (
                         <div
                           key={reward.id}
-                          className="p-4.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex flex-col justify-between gap-3.5 shadow-2xs hover:border-[#801313]/40 transition-colors"
+                          className="p-4.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex flex-col justify-between gap-3.5 shadow-2xs hover:border-[#970709]/40 transition-colors"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div>
@@ -1617,7 +1627,7 @@ export default function OutletPage() {
                                   {reward.description}
                                 </p>
                               )}
-                              <div className="text-[11px] text-[#801313] font-bold mt-1">
+                              <div className="text-[11px] text-[#970709] font-bold mt-1">
                                 {reward.isPercent
                                   ? `${reward.value}% Discount Offer`
                                   : reward.value > 0
@@ -1639,7 +1649,7 @@ export default function OutletPage() {
                               type="button"
                               disabled={isBusy}
                               onClick={() => handleRedeemReward(reward.id)}
-                              className="px-4 py-2 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                              className="px-4 py-2 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-wider shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
                             >
                               {isBusy ? (
                                 <>
@@ -1690,10 +1700,10 @@ export default function OutletPage() {
                       title="Click to view detailed receipt breakdown"
                     >
                       <div className="min-w-0">
-                        <div className="font-bold text-[#1E1815] group-hover:text-[#801313] transition-colors flex items-center gap-1.5 flex-wrap">
+                        <div className="font-bold text-[#1E1815] group-hover:text-[#970709] transition-colors flex items-center gap-1.5 flex-wrap">
                           <span>{t.branchName || "Branch Visit"}</span>
                           <span className="font-mono text-[11px] text-[#7A6E67]">#{t.invoiceNumber}</span>
-                          <span className="text-[10px] text-[#A0938C] font-normal group-hover:text-[#801313]">›</span>
+                          <span className="text-[10px] text-[#A0938C] font-normal group-hover:text-[#970709]">›</span>
                         </div>
                         <div className="text-[10px] text-[#7A6E67] mt-0.5 flex items-center gap-1.5">
                           <Clock className="w-3 h-3 text-[#A0938C]" />
@@ -1712,7 +1722,7 @@ export default function OutletPage() {
                           <div className="text-[11px] font-bold text-red-700 font-mono mt-1 flex items-center gap-1 flex-wrap">
                             <span>Discount: -{loyaltyRules.currency} {Number(t.discountGiven).toFixed(2)}</span>
                             {t.redeemedRewards && t.redeemedRewards.length > 0 && (
-                              <span className="text-[#801313] font-sans text-[10px]">({t.redeemedRewards.join(", ")})</span>
+                              <span className="text-[#970709] font-sans text-[10px]">({t.redeemedRewards.join(", ")})</span>
                             )}
                           </div>
                         )}
@@ -1755,7 +1765,7 @@ export default function OutletPage() {
 
             {/* Receipt Header */}
             <div>
-              <h3 className="font-serif font-black text-2xl text-emerald-950">Sale &amp; Points Receipt</h3>
+              <h3 className="font-display font-black text-2xl text-emerald-950">Sale &amp; Points Receipt</h3>
               <p className="text-xs text-emerald-800 font-medium mt-1">
                 Invoice #{selectedHistoryReceipt.invoiceNumber} recorded at {selectedHistoryReceipt.branchName || activeBranch?.name || "Outlet"}.
               </p>
@@ -1800,8 +1810,8 @@ export default function OutletPage() {
               )}
 
               <div className="flex justify-between items-center text-[#1E1815] pt-1.5 border-t border-[#EAE3DC]">
-                <span className="font-black text-xs text-[#801313]">Customer Paid (Net):</span>
-                <span className="font-black text-sm text-[#801313] font-mono">
+                <span className="font-black text-xs text-[#970709]">Customer Paid (Net):</span>
+                <span className="font-black text-sm text-[#970709] font-mono">
                   {loyaltyRules.currency} {Number(
                     selectedHistoryReceipt.amountPaid ??
                     Math.max(0, Number(selectedHistoryReceipt.amount || 0) - Number(selectedHistoryReceipt.discountGiven || 0))
@@ -1831,7 +1841,7 @@ export default function OutletPage() {
 
             <button
               onClick={() => setSelectedHistoryReceipt(null)}
-              className="w-full py-3 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+              className="w-full py-3 px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
             >
               CLOSE RECEIPT
             </button>
