@@ -263,7 +263,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#EDE7DF] flex flex-col items-center justify-center p-3 sm:p-5 max-w-md mx-auto selection:bg-[#801313] selection:text-white">
+    <div className="min-h-screen bg-[#F0DBDB] flex flex-col items-center justify-center p-3 sm:p-5 max-w-md mx-auto selection:bg-[#970709] selection:text-white">
       {/* Toast Notification */}
       {toast && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#1E1815] text-white px-4 py-2.5 rounded-full text-xs font-bold shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
@@ -345,18 +345,14 @@ export default function HomePage() {
 
           {/* Brand Header inside Form */}
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-12 h-12 rounded-full p-0.5 bg-gradient-to-tr from-[#D4AF37] to-[#AA7C11] shrink-0">
-              <div className="w-full h-full rounded-full bg-[#801313] overflow-hidden flex items-center justify-center p-1">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/lofoe.png"
-                  alt="Bombay Chowpatty"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/bc-roundel.png"
+              alt="Bombay Chowpatty"
+              className="w-12 h-12 object-contain shrink-0"
+            />
             <div>
-              <div className="text-[9px] font-extrabold tracking-widest text-[#801313] uppercase">
+              <div className="text-[9px] font-extrabold tracking-widest text-[#970709] uppercase">
                 BOMBAY CHOWPATTY
               </div>
               <h2 className="text-xl font-black text-[#1E1815] leading-tight">
@@ -382,7 +378,7 @@ export default function HomePage() {
                   placeholder="e.g. Imran Sheikh"
                   value={f.name}
                   onChange={setField("name")}
-                  className="w-full px-3.5 py-2.5 text-sm bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313] font-medium"
+                  className="w-full px-3.5 py-2.5 text-sm bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#970709] font-medium"
                   required
                 />
               </div>
@@ -397,7 +393,7 @@ export default function HomePage() {
                   aria-label="Country Code"
                   value={f.countryCode}
                   onChange={setField("countryCode")}
-                  className="w-28 px-2.5 py-2.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313] font-bold"
+                  className="w-28 px-2.5 py-2.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#970709] font-bold"
                 >
                   {COUNTRIES.map((c) => (
                     <option key={c.code} value={c.code}>
@@ -411,7 +407,7 @@ export default function HomePage() {
                   placeholder="501234567"
                   value={f.mobile}
                   onChange={handleMobileChange}
-                  className="flex-1 min-w-0 px-3.5 py-2.5 text-sm bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-mono font-bold focus:outline-none focus:border-[#801313]"
+                  className="flex-1 min-w-0 px-3.5 py-2.5 text-sm bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-mono font-bold focus:outline-none focus:border-[#970709]"
                   required
                 />
               </div>
@@ -428,7 +424,7 @@ export default function HomePage() {
                     placeholder="name@example.com"
                     value={f.email}
                     onChange={setField("email")}
-                    className="w-full px-3.5 py-2.5 text-sm bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    className="w-full px-3.5 py-2.5 text-sm bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#970709]"
                     required
                   />
                 </div>
@@ -441,7 +437,7 @@ export default function HomePage() {
                     type="date"
                     value={f.birthday}
                     onChange={setField("birthday")}
-                    className="w-full px-3.5 py-2.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    className="w-full px-3.5 py-2.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#970709]"
                   />
                 </div>
 
@@ -453,7 +449,7 @@ export default function HomePage() {
                     <select
                       value={f.branchId}
                       onChange={setField("branchId")}
-                      className="w-full px-3.5 py-2.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313] font-bold"
+                      className="w-full px-3.5 py-2.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#970709] font-bold"
                     >
                       {branches.map((b) => (
                         <option key={b.id} value={b.id}>
@@ -469,7 +465,7 @@ export default function HomePage() {
             <button
               type="submit"
               disabled={busy}
-              className="w-full py-3.5 px-4 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-black text-sm uppercase tracking-wider shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 mt-2"
+              className="w-full py-3.5 px-4 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-sm uppercase tracking-wider shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 mt-2"
             >
               {busy ? (
                 <>
@@ -501,7 +497,7 @@ export default function HomePage() {
                     setMode("login");
                     setErr("");
                   }}
-                  className="font-bold text-[#801313] hover:underline cursor-pointer"
+                  className="font-bold text-[#970709] hover:underline cursor-pointer"
                 >
                   Sign in here
                 </button>
@@ -515,7 +511,7 @@ export default function HomePage() {
                     setMode("register");
                     setErr("");
                   }}
-                  className="font-bold text-[#801313] hover:underline cursor-pointer"
+                  className="font-bold text-[#970709] hover:underline cursor-pointer"
                 >
                   Join now & get rewards
                 </button>
@@ -555,7 +551,7 @@ export default function HomePage() {
           <form onSubmit={verify} className="space-y-4">
             <div>
               <input
-                className="w-full py-3.5 text-center text-3xl font-black tracking-[0.35em] bg-[#FAF7F4] border-2 border-[#EAE3DC] focus:border-[#801313] rounded-2xl text-[#1E1815] focus:outline-none transition-all font-mono"
+                className="w-full py-3.5 text-center text-3xl font-black tracking-[0.35em] bg-[#FAF7F4] border-2 border-[#EAE3DC] focus:border-[#970709] rounded-2xl text-[#1E1815] focus:outline-none transition-all font-mono"
                 inputMode="numeric"
                 maxLength={6}
                 placeholder="000000"
@@ -568,7 +564,7 @@ export default function HomePage() {
             <button
               type="submit"
               disabled={busy || code.length < 4}
-              className="w-full py-3.5 px-6 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md disabled:opacity-50 transition-all cursor-pointer"
+              className="w-full py-3.5 px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md disabled:opacity-50 transition-all cursor-pointer"
             >
               {busy ? (
                 <>
@@ -594,7 +590,7 @@ export default function HomePage() {
                   type="button"
                   onClick={handleResendCode}
                   disabled={resending}
-                  className="font-bold text-[#801313] hover:underline cursor-pointer inline-flex items-center gap-1.5 disabled:opacity-50"
+                  className="font-bold text-[#970709] hover:underline cursor-pointer inline-flex items-center gap-1.5 disabled:opacity-50"
                 >
                   <RotateCw className={`w-3.5 h-3.5 ${resending ? "animate-spin" : ""}`} />
                   {resending ? "Resending Code…" : "Resend Verification Code"}
@@ -631,16 +627,12 @@ export default function HomePage() {
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-sm w-full shadow-2xl text-center space-y-4">
             {/* Celebration Mascot Header */}
-            <div className="w-20 h-20 rounded-full p-1 bg-gradient-to-tr from-[#D4AF37] to-[#AA7C11] mx-auto shadow-lg">
-              <div className="w-full h-full rounded-full bg-[#801313] overflow-hidden flex items-center justify-center p-2">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/lofoe.png"
-                  alt="Bombay Chowpatty"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/bc-roundel.png"
+              alt="Bombay Chowpatty"
+              className="w-20 h-20 object-contain mx-auto"
+            />
 
             <div>
               <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-black uppercase tracking-wider">
@@ -676,7 +668,7 @@ export default function HomePage() {
 
               {/* Gift 2: Welcome Discount Voucher */}
               <div className="p-3.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#801313] to-[#550B0B] flex items-center justify-center text-white font-bold text-lg shadow-xs shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#970709] to-[#7C0608] flex items-center justify-center text-white font-bold text-lg shadow-xs shrink-0">
                   🏷️
                 </div>
                 <div className="flex-1 min-w-0">
@@ -696,7 +688,7 @@ export default function HomePage() {
             {/* Action Button */}
             <button
               onClick={() => router.push("/dashboard")}
-              className="w-full py-3.5 px-6 rounded-2xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-black text-sm uppercase tracking-wider shadow-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="w-full py-3.5 px-6 rounded-2xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-sm uppercase tracking-wider shadow-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
               <span>Open My Digital Card</span>
               <ArrowRight className="w-4 h-4" />
