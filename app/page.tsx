@@ -19,6 +19,7 @@ import {
 import { usePwaInstall } from "@/lib/usePwaInstall";
 import { InstallGuideModal } from "@/components/InstallGuideModal";
 import { CrmTopHeader } from "@/components/CrmTopHeader";
+import { CountryCodePicker } from "@/components/CountryCodePicker";
 
 const BRAND = process.env.NEXT_PUBLIC_APP_NAME || "Bombay Chowpatty Loyalty";
 
@@ -391,19 +392,11 @@ export default function HomePage() {
               <label className="block text-[10px] font-extrabold uppercase text-[#7A6E67] mb-1">
                 Mobile Number
               </label>
-              <div className="flex gap-2">
-                <select
-                  aria-label="Country Code"
+              <div className="flex gap-2 items-center">
+                <CountryCodePicker
                   value={f.countryCode}
-                  onChange={setField("countryCode")}
-                  className="w-28 px-2.5 py-2.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#970709] font-bold"
-                >
-                  {COUNTRIES.map((c) => (
-                    <option key={c.code} value={c.code}>
-                      {c.flag} +{c.code}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(c) => setF((prev) => ({ ...prev, countryCode: c }))}
+                />
                 <input
                   type="tel"
                   inputMode="numeric"

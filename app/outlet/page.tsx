@@ -29,10 +29,13 @@ import {
   Award,
   Clock,
   PartyPopper,
+  LogOut,
+  Building2,
 } from "lucide-react";
 import jsQR from "jsqr";
 import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/mobile";
 import { CrmTopHeader } from "@/components/CrmTopHeader";
+import { CountryCodePicker } from "@/components/CountryCodePicker";
 
 interface Branch {
   id: string;
@@ -185,7 +188,7 @@ function OutletContent() {
   // Detailed History Receipt Modal
   const [selectedHistoryReceipt, setSelectedHistoryReceipt] = useState<any | null>(null);
 
-  // 1. Initial Load: Check active outlet session or direct code from URL
+  // 1. Initial Load: Direct code from URL or show Branch Code Entry screen
   useEffect(() => {
     async function initOutletSession() {
       if (codeParam) {
@@ -205,18 +208,14 @@ function OutletContent() {
         } catch {}
       }
 
-      fetch("/api/outlet/auth")
+      // If refreshed or no code in URL: show Screen 1 (Branch Code Entry)
+      fetch("/api/outlet/auth?sampleOnly=true")
         .then((r) => r.json())
         .then((data) => {
-          if (data.authenticated && data.branch) {
-            setActiveBranch(data.branch);
-            setScreen("ready");
-          } else {
-            if (data.sampleBranch) {
-              setSampleBranch(data.sampleBranch);
-            }
-            setScreen("entry");
+          if (data.sampleBranch) {
+            setSampleBranch(data.sampleBranch);
           }
+          setScreen("entry");
         })
         .catch(() => setScreen("entry"))
         .finally(() => setLoadingSession(false));
@@ -757,11 +756,20 @@ function OutletContent() {
               className="w-14 h-14 sm:w-16 sm:h-16 object-contain shrink-0"
             />
             <div>
-              <div className="text-[11px] font-black tracking-widest text-[#970709] uppercase mb-1 flex items-center gap-1.5">
-                <Building className="w-3.5 h-3.5" />
-                <span>{activeBranch.name.toUpperCase()}</span>
-                {activeBranch.city && <span className="text-[#7A6E67]">· {activeBranch.city}</span>}
+              {/* Highlighted Branch Badge */}
+              <div className="inline-flex items-center flex-wrap gap-2 px-3 py-1 rounded-full bg-[#801313]/10 border border-[#801313]/25 text-[#801313] text-xs font-black tracking-wide mb-1.5 shadow-2xs">
+                <Building2 className="w-3.5 h-3.5 text-[#801313] shrink-0" />
+                <span className="font-extrabold uppercase">Branch: {activeBranch.name}</span>
+                <span className="px-1.5 py-0.5 rounded-md bg-[#801313] text-white text-[10px] font-mono font-bold">
+                  Code: #{activeBranch.code}
+                </span>
+                {activeBranch.city && (
+                  <span className="text-[#7A6E67] font-semibold text-[11px]">
+                    · {activeBranch.city}
+                  </span>
+                )}
               </div>
+
               <h1 className="text-3xl sm:text-4xl font-display font-extrabold text-[#1E1815]">
                 Outlet loyalty entry
               </h1>
@@ -773,10 +781,11 @@ function OutletContent() {
 
           <button
             onClick={handleSwitchOutlet}
-            className="self-start sm:self-center inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:text-[#970709] hover:border-[#970709]/40 shadow-2xs transition-colors cursor-pointer"
+            className="self-start sm:self-center inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4] text-xs font-black text-[#801313] shadow-2xs transition-all cursor-pointer group"
+            title="Exit this branch and login to another branch"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Change Outlet</span>
+            <LogOut className="w-4 h-4 text-[#801313] group-hover:-translate-x-0.5 transition-transform" />
+            <span>Exit {activeBranch.name} (Switch Branch)</span>
           </button>
         </div>
 
@@ -847,23 +856,11 @@ function OutletContent() {
               </label>
 
               <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
-                <div className="relative shrink-0">
-                  <div className="flex items-center gap-2 px-3.5 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] shadow-2xs">
-                    <Phone className="w-3.5 h-3.5 text-[#7A6E67]" />
-                    <select
-                      value={countryCode}
-                      onChange={(e) => setCountryCode(e.target.value)}
-                      className="bg-transparent font-bold text-xs text-[#1E1815] focus:outline-none cursor-pointer pr-4 appearance-none"
-                    >
-                      {COUNTRIES.map((c) => (
-                        <option key={c.code} value={c.code}>
-                          {c.name} +{c.code}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-3.5 h-3.5 text-[#7A6E67] pointer-events-none -ml-2" />
-                  </div>
-                </div>
+                <CountryCodePicker
+                  value={countryCode}
+                  onChange={setCountryCode}
+                  disabled={searchBusy}
+                />
 
                 <input
                   id="cust-phone-input"

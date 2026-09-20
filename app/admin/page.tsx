@@ -73,6 +73,7 @@ import {
 import QRCode from "qrcode";
 import jsQR from "jsqr";
 import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/mobile";
+import { CountryCodePicker } from "@/components/CountryCodePicker";
 
 function StampIcon({ className = "w-7 h-7" }: { className?: string }) {
   return (
@@ -3334,23 +3335,11 @@ export default function AdminPage() {
                       </label>
 
                       <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
-                        <div className="relative shrink-0">
-                          <div className="flex items-center gap-2 px-3.5 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] shadow-2xs">
-                            <Phone className="w-3.5 h-3.5 text-[#7A6E67]" />
-                            <select
-                              value={outletCountryCode}
-                              onChange={(e) => setOutletCountryCode(e.target.value)}
-                              className="bg-transparent font-bold text-xs text-[#1E1815] focus:outline-none cursor-pointer pr-4 appearance-none"
-                            >
-                              {COUNTRIES.map((c) => (
-                                <option key={c.code} value={c.code}>
-                                  {c.name} +{c.code}
-                                </option>
-                              ))}
-                            </select>
-                            <ChevronDown className="w-3.5 h-3.5 text-[#7A6E67] pointer-events-none -ml-2" />
-                          </div>
-                        </div>
+                        <CountryCodePicker
+                          value={outletCountryCode}
+                          onChange={setOutletCountryCode}
+                          disabled={outletSearchBusy}
+                        />
 
                         <input
                           id="admin-pos-phone"

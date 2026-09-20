@@ -6,11 +6,14 @@ const OUTLET_COOKIE = "outlet_branch_code";
 
 export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const sampleOnly = searchParams.get("sampleOnly") === "true";
+
     const cookieStore = await cookies();
     const branchCode = cookieStore.get(OUTLET_COOKIE)?.value;
 
-    if (!branchCode) {
-      // Also check if there's any active branch to provide as sample
+    if (sampleOnly || !branchCode) {
+      // Provide sample active branch info for the entry screen helper
       const sampleBranch = await prisma.branch.findFirst({
         where: { isActive: true },
         select: { code: true, name: true, city: true },
