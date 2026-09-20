@@ -1812,7 +1812,7 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {tab === "branches" && (
               <button
                 onClick={() => {
@@ -1834,7 +1834,7 @@ export default function AdminPage() {
                   setBranchMsg(null);
                   setShowCreateBranchModal(true);
                 }}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Branch</span>
@@ -1848,7 +1848,7 @@ export default function AdminPage() {
                   setOfferMsg(null);
                   setShowCreateOfferModal(true);
                 }}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>New Campaign</span>
@@ -1858,7 +1858,7 @@ export default function AdminPage() {
             {/* Customer Portal Link */}
             <Link
               href="/crm"
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#DCD3CB] bg-white hover:bg-[#FAF7F4] text-xs font-bold text-[#801313] shadow-2xs transition-all cursor-pointer"
+              className="flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-xl border border-[#DCD3CB] bg-white hover:bg-[#FAF7F4] text-xs font-bold text-[#801313] shadow-2xs transition-all cursor-pointer"
               title="Open Customer Portal"
             >
               <Users className="w-3.5 h-3.5 text-[#801313]" />
@@ -1875,7 +1875,7 @@ export default function AdminPage() {
                 if (tab === "settings") loadSettings();
               }}
               disabled={refreshing}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#DCD3CB] bg-white hover:bg-[#FAF7F4] text-xs font-bold text-[#4A3F39] shadow-sm transition-all cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-xl border border-[#DCD3CB] bg-white hover:bg-[#FAF7F4] text-xs font-bold text-[#4A3F39] shadow-sm transition-all cursor-pointer disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-[#C0392B]" : ""}`} />
               <span className="hidden sm:inline">Refresh</span>
@@ -1885,9 +1885,9 @@ export default function AdminPage() {
 
         {/* Global Error Banner */}
         {err && (
-          <div className="mx-6 mt-4 p-4 bg-[#C0392B]/10 border border-[#C0392B]/30 rounded-2xl text-xs font-semibold text-[#C0392B] flex items-center justify-between">
+          <div className="mx-4 sm:mx-6 mt-4 p-3.5 sm:p-4 bg-[#C0392B]/10 border border-[#C0392B]/30 rounded-2xl text-xs font-semibold text-[#C0392B] flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <AlertTriangle className="w-4 h-4" />
+              <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{err}</span>
             </div>
             <button onClick={() => setErr("")} className="hover:opacity-75">
@@ -1897,7 +1897,7 @@ export default function AdminPage() {
         )}
 
         {/* Content Body */}
-        <div className="p-6 space-y-6">
+        <div className="p-3.5 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
           {/* ============================================================== */}
           {/* TAB 1: OVERVIEW & KPIS                                          */}
           {/* ============================================================== */}
@@ -1935,15 +1935,15 @@ export default function AdminPage() {
               </div>
 
               {/* Overview Filter Bar */}
-              <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-[#C0392B]" />
-                    <span className="text-xs font-bold text-[#7A6E67] uppercase tracking-wider">Branch:</span>
+              <div className="bg-white border border-[#EAE3DC] rounded-2xl p-3.5 sm:p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+                <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto">
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Building2 className="w-4 h-4 text-[#C0392B] shrink-0" />
+                    <span className="text-xs font-bold text-[#7A6E67] uppercase tracking-wider shrink-0">Branch:</span>
                     <select
                       value={overviewBranchFilter}
                       onChange={(e) => setOverviewBranchFilter(e.target.value)}
-                      className="px-3 py-1.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-bold focus:outline-none focus:border-[#C0392B]"
+                      className="w-full sm:w-auto px-3 py-1.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-bold focus:outline-none focus:border-[#C0392B]"
                     >
                       <option value="all">All Branches (All UAE Outlets)</option>
                       {allBranches.map((b: any) => (
@@ -1955,11 +1955,11 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 bg-[#FAF7F4] border border-[#EAE3DC] p-1 rounded-xl">
+                <div className="flex items-center gap-1 sm:gap-1.5 bg-[#FAF7F4] border border-[#EAE3DC] p-1 rounded-xl overflow-x-auto w-full md:w-auto max-w-full custom-scrollbar">
                   <button
                     type="button"
                     onClick={() => setOverviewDateFilter("all")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${overviewDateFilter === "all"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${overviewDateFilter === "all"
                         ? "bg-[#801313] text-white shadow-xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
                       }`}
@@ -1969,7 +1969,7 @@ export default function AdminPage() {
                   <button
                     type="button"
                     onClick={() => setOverviewDateFilter("today")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${overviewDateFilter === "today"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${overviewDateFilter === "today"
                         ? "bg-[#801313] text-white shadow-xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
                       }`}
@@ -1979,7 +1979,7 @@ export default function AdminPage() {
                   <button
                     type="button"
                     onClick={() => setOverviewDateFilter("7days")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${overviewDateFilter === "7days"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${overviewDateFilter === "7days"
                         ? "bg-[#801313] text-white shadow-xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
                       }`}
@@ -1989,7 +1989,7 @@ export default function AdminPage() {
                   <button
                     type="button"
                     onClick={() => setOverviewDateFilter("30days")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${overviewDateFilter === "30days"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${overviewDateFilter === "30days"
                         ? "bg-[#801313] text-white shadow-xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
                       }`}
@@ -2344,9 +2344,9 @@ export default function AdminPage() {
           {/* TAB 2: MEMBER DIRECTORY (CUSTOMERS)                            */}
           {/* ============================================================== */}
           {tab === "customers" && (
-            <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm space-y-5">
+            <div className="bg-white border border-[#EAE3DC] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-5">
               {/* Filter & Search Bar */}
-              <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+              <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
                 <div className="relative w-full sm:w-80">
                   <Search className="w-4 h-4 text-[#7A6E67] absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -2359,11 +2359,11 @@ export default function AdminPage() {
                 </div>
 
                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <Filter className="w-4 h-4 text-[#7A6E67]" />
+                  <Filter className="w-4 h-4 text-[#7A6E67] shrink-0" />
                   <select
                     value={filter}
                     onChange={(e) => setFilter(e.target.value)}
-                    className="px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B]"
+                    className="w-full sm:w-auto px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B]"
                   >
                     <option value="all">All Members</option>
                     <option value="recent">Active Recently</option>
@@ -2374,20 +2374,20 @@ export default function AdminPage() {
               </div>
 
               {/* Members Table */}
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto w-full custom-scrollbar rounded-2xl border border-[#EAE3DC]">
                 <table className="w-full text-left text-xs">
-                  <thead className="border-b border-[#EAE3DC] text-[#7A6E67] uppercase tracking-wider font-bold">
+                  <thead className="bg-[#FAF7F4] border-b border-[#EAE3DC] text-[#7A6E67] uppercase tracking-wider font-bold text-[11px]">
                     <tr>
-                      <th className="pb-3 px-3">Member</th>
-                      <th className="pb-3 px-3">Mobile & Email</th>
-                      <th className="pb-3 px-3">Home Branch</th>
-                      <th className="pb-3 px-3">Points</th>
-                      <th className="pb-3 px-3">Visits</th>
-                      <th className="pb-3 px-3">Total Spend</th>
-                      <th className="pb-3 px-3">Last Visit</th>
+                      <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Member</th>
+                      <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Mobile &amp; Email</th>
+                      <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Home Branch</th>
+                      <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Points</th>
+                      <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Visits</th>
+                      <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Total Spend</th>
+                      <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Last Visit</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#EFE8E1]">
+                  <tbody className="divide-y divide-[#EFE8E1] bg-white">
                     {cust?.customers && cust.customers.length > 0 ? (
                       cust.customers.map((c: any) => (
                         <tr
@@ -2395,7 +2395,7 @@ export default function AdminPage() {
                           onClick={() => openCustomerDetail(c.id)}
                           className="hover:bg-[#FAF7F4] transition-all cursor-pointer group"
                         >
-                          <td className="py-3.5 px-3">
+                          <td className="py-3.5 px-3.5 sm:px-4 whitespace-nowrap">
                             <div className="flex items-center gap-2.5">
                               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#C0392B] to-[#96291D] text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-xs">
                                 {c.name ? c.name.slice(0, 2).toUpperCase() : "MB"}
@@ -2415,17 +2415,17 @@ export default function AdminPage() {
                               </div>
                             </div>
                           </td>
-                          <td className="py-3.5 px-3 font-mono text-[#4A3F39]">
+                          <td className="py-3.5 px-3.5 sm:px-4 font-mono text-[#4A3F39] whitespace-nowrap">
                             <div>{c.mobile}</div>
                             {c.email && <div className="text-[10px] text-[#7A6E67] truncate max-w-[170px]">{c.email}</div>}
                           </td>
-                          <td className="py-3.5 px-3 text-[#7A6E67] font-medium">{c.homeBranch?.name || c.branch || "—"}</td>
-                          <td className="py-3.5 px-3 font-black text-[#C0392B]">{c.pointsBalance ?? c.points ?? 0} pts</td>
-                          <td className="py-3.5 px-3 font-bold text-[#1E1815]">{c.visitCount ?? c.visits ?? 0} visits</td>
-                          <td className="py-3.5 px-3 font-bold text-[#1E1815]">
+                          <td className="py-3.5 px-3.5 sm:px-4 text-[#7A6E67] font-medium whitespace-nowrap">{c.homeBranch?.name || c.branch || "—"}</td>
+                          <td className="py-3.5 px-3.5 sm:px-4 font-black text-[#C0392B] whitespace-nowrap">{c.pointsBalance ?? c.points ?? 0} pts</td>
+                          <td className="py-3.5 px-3.5 sm:px-4 font-bold text-[#1E1815] whitespace-nowrap">{c.visitCount ?? c.visits ?? 0} visits</td>
+                          <td className="py-3.5 px-3.5 sm:px-4 font-bold text-[#1E1815] whitespace-nowrap">
                             {formatMoney(cur, c.totalSpend ?? c.spend ?? 0)}
                           </td>
-                          <td className="py-3.5 px-3 text-[#7A6E67]">
+                          <td className="py-3.5 px-3.5 sm:px-4 text-[#7A6E67] whitespace-nowrap">
                             <div className="flex items-center justify-between">
                               <span>{formatRelativeTime(c.lastVisitAt)}</span>
                               <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[#C0392B] font-bold text-[11px] flex items-center gap-0.5 ml-2">
@@ -2482,10 +2482,10 @@ export default function AdminPage() {
             });
 
             return (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {offerMsg && (
                   <div
-                    className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between shadow-sm ${
+                    className={`p-3.5 sm:p-4 rounded-2xl text-xs font-bold flex items-center justify-between shadow-sm ${
                       offerMsg.type === "ok"
                         ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
                         : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
@@ -2506,22 +2506,24 @@ export default function AdminPage() {
                 )}
 
                 {/* Filter & Action Toolbar */}
-                <div className="bg-white border border-[#EAE3DC] rounded-3xl p-5 sm:p-6 shadow-sm">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                     <div>
-                      <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
-                        <Tag className="w-5 h-5 text-[#801313]" />
-                        <span>Promotions &amp; Campaign Engine</span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Tag className="w-5 h-5 text-[#801313] shrink-0" />
+                        <h2 className="font-extrabold text-base text-[#1E1815]">
+                          Promotions &amp; Campaign Engine
+                        </h2>
                         <span className="px-2.5 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-xs font-bold">
                           {filteredOffers.length} {filteredOffers.length === 1 ? "Offer" : "Offers"}
                         </span>
-                      </h2>
-                      <p className="text-xs text-[#7A6E67] mt-0.5">
+                      </div>
+                      <p className="text-xs text-[#7A6E67] mt-1">
                         Manage discount offers and assign promotions to specific UAE branch outlets or nationwide.
                       </p>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2.5">
+                    <div className="flex items-center gap-2.5">
                       {offers?.canEdit && (
                         <button
                           type="button"
@@ -2537,17 +2539,17 @@ export default function AdminPage() {
                             });
                             setShowCreateOfferModal(true);
                           }}
-                          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white text-xs font-black shadow-sm transition-all cursor-pointer"
+                          className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white text-xs font-black shadow-sm transition-all cursor-pointer"
                         >
-                          <Plus className="w-4 h-4" />
-                          <span>+ Launch Promotional Campaign</span>
+                          <Plus className="w-4 h-4 shrink-0" />
+                          <span>Launch Promotional Campaign</span>
                         </button>
                       )}
                     </div>
                   </div>
 
                   {/* Filter Controls Bar */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-[#EAE3DC]">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 mt-4 pt-4 border-t border-[#EAE3DC]">
                     {/* Search */}
                     <div className="relative">
                       <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#7A6E67]" />
@@ -2773,15 +2775,15 @@ export default function AdminPage() {
               )}
 
               {/* Branch Management Header */}
-              <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="bg-white border border-[#EAE3DC] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
                       <Building2 className="w-5 h-5" />
                     </div>
                     <div>
                       <h2 className="text-base font-extrabold text-[#1E1815] flex items-center gap-2">
-                        Branch Locations & Outlets
+                        Branch Locations &amp; Outlets
                       </h2>
                       <p className="text-xs text-[#7A6E67] mt-0.5">
                         Manage network outlets, operating hours, staff allocations, and branch details.
@@ -2810,7 +2812,7 @@ export default function AdminPage() {
                         setBranchMsg(null);
                         setShowCreateBranchModal(true);
                       }}
-                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-sm transition-all cursor-pointer shrink-0"
+                      className="w-full sm:w-auto justify-center flex items-center gap-1.5 px-3.5 py-2.5 sm:py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-sm transition-all cursor-pointer shrink-0"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Add Branch</span>
@@ -2820,32 +2822,32 @@ export default function AdminPage() {
               </div>
 
               {/* Branch Quick Stats */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-sm">
-                  <div className="text-xs font-bold text-[#7A6E67] uppercase">Total Outlets</div>
-                  <div className="text-2xl font-black text-[#1E1815] mt-1">{allBranches.length}</div>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-3.5 sm:p-4 shadow-sm">
+                  <div className="text-[11px] sm:text-xs font-bold text-[#7A6E67] uppercase">Total Outlets</div>
+                  <div className="text-xl sm:text-2xl font-black text-[#1E1815] mt-1">{allBranches.length}</div>
                 </div>
-                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-sm">
-                  <div className="text-xs font-bold text-[#7A6E67] uppercase">Active Locations</div>
-                  <div className="text-2xl font-black text-[#1E7A4D] mt-1">
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-3.5 sm:p-4 shadow-sm">
+                  <div className="text-[11px] sm:text-xs font-bold text-[#7A6E67] uppercase">Active Locations</div>
+                  <div className="text-xl sm:text-2xl font-black text-[#1E7A4D] mt-1">
                     {allBranches.filter((b: any) => b.isActive !== false).length}
                   </div>
                 </div>
-                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-sm">
-                  <div className="text-xs font-bold text-[#7A6E67] uppercase">Cities Covered</div>
-                  <div className="text-2xl font-black text-[#C68A1E] mt-1">{cities.length || 3}</div>
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-3.5 sm:p-4 shadow-sm">
+                  <div className="text-[11px] sm:text-xs font-bold text-[#7A6E67] uppercase">Cities Covered</div>
+                  <div className="text-xl sm:text-2xl font-black text-[#C68A1E] mt-1">{cities.length || 3}</div>
                 </div>
-                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-sm">
-                  <div className="text-xs font-bold text-[#7A6E67] uppercase">Total Network Revenue</div>
-                  <div className="text-2xl font-black text-[#C0392B] mt-1">
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-3.5 sm:p-4 shadow-sm">
+                  <div className="text-[11px] sm:text-xs font-bold text-[#7A6E67] uppercase">Network Revenue</div>
+                  <div className="text-xl sm:text-2xl font-black text-[#C0392B] mt-1">
                     {formatMoney(cur, allBranches.reduce((acc: number, b: any) => acc + (b.totalRevenue || b.revenue || 0), 0))}
                   </div>
                 </div>
               </div>
 
               {/* Search and City Filter */}
-              <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm space-y-5">
-                <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+              <div className="bg-white border border-[#EAE3DC] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-5">
+                <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
                   <div className="relative w-full sm:w-80">
                     <Search className="w-4 h-4 text-[#7A6E67] absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
@@ -2858,11 +2860,11 @@ export default function AdminPage() {
                   </div>
 
                   <div className="flex items-center gap-3 w-full sm:w-auto">
-                    <Filter className="w-4 h-4 text-[#7A6E67]" />
+                    <Filter className="w-4 h-4 text-[#7A6E67] shrink-0" />
                     <select
                       value={branchCityFilter}
                       onChange={(e) => setBranchCityFilter(e.target.value)}
-                      className="px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B]"
+                      className="w-full sm:w-auto px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B]"
                     >
                       <option value="all">All Cities</option>
                       {cities.map((city: string) => (
@@ -2875,9 +2877,9 @@ export default function AdminPage() {
                 </div>
 
                 {/* Branches Table */}
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto w-full custom-scrollbar rounded-2xl border border-[#EAE3DC]">
                   <table className="w-full text-left text-xs">
-                    <thead className="border-b border-[#EAE3DC] text-[#7A6E67] uppercase tracking-wider font-bold">
+                    <thead className="bg-[#FAF7F4] border-b border-[#EAE3DC] text-[#7A6E67] uppercase tracking-wider font-bold text-[11px]">
                       <tr>
                         <th className="pb-3 px-3">Code</th>
                         <th className="pb-3 px-3">Branch Name</th>
@@ -3080,15 +3082,15 @@ export default function AdminPage() {
               )}
 
               {/* Staff Management Header Card */}
-              <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 shadow-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
-                      <Users className="w-6 h-6" />
+              <div className="bg-white border border-[#EAE3DC] rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                  <div className="flex items-center gap-3 sm:gap-3.5">
+                    <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
+                      <Users className="w-5 sm:w-6 h-5 sm:h-6" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-black tracking-tight text-[#1E1815]">
-                        Staff & Terminal POS Accounts
+                      <h2 className="text-base sm:text-lg font-black tracking-tight text-[#1E1815]">
+                        Staff &amp; Terminal POS Accounts
                       </h2>
                       <p className="text-xs text-[#7A6E67] mt-0.5">
                         Manage cashier till logins, store managers, assigned outlet branches, and security PIN credentials.
@@ -3110,7 +3112,7 @@ export default function AdminPage() {
                         setStaffMsg(null);
                         setShowCreateStaffModal(true);
                       }}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer shrink-0"
+                      className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer shrink-0"
                     >
                       <UserPlus className="w-4 h-4" />
                       <span>Add Staff Account</span>
@@ -3119,7 +3121,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Filter and Search Toolbar */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6 pt-5 border-t border-[#EAE3DC]">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 mt-4 sm:mt-6 pt-4 sm:pt-5 border-t border-[#EAE3DC]">
                   <div className="relative">
                     <input
                       type="text"
@@ -3163,24 +3165,24 @@ export default function AdminPage() {
                 </div>
 
                 {/* Staff Data Table */}
-                <div className="mt-5 overflow-x-auto rounded-2xl border border-[#EAE3DC]">
+                <div className="mt-4 sm:mt-5 overflow-x-auto w-full custom-scrollbar rounded-2xl border border-[#EAE3DC]">
                   <table className="w-full text-left text-xs text-[#1E1815]">
                     <thead className="bg-[#FAF7F4] border-b border-[#EAE3DC] text-[11px] uppercase tracking-wider text-[#7A6E67] font-bold">
                       <tr>
-                        <th className="py-3 px-4">Staff Member</th>
-                        <th className="py-3 px-4">Login Username</th>
-                        <th className="py-3 px-4">Assigned Branch / Outlet</th>
-                        <th className="py-3 px-4">System Role</th>
-                        <th className="py-3 px-4">Till Activity</th>
-                        <th className="py-3 px-4">Account Status</th>
-                        <th className="py-3 px-4 text-right">Actions</th>
+                        <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Staff Member</th>
+                        <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Login Username</th>
+                        <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Assigned Branch / Outlet</th>
+                        <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">System Role</th>
+                        <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Till Activity</th>
+                        <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Account Status</th>
+                        <th className="py-3 px-3.5 sm:px-4 text-right whitespace-nowrap">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#EFE8E1] bg-white">
                       {filteredStaff.length > 0 ? (
                         filteredStaff.map((s) => (
                           <tr key={s.id} className="hover:bg-[#FAF7F4]/60 transition-colors">
-                            <td className="py-3.5 px-4">
+                            <td className="py-3.5 px-3.5 sm:px-4 whitespace-nowrap">
                               <div className="flex items-center gap-2.5">
                                 <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#EAE3DC] to-[#DCD3CB] flex items-center justify-center font-bold text-[#4A3F39] text-xs shrink-0">
                                   {s.name ? s.name.charAt(0).toUpperCase() : "U"}
@@ -3193,10 +3195,10 @@ export default function AdminPage() {
                                 </div>
                               </div>
                             </td>
-                            <td className="py-3.5 px-4 font-mono font-bold text-xs text-[#4A3F39]">
+                            <td className="py-3.5 px-3.5 sm:px-4 font-mono font-bold text-xs text-[#4A3F39] whitespace-nowrap">
                               @{s.username}
                             </td>
-                            <td className="py-3.5 px-4">
+                            <td className="py-3.5 px-3.5 sm:px-4 whitespace-nowrap">
                               {s.branch ? (
                                 <div className="flex items-center gap-1.5">
                                   <Store className="w-3.5 h-3.5 text-[#C0392B]" />
@@ -3216,7 +3218,7 @@ export default function AdminPage() {
                                 </div>
                               )}
                             </td>
-                            <td className="py-3.5 px-4">
+                            <td className="py-3.5 px-3.5 sm:px-4 whitespace-nowrap">
                               {s.role === "SUPER_ADMIN" && (
                                 <span className="px-2.5 py-1 rounded-full bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/20 text-[10px] font-black uppercase tracking-wider">
                                   SUPER ADMIN
@@ -3238,12 +3240,12 @@ export default function AdminPage() {
                                 </span>
                               )}
                             </td>
-                            <td className="py-3.5 px-4 font-semibold text-xs text-[#4A3F39]">
+                            <td className="py-3.5 px-3.5 sm:px-4 font-semibold text-xs text-[#4A3F39] whitespace-nowrap">
                               <span className="px-2 py-0.5 rounded-lg bg-[#FAF7F4] border border-[#EAE3DC] font-mono text-[11px]">
                                 {s.transactionCount ?? 0} txs
                               </span>
                             </td>
-                            <td className="py-3.5 px-4">
+                            <td className="py-3.5 px-3.5 sm:px-4 whitespace-nowrap">
                               <button
                                 type="button"
                                 onClick={() => handleToggleStaff(s)}
@@ -3259,7 +3261,7 @@ export default function AdminPage() {
                                 <span>{s.isActive ? "ACTIVE" : "INACTIVE"}</span>
                               </button>
                             </td>
-                            <td className="py-3.5 px-4 text-right">
+                            <td className="py-3.5 px-3.5 sm:px-4 text-right whitespace-nowrap">
                               <div className="flex items-center justify-end gap-1.5">
                                 <button
                                   type="button"
@@ -3299,10 +3301,10 @@ export default function AdminPage() {
           {/* TAB: BRANCH VISITS & 24-HOUR DAILY COUPON PASSCODES            */}
           {/* ============================================================== */}
           {tab === "visits" && (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {visitMsg && (
                 <div
-                  className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between ${visitMsg.type === "ok"
+                  className={`p-3.5 sm:p-4 rounded-2xl text-xs font-bold flex items-center justify-between ${visitMsg.type === "ok"
                     ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
                     : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
                     }`}
@@ -3318,24 +3320,24 @@ export default function AdminPage() {
               )}
 
               {/* Visit Metrics KPI Row */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-2xs">
-                  <div className="text-[11px] font-bold text-[#7A6E67] uppercase tracking-wider">
-                    Total Visits (All Time)
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-3.5 sm:p-4 shadow-2xs">
+                  <div className="text-[10px] sm:text-[11px] font-bold text-[#7A6E67] uppercase tracking-wider">
+                    Total Visits
                   </div>
-                  <div className="text-2xl font-black text-[#1E1815] mt-1">
+                  <div className="text-xl sm:text-2xl font-black text-[#1E1815] mt-1">
                     {visitMetrics.totalVisits ?? 0}
                   </div>
                   <div className="text-[10px] text-[#1E7A4D] font-semibold mt-1">
-                    Verified Customer Check-ins
+                    Verified Check-ins
                   </div>
                 </div>
 
-                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-2xs">
-                  <div className="text-[11px] font-bold text-[#7A6E67] uppercase tracking-wider">
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-3.5 sm:p-4 shadow-2xs">
+                  <div className="text-[10px] sm:text-[11px] font-bold text-[#7A6E67] uppercase tracking-wider">
                     Today&apos;s Check-ins
                   </div>
-                  <div className="text-2xl font-black text-[#C0392B] mt-1">
+                  <div className="text-xl sm:text-2xl font-black text-[#C0392B] mt-1">
                     {visitMetrics.todayVisits ?? 0}
                   </div>
                   <div className="text-[10px] text-[#7A6E67] font-semibold mt-1">
@@ -3343,11 +3345,11 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-2xs">
-                  <div className="text-[11px] font-bold text-[#7A6E67] uppercase tracking-wider">
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-3.5 sm:p-4 shadow-2xs">
+                  <div className="text-[10px] sm:text-[11px] font-bold text-[#7A6E67] uppercase tracking-wider">
                     Unique Customers Today
                   </div>
-                  <div className="text-2xl font-black text-[#C68A1E] mt-1">
+                  <div className="text-xl sm:text-2xl font-black text-[#C68A1E] mt-1">
                     {visitMetrics.uniqueCustomersToday ?? 0}
                   </div>
                   <div className="text-[10px] text-[#7A6E67] font-semibold mt-1">
@@ -3355,11 +3357,11 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-2xs">
-                  <div className="text-[11px] font-bold text-[#7A6E67] uppercase tracking-wider">
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-3.5 sm:p-4 shadow-2xs">
+                  <div className="text-[10px] sm:text-[11px] font-bold text-[#7A6E67] uppercase tracking-wider">
                     Top Visited Outlet
                   </div>
-                  <div className="text-sm font-black text-[#1E1815] mt-2 truncate">
+                  <div className="text-xs sm:text-sm font-black text-[#1E1815] mt-2 truncate">
                     {visitMetrics.topBranchName || "None"}
                   </div>
                   <div className="text-[10px] text-[#7A6E67] font-semibold mt-1">
@@ -3369,7 +3371,7 @@ export default function AdminPage() {
               </div>
 
               {/* Customer Visits Ledger Card */}
-              <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 shadow-sm space-y-4">
+              <div className="bg-white border border-[#EAE3DC] rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-sm space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h3 className="font-extrabold text-base text-[#1E1815]">Customer Visit Check-in Ledger</h3>
@@ -3381,7 +3383,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Filter Toolbar */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-[#EAE3DC]">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-3 border-t border-[#EAE3DC]">
                   <div className="relative">
                     <input
                       type="text"
@@ -3423,7 +3425,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Visits Table */}
-                <div className="overflow-x-auto rounded-2xl border border-[#EAE3DC] mt-2">
+                <div className="overflow-x-auto w-full custom-scrollbar rounded-2xl border border-[#EAE3DC] mt-2">
                   <table className="w-full text-left text-xs text-[#1E1815]">
                     <thead className="bg-[#FAF7F4] border-b border-[#EAE3DC] text-[11px] uppercase tracking-wider text-[#7A6E67] font-bold">
                       <tr>
@@ -4687,11 +4689,11 @@ export default function AdminPage() {
               )}
 
               {/* Settings Category Tabs */}
-              <div className="flex flex-wrap items-center gap-2 border-b border-[#EAE3DC] pb-3">
+              <div className="flex items-center gap-1.5 sm:gap-2 border-b border-[#EAE3DC] pb-3 overflow-x-auto w-full custom-scrollbar flex-nowrap">
                 <button
                   type="button"
                   onClick={() => setSettingsCategory("general")}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${settingsCategory === "general"
+                  className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${settingsCategory === "general"
                     ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
                     : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
@@ -4702,7 +4704,7 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={() => setSettingsCategory("loyalty")}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${settingsCategory === "loyalty"
+                  className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${settingsCategory === "loyalty"
                     ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
                     : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
@@ -4713,7 +4715,7 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={() => setSettingsCategory("security")}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${settingsCategory === "security"
+                  className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${settingsCategory === "security"
                     ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
                     : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
@@ -4724,7 +4726,7 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={() => setSettingsCategory("password")}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${settingsCategory === "password"
+                  className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${settingsCategory === "password"
                     ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
                     : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
@@ -4738,7 +4740,7 @@ export default function AdminPage() {
               {/* TAB CONTENT: ADMIN PIN / PASSWORD UPDATE                 */}
               {/* ========================================================= */}
               {settingsCategory === "password" && (
-                <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 shadow-sm space-y-6">
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-sm space-y-4 sm:space-y-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EAE3DC] pb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
@@ -4865,15 +4867,15 @@ export default function AdminPage() {
               {/* HERO: INTERACTIVE LOYALTY POINTS & AED CONVERSION CALCULATOR */}
               {/* ========================================================= */}
               {settingsCategory === "loyalty" && (
-                <div className="bg-white text-[#1E1815] rounded-3xl p-6 sm:p-7 border border-[#EAE3DC] shadow-sm relative overflow-hidden space-y-6">
+                <div className="bg-white text-[#1E1815] rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-[#EAE3DC] shadow-sm relative overflow-hidden space-y-4 sm:space-y-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EAE3DC] pb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
+                      <div className="w-10 sm:w-11 h-10 sm:h-11 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
                         <Calculator className="w-5 h-5" />
                       </div>
                       <div>
-                        <h3 className="text-base font-black tracking-tight text-[#1E1815] flex items-center gap-2">
-                          <span>Loyalty Points & AED Conversion Engine</span>
+                        <h3 className="text-base font-black tracking-tight text-[#1E1815] flex items-center gap-2 flex-wrap">
+                          <span>Loyalty Points &amp; AED Conversion Engine</span>
                           <span className="px-2.5 py-0.5 rounded-full bg-[#C68A1E]/15 text-[#9E690B] border border-[#C68A1E]/30 text-[10px] font-black uppercase tracking-wider">
                             Live Calculator
                           </span>
@@ -4892,9 +4894,9 @@ export default function AdminPage() {
                   </div>
 
                   {/* Dual Rules Configuration Panel */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
                     {/* Rule 1: AED to Points (Earning) */}
-                    <div className="bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl p-5 space-y-4 shadow-2xs">
+                    <div className="bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl p-4 sm:p-5 space-y-3 sm:space-y-4 shadow-2xs">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Coins className="w-4 h-4 text-[#C68A1E]" />
@@ -4978,7 +4980,7 @@ export default function AdminPage() {
                     </div>
 
                     {/* Rule 2: Points to AED (Redemption) */}
-                    <div className="bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl p-5 space-y-4 shadow-2xs">
+                    <div className="bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl p-4 sm:p-5 space-y-3 sm:space-y-4 shadow-2xs">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Wallet className="w-4 h-4 text-[#1E7A4D]" />
@@ -5065,15 +5067,15 @@ export default function AdminPage() {
                   {/* ========================================================= */}
                   {/* LIVE SIMULATOR SANDBOX TESTER                             */}
                   {/* ========================================================= */}
-                  <div className="bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl p-5">
+                  <div className="bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl p-4 sm:p-5">
                     <div className="flex items-center gap-2 mb-4">
                       <Zap className="w-4 h-4 text-[#C0392B]" />
                       <h4 className="font-extrabold text-xs uppercase tracking-wider text-[#1E1815]">
-                        Live Calculator Simulator & Scenario Tester
+                        Live Calculator Simulator &amp; Scenario Tester
                       </h4>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                       {/* Simulator 1: Spend Bill Test */}
                       <div className="p-4 rounded-xl bg-white border border-[#EAE3DC] flex flex-col justify-between space-y-3 shadow-2xs">
                         <div>
@@ -5137,15 +5139,15 @@ export default function AdminPage() {
               {/* (Kitny visit pr kiya free mily ga - Admin Control)       */}
               {/* ========================================================= */}
               {settingsCategory === "loyalty" && (
-                <div className="bg-white rounded-3xl p-6 sm:p-7 border border-[#EAE3DC] shadow-sm space-y-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EAE3DC] pb-4">
+                <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-[#EAE3DC] shadow-sm space-y-4 sm:space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-[#EAE3DC] pb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
+                      <div className="w-10 sm:w-11 h-10 sm:h-11 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
                         <Gift className="w-5 h-5" />
                       </div>
                       <div>
-                        <h3 className="text-base font-black tracking-tight text-[#1E1815] flex items-center gap-2">
-                          <span>Visit Milestone & Free Perks Engine</span>
+                        <h3 className="text-base font-black tracking-tight text-[#1E1815] flex items-center gap-2 flex-wrap">
+                          <span>Visit Milestone &amp; Free Perks Engine</span>
                           <span className="px-2.5 py-0.5 rounded-full bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20 text-[10px] font-black uppercase tracking-wider">
                             {visitRewardsList.length} Milestones Configured
                           </span>
@@ -5159,7 +5161,7 @@ export default function AdminPage() {
                     <button
                       type="button"
                       onClick={openCreateVisitReward}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer shrink-0"
+                      className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer shrink-0"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Add Visit Milestone</span>
@@ -5189,11 +5191,11 @@ export default function AdminPage() {
 
                   {/* Milestone Cards Grid */}
                   {visitRewardsList.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                       {visitRewardsList.map((reward, index) => (
                         <div
                           key={reward.id}
-                          className={`p-5 rounded-2xl border transition-all flex flex-col justify-between relative overflow-hidden ${reward.isActive
+                          className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col justify-between relative overflow-hidden ${reward.isActive
                               ? "bg-[#FAF7F4] border-[#EAE3DC] shadow-2xs hover:shadow-md"
                               : "bg-[#F5F2EF]/60 border-[#E5DDD6] opacity-70"
                             }`}
@@ -5289,7 +5291,7 @@ export default function AdminPage() {
                       <button
                         type="button"
                         onClick={openCreateVisitReward}
-                        className="px-4 py-2 bg-[#C0392B] text-white font-bold text-xs rounded-xl shadow-md cursor-pointer hover:bg-[#A83226]"
+                        className="w-full sm:w-auto px-4 py-2 bg-[#C0392B] text-white font-bold text-xs rounded-xl shadow-md cursor-pointer hover:bg-[#A83226]"
                       >
                         Create First Milestone Reward
                       </button>
@@ -5300,8 +5302,8 @@ export default function AdminPage() {
 
               {/* General / Category Settings Form */}
               {settingsCategory !== "password" && (
-                <form onSubmit={handleSaveSettings} className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm space-y-6">
-                  <div className="flex items-center justify-between border-b border-[#EAE3DC] pb-3">
+                <form onSubmit={handleSaveSettings} className="bg-white border border-[#EAE3DC] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#EAE3DC] pb-3">
                     <h3 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
                       {settingsCategory === "general" && (
                         <>
@@ -5325,11 +5327,11 @@ export default function AdminPage() {
                     <span className="text-xs text-[#7A6E67] font-semibold">{filteredSettings.length} Parameters</span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     {filteredSettings.map((item) => (
                       <div
                         key={item.key}
-                        className="p-4 rounded-2xl border border-[#EFE8E1] bg-[#FAF7F4] flex flex-col justify-between"
+                        className="p-3.5 sm:p-4 rounded-2xl border border-[#EFE8E1] bg-[#FAF7F4] flex flex-col justify-between"
                       >
                         <div className="mb-3">
                           <label className="block text-xs font-bold text-[#1E1815] mb-1" htmlFor={item.key}>
@@ -5354,14 +5356,14 @@ export default function AdminPage() {
                     ))}
                   </div>
 
-                  <div className="pt-4 border-t border-[#EAE3DC] flex items-center justify-between">
+                  <div className="pt-4 border-t border-[#EAE3DC] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="text-xs text-[#7A6E67]">
                       Changes will take effect immediately across all customer and staff apps.
                     </div>
                     <button
                       type="submit"
                       disabled={settingsSaving}
-                      className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer disabled:opacity-50"
+                      className="w-full sm:w-auto justify-center flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer disabled:opacity-50"
                     >
                       <Save className="w-4 h-4" />
                       <span>{settingsSaving ? "Saving Config…" : "Save Settings"}</span>
@@ -5376,15 +5378,15 @@ export default function AdminPage() {
           {/* TAB 7: SECURITY & AUDIT LOG                                    */}
           {/* ============================================================== */}
           {tab === "audit" && (
-            <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
+            <div className="bg-white border border-[#EAE3DC] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <h2 className="font-extrabold text-base text-[#1E1815]">Security Audit Log</h2>
                   <p className="text-xs text-[#7A6E67]">
                     Immutable audit trail of management logins, billings, reverse transactions, and branch updates.
                   </p>
                 </div>
-                <span className="px-3 py-1 rounded-full bg-[#1E7A4D]/10 text-[#1E7A4D] font-bold text-xs">
+                <span className="px-3 py-1 rounded-full bg-[#1E7A4D]/10 text-[#1E7A4D] font-bold text-xs w-fit">
                   Encrypted Ledger
                 </span>
               </div>
@@ -5392,9 +5394,9 @@ export default function AdminPage() {
               <div className="divide-y divide-[#EFE8E1]">
                 {audit?.logs && audit.logs.length > 0 ? (
                   audit.logs.map((l: any) => (
-                    <div key={l.id} className="py-3 flex items-start justify-between gap-4">
+                    <div key={l.id} className="py-3 flex flex-col sm:flex-row sm:items-start justify-between gap-2 sm:gap-4">
                       <div>
-                        <div className="font-bold text-xs text-[#1E1815] flex items-center gap-2">
+                        <div className="font-bold text-xs text-[#1E1815] flex items-center gap-2 flex-wrap">
                           <span className="px-2 py-0.5 rounded bg-[#FAF7F4] border border-[#EAE3DC] font-mono text-[10px]">
                             {l.action}
                           </span>
