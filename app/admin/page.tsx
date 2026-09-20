@@ -651,6 +651,13 @@ export default function AdminPage() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+    } catch {}
+    window.location.href = "/admin/login";
+  };
+
   // Settings tab & Calculator Simulator
   const [settingsList, setSettingsList] = useState<any[]>([]);
   const [settingsForm, setSettingsForm] = useState<Record<string, string>>({
@@ -1752,13 +1759,14 @@ export default function AdminPage() {
               <div className="font-bold text-xs text-[#1E1815] truncate">{session.name}</div>
               <div className="text-[10px] text-[#7A6E67] truncate font-medium">{session.role}</div>
             </div>
-            <a
-              href="/api/admin/logout"
+            <button
+              type="button"
+              onClick={handleLogout}
               title="Sign Out"
-              className="p-1.5 rounded-lg text-[#7A6E67] hover:text-[#801313] hover:bg-[#EFE9E2] transition-colors"
+              className="p-1.5 rounded-lg text-[#7A6E67] hover:text-[#801313] hover:bg-[#EFE9E2] transition-colors cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
-            </a>
+            </button>
           </div>
         </div>
       </aside>

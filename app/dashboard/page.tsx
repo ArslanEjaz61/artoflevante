@@ -227,6 +227,13 @@ export default function CustomerDashboardPage() {
     loadCard();
   }, [loadCard]);
 
+  async function handleLogout() {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {}
+    window.location.href = "/";
+  }
+
   function handleShare() {
     if (typeof navigator !== "undefined" && navigator.share) {
       navigator
@@ -1062,12 +1069,13 @@ export default function CustomerDashboardPage() {
 
             {/* Logout Action */}
             <div className="pt-3 border-t border-[#EAE3DC]">
-              <a
-                href="/api/auth/logout"
-                className="w-full py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100 text-[#801313] font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-full py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100 text-[#801313] font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <LogOut className="w-4 h-4" /> Sign Out / Switch Account
-              </a>
+              </button>
             </div>
           </div>
         </div>
