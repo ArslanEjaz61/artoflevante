@@ -3917,16 +3917,16 @@ export default function AdminPage() {
                   {outletActionMode === "points" && (
                     <div className="pt-2 animate-in fade-in duration-200">
                       {!outletSuccessReceipt ? (
-                        <div className="p-6 rounded-3xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-5">
+                        <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-5">
                           <div>
-                            <h4 className="font-extrabold text-base text-[#1E1815]">Give Loyalty Points on Dine-in Bill</h4>
+                            <h4 className="font-extrabold text-sm sm:text-base text-[#1E1815]">Give Loyalty Points on Dine-in Bill</h4>
                             <p className="text-xs text-[#7A6E67] mt-0.5">
                               Enter invoice # and bill amount to award points and stamp visit.
                             </p>
                           </div>
 
                           <form onSubmit={handleAdminRecordSale} className="space-y-4 pt-2 border-t border-[#EAE3DC]">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
                               <div>
                                 <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="admin-inv-input">
                                   Invoice / Receipt #
@@ -3938,7 +3938,7 @@ export default function AdminPage() {
                                   value={outletInvoiceNumber}
                                   onChange={(e) => setOutletInvoiceNumber(e.target.value.toUpperCase())}
                                   required
-                                  className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                                  className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
                                 />
                               </div>
 
@@ -3955,7 +3955,7 @@ export default function AdminPage() {
                                   value={outletBillAmount}
                                   onChange={(e) => setOutletBillAmount(e.target.value)}
                                   required
-                                  className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                                  className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
                                 />
                               </div>
                             </div>
@@ -4014,16 +4014,16 @@ export default function AdminPage() {
                               <button
                                 type="submit"
                                 disabled={outletSubmittingBill || !outletInvoiceNumber.trim() || !outletBillAmount.trim()}
-                                className="flex-1 py-4 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="flex-1 py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider sm:tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 text-center"
                               >
                                 {outletSubmittingBill ? (
                                   <>
-                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
                                     <span>RECORDING TRANSACTION…</span>
                                   </>
                                 ) : (
                                   <>
-                                    <DollarSign className="w-4 h-4" />
+                                    <DollarSign className="w-4 h-4 shrink-0" />
                                     <span>RECORD SALE &amp; AWARD POINTS</span>
                                   </>
                                 )}
@@ -4100,18 +4100,18 @@ export default function AdminPage() {
                   {outletActionMode === "redeem_points" && (
                     <div className="pt-2 animate-in fade-in duration-200">
                       {!outletSuccessReceipt ? (
-                        <div className="p-6 rounded-3xl bg-[#FFFBF0] border border-[#E5A93C]/40 space-y-5">
-                          <div className="flex items-center justify-between pb-3 border-b border-[#E5A93C]/30">
-                            <div className="flex items-center gap-2.5">
-                              <Coins className="w-6 h-6 text-[#C68A1E]" />
+                        <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#FFFBF0] border border-[#E5A93C]/40 space-y-5">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E5A93C]/30">
+                            <div className="flex items-start sm:items-center gap-2.5">
+                              <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-[#C68A1E] shrink-0 mt-0.5 sm:mt-0" />
                               <div>
-                                <h4 className="font-extrabold text-base text-[#1E1815]">Redeem Points for Direct Cash Discount</h4>
-                                <p className="text-xs text-[#7A6E67] font-medium">
+                                <h4 className="font-extrabold text-sm sm:text-base text-[#1E1815] leading-tight">Redeem Points for Direct Cash Discount</h4>
+                                <p className="text-xs text-[#7A6E67] font-medium mt-0.5">
                                   Customer currently has <strong className="text-[#801313] font-bold">{outletCustomer.pointsBalance} points</strong> available.
                                 </p>
                               </div>
                             </div>
-                            <span className="px-3 py-1 rounded-lg bg-[#E5A93C]/20 text-[#801313] text-xs font-black">
+                            <span className="self-start sm:self-auto px-3 py-1 rounded-lg bg-[#E5A93C]/20 text-[#801313] text-xs font-black shrink-0">
                               {outletLoyaltyRules.pointsRequiredForRedemption} pts = {outletLoyaltyRules.currency} {outletLoyaltyRules.currencyValuePerRedemptionPoints} off
                             </span>
                           </div>
@@ -4186,34 +4186,36 @@ export default function AdminPage() {
                               </div>
 
                               {/* Custom Points Input */}
-                              <div className="flex items-center gap-2 pt-2">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 pt-2">
                                 <label className="text-xs text-[#7A6E67] font-semibold shrink-0">Custom Points:</label>
-                                <input
-                                  type="number"
-                                  step={outletLoyaltyRules.pointsRequiredForRedemption}
-                                  max={outletCustomer.pointsBalance}
-                                  min={0}
-                                  placeholder={`Multiples of ${outletLoyaltyRules.pointsRequiredForRedemption}`}
-                                  value={outletCustomRedeem}
-                                  onChange={(e) => {
-                                    const v = e.target.value;
-                                    setOutletCustomRedeem(v);
-                                    const num = parseInt(v) || 0;
-                                    if (num <= outletCustomer.pointsBalance && num >= 0) {
-                                      setOutletPointsToRedeem(num);
-                                    }
-                                  }}
-                                  className="w-48 px-3.5 py-2 bg-white border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
-                                />
-                                {outletPointsToRedeem > 0 && (
-                                  <span className="text-xs font-bold text-emerald-800">
-                                    = -{outletLoyaltyRules.currency} {outletDirectPointsDiscount.toFixed(2)} discount
-                                  </span>
-                                )}
+                                <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                                  <input
+                                    type="number"
+                                    step={outletLoyaltyRules.pointsRequiredForRedemption}
+                                    max={outletCustomer.pointsBalance}
+                                    min={0}
+                                    placeholder={`Multiples of ${outletLoyaltyRules.pointsRequiredForRedemption}`}
+                                    value={outletCustomRedeem}
+                                    onChange={(e) => {
+                                      const v = e.target.value;
+                                      setOutletCustomRedeem(v);
+                                      const num = parseInt(v) || 0;
+                                      if (num <= outletCustomer.pointsBalance && num >= 0) {
+                                        setOutletPointsToRedeem(num);
+                                      }
+                                    }}
+                                    className="w-full sm:w-48 px-3.5 py-2.5 bg-white border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                                  />
+                                  {outletPointsToRedeem > 0 && (
+                                    <span className="text-xs font-bold text-emerald-800 shrink-0">
+                                      = -{outletLoyaltyRules.currency} {outletDirectPointsDiscount.toFixed(2)} discount
+                                    </span>
+                                  )}
+                                </div>
                               </div>
 
                               {/* Bill inputs */}
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-[#E5A93C]/30">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 pt-3 border-t border-[#E5A93C]/30">
                                 <div>
                                   <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="admin-redeem-inv-input">
                                     Invoice / Receipt #
@@ -4225,7 +4227,7 @@ export default function AdminPage() {
                                     value={outletInvoiceNumber}
                                     onChange={(e) => setOutletInvoiceNumber(e.target.value.toUpperCase())}
                                     required
-                                    className="w-full px-4 py-3 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
                                   />
                                 </div>
 
@@ -4242,7 +4244,7 @@ export default function AdminPage() {
                                     value={outletBillAmount}
                                     onChange={(e) => setOutletBillAmount(e.target.value)}
                                     required
-                                    className="w-full px-4 py-3 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
                                   />
                                 </div>
                               </div>
@@ -4286,17 +4288,17 @@ export default function AdminPage() {
                               <button
                                 type="submit"
                                 disabled={outletSubmittingBill || !outletInvoiceNumber.trim() || !outletBillAmount.trim() || outletPointsToRedeem <= 0}
-                                className="w-full py-4 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="w-full py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider sm:tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 text-center"
                               >
                                 {outletSubmittingBill ? (
                                   <>
-                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
                                     <span>REDEEMING POINTS…</span>
                                   </>
                                 ) : (
                                   <>
-                                    <Coins className="w-4 h-4" />
-                                    <span>CONFIRM POINT REDEMPTION ({outletPointsToRedeem} PTS = -{outletLoyaltyRules.currency} {outletDirectPointsDiscount.toFixed(2)})</span>
+                                    <Coins className="w-4 h-4 shrink-0" />
+                                    <span className="break-words">CONFIRM POINT REDEMPTION ({outletPointsToRedeem} PTS = -{outletLoyaltyRules.currency} {outletDirectPointsDiscount.toFixed(2)})</span>
                                   </>
                                 )}
                               </button>
@@ -4381,10 +4383,10 @@ export default function AdminPage() {
 
                   {/* ACTION PANEL 3: REDEEM VISIT OFFER */}
                   {outletActionMode === "reward" && (
-                    <div className="pt-2 animate-in fade-in duration-200 space-y-5">
-                      <div className="flex items-center justify-between">
+                    <div className="pt-2 animate-in fade-in duration-200 space-y-4 sm:space-y-5">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
                         <div className="text-xs font-black tracking-wider uppercase text-[#801313] flex items-center gap-2">
-                          <Gift className="w-4 h-4 text-[#801313]" />
+                          <Gift className="w-4 h-4 text-[#801313] shrink-0" />
                           <span>UNLOCKED VISIT OFFERS &amp; MEMBER GIFTS</span>
                         </div>
                         <span className="text-xs font-bold text-[#7A6E67]">
@@ -4393,7 +4395,7 @@ export default function AdminPage() {
                       </div>
 
                       {outletRewardSuccessReceipt && (
-                        <div className="p-4.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex items-center justify-between text-xs font-medium animate-in fade-in">
+                        <div className="p-4 sm:p-4.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex items-center justify-between text-xs font-medium animate-in fade-in">
                           <div className="flex items-center gap-2.5">
                             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                             <div>
@@ -4426,15 +4428,15 @@ export default function AdminPage() {
                             return (
                               <div
                                 key={reward.id}
-                                className="p-4.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex flex-col justify-between gap-3.5 shadow-2xs hover:border-[#801313]/40 transition-colors"
+                                className="p-4 sm:p-4.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex flex-col justify-between gap-3 shadow-2xs hover:border-[#801313]/40 transition-colors"
                               >
                                 <div className="flex items-start justify-between gap-2">
-                                  <div>
+                                  <div className="min-w-0">
                                     <div className="flex items-center gap-2">
-                                      <h4 className="font-extrabold text-sm text-[#1E1815]">{reward.name}</h4>
+                                      <h4 className="font-extrabold text-sm sm:text-base text-[#1E1815] leading-snug break-words">{reward.name}</h4>
                                     </div>
                                     {reward.description && (
-                                      <p className="text-xs text-[#7A6E67] font-medium mt-1">
+                                      <p className="text-xs text-[#7A6E67] font-medium mt-1 leading-relaxed">
                                         {reward.description}
                                       </p>
                                     )}
@@ -4451,8 +4453,8 @@ export default function AdminPage() {
                                   </span>
                                 </div>
 
-                                <div className="pt-2 border-t border-[#EAE3DC] flex items-center justify-between">
-                                  <span className="text-[10px] text-[#7A6E67] font-mono">
+                                <div className="pt-2.5 border-t border-[#EAE3DC] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                                  <span className="text-[11px] text-[#7A6E67] font-mono">
                                     {reward.expiresAt ? `Valid till ${new Date(reward.expiresAt).toLocaleDateString()}` : "No expiry date"}
                                   </span>
 
@@ -4460,16 +4462,16 @@ export default function AdminPage() {
                                     type="button"
                                     disabled={isBusy}
                                     onClick={() => handleAdminRedeemReward(reward.id)}
-                                    className="px-4 py-2 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
                                   >
                                     {isBusy ? (
                                       <>
-                                        <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
                                         <span>REDEEMING…</span>
                                       </>
                                     ) : (
                                       <>
-                                        <Gift className="w-3.5 h-3.5" />
+                                        <Gift className="w-3.5 h-3.5 shrink-0" />
                                         <span>REDEEM &amp; DELIVER</span>
                                       </>
                                     )}
@@ -4480,7 +4482,7 @@ export default function AdminPage() {
                           })}
                         </div>
                       ) : (
-                        <div className="p-8 rounded-3xl bg-[#FAF7F4] border border-[#EAE3DC] text-center space-y-3">
+                        <div className="p-6 sm:p-8 rounded-3xl bg-[#FAF7F4] border border-[#EAE3DC] text-center space-y-3">
                           <div className="w-12 h-12 rounded-full bg-white border border-[#EAE3DC] flex items-center justify-center mx-auto text-[#7A6E67]">
                             <Gift className="w-6 h-6 text-[#7A6E67]" />
                           </div>

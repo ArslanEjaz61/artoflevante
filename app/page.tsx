@@ -521,14 +521,14 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
       {/* 3. VERIFICATION CODE (OTP) VIEW                                */}
       {/* ============================================================== */}
       {view === "code" && (
-        <div className="w-full bg-white rounded-3xl p-6 sm:p-7 shadow-xl border border-[#EAE3DC] transition-all">
+        <div className="w-full bg-white rounded-3xl p-5 sm:p-7 shadow-xl border border-[#EAE3DC] transition-all">
           <button
             onClick={() => {
               setView("form");
               setCode("");
               setErr("");
             }}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#7A6E67] hover:text-[#1E1815] mb-4 cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#7A6E67] hover:text-[#1E1815] mb-3.5 cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Change Number
@@ -537,7 +537,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
           <h2 className="text-xl font-black text-[#1E1815] mb-1">
             Enter 6-digit Code
           </h2>
-          <p className="text-xs text-[#7A6E67] mb-5">
+          <p className="text-xs text-[#7A6E67] mb-4 sm:mb-5 leading-relaxed">
             We sent a verification code to{" "}
             <strong className="text-[#1E1815] font-bold">
               +{f.countryCode} {f.mobile}
@@ -547,7 +547,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
           <form onSubmit={verify} className="space-y-4">
             <div>
               <input
-                className="w-full py-3.5 text-center text-3xl font-black tracking-[0.35em] bg-[#FAF7F4] border-2 border-[#EAE3DC] focus:border-[#970709] rounded-2xl text-[#1E1815] focus:outline-none transition-all font-mono"
+                className="w-full py-3 sm:py-3.5 text-center text-2xl sm:text-3xl font-black tracking-[0.22em] sm:tracking-[0.35em] bg-[#FAF7F4] border-2 border-[#EAE3DC] focus:border-[#970709] rounded-2xl text-[#1E1815] focus:outline-none transition-all font-mono"
                 inputMode="numeric"
                 maxLength={6}
                 placeholder="000000"

@@ -389,30 +389,30 @@ export default function CustomerDashboardPage() {
   const firstName = customer?.name ? customer.name.trim().split(" ")[0] : "VIP Member";
 
   return (
-    <div className="min-h-screen bg-[#F0DBDB] text-[#1E1815] pb-24 px-4 pt-5 max-w-md mx-auto selection:bg-[#801313] selection:text-white">
+    <div className="min-h-screen bg-[#F0DBDB] text-[#1E1815] pb-24 px-3.5 sm:px-4 pt-3.5 sm:pt-5 max-w-md w-full mx-auto selection:bg-[#801313] selection:text-white">
       {/* Toast Notification */}
       {toast && (
-        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#1E1815] text-white px-4 py-2.5 rounded-full text-xs font-bold shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
-          <CheckCircle2 className="w-4 h-4 text-[#E5A93C]" />
-          <span>{toast}</span>
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#1E1815] text-white px-4 py-2.5 rounded-full text-xs font-bold shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-top-4 max-w-[90vw] text-center">
+          <CheckCircle2 className="w-4 h-4 text-[#E5A93C] shrink-0" />
+          <span className="truncate">{toast}</span>
         </div>
       )}
 
       {/* ============================================================== */}
       {/* 1. TOP HEADER (With Brand Avatar & Hamburger Menu)             */}
       {/* ============================================================== */}
-      <header className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
+      <header className="flex items-center justify-between mb-3.5 sm:mb-4">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           {/* Brand Logo Avatar */}
-          <div className="w-14 h-14 sm:w-16 sm:h-16 shrink-0">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/bc-roundel.png" alt="Bombay Chowpatty" className="w-full h-full object-contain" />
           </div>
-          <div>
-            <div className="font-display font-bold uppercase tracking-[0.02em] text-[19px] sm:text-[21px] leading-none text-[#FEF7C5] [text-shadow:0_1px_2px_rgba(120,20,20,0.45)]">
+          <div className="min-w-0">
+            <div className="font-display font-bold uppercase tracking-[0.02em] text-[16px] sm:text-[21px] leading-none text-[#FEF7C5] [text-shadow:0_1px_2px_rgba(120,20,20,0.45)] truncate">
               Welcome Back
             </div>
-            <h1 className="font-display text-[19px] sm:text-[21px] font-bold text-[#1E1815] leading-tight mt-0.5">
+            <h1 className="font-display text-[17px] sm:text-[21px] font-bold text-[#1E1815] leading-tight mt-0.5 truncate">
               {firstName}
             </h1>
           </div>
@@ -475,29 +475,29 @@ export default function CustomerDashboardPage() {
       {/* ============================================================== */}
       {/* 4. AVAILABLE POINTS VELVET CARD                                */}
       {/* ============================================================== */}
-      <div className="rounded-3xl bg-[#970709] px-5 sm:px-6 pt-4 pb-5 shadow-md mb-4 relative overflow-hidden">
+      <div className="rounded-3xl bg-[#970709] px-4.5 sm:px-6 pt-4 pb-5 shadow-md mb-4 relative overflow-hidden">
         {/* Subtle Decorative Background Ring */}
         <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full bg-white/5 blur-xl pointer-events-none" />
 
         <div className="relative z-10">
-          <div className="font-display font-extrabold uppercase tracking-[0.01em] text-[#FEF7C5] text-[24px] sm:text-[26px] leading-tight">
+          <div className="font-display font-extrabold uppercase tracking-[0.01em] text-[#FEF7C5] text-[20px] sm:text-[26px] leading-tight">
             Available Points
           </div>
 
-          <div className="flex items-end justify-between gap-3">
-            <div className="font-display font-extrabold text-[#CC8820] text-[72px] sm:text-[80px] leading-[0.9] -mt-1">
+          <div className="flex items-end justify-between gap-2 sm:gap-3">
+            <div className="font-display font-extrabold text-[#CC8820] text-[58px] xs:text-[68px] sm:text-[80px] leading-[0.9] -mt-1 truncate">
               {customer.pointsBalance}
             </div>
 
             {/* Golden Ribbon / Medallion Emblem */}
-            <Award className="w-[76px] h-[76px] sm:w-[84px] sm:h-[84px] text-[#CC8820] stroke-[1.5] shrink-0 mb-1" />
+            <Award className="w-[64px] h-[64px] sm:w-[84px] sm:h-[84px] text-[#CC8820] stroke-[1.5] shrink-0 mb-1" />
           </div>
 
-          <div className="flex items-end justify-between gap-3 -mt-1">
-            <div className="font-display font-bold text-white text-[13px] sm:text-[14px]">
+          <div className="flex items-end justify-between gap-2 sm:gap-3 -mt-1 flex-wrap">
+            <div className="font-display font-bold text-white text-[12px] sm:text-[14px]">
               {loyaltyRules?.pointsRequiredForRedemption || 100} Points = {currency} {loyaltyRules?.currencyValuePerRedemptionPoints || 1}
             </div>
-            <div className="font-display font-bold uppercase text-white text-[15px] sm:text-[16px] shrink-0">
+            <div className="font-display font-bold uppercase text-white text-[13px] sm:text-[16px] shrink-0">
               Tap to redeem
             </div>
           </div>
@@ -571,36 +571,36 @@ export default function CustomerDashboardPage() {
       {/* ============================================================== */}
       {/* 6. MEMBERSHIP QR CARD                                          */}
       {/* ============================================================== */}
-      <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-sm text-center mb-4">
+      <div className="bg-white rounded-3xl p-5 sm:p-7 shadow-sm text-center mb-4">
         {/* Header Label */}
         <div className="flex items-center justify-center gap-2 mb-1.5">
           <QrCode className="w-[18px] h-[18px] text-[#8A7F7C]" />
-          <span className="font-display text-[15px] font-semibold tracking-[0.06em] text-[#8A7F7C] uppercase">
+          <span className="font-display text-[14px] sm:text-[15px] font-semibold tracking-[0.06em] text-[#8A7F7C] uppercase">
             Your Membership QR
           </span>
         </div>
-        <h3 className="font-display text-[19px] sm:text-[20px] font-bold text-[#970709] mb-5">
+        <h3 className="font-display text-[18px] sm:text-[20px] font-bold text-[#970709] mb-4 sm:mb-5">
           Scan at any outlet
         </h3>
 
         {/* QR Code */}
-        <div className="bg-[#FAF7F4] p-3.5 rounded-2xl inline-block mb-4 shadow-inner">
+        <div className="bg-[#FAF7F4] p-3 sm:p-3.5 rounded-2xl inline-block mb-3.5 sm:mb-4 shadow-inner max-w-full">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={qr.image}
             alt="Membership QR"
-            className="w-52 h-52 sm:w-56 sm:h-56 rounded-xl block"
+            className="w-48 h-48 sm:w-56 sm:h-56 rounded-xl block mx-auto object-contain"
           />
         </div>
 
         {/* Monospace Code */}
-        <div className="font-mono text-[15px] sm:text-base font-bold text-[#970709] tracking-[0.18em]">
+        <div className="font-mono text-sm sm:text-base font-bold text-[#970709] tracking-[0.16em] sm:tracking-[0.18em]">
           {qr.code}
         </div>
 
         {/* Helper micro-copy */}
-        <p className="font-display text-[14px] text-[#8A7F7C] leading-[1.45] max-w-[270px] mx-auto mt-2.5">
-          Show this QR to the cashier. Scanning opens your loyalty profile without sharing your mobile number.
+        <p className="font-display text-xs sm:text-[14px] text-[#8A7F7C] leading-[1.45] max-w-[270px] mx-auto mt-2">
+          Show this QR to cashier. Scanning opens your profile without sharing mobile number.
         </p>
       </div>
 

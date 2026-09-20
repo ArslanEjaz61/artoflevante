@@ -649,14 +649,14 @@ function OutletContent() {
     return (
       <div className="min-h-screen bg-[#F0DBDB] flex flex-col font-sans selection:bg-[#970709] selection:text-white">
         <CrmTopHeader activeTab="outlet" />
-        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6">
-          <div className="max-w-md w-full bg-white rounded-3xl sm:rounded-4xl p-8 sm:p-10 shadow-sm border border-[#EAE3DC] text-center relative animate-in fade-in zoom-in duration-200">
+        <div className="flex-1 flex flex-col items-center justify-center p-3.5 sm:p-6">
+          <div className="max-w-md w-full bg-white rounded-3xl sm:rounded-4xl p-6 sm:p-10 shadow-sm border border-[#EAE3DC] text-center relative animate-in fade-in zoom-in duration-200">
           {/* Brand mark */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/bc-roundel.png"
             alt="Bombay Chowpatty"
-            className="w-20 h-20 object-contain mx-auto mb-4"
+            className="w-16 h-16 sm:w-20 sm:h-20 object-contain mx-auto mb-3 sm:mb-4"
           />
 
           {/* Subtitle */}
@@ -744,53 +744,48 @@ function OutletContent() {
   return (
     <div className="min-h-screen bg-[#F0DBDB] flex flex-col font-sans selection:bg-[#970709] selection:text-white">
       <CrmTopHeader activeTab="outlet" />
-      <div className="flex-1 py-6 px-4 sm:px-6">
+      <div className="flex-1 py-4 sm:py-6 px-3 sm:px-6">
         <div className="max-w-4xl mx-auto">
         {/* Top Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-3.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 mb-5 sm:mb-6">
+          <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/bc-roundel.png"
               alt="Bombay Chowpatty"
-              className="w-14 h-14 sm:w-16 sm:h-16 object-contain shrink-0"
+              className="w-12 h-12 sm:w-16 sm:h-16 object-contain shrink-0"
             />
-            <div>
+            <div className="min-w-0">
               {/* Highlighted Branch Badge */}
-              <div className="inline-flex items-center flex-wrap gap-2 px-3 py-1 rounded-full bg-[#801313]/10 border border-[#801313]/25 text-[#801313] text-xs font-black tracking-wide mb-1.5 shadow-2xs">
+              <div className="inline-flex items-center flex-wrap gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-[#801313]/10 border border-[#801313]/25 text-[#801313] text-[11px] sm:text-xs font-black tracking-wide mb-1 shadow-2xs max-w-full truncate">
                 <Building2 className="w-3.5 h-3.5 text-[#801313] shrink-0" />
-                <span className="font-extrabold uppercase">Branch: {activeBranch.name}</span>
-                <span className="px-1.5 py-0.5 rounded-md bg-[#801313] text-white text-[10px] font-mono font-bold">
-                  Code: #{activeBranch.code}
+                <span className="font-extrabold uppercase truncate">{activeBranch.name}</span>
+                <span className="px-1.5 py-0.5 rounded-md bg-[#801313] text-white text-[10px] font-mono font-bold shrink-0">
+                  #{activeBranch.code}
                 </span>
-                {activeBranch.city && (
-                  <span className="text-[#7A6E67] font-semibold text-[11px]">
-                    · {activeBranch.city}
-                  </span>
-                )}
               </div>
 
-              <h1 className="text-3xl sm:text-4xl font-display font-extrabold text-[#1E1815]">
+              <h1 className="text-2xl sm:text-4xl font-display font-extrabold text-[#1E1815] leading-tight">
                 Outlet loyalty entry
               </h1>
               <p className="text-xs sm:text-sm text-[#7A6E67] font-medium mt-0.5">
-                Open the customer profile by mobile number or membership QR.
+                Open customer profile by mobile or membership QR.
               </p>
             </div>
           </div>
 
           <button
             onClick={handleSwitchOutlet}
-            className="self-start sm:self-center inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4] text-xs font-black text-[#801313] shadow-2xs transition-all cursor-pointer group"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4] text-xs font-black text-[#801313] shadow-2xs transition-all cursor-pointer group shrink-0"
             title="Exit this branch and login to another branch"
           >
-            <LogOut className="w-4 h-4 text-[#801313] group-hover:-translate-x-0.5 transition-transform" />
-            <span>Exit {activeBranch.name} (Switch Branch)</span>
+            <LogOut className="w-4 h-4 text-[#801313] group-hover:-translate-x-0.5 transition-transform shrink-0" />
+            <span>Switch Branch</span>
           </button>
         </div>
 
         {/* Main Search Card */}
-        <div className="bg-white rounded-3xl sm:rounded-4xl p-6 sm:p-8 border border-[#EAE3DC] shadow-sm mb-6">
+        <div className="bg-white rounded-3xl sm:rounded-4xl p-4.5 sm:p-8 border border-[#EAE3DC] shadow-sm mb-5 sm:mb-6">
           {/* Two Top Toggle Tabs */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-6">
             {/* Tab 1: Enter mobile number */}
@@ -980,27 +975,27 @@ function OutletContent() {
         {/* SCREEN 2 (EXTENDED): CUSTOMER PROFILE & 3 ACTION MODE DESK     */}
         {/* ============================================================== */}
         {screen === "customer" && customer && (
-          <div className="bg-white rounded-3xl sm:rounded-4xl p-6 sm:p-8 border border-[#EAE3DC] shadow-md animate-in fade-in slide-in-from-bottom-3 duration-200 space-y-6">
+          <div className="bg-white rounded-3xl sm:rounded-4xl p-4.5 sm:p-8 border border-[#EAE3DC] shadow-md animate-in fade-in slide-in-from-bottom-3 duration-200 space-y-5 sm:space-y-6">
             
-            {/* 1. TOP CUSTOMER HEADER CARD (Exact design matching reference image) */}
-            <div className="bg-[#FAF5F0] rounded-2xl p-4.5 sm:p-5 border border-[#EFE8E0] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3.5">
+            {/* 1. TOP CUSTOMER HEADER CARD */}
+            <div className="bg-[#FAF5F0] rounded-2xl p-4 sm:p-5 border border-[#EFE8E0] flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4">
+              <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
                 {/* Circular Avatar Icon */}
-                <div className="w-12 h-12 sm:w-13 sm:h-13 rounded-full border-2 border-[#970709] flex items-center justify-center text-[#970709] shrink-0 bg-white shadow-2xs">
-                  <User className="w-6 h-6 sm:w-7 sm:h-7 stroke-[1.8] text-[#970709]" />
+                <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full border-2 border-[#970709] flex items-center justify-center text-[#970709] shrink-0 bg-white shadow-2xs">
+                  <User className="w-5 h-5 sm:w-7 sm:h-7 stroke-[1.8] text-[#970709]" />
                 </div>
-                <div>
-                  <h2 className="font-display font-black text-xl sm:text-2xl text-[#1E1815] leading-tight">
+                <div className="min-w-0">
+                  <h2 className="font-display font-black text-lg sm:text-2xl text-[#1E1815] leading-tight truncate">
                     {customer.name}
                   </h2>
-                  <p className="text-xs text-[#7A6E67] font-medium mt-0.5">
-                    Repeat visits: {activeBranch.name}
+                  <p className="text-xs text-[#7A6E67] font-medium mt-0.5 truncate">
+                    {activeBranch.name}
                   </p>
                 </div>
               </div>
 
               {/* Stat Columns with Divider */}
-              <div className="flex items-center gap-4 sm:gap-6 self-start sm:self-center bg-white/70 sm:bg-transparent p-2 sm:p-0 rounded-xl border sm:border-0 border-[#EAE3DC]">
+              <div className="w-full sm:w-auto flex items-center justify-around sm:justify-start gap-4 sm:gap-6 bg-white sm:bg-transparent p-2.5 sm:p-0 rounded-xl border sm:border-0 border-[#EAE3DC] shrink-0">
                 <div className="text-center px-2 sm:px-4">
                   <div className="font-display font-black text-xl sm:text-2xl text-[#1E1815] leading-none">
                     {customer.pointsBalance}
@@ -1010,7 +1005,7 @@ function OutletContent() {
                   </div>
                 </div>
 
-                <div className="w-[1px] h-9 bg-[#E5DDD5]" />
+                <div className="w-[1px] h-8 bg-[#E5DDD5]" />
 
                 <div className="text-center px-2 sm:px-4">
                   <div className="font-display font-black text-xl sm:text-2xl text-[#1E1815] leading-none">
@@ -1024,7 +1019,7 @@ function OutletContent() {
             </div>
 
             {/* 2. THREE PROMINENT ACTION MODE CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3.5">
               {/* Card 1: Give loyalty points */}
               <button
                 type="button"
@@ -1125,16 +1120,16 @@ function OutletContent() {
             {actionMode === "points" && (
               <div className="pt-2 animate-in fade-in duration-200">
                 {!successReceipt ? (
-                  <div className="p-6 rounded-3xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-5">
+                  <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-5">
                     <div>
-                      <h4 className="font-extrabold text-base text-[#1E1815]">Give Loyalty Points on Dine-in Bill</h4>
+                      <h4 className="font-extrabold text-sm sm:text-base text-[#1E1815]">Give Loyalty Points on Dine-in Bill</h4>
                       <p className="text-xs text-[#7A6E67] mt-0.5">
                         Enter invoice # and bill amount to award points and stamp visit.
                       </p>
                     </div>
 
                     <form onSubmit={handleRecordSale} className="space-y-4 pt-2 border-t border-[#EAE3DC]">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
                         <div>
                           <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="outlet-inv-input">
                             Invoice / Receipt #
@@ -1146,7 +1141,7 @@ function OutletContent() {
                             value={invoiceNumber}
                             onChange={(e) => setInvoiceNumber(e.target.value.toUpperCase())}
                             required
-                            className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
+                            className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
                           />
                         </div>
 
@@ -1163,7 +1158,7 @@ function OutletContent() {
                             value={billAmount}
                             onChange={(e) => setBillAmount(e.target.value)}
                             required
-                            className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
+                            className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
                           />
                         </div>
                       </div>
@@ -1222,16 +1217,16 @@ function OutletContent() {
                         <button
                           type="submit"
                           disabled={submittingBill || !invoiceNumber.trim() || !billAmount.trim()}
-                          className="flex-1 py-4 px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                          className="flex-1 py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-wider sm:tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 text-center"
                         >
                           {submittingBill ? (
                             <>
-                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
                               <span>RECORDING TRANSACTION…</span>
                             </>
                           ) : (
                             <>
-                              <DollarSign className="w-4 h-4" />
+                              <DollarSign className="w-4 h-4 shrink-0" />
                               <span>RECORD SALE &amp; AWARD POINTS</span>
                             </>
                           )}
@@ -1249,18 +1244,18 @@ function OutletContent() {
             {actionMode === "redeem_points" && (
               <div className="pt-2 animate-in fade-in duration-200">
                 {!successReceipt ? (
-                  <div className="p-6 rounded-3xl bg-[#FFFBF0] border border-[#CC8820]/40 space-y-5">
-                    <div className="flex items-center justify-between pb-3 border-b border-[#CC8820]/30">
-                      <div className="flex items-center gap-2.5">
-                        <Coins className="w-6 h-6 text-[#CC8820]" />
+                  <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#FFFBF0] border border-[#CC8820]/40 space-y-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#CC8820]/30">
+                      <div className="flex items-start sm:items-center gap-2.5">
+                        <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-[#CC8820] shrink-0 mt-0.5 sm:mt-0" />
                         <div>
-                          <h4 className="font-extrabold text-base text-[#1E1815]">Redeem Points for Direct Cash Discount</h4>
-                          <p className="text-xs text-[#7A6E67] font-medium">
+                          <h4 className="font-extrabold text-sm sm:text-base text-[#1E1815] leading-tight">Redeem Points for Direct Cash Discount</h4>
+                          <p className="text-xs text-[#7A6E67] font-medium mt-0.5">
                             Customer currently has <strong className="text-[#970709] font-bold">{customer.pointsBalance} points</strong> available.
                           </p>
                         </div>
                       </div>
-                      <span className="px-3 py-1 rounded-lg bg-[#CC8820]/20 text-[#970709] text-xs font-black">
+                      <span className="self-start sm:self-auto px-3 py-1 rounded-lg bg-[#CC8820]/20 text-[#970709] text-xs font-black shrink-0">
                         {loyaltyRules.pointsRequiredForRedemption} pts = {loyaltyRules.currency} {loyaltyRules.currencyValuePerRedemptionPoints} off
                       </span>
                     </div>
@@ -1337,34 +1332,36 @@ function OutletContent() {
                         </div>
 
                         {/* Custom Points Input */}
-                        <div className="flex items-center gap-2 pt-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 pt-2">
                           <label className="text-xs text-[#7A6E67] font-semibold shrink-0">Custom Points:</label>
-                          <input
-                            type="number"
-                            step={loyaltyRules.pointsRequiredForRedemption}
-                            max={customer.pointsBalance}
-                            min={0}
-                            placeholder={`Multiples of ${loyaltyRules.pointsRequiredForRedemption}`}
-                            value={customRedeemInput}
-                            onChange={(e) => {
-                              const v = e.target.value;
-                              setCustomRedeemInput(v);
-                              const num = parseInt(v) || 0;
-                              if (num <= customer.pointsBalance && num >= 0) {
-                                setPointsToRedeemInput(num);
-                              }
-                            }}
-                            className="w-48 px-3.5 py-2 bg-white border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#970709]"
-                          />
-                          {pointsToRedeemInput > 0 && (
-                            <span className="text-xs font-bold text-emerald-800">
-                              = -{loyaltyRules.currency} {directPointsDiscount.toFixed(2)} discount
-                            </span>
-                          )}
+                          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                            <input
+                              type="number"
+                              step={loyaltyRules.pointsRequiredForRedemption}
+                              max={customer.pointsBalance}
+                              min={0}
+                              placeholder={`Multiples of ${loyaltyRules.pointsRequiredForRedemption}`}
+                              value={customRedeemInput}
+                              onChange={(e) => {
+                                const v = e.target.value;
+                                setCustomRedeemInput(v);
+                                const num = parseInt(v) || 0;
+                                if (num <= customer.pointsBalance && num >= 0) {
+                                  setPointsToRedeemInput(num);
+                                }
+                              }}
+                              className="w-full sm:w-48 px-3.5 py-2.5 bg-white border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#970709]"
+                            />
+                            {pointsToRedeemInput > 0 && (
+                              <span className="text-xs font-bold text-emerald-800 shrink-0">
+                                = -{loyaltyRules.currency} {directPointsDiscount.toFixed(2)} discount
+                              </span>
+                            )}
+                          </div>
                         </div>
 
                         {/* Bill inputs */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-[#CC8820]/30">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 pt-3 border-t border-[#CC8820]/30">
                           <div>
                             <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="redeem-inv-input">
                               Invoice / Receipt #
@@ -1376,7 +1373,7 @@ function OutletContent() {
                               value={invoiceNumber}
                               onChange={(e) => setInvoiceNumber(e.target.value.toUpperCase())}
                               required
-                              className="w-full px-4 py-3 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
+                              className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
                             />
                           </div>
 
@@ -1393,7 +1390,7 @@ function OutletContent() {
                               value={billAmount}
                               onChange={(e) => setBillAmount(e.target.value)}
                               required
-                              className="w-full px-4 py-3 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
+                              className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
                             />
                           </div>
                         </div>
@@ -1437,17 +1434,17 @@ function OutletContent() {
                         <button
                           type="submit"
                           disabled={submittingBill || !invoiceNumber.trim() || !billAmount.trim() || pointsToRedeemInput <= 0}
-                          className="w-full py-4 px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                          className="w-full py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-wider sm:tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 text-center"
                         >
                           {submittingBill ? (
                             <>
-                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
                               <span>REDEEMING POINTS…</span>
                             </>
                           ) : (
                             <>
-                              <Coins className="w-4 h-4" />
-                              <span>CONFIRM POINT REDEMPTION ({pointsToRedeemInput} PTS = -{loyaltyRules.currency} {directPointsDiscount.toFixed(2)})</span>
+                              <Coins className="w-4 h-4 shrink-0" />
+                              <span className="break-words">CONFIRM POINT REDEMPTION ({pointsToRedeemInput} PTS = -{loyaltyRules.currency} {directPointsDiscount.toFixed(2)})</span>
                             </>
                           )}
                         </button>
@@ -1603,10 +1600,10 @@ function OutletContent() {
             {/* ACTION PANEL 3: REDEEM VISIT OFFER (1-Click Deliver/Redeem)    */}
             {/* ============================================================== */}
             {actionMode === "reward" && (
-              <div className="pt-2 animate-in fade-in duration-200 space-y-5">
-                <div className="flex items-center justify-between">
+              <div className="pt-2 animate-in fade-in duration-200 space-y-4 sm:space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
                   <div className="text-xs font-black tracking-wider uppercase text-[#970709] flex items-center gap-2">
-                    <Gift className="w-4 h-4 text-[#970709]" />
+                    <Gift className="w-4 h-4 text-[#970709] shrink-0" />
                     <span>UNLOCKED VISIT OFFERS &amp; MEMBER GIFTS</span>
                   </div>
                   <span className="text-xs font-bold text-[#7A6E67]">
@@ -1615,7 +1612,7 @@ function OutletContent() {
                 </div>
 
                 {rewardSuccessReceipt && (
-                  <div className="p-4.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex items-center justify-between text-xs font-medium animate-in fade-in">
+                  <div className="p-4 sm:p-4.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex items-center justify-between text-xs font-medium animate-in fade-in">
                     <div className="flex items-center gap-2.5">
                       <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                       <div>
@@ -1648,15 +1645,15 @@ function OutletContent() {
                       return (
                         <div
                           key={reward.id}
-                          className="p-4.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex flex-col justify-between gap-3.5 shadow-2xs hover:border-[#970709]/40 transition-colors"
+                          className="p-4 sm:p-4.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex flex-col justify-between gap-3.5 shadow-2xs hover:border-[#970709]/40 transition-colors"
                         >
                           <div className="flex items-start justify-between gap-2">
-                            <div>
+                            <div className="min-w-0">
                               <div className="flex items-center gap-2">
-                                <h4 className="font-extrabold text-sm text-[#1E1815]">{reward.name}</h4>
+                                <h4 className="font-extrabold text-sm sm:text-base text-[#1E1815] leading-snug break-words">{reward.name}</h4>
                               </div>
                               {reward.description && (
-                                <p className="text-xs text-[#7A6E67] font-medium mt-1">
+                                <p className="text-xs text-[#7A6E67] font-medium mt-1 leading-relaxed">
                                   {reward.description}
                                 </p>
                               )}
@@ -1673,8 +1670,8 @@ function OutletContent() {
                             </span>
                           </div>
 
-                          <div className="pt-2 border-t border-[#EAE3DC] flex items-center justify-between">
-                            <span className="text-[10px] text-[#7A6E67] font-mono">
+                          <div className="pt-2.5 border-t border-[#EAE3DC] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                            <span className="text-[11px] text-[#7A6E67] font-mono">
                               {reward.expiresAt ? `Valid till ${new Date(reward.expiresAt).toLocaleDateString()}` : "No expiry date"}
                             </span>
 
@@ -1682,16 +1679,16 @@ function OutletContent() {
                               type="button"
                               disabled={isBusy}
                               onClick={() => handleRedeemReward(reward.id)}
-                              className="px-4 py-2 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-wider shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+                              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-wider shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
                             >
                               {isBusy ? (
                                 <>
-                                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
                                   <span>REDEEMING…</span>
                                 </>
                               ) : (
                                 <>
-                                  <Gift className="w-3.5 h-3.5" />
+                                  <Gift className="w-3.5 h-3.5 shrink-0" />
                                   <span>REDEEM &amp; DELIVER</span>
                                 </>
                               )}
@@ -1702,7 +1699,7 @@ function OutletContent() {
                     })}
                   </div>
                 ) : (
-                  <div className="p-8 rounded-3xl bg-[#FAF7F4] border border-[#EAE3DC] text-center space-y-3">
+                  <div className="p-6 sm:p-8 rounded-3xl bg-[#FAF7F4] border border-[#EAE3DC] text-center space-y-3">
                     <div className="w-12 h-12 rounded-full bg-white border border-[#EAE3DC] flex items-center justify-center mx-auto text-[#7A6E67]">
                       <Gift className="w-6 h-6 text-[#7A6E67]" />
                     </div>
