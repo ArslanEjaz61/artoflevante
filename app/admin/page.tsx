@@ -4691,42 +4691,46 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={() => setSettingsCategory("general")}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${settingsCategory === "general"
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${settingsCategory === "general"
                     ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
                     : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
                 >
-                  ⚙️ General Settings
+                  <Sliders className="w-4 h-4 shrink-0" />
+                  <span>General Settings</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setSettingsCategory("loyalty")}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${settingsCategory === "loyalty"
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${settingsCategory === "loyalty"
                     ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
                     : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
                 >
-                  🪙 Loyalty & Points Engine
+                  <Coins className="w-4 h-4 shrink-0" />
+                  <span>Loyalty &amp; Points Engine</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setSettingsCategory("security")}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${settingsCategory === "security"
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${settingsCategory === "security"
                     ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
                     : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
                 >
-                  🛡️ Security & Anti-Fraud
+                  <ShieldCheck className="w-4 h-4 shrink-0" />
+                  <span>Security &amp; Anti-Fraud</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setSettingsCategory("password")}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${settingsCategory === "password"
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${settingsCategory === "password"
                     ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
                     : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
                 >
-                  🔑 Admin PIN & Password
+                  <KeyRound className="w-4 h-4 shrink-0" />
+                  <span>Admin PIN &amp; Password</span>
                 </button>
               </div>
 
@@ -5298,10 +5302,25 @@ export default function AdminPage() {
               {settingsCategory !== "password" && (
                 <form onSubmit={handleSaveSettings} className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm space-y-6">
                   <div className="flex items-center justify-between border-b border-[#EAE3DC] pb-3">
-                    <h3 className="font-extrabold text-base text-[#1E1815]">
-                      {settingsCategory === "general" && "⚙️ General App & Brand Parameters"}
-                      {settingsCategory === "loyalty" && "🪙 Additional Loyalty Rules & Policies"}
-                      {settingsCategory === "security" && "🛡️ Security & Anti-Fraud Thresholds"}
+                    <h3 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
+                      {settingsCategory === "general" && (
+                        <>
+                          <Sliders className="w-5 h-5 text-[#C0392B]" />
+                          <span>General App &amp; Brand Parameters</span>
+                        </>
+                      )}
+                      {settingsCategory === "loyalty" && (
+                        <>
+                          <Coins className="w-5 h-5 text-[#C0392B]" />
+                          <span>Additional Loyalty Rules &amp; Policies</span>
+                        </>
+                      )}
+                      {settingsCategory === "security" && (
+                        <>
+                          <ShieldCheck className="w-5 h-5 text-[#C0392B]" />
+                          <span>Security &amp; Anti-Fraud Thresholds</span>
+                        </>
+                      )}
                     </h3>
                     <span className="text-xs text-[#7A6E67] font-semibold">{filteredSettings.length} Parameters</span>
                   </div>

@@ -78,44 +78,44 @@ export function CrmTopHeader({ activeTab, onRefresh }: CrmTopHeaderProps) {
 
       {/* Center Nav Switcher */}
       <div className="w-full flex justify-center py-2.5 sm:py-3.5 px-2.5 sm:px-4">
-        <div className="w-full max-w-lg grid grid-cols-3 sm:flex sm:items-center sm:justify-center bg-white border border-[#EAE3DC] p-1 sm:p-1.5 rounded-2xl shadow-sm gap-1 sm:gap-1.5">
+        <div className="w-full max-w-md sm:w-auto sm:max-w-none grid grid-cols-3 sm:flex sm:items-center sm:justify-center bg-white border border-[#EAE3DC] p-1 sm:p-1.5 rounded-2xl shadow-sm gap-1 sm:gap-2">
           <button
             type="button"
             onClick={() => router.push("/crm")}
-            className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-5 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all cursor-pointer truncate ${
+            className={`flex items-center justify-center gap-1.5 sm:gap-2.5 px-2 sm:px-6 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
               currentTab === "customer"
                 ? "bg-[#591313] text-white shadow-sm"
                 : "text-[#5C504A] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
             }`}
           >
             <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-            <span className="truncate">Customer<span className="hidden sm:inline"> Portal</span></span>
+            <span>Customer<span className="hidden sm:inline"> Portal</span></span>
           </button>
 
           <button
             type="button"
             onClick={() => router.push("/outlet")}
-            className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-5 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all cursor-pointer truncate ${
+            className={`flex items-center justify-center gap-1.5 sm:gap-2.5 px-2 sm:px-6 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
               currentTab === "outlet"
                 ? "bg-[#591313] text-white shadow-sm"
                 : "text-[#5C504A] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
             }`}
           >
             <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-            <span className="truncate">Outlet<span className="hidden sm:inline"> Entry</span></span>
+            <span>Outlet<span className="hidden sm:inline"> Entry</span></span>
           </button>
 
           <button
             type="button"
             onClick={() => router.push("/admin")}
-            className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-5 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all cursor-pointer truncate ${
+            className={`flex items-center justify-center gap-1.5 sm:gap-2.5 px-2 sm:px-6 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
               currentTab === "master"
                 ? "bg-[#591313] text-white shadow-sm"
                 : "text-[#5C504A] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
             }`}
           >
             <LayoutDashboard className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-            <span className="truncate">Master<span className="hidden sm:inline"> Dashboard</span></span>
+            <span>Master<span className="hidden sm:inline"> Dashboard</span></span>
           </button>
         </div>
       </div>
