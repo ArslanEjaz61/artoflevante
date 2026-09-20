@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   LayoutDashboard,
   Users,
@@ -1820,15 +1821,15 @@ export default function AdminPage() {
               </button>
             )}
 
-            {/* Multi-Portal Hub Switcher Link */}
-            <a
-              href="/crm"
+            {/* Customer Portal Link */}
+            <Link
+              href="/"
               className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#DCD3CB] bg-white hover:bg-[#FAF7F4] text-xs font-bold text-[#801313] shadow-2xs transition-all cursor-pointer"
-              title="Open Multi-Portal Hub Switcher"
+              title="Open Customer Portal"
             >
-              <LayoutDashboard className="w-3.5 h-3.5 text-[#801313]" />
-              <span className="hidden sm:inline">Portal Hub</span>
-            </a>
+              <Users className="w-3.5 h-3.5 text-[#801313]" />
+              <span className="hidden sm:inline">Customer Portal</span>
+            </Link>
 
             <button
               onClick={() => {
@@ -2219,9 +2220,7 @@ export default function AdminPage() {
                         key={b.id || b.code}
                         type="button"
                         onClick={() => {
-                          setOverviewBranchFilter(b.id || b.code);
-                          const mainElem = document.querySelector("main");
-                          if (mainElem) mainElem.scrollTo({ top: 0, behavior: "smooth" });
+                          router.push(`/admin/store/${b.id || b.code}`);
                         }}
                         className={`text-left p-4 rounded-2xl border transition-all cursor-pointer relative overflow-hidden group ${isSelected
                             ? "bg-gradient-to-br from-[#801313] to-[#590D0D] text-white border-[#801313] shadow-md ring-2 ring-[#801313]/30"

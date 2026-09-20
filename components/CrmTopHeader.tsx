@@ -38,7 +38,7 @@ export function CrmTopHeader({ activeTab, onRefresh }: CrmTopHeaderProps) {
       {/* Top Main Brand Header */}
       <header className="bg-white border-b border-[#EAE3DC] px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-2xs">
         {/* Brand Left */}
-        <Link href="/crm" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-3 group">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/bc-roundel.png"

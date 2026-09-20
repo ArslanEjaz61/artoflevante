@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Phone,
   QrCode,
@@ -110,7 +111,12 @@ function RibbonIcon({ className = "w-7 h-7" }: { className?: string }) {
   );
 }
 
-export default function OutletPage() {
+function OutletContent() {
+  const searchParams = useSearchParams();
+  const codeParam = searchParams
+    ? searchParams.get("code") || searchParams.get("branch") || searchParams.get("branchId")
+    : null;
+
   // Screen state: "entry" (Screen 1) | "ready" (Screen 2: loyalty search) | "customer" (Screen 2: customer profile desk)
   const [screen, setScreen] = useState<"entry" | "ready" | "customer">("entry");
   const [loadingSession, setLoadingSession] = useState(true);
@@ -179,24 +185,45 @@ export default function OutletPage() {
   // Detailed History Receipt Modal
   const [selectedHistoryReceipt, setSelectedHistoryReceipt] = useState<any | null>(null);
 
-  // 1. Initial Load: Check active outlet session
+  // 1. Initial Load: Check active outlet session or direct code from URL
   useEffect(() => {
-    fetch("/api/outlet/auth")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.authenticated && data.branch) {
-          setActiveBranch(data.branch);
-          setScreen("ready");
-        } else {
-          if (data.sampleBranch) {
-            setSampleBranch(data.sampleBranch);
+    async function initOutletSession() {
+      if (codeParam) {
+        try {
+          const res = await fetch("/api/outlet/auth", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: codeParam.trim() }),
+          });
+          const data = await res.json();
+          if (res.ok && data.branch) {
+            setActiveBranch(data.branch);
+            setScreen("ready");
+            setLoadingSession(false);
+            return;
           }
-          setScreen("entry");
-        }
-      })
-      .catch(() => setScreen("entry"))
-      .finally(() => setLoadingSession(false));
-  }, []);
+        } catch {}
+      }
+
+      fetch("/api/outlet/auth")
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.authenticated && data.branch) {
+            setActiveBranch(data.branch);
+            setScreen("ready");
+          } else {
+            if (data.sampleBranch) {
+              setSampleBranch(data.sampleBranch);
+            }
+            setScreen("entry");
+          }
+        })
+        .catch(() => setScreen("entry"))
+        .finally(() => setLoadingSession(false));
+    }
+
+    initOutletSession();
+  }, [codeParam]);
 
   // 2. Handle Screen 1: Submit Outlet Code
   async function handleOpenOutlet(e: React.FormEvent) {
@@ -1859,5 +1886,25 @@ export default function OutletPage() {
       )}
       </div>
     </div>
+  );
+}
+
+export default function OutletPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#F0DBDB] flex flex-col font-sans">
+          <CrmTopHeader activeTab="outlet" />
+          <div className="flex-1 flex flex-col items-center justify-center p-4">
+            <div className="w-10 h-10 border-3 border-[#970709]/20 border-t-[#970709] rounded-full animate-spin mb-3" />
+            <p className="text-xs font-bold text-[#7A6E67] uppercase tracking-wider">
+              Loading Outlet Terminal…
+            </p>
+          </div>
+        </div>
+      }
+    >
+      <OutletContent />
+    </Suspense>
   );
 }
