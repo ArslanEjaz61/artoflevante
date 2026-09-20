@@ -164,7 +164,7 @@ export async function GET(req: NextRequest) {
     }),
     prisma.branch.findMany({
       where: { isActive: true },
-      select: { id: true, name: true, city: true, code: true },
+      select: { id: true, name: true, city: true, code: true, crmUrl: true },
       orderBy: { name: "asc" },
     }),
     prisma.transaction.findMany({
@@ -217,6 +217,7 @@ export async function GET(req: NextRequest) {
       name: b.name,
       code: b.code,
       city: b.city || "Dubai",
+      crmUrl: b.crmUrl || null,
       visits: row?._count ?? 0,
       revenue: Number(row?._sum.amount ?? 0),
       pointsAwarded: row?._sum.pointsEarned ?? 0,

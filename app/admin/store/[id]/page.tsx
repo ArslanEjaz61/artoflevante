@@ -1414,7 +1414,7 @@ export default function StoreCrmPage() {
             </div>
 
             {/* Modal Scrollable Body */}
-            <div className="p-5 sm:p-6 overflow-y-auto flex-1">
+            <div className="p-5 sm:p-6 overflow-y-auto flex-1 custom-scrollbar">
               {loadingCustDetail ? (
                 <div className="py-12 flex flex-col items-center justify-center">
                   <div className="w-8 h-8 border-3 border-[#801313]/20 border-t-[#801313] rounded-full animate-spin mb-3" />

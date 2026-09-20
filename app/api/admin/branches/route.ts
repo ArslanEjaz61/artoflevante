@@ -56,6 +56,7 @@ export async function GET() {
           addressAr: b.addressAr,
           phone: b.phone,
           hours: b.hours,
+          crmUrl: b.crmUrl,
           isActive: b.isActive,
           createdAt: b.createdAt,
           staffCount: b._count.staff,
@@ -100,7 +101,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const { code, name, nameAr, city, address, addressAr, phone, hours, isActive, dailyCode, dailyCodeExpiresAt } = body || {};
+  const { code, name, nameAr, city, address, addressAr, phone, hours, crmUrl, isActive, dailyCode, dailyCodeExpiresAt } = body || {};
 
   if (!code || String(code).trim().length < 2) {
     return NextResponse.json({ error: "Branch code is required (e.g. 1015)." }, { status: 400 });
@@ -134,6 +135,7 @@ export async function POST(req: NextRequest) {
         addressAr: addressAr ? String(addressAr).trim() : null,
         phone: phone ? String(phone).trim() : null,
         hours: hours ? String(hours).trim() : null,
+        crmUrl: crmUrl ? String(crmUrl).trim() : null,
         isActive: isActive !== false,
         dailyCode: initialCode,
         dailyCodeExpiresAt: initialExpiresAt,
@@ -151,6 +153,7 @@ export async function POST(req: NextRequest) {
           code: branch.code,
           name: branch.name,
           city: branch.city,
+          crmUrl: branch.crmUrl,
           dailyCode: branch.dailyCode,
           dailyCodeExpiresAt: branch.dailyCodeExpiresAt,
         },
@@ -182,7 +185,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const { id, code, name, nameAr, city, address, addressAr, phone, hours, isActive, dailyCode, dailyCodeExpiresAt, rotateCode } = body || {};
+  const { id, code, name, nameAr, city, address, addressAr, phone, hours, crmUrl, isActive, dailyCode, dailyCodeExpiresAt, rotateCode } = body || {};
 
   if (!id) {
     return NextResponse.json({ error: "Branch ID is required." }, { status: 400 });
@@ -235,6 +238,7 @@ export async function PUT(req: NextRequest) {
         addressAr: addressAr !== undefined ? (addressAr ? String(addressAr).trim() : null) : branch.addressAr,
         phone: phone !== undefined ? (phone ? String(phone).trim() : null) : branch.phone,
         hours: hours !== undefined ? (hours ? String(hours).trim() : null) : branch.hours,
+        crmUrl: crmUrl !== undefined ? (crmUrl ? String(crmUrl).trim() : null) : branch.crmUrl,
         isActive: isActive !== undefined ? Boolean(isActive) : branch.isActive,
         dailyCode: newDailyCode,
         dailyCodeExpiresAt: newExpiresAt,

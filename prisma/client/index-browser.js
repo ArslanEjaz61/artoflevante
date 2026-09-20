@@ -131,6 +131,7 @@ exports.Prisma.BranchScalarFieldEnum = {
   phone: 'phone',
   hours: 'hours',
   city: 'city',
+  crmUrl: 'crmUrl',
   isActive: 'isActive',
   createdAt: 'createdAt',
   dailyCode: 'dailyCode',

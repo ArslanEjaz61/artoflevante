@@ -2387,6 +2387,7 @@ export namespace Prisma {
     phone: string | null
     hours: string | null
     city: string | null
+    crmUrl: string | null
     isActive: boolean | null
     createdAt: Date | null
     dailyCode: string | null
@@ -2403,6 +2404,7 @@ export namespace Prisma {
     phone: string | null
     hours: string | null
     city: string | null
+    crmUrl: string | null
     isActive: boolean | null
     createdAt: Date | null
     dailyCode: string | null
@@ -2419,6 +2421,7 @@ export namespace Prisma {
     phone: number
     hours: number
     city: number
+    crmUrl: number
     isActive: number
     createdAt: number
     dailyCode: number
@@ -2437,6 +2440,7 @@ export namespace Prisma {
     phone?: true
     hours?: true
     city?: true
+    crmUrl?: true
     isActive?: true
     createdAt?: true
     dailyCode?: true
@@ -2453,6 +2457,7 @@ export namespace Prisma {
     phone?: true
     hours?: true
     city?: true
+    crmUrl?: true
     isActive?: true
     createdAt?: true
     dailyCode?: true
@@ -2469,6 +2474,7 @@ export namespace Prisma {
     phone?: true
     hours?: true
     city?: true
+    crmUrl?: true
     isActive?: true
     createdAt?: true
     dailyCode?: true
@@ -2558,6 +2564,7 @@ export namespace Prisma {
     phone: string | null
     hours: string | null
     city: string | null
+    crmUrl: string | null
     isActive: boolean
     createdAt: Date
     dailyCode: string | null
@@ -2591,6 +2598,7 @@ export namespace Prisma {
     phone?: boolean
     hours?: boolean
     city?: boolean
+    crmUrl?: boolean
     isActive?: boolean
     createdAt?: boolean
     dailyCode?: boolean
@@ -2613,6 +2621,7 @@ export namespace Prisma {
     phone?: boolean
     hours?: boolean
     city?: boolean
+    crmUrl?: boolean
     isActive?: boolean
     createdAt?: boolean
     dailyCode?: boolean
@@ -2629,6 +2638,7 @@ export namespace Prisma {
     phone?: boolean
     hours?: boolean
     city?: boolean
+    crmUrl?: boolean
     isActive?: boolean
     createdAt?: boolean
     dailyCode?: boolean
@@ -2645,13 +2655,14 @@ export namespace Prisma {
     phone?: boolean
     hours?: boolean
     city?: boolean
+    crmUrl?: boolean
     isActive?: boolean
     createdAt?: boolean
     dailyCode?: boolean
     dailyCodeExpiresAt?: boolean
   }
 
-  export type BranchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "name" | "nameAr" | "address" | "addressAr" | "phone" | "hours" | "city" | "isActive" | "createdAt" | "dailyCode" | "dailyCodeExpiresAt", ExtArgs["result"]["branch"]>
+  export type BranchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "name" | "nameAr" | "address" | "addressAr" | "phone" | "hours" | "city" | "crmUrl" | "isActive" | "createdAt" | "dailyCode" | "dailyCodeExpiresAt", ExtArgs["result"]["branch"]>
   export type BranchInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     homeCustomers?: boolean | Branch$homeCustomersArgs<ExtArgs>
     staff?: boolean | Branch$staffArgs<ExtArgs>
@@ -2682,6 +2693,7 @@ export namespace Prisma {
       phone: string | null
       hours: string | null
       city: string | null
+      crmUrl: string | null
       isActive: boolean
       createdAt: Date
       dailyCode: string | null
@@ -3123,6 +3135,7 @@ export namespace Prisma {
     readonly phone: FieldRef<"Branch", 'String'>
     readonly hours: FieldRef<"Branch", 'String'>
     readonly city: FieldRef<"Branch", 'String'>
+    readonly crmUrl: FieldRef<"Branch", 'String'>
     readonly isActive: FieldRef<"Branch", 'Boolean'>
     readonly createdAt: FieldRef<"Branch", 'DateTime'>
     readonly dailyCode: FieldRef<"Branch", 'String'>
@@ -18652,6 +18665,7 @@ export namespace Prisma {
     phone: 'phone',
     hours: 'hours',
     city: 'city',
+    crmUrl: 'crmUrl',
     isActive: 'isActive',
     createdAt: 'createdAt',
     dailyCode: 'dailyCode',
@@ -19048,6 +19062,7 @@ export namespace Prisma {
     phone?: StringNullableFilter<"Branch"> | string | null
     hours?: StringNullableFilter<"Branch"> | string | null
     city?: StringNullableFilter<"Branch"> | string | null
+    crmUrl?: StringNullableFilter<"Branch"> | string | null
     isActive?: BoolFilter<"Branch"> | boolean
     createdAt?: DateTimeFilter<"Branch"> | Date | string
     dailyCode?: StringNullableFilter<"Branch"> | string | null
@@ -19069,6 +19084,7 @@ export namespace Prisma {
     phone?: SortOrderInput | SortOrder
     hours?: SortOrderInput | SortOrder
     city?: SortOrderInput | SortOrder
+    crmUrl?: SortOrderInput | SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
     dailyCode?: SortOrderInput | SortOrder
@@ -19093,6 +19109,7 @@ export namespace Prisma {
     phone?: StringNullableFilter<"Branch"> | string | null
     hours?: StringNullableFilter<"Branch"> | string | null
     city?: StringNullableFilter<"Branch"> | string | null
+    crmUrl?: StringNullableFilter<"Branch"> | string | null
     isActive?: BoolFilter<"Branch"> | boolean
     createdAt?: DateTimeFilter<"Branch"> | Date | string
     dailyCode?: StringNullableFilter<"Branch"> | string | null
@@ -19114,6 +19131,7 @@ export namespace Prisma {
     phone?: SortOrderInput | SortOrder
     hours?: SortOrderInput | SortOrder
     city?: SortOrderInput | SortOrder
+    crmUrl?: SortOrderInput | SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
     dailyCode?: SortOrderInput | SortOrder
@@ -19136,6 +19154,7 @@ export namespace Prisma {
     phone?: StringNullableWithAggregatesFilter<"Branch"> | string | null
     hours?: StringNullableWithAggregatesFilter<"Branch"> | string | null
     city?: StringNullableWithAggregatesFilter<"Branch"> | string | null
+    crmUrl?: StringNullableWithAggregatesFilter<"Branch"> | string | null
     isActive?: BoolWithAggregatesFilter<"Branch"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Branch"> | Date | string
     dailyCode?: StringNullableWithAggregatesFilter<"Branch"> | string | null
@@ -20170,6 +20189,7 @@ export namespace Prisma {
     phone?: string | null
     hours?: string | null
     city?: string | null
+    crmUrl?: string | null
     isActive?: boolean
     createdAt?: Date | string
     dailyCode?: string | null
@@ -20191,6 +20211,7 @@ export namespace Prisma {
     phone?: string | null
     hours?: string | null
     city?: string | null
+    crmUrl?: string | null
     isActive?: boolean
     createdAt?: Date | string
     dailyCode?: string | null
@@ -20212,6 +20233,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     hours?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
+    crmUrl?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20233,6 +20255,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     hours?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
+    crmUrl?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20254,6 +20277,7 @@ export namespace Prisma {
     phone?: string | null
     hours?: string | null
     city?: string | null
+    crmUrl?: string | null
     isActive?: boolean
     createdAt?: Date | string
     dailyCode?: string | null
@@ -20270,6 +20294,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     hours?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
+    crmUrl?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -20286,6 +20311,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     hours?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
+    crmUrl?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -21514,6 +21540,7 @@ export namespace Prisma {
     phone?: SortOrder
     hours?: SortOrder
     city?: SortOrder
+    crmUrl?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
     dailyCode?: SortOrder
@@ -21530,6 +21557,7 @@ export namespace Prisma {
     phone?: SortOrder
     hours?: SortOrder
     city?: SortOrder
+    crmUrl?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
     dailyCode?: SortOrder
@@ -21546,6 +21574,7 @@ export namespace Prisma {
     phone?: SortOrder
     hours?: SortOrder
     city?: SortOrder
+    crmUrl?: SortOrder
     isActive?: SortOrder
     createdAt?: SortOrder
     dailyCode?: SortOrder
@@ -24024,6 +24053,7 @@ export namespace Prisma {
     phone?: string | null
     hours?: string | null
     city?: string | null
+    crmUrl?: string | null
     isActive?: boolean
     createdAt?: Date | string
     dailyCode?: string | null
@@ -24044,6 +24074,7 @@ export namespace Prisma {
     phone?: string | null
     hours?: string | null
     city?: string | null
+    crmUrl?: string | null
     isActive?: boolean
     createdAt?: Date | string
     dailyCode?: string | null
@@ -24238,6 +24269,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     hours?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
+    crmUrl?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24258,6 +24290,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     hours?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
+    crmUrl?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24498,6 +24531,7 @@ export namespace Prisma {
     phone?: string | null
     hours?: string | null
     city?: string | null
+    crmUrl?: string | null
     isActive?: boolean
     createdAt?: Date | string
     dailyCode?: string | null
@@ -24518,6 +24552,7 @@ export namespace Prisma {
     phone?: string | null
     hours?: string | null
     city?: string | null
+    crmUrl?: string | null
     isActive?: boolean
     createdAt?: Date | string
     dailyCode?: string | null
@@ -24626,6 +24661,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     hours?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
+    crmUrl?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24646,6 +24682,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     hours?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
+    crmUrl?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24759,6 +24796,7 @@ export namespace Prisma {
     phone?: string | null
     hours?: string | null
     city?: string | null
+    crmUrl?: string | null
     isActive?: boolean
     createdAt?: Date | string
     dailyCode?: string | null
@@ -24779,6 +24817,7 @@ export namespace Prisma {
     phone?: string | null
     hours?: string | null
     city?: string | null
+    crmUrl?: string | null
     isActive?: boolean
     createdAt?: Date | string
     dailyCode?: string | null
@@ -24959,6 +24998,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     hours?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
+    crmUrl?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24979,6 +25019,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     hours?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
+    crmUrl?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25619,6 +25660,7 @@ export namespace Prisma {
     phone?: string | null
     hours?: string | null
     city?: string | null
+    crmUrl?: string | null
     isActive?: boolean
     createdAt?: Date | string
     dailyCode?: string | null
@@ -25639,6 +25681,7 @@ export namespace Prisma {
     phone?: string | null
     hours?: string | null
     city?: string | null
+    crmUrl?: string | null
     isActive?: boolean
     createdAt?: Date | string
     dailyCode?: string | null
@@ -25716,6 +25759,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     hours?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
+    crmUrl?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25736,6 +25780,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     hours?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
+    crmUrl?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25871,6 +25916,7 @@ export namespace Prisma {
     phone?: string | null
     hours?: string | null
     city?: string | null
+    crmUrl?: string | null
     isActive?: boolean
     createdAt?: Date | string
     dailyCode?: string | null
@@ -25891,6 +25937,7 @@ export namespace Prisma {
     phone?: string | null
     hours?: string | null
     city?: string | null
+    crmUrl?: string | null
     isActive?: boolean
     createdAt?: Date | string
     dailyCode?: string | null
@@ -25980,6 +26027,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     hours?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
+    crmUrl?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -26000,6 +26048,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     hours?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
+    crmUrl?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null

@@ -26,6 +26,7 @@ model Branch {
   phone     String?
   hours     String?
   city      String?
+  crmUrl    String? // CRM dashboard link
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 
