@@ -1573,8 +1573,8 @@ export default function AdminPage() {
               className="w-11 h-11 object-contain shrink-0 drop-shadow-sm"
             />
             <div>
-              <div className="font-extrabold text-base tracking-tight leading-tight text-[#1E1815]">Bombay Chowpatty</div>
-              <div className="text-[11px] text-[#7A6E67] uppercase tracking-wider font-semibold">
+              <div className="font-extrabold text-sm tracking-tight leading-tight text-[#1E1815]">Bombay Chowpatty</div>
+              <div className="text-[9.5px] text-[#8C7F78] uppercase tracking-widest font-bold mt-0.5">
                 Admin Control
               </div>
             </div>
@@ -2153,12 +2153,12 @@ export default function AdminPage() {
                     Live
                   </span>
                 </div>
-                <div className="space-y-3">
+                <div className="max-h-[360px] overflow-y-auto pr-1 space-y-2.5 custom-scrollbar">
                   {data?.recentTransactions && data.recentTransactions.length > 0 ? (
-                    data.recentTransactions.slice(0, 6).map((t: any) => (
+                    data.recentTransactions.map((t: any) => (
                       <div
                         key={t.id}
-                        className="p-3 rounded-2xl border border-[#EAE3DC] bg-[#FAF7F4] flex items-center justify-between hover:border-[#D0C6BE] transition-colors"
+                        className="p-3 rounded-2xl border border-[#EAE3DC] bg-[#FAF7F4] flex items-center justify-between hover:border-[#D0C6BE] hover:bg-white transition-colors shadow-2xs"
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="w-9 h-9 rounded-xl bg-white border border-[#E5DDD5] flex items-center justify-center font-bold text-xs text-[#C0392B] shrink-0">
@@ -2197,10 +2197,10 @@ export default function AdminPage() {
                   <div>
                     <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
                       <Building2 className="w-4 h-4 text-[#801313]" />
-                      All store CRM
+                      Loyalty Points Dashboard
                     </h2>
                     <p className="text-xs text-[#7A6E67] mt-0.5">
-                      Select any store to filter executive metrics, active members, and branch CRM data.
+                      Select any branch to view store-level loyalty points, active members, revenue, and tills.
                     </p>
                   </div>
                   {overviewBranchFilter !== "all" && (
@@ -2628,6 +2628,25 @@ export default function AdminPage() {
                               <td className="py-3 px-3">
                                 <div className="font-extrabold text-[#1E1815]">{b.name}</div>
                                 {b.nameAr && <div className="text-[11px] text-[#7A6E67]">{b.nameAr}</div>}
+                                <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                                  <Link
+                                    href={`/outlet?code=${encodeURIComponent(b.code || b.id)}`}
+                                    target="_blank"
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#801313]/10 hover:bg-[#801313] text-[#801313] hover:text-white text-[10px] font-black tracking-wide transition-all cursor-pointer shadow-2xs"
+                                    title={`Launch ${b.name} Outlet POS Terminal`}
+                                  >
+                                    <Store className="w-2.5 h-2.5" />
+                                    <span>Launch Outlet POS</span>
+                                  </Link>
+                                  <Link
+                                    href={`/admin/store/${encodeURIComponent(b.id || b.code)}`}
+                                    className="inline-flex items-center gap-0.5 text-[10px] font-bold text-[#7A6E67] hover:text-[#801313] transition-colors"
+                                    title={`Open ${b.name} Store CRM`}
+                                  >
+                                    <span>Store CRM</span>
+                                    <ChevronRight className="w-2.5 h-2.5" />
+                                  </Link>
+                                </div>
                               </td>
                               <td className="py-3 px-3">
                                 {b.dailyCode ? (
@@ -2713,6 +2732,14 @@ export default function AdminPage() {
                               </td>
                               <td className="py-3 px-3 text-right">
                                 <div className="inline-flex items-center gap-1">
+                                  <Link
+                                    href={`/outlet?code=${encodeURIComponent(b.code || b.id)}`}
+                                    target="_blank"
+                                    title={`Launch ${b.name} Outlet POS Terminal`}
+                                    className="p-1.5 rounded-lg border border-[#801313]/30 bg-[#801313]/10 hover:bg-[#801313] text-[#801313] hover:text-white transition-all cursor-pointer"
+                                  >
+                                    <Store className="w-3.5 h-3.5" />
+                                  </Link>
                                   <button
                                     onClick={() => openEditBranch(b)}
                                     title="Edit Branch Details"
@@ -3215,45 +3242,66 @@ export default function AdminPage() {
           {/* ============================================================== */}
           {/* TAB: OUTLET POS / CASHIER TERMINAL                             */}
           {/* ============================================================== */}
-          {tab === "outlet" && (
-            <div className="space-y-6">
-              {/* 1. Branch Selector Top Bar */}
-              <div className="bg-white border border-[#EAE3DC] rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#801313] to-[#550B0B] text-white flex items-center justify-center font-bold shadow-md shadow-[#801313]/20 shrink-0">
-                    <CreditCard className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <div className="text-[11px] font-black tracking-widest text-[#801313] uppercase flex items-center gap-1.5">
-                      <Store className="w-3.5 h-3.5" />
-                      <span>Executive Cashier Desk</span>
-                    </div>
-                    <h2 className="text-lg sm:text-xl font-serif font-black text-[#1E1815]">
-                      Outlet POS Terminal
-                    </h2>
-                  </div>
-                </div>
+          {tab === "outlet" && (() => {
+            const selectedAdminBranch =
+              allBranches.find((b: any) => b.id === (outletBranchId || allBranches[0]?.id)) ||
+              allBranches[0];
 
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                  <div className="flex items-center gap-2 bg-[#FAF7F4] border border-[#EAE3DC] p-2 rounded-2xl">
-                    <Building2 className="w-4 h-4 text-[#801313] shrink-0 ml-1" />
-                    <span className="text-xs font-bold text-[#7A6E67] uppercase shrink-0">Till Outlet:</span>
-                    <select
-                      value={outletBranchId || (allBranches[0]?.id || "")}
-                      onChange={(e) => {
-                        setOutletBranchId(e.target.value);
-                        setOutletCustomer(null);
-                        setOutletSuccessReceipt(null);
-                      }}
-                      className="bg-transparent text-xs font-bold text-[#1E1815] focus:outline-none cursor-pointer pr-2"
-                    >
-                      {allBranches.map((b: any) => (
-                        <option key={b.id} value={b.id}>
-                          {b.name} ({b.code}) - {b.city || "Dubai"}
-                        </option>
-                      ))}
-                    </select>
+            return (
+              <div className="space-y-6">
+                {/* 1. Branch Selector Top Bar */}
+                <div className="bg-white border border-[#EAE3DC] rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#801313] to-[#550B0B] text-white flex items-center justify-center font-bold shadow-md shadow-[#801313]/20 shrink-0">
+                      <CreditCard className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-black tracking-widest text-[#801313] uppercase flex items-center gap-1.5">
+                        <Store className="w-3.5 h-3.5" />
+                        <span>
+                          {selectedAdminBranch
+                            ? `${selectedAdminBranch.name.toUpperCase()} · #${selectedAdminBranch.code}`
+                            : "EXECUTIVE CASHIER DESK"}
+                        </span>
+                      </div>
+                      <h2 className="text-lg sm:text-xl font-serif font-black text-[#1E1815]">
+                        {selectedAdminBranch ? `${selectedAdminBranch.name} Cashier Desk` : "Outlet POS Terminal"}
+                      </h2>
+                    </div>
                   </div>
+
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div className="flex items-center gap-2 bg-[#FAF7F4] border border-[#EAE3DC] p-2 rounded-2xl">
+                      <Building2 className="w-4 h-4 text-[#801313] shrink-0 ml-1" />
+                      <span className="text-xs font-bold text-[#7A6E67] uppercase shrink-0">Till Outlet:</span>
+                      <select
+                        value={outletBranchId || (allBranches[0]?.id || "")}
+                        onChange={(e) => {
+                          setOutletBranchId(e.target.value);
+                          setOutletCustomer(null);
+                          setOutletSuccessReceipt(null);
+                        }}
+                        className="bg-transparent text-xs font-bold text-[#1E1815] focus:outline-none cursor-pointer pr-2"
+                      >
+                        {allBranches.map((b: any) => (
+                          <option key={b.id} value={b.id}>
+                            {b.name} ({b.code}) - {b.city || "Dubai"}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {selectedAdminBranch && (
+                      <Link
+                        href={`/outlet?code=${encodeURIComponent(selectedAdminBranch.code || selectedAdminBranch.id)}`}
+                        target="_blank"
+                        className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#801313] hover:bg-[#680F0F] text-white text-xs font-black shadow-sm transition-all cursor-pointer shrink-0"
+                        title={`Open ${selectedAdminBranch.name} in Dedicated POS Screen`}
+                      >
+                        <Store className="w-3.5 h-3.5" />
+                        <span>Open POS Screen</span>
+                      </Link>
+                    )}
 
                   {outletCustomer && (
                     <button
@@ -4327,7 +4375,8 @@ export default function AdminPage() {
                 </div>
               )}
             </div>
-          )}
+          );
+        })()}
 
           {/* ============================================================== */}
           {/* TAB 6: PROGRAM SETTINGS & CONVERSION CALCULATOR                */}

@@ -157,7 +157,7 @@ export default function StoreCrmPage() {
       <div className="min-h-screen bg-[#F0DBDB] flex flex-col items-center justify-center p-6 font-sans">
         <div className="w-10 h-10 border-3 border-[#801313]/20 border-t-[#801313] rounded-full animate-spin mb-3" />
         <p className="text-xs font-bold text-[#7A6E67] uppercase tracking-wider">
-          Loading Store CRM Data…
+          Loading Store Loyalty Points Dashboard…
         </p>
       </div>
     );
@@ -169,7 +169,7 @@ export default function StoreCrmPage() {
         <div className="w-14 h-14 rounded-2xl bg-red-100 border border-red-200 flex items-center justify-center text-red-600 mb-4 shadow-sm">
           <AlertCircle className="w-7 h-7" />
         </div>
-        <h2 className="text-xl font-extrabold text-[#1E1815] mb-2">Store CRM Not Found</h2>
+        <h2 className="text-xl font-extrabold text-[#1E1815] mb-2">Store Dashboard Not Found</h2>
         <p className="text-xs text-[#7A6E67] max-w-sm mb-6 leading-relaxed">
           {error || "Could not retrieve store information for the selected branch."}
         </p>
@@ -178,7 +178,7 @@ export default function StoreCrmPage() {
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs uppercase tracking-wider shadow-md transition-all cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to All Stores CRM</span>
+          <span>Back to All Stores</span>
         </Link>
       </div>
     );
@@ -218,7 +218,7 @@ export default function StoreCrmPage() {
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-[#EAE3DC] hover:border-[#801313]/40 text-[#5C504A] hover:text-[#801313] text-xs font-black shadow-2xs transition-all cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to All Stores CRM</span>
+            <span>Back to All Stores</span>
           </Link>
 
           <div className="flex items-center gap-2.5">
@@ -268,8 +268,13 @@ export default function StoreCrmPage() {
                   </span>
                 </div>
 
+                <div className="text-[11px] font-black uppercase tracking-widest text-[#801313] mb-0.5 flex items-center gap-1.5">
+                  <Coins className="w-3.5 h-3.5 text-[#801313]" />
+                  <span>Loyalty Points Dashboard</span>
+                </div>
+
                 <h1 className="text-2xl sm:text-3xl font-display font-black text-[#1E1815] tracking-tight">
-                  {store.name} CRM
+                  {store.name}
                 </h1>
 
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#7A6E67] font-medium mt-1">
