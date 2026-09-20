@@ -50,7 +50,7 @@ export function CrmTopHeader({ activeTab, onRefresh }: CrmTopHeaderProps) {
               Bombay Chowpatty
             </div>
             <div className="text-[10px] text-[#7A6E67] uppercase tracking-widest font-extrabold mt-0.5">
-              CRM &amp; Loyalty
+              Loyalty Points Dashboard
             </div>
           </div>
         </Link>
@@ -114,7 +114,7 @@ export function CrmTopHeader({ activeTab, onRefresh }: CrmTopHeaderProps) {
             }`}
           >
             <LayoutDashboard className="w-4 h-4" />
-            <span>Master CRM</span>
+            <span>Master Dashboard</span>
           </button>
         </div>
       </div>

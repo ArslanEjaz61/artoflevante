@@ -111,7 +111,7 @@ export async function GET() {
       customerRewards: { include: { reward: true } },
     },
     orderBy: { createdAt: "desc" },
-    take: 20,
+    take: 100,
   });
 
   const allRewards = await prisma.reward.findMany({

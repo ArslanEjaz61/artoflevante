@@ -574,6 +574,9 @@ export default function AdminPage() {
   // Offers tab
   const [offers, setOffers] = useState<any>(null);
   const [showCreateOfferModal, setShowCreateOfferModal] = useState(false);
+  const [offerSearch, setOfferSearch] = useState("");
+  const [offerBranchFilter, setOfferBranchFilter] = useState("all");
+  const [offerStatusFilter, setOfferStatusFilter] = useState<"all" | "active" | "paused">("all");
   const [newOffer, setNewOffer] = useState<{
     name: string;
     description: string;
@@ -1870,6 +1873,37 @@ export default function AdminPage() {
           {/* ============================================================== */}
           {tab === "overview" && (
             <>
+              {/* Quick Shortcuts Bar (Customer & Stores) */}
+              <div className="bg-white border border-[#EAE3DC] rounded-2xl p-2.5 sm:p-3 shadow-2xs flex flex-wrap items-center gap-2.5">
+                {/* Customer Shortcut */}
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FAF7F4] hover:bg-[#801313] text-[#1E1815] hover:text-white border border-[#EAE3DC] hover:border-[#801313] text-xs font-black transition-all shadow-2xs cursor-pointer group"
+                  title="Customer Portal"
+                >
+                  <Users className="w-4 h-4 text-[#801313] group-hover:text-white transition-colors" />
+                  <span>Customer</span>
+                </Link>
+
+                {/* Stores Shortcut */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById("store-dashboards-grid");
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth" });
+                    } else {
+                      setTab("branches");
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#801313]/10 hover:bg-[#801313] text-[#801313] hover:text-white border border-[#801313]/30 text-xs font-black transition-all shadow-2xs cursor-pointer group"
+                  title="Store Dashboards"
+                >
+                  <Building2 className="w-4 h-4 text-[#801313] group-hover:text-white transition-colors" />
+                  <span>Stores</span>
+                </button>
+              </div>
+
               {/* Overview Filter Bar */}
               <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex flex-wrap items-center gap-3">
@@ -1896,7 +1930,7 @@ export default function AdminPage() {
                     type="button"
                     onClick={() => setOverviewDateFilter("all")}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${overviewDateFilter === "all"
-                        ? "bg-[#C0392B] text-white shadow-xs"
+                        ? "bg-[#801313] text-white shadow-xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
                       }`}
                   >
@@ -1906,7 +1940,7 @@ export default function AdminPage() {
                     type="button"
                     onClick={() => setOverviewDateFilter("today")}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${overviewDateFilter === "today"
-                        ? "bg-[#C0392B] text-white shadow-xs"
+                        ? "bg-[#801313] text-white shadow-xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
                       }`}
                   >
@@ -1916,7 +1950,7 @@ export default function AdminPage() {
                     type="button"
                     onClick={() => setOverviewDateFilter("7days")}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${overviewDateFilter === "7days"
-                        ? "bg-[#C0392B] text-white shadow-xs"
+                        ? "bg-[#801313] text-white shadow-xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
                       }`}
                   >
@@ -1926,7 +1960,7 @@ export default function AdminPage() {
                     type="button"
                     onClick={() => setOverviewDateFilter("30days")}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${overviewDateFilter === "30days"
-                        ? "bg-[#C0392B] text-white shadow-xs"
+                        ? "bg-[#801313] text-white shadow-xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
                       }`}
                   >
@@ -2191,8 +2225,8 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* All Store CRM Grid */}
-              <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm">
+              {/* All Store Loyalty Points Dashboard Grid */}
+              <div id="store-dashboards-grid" className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm scroll-mt-20">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                   <div>
                     <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
@@ -2249,7 +2283,7 @@ export default function AdminPage() {
                         </div>
 
                         <div className={`font-black text-sm leading-snug tracking-tight mb-1 ${isSelected ? "text-white" : "text-[#1E1815]"}`}>
-                          {b.name} CRM
+                          {b.name}
                         </div>
 
                         <div className="flex items-center justify-between mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[11px]">
@@ -2257,7 +2291,7 @@ export default function AdminPage() {
                             {b.city || "Dubai"} • #{b.code || b.id}
                           </span>
                           <span className={`font-bold text-[10px] flex items-center gap-0.5 ${isSelected ? "text-[#FEF7C5]" : "text-[#801313]"}`}>
-                            {isSelected ? "Selected" : "Open CRM →"}
+                            {isSelected ? "Selected" : "Open Dashboard →"}
                           </span>
                         </div>
                       </button>
@@ -2379,95 +2413,300 @@ export default function AdminPage() {
           {/* ============================================================== */}
           {/* TAB 3: PROMOTIONS & OFFERS                                     */}
           {/* ============================================================== */}
-          {tab === "offers" && (
-            <div className="space-y-6">
-              {offerMsg && (
-                <div
-                  className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between ${offerMsg.type === "ok"
-                    ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                    : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+          {tab === "offers" && (() => {
+            const rawOffers: any[] = offers?.offers || [];
+            const filteredOffers = rawOffers.filter((o: any) => {
+              if (offerStatusFilter === "active" && !o.isActive) return false;
+              if (offerStatusFilter === "paused" && o.isActive) return false;
+              if (offerBranchFilter !== "all") {
+                // If offer has specific branches, check if selected branch is among them
+                if (o.branches && o.branches.length > 0) {
+                  const match = o.branches.some(
+                    (b: any) => b.id === offerBranchFilter || b.code === offerBranchFilter
+                  );
+                  if (!match) return false;
+                }
+                // If offer has 0 branches, it applies to all branches, so it matches any branch filter
+              }
+              if (offerSearch.trim()) {
+                const q = offerSearch.toLowerCase();
+                const matchName = o.name?.toLowerCase().includes(q);
+                const matchDesc = o.description?.toLowerCase().includes(q);
+                const matchBranch = o.branches?.some(
+                  (b: any) =>
+                    b.name?.toLowerCase().includes(q) ||
+                    b.city?.toLowerCase().includes(q) ||
+                    b.code?.toLowerCase().includes(q)
+                );
+                if (!matchName && !matchDesc && !matchBranch) return false;
+              }
+              return true;
+            });
+
+            return (
+              <div className="space-y-6">
+                {offerMsg && (
+                  <div
+                    className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between shadow-sm ${
+                      offerMsg.type === "ok"
+                        ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
+                        : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
                     }`}
-                >
-                  <span>{offerMsg.text}</span>
-                  <button onClick={() => setOfferMsg(null)}>
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
+                  >
+                    <div className="flex items-center gap-2">
+                      {offerMsg.type === "ok" ? (
+                        <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 shrink-0" />
+                      )}
+                      <span>{offerMsg.text}</span>
+                    </div>
+                    <button onClick={() => setOfferMsg(null)}>
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {offers?.offers && offers.offers.length > 0 ? (
-                  offers.offers.map((o: any) => (
-                    <div
-                      key={o.id}
-                      className="bg-white border border-[#EAE3DC] rounded-3xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between relative overflow-hidden"
-                    >
-                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#C0392B]/10 to-transparent rounded-bl-full pointer-events-none" />
-                      <div>
-                        <div className="flex items-center justify-between mb-3">
-                          <span
-                            className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${o.isActive
-                              ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                              : "bg-[#7A6E67]/10 text-[#7A6E67]"
-                              }`}
-                          >
-                            {o.isActive ? "Active Campaign" : "Disabled"}
-                          </span>
-                          <div className="font-black text-lg text-[#C0392B]">
-                            {o.isPercent ? `${o.value}% OFF` : `AED ${o.value} OFF`}
-                          </div>
-                        </div>
-
-                        <h3 className="font-black text-base text-[#1E1815]">{o.name}</h3>
-                        <p className="text-xs text-[#7A6E67] mt-1 leading-relaxed">
-                          {o.description || "Applicable on eligible menu items across UAE branches."}
-                        </p>
-
-                        <div className="mt-4 pt-3 border-t border-[#EFE8E1] space-y-1.5 text-xs text-[#7A6E67]">
-                          <div className="flex items-center justify-between">
-                            <span>Locations:</span>
-                            <span className="font-bold text-[#1E1815]">
-                              {o.branches?.length ? `${o.branches.length} Branches` : "All Branches"}
-                            </span>
-                          </div>
-                          {(o.startsAt || o.endsAt) && (
-                            <div className="flex items-center justify-between">
-                              <span>Schedule:</span>
-                              <span className="font-medium text-[#1E1815]">
-                                {o.startsAt ? new Date(o.startsAt).toLocaleDateString() : "Now"} –{" "}
-                                {o.endsAt ? new Date(o.endsAt).toLocaleDateString() : "Ongoing"}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="mt-5 pt-4 border-t border-[#EFE8E1] flex items-center justify-between">
-                        <span className="text-[10px] text-[#7A6E67]">
-                          Created {new Date(o.createdAt).toLocaleDateString()}
+                {/* Filter & Action Toolbar */}
+                <div className="bg-white border border-[#EAE3DC] rounded-3xl p-5 sm:p-6 shadow-sm">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div>
+                      <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
+                        <Tag className="w-5 h-5 text-[#801313]" />
+                        <span>Promotions &amp; Campaign Engine</span>
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-xs font-bold">
+                          {filteredOffers.length} {filteredOffers.length === 1 ? "Offer" : "Offers"}
                         </span>
-                        {offers.canEdit && (
+                      </h2>
+                      <p className="text-xs text-[#7A6E67] mt-0.5">
+                        Manage discount offers and assign promotions to specific UAE branch outlets or nationwide.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      {offers?.canEdit && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNewOffer({
+                              name: "",
+                              description: "",
+                              value: "",
+                              isPercent: true,
+                              branchIds: [],
+                              startsAt: "",
+                              endsAt: "",
+                            });
+                            setShowCreateOfferModal(true);
+                          }}
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white text-xs font-black shadow-sm transition-all cursor-pointer"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>+ Launch Promotional Campaign</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Filter Controls Bar */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-[#EAE3DC]">
+                    {/* Search */}
+                    <div className="relative">
+                      <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#7A6E67]" />
+                      <input
+                        type="text"
+                        placeholder="Search campaign, discount, branch…"
+                        value={offerSearch}
+                        onChange={(e) => setOfferSearch(e.target.value)}
+                        className="w-full pl-9 pr-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                      />
+                    </div>
+
+                    {/* Branch Filter */}
+                    <div className="relative">
+                      <select
+                        value={offerBranchFilter}
+                        onChange={(e) => setOfferBranchFilter(e.target.value)}
+                        className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#801313] cursor-pointer"
+                      >
+                        <option value="all">📍 All Branches (Nationwide View)</option>
+                        {branchesList.map((b: any) => (
+                          <option key={b.id} value={b.id}>
+                            📍 {b.name} ({b.city || "Dubai"})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Status Filter */}
+                    <div className="relative">
+                      <select
+                        value={offerStatusFilter}
+                        onChange={(e) => setOfferStatusFilter(e.target.value as any)}
+                        className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#801313] cursor-pointer"
+                      >
+                        <option value="all">All Campaign Statuses</option>
+                        <option value="active">Active Campaigns Only</option>
+                        <option value="paused">Paused Campaigns Only</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Offers Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {filteredOffers.length > 0 ? (
+                    filteredOffers.map((o: any) => {
+                      const hasSpecificBranches = o.branches && o.branches.length > 0;
+                      return (
+                        <div
+                          key={o.id}
+                          className="bg-white border border-[#EAE3DC] rounded-3xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between relative overflow-hidden group"
+                        >
+                          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#801313]/10 to-transparent rounded-bl-full pointer-events-none" />
+                          <div>
+                            {/* Card Header: Status & Value */}
+                            <div className="flex items-center justify-between mb-3">
+                              <span
+                                className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                  o.isActive
+                                    ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
+                                    : "bg-[#7A6E67]/10 text-[#7A6E67]"
+                                }`}
+                              >
+                                {o.isActive ? "Active Campaign" : "Paused"}
+                              </span>
+                              <div className="font-black text-lg text-[#801313] bg-[#801313]/10 px-2.5 py-0.5 rounded-xl border border-[#801313]/20">
+                                {o.isPercent ? `${o.value}% OFF` : `AED ${o.value} OFF`}
+                              </div>
+                            </div>
+
+                            <h3 className="font-black text-base text-[#1E1815] leading-snug">{o.name}</h3>
+                            <p className="text-xs text-[#7A6E67] mt-1 leading-relaxed">
+                              {o.description || "Applicable on eligible menu orders at designated Bombay Chowpatty outlets."}
+                            </p>
+
+                            {/* ================= PROMINENT BRANCH LOCATION BADGES ================= */}
+                            <div className="mt-4 pt-3 border-t border-[#EFE8E1]">
+                              <div className="flex items-center justify-between text-xs mb-1.5">
+                                <span className="font-extrabold text-[#7A6E67] uppercase text-[10px] tracking-wider">
+                                  Branch Outlets:
+                                </span>
+                                <span className="font-black text-[11px] text-[#1E1815]">
+                                  {hasSpecificBranches
+                                    ? `${o.branches.length} Specific Outlet${o.branches.length === 1 ? "" : "s"}`
+                                    : "All UAE Outlets (Nationwide)"}
+                                </span>
+                              </div>
+
+                              {hasSpecificBranches ? (
+                                <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto custom-scrollbar p-1 bg-[#FAF7F4] rounded-xl border border-[#EAE3DC]">
+                                  {o.branches.map((b: any) => (
+                                    <span
+                                      key={b.id || b.code}
+                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white border border-[#801313]/30 text-[#801313] text-[11px] font-bold shadow-2xs"
+                                    >
+                                      <MapPin className="w-3 h-3 text-[#801313] shrink-0" />
+                                      <span className="truncate max-w-[130px]">{b.name}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#EAF5EE] border border-[#C8E6D3] text-[#1E7A4D] text-[11px] font-extrabold">
+                                  <Store className="w-3.5 h-3.5 text-[#1E7A4D] shrink-0" />
+                                  <span>All UAE Branches (14 Outlets)</span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Schedule Details */}
+                            {(o.startsAt || o.endsAt) && (
+                              <div className="mt-3 flex items-center justify-between text-xs text-[#7A6E67] bg-[#FAF7F4] px-2.5 py-1.5 rounded-xl border border-[#EAE3DC]">
+                                <span className="text-[11px] font-semibold">Valid:</span>
+                                <span className="font-bold text-[#1E1815] text-[11px]">
+                                  {o.startsAt ? new Date(o.startsAt).toLocaleDateString() : "Now"} –{" "}
+                                  {o.endsAt ? new Date(o.endsAt).toLocaleDateString() : "Ongoing"}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Footer Actions */}
+                          <div className="mt-5 pt-4 border-t border-[#EFE8E1] flex items-center justify-between">
+                            <span className="text-[10px] text-[#7A6E67] font-medium">
+                              Created {new Date(o.createdAt).toLocaleDateString()}
+                            </span>
+                            {offers?.canEdit && (
+                              <button
+                                type="button"
+                                onClick={() => toggleOffer(o.id, !o.isActive)}
+                                className={`px-3 py-1.5 rounded-xl font-black text-xs transition-all cursor-pointer shadow-2xs ${
+                                  o.isActive
+                                    ? "bg-red-50 hover:bg-red-100 text-red-700 border border-red-200"
+                                    : "bg-green-50 hover:bg-green-100 text-green-700 border border-green-200"
+                                }`}
+                              >
+                                {o.isActive ? "Pause Offer" : "Activate Offer"}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="col-span-full bg-white border border-[#EAE3DC] rounded-3xl p-12 text-center">
+                      <div className="w-12 h-12 rounded-2xl bg-[#801313]/10 text-[#801313] flex items-center justify-center mx-auto mb-3">
+                        <Tag className="w-6 h-6" />
+                      </div>
+                      <h3 className="text-sm font-extrabold text-[#1E1815] mb-1">
+                        No Promotional Campaigns Found
+                      </h3>
+                      <p className="text-xs text-[#7A6E67] max-w-sm mx-auto mb-4">
+                        {offerSearch || offerBranchFilter !== "all" || offerStatusFilter !== "all"
+                          ? "No offers match your search or branch filter criteria. Try resetting filters."
+                          : "No promotional campaigns are currently active. Click below to launch a new campaign."}
+                      </p>
+                      <div className="flex items-center justify-center gap-2">
+                        {(offerSearch || offerBranchFilter !== "all" || offerStatusFilter !== "all") && (
                           <button
-                            onClick={() => toggleOffer(o.id, !o.isActive)}
-                            className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer ${o.isActive
-                              ? "bg-[#C0392B]/10 hover:bg-[#C0392B]/20 text-[#C0392B]"
-                              : "bg-[#1E7A4D]/10 hover:bg-[#1E7A4D]/20 text-[#1E7A4D]"
-                              }`}
+                            type="button"
+                            onClick={() => {
+                              setOfferSearch("");
+                              setOfferBranchFilter("all");
+                              setOfferStatusFilter("all");
+                            }}
+                            className="px-4 py-2 rounded-xl bg-[#FAF7F4] border border-[#EAE3DC] text-xs font-bold text-[#4A3F39] hover:bg-white cursor-pointer"
                           >
-                            {o.isActive ? "Pause Campaign" : "Activate Campaign"}
+                            Reset Filters
+                          </button>
+                        )}
+                        {offers?.canEdit && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setNewOffer({
+                                name: "",
+                                description: "",
+                                value: "",
+                                isPercent: true,
+                                branchIds: [],
+                                startsAt: "",
+                                endsAt: "",
+                              });
+                              setShowCreateOfferModal(true);
+                            }}
+                            className="px-4 py-2 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white text-xs font-black cursor-pointer shadow-sm"
+                          >
+                            + Launch New Campaign
                           </button>
                         )}
                       </div>
                     </div>
-                  ))
-                ) : (
-                  <div className="col-span-full bg-white border border-[#EAE3DC] rounded-3xl p-12 text-center text-xs text-[#7A6E67]">
-                    No active offers configured. Click "+ New Campaign" to launch a promotion.
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* ============================================================== */}
           {/* TAB 4: BRANCH OUTLETS & CRUD                                   */}
@@ -2628,23 +2867,24 @@ export default function AdminPage() {
                               <td className="py-3 px-3">
                                 <div className="font-extrabold text-[#1E1815]">{b.name}</div>
                                 {b.nameAr && <div className="text-[11px] text-[#7A6E67]">{b.nameAr}</div>}
-                                <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                                   <Link
                                     href={`/outlet?code=${encodeURIComponent(b.code || b.id)}`}
                                     target="_blank"
-                                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#801313]/10 hover:bg-[#801313] text-[#801313] hover:text-white text-[10px] font-black tracking-wide transition-all cursor-pointer shadow-2xs"
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#801313]/10 hover:bg-[#801313] text-[#801313] hover:text-white text-[10px] font-black tracking-wide transition-all cursor-pointer shadow-2xs border border-[#801313]/20 group"
                                     title={`Launch ${b.name} Outlet POS Terminal`}
                                   >
-                                    <Store className="w-2.5 h-2.5" />
+                                    <Store className="w-3 h-3 text-[#801313] group-hover:text-white" />
                                     <span>Launch Outlet POS</span>
                                   </Link>
                                   <Link
                                     href={`/admin/store/${encodeURIComponent(b.id || b.code)}`}
-                                    className="inline-flex items-center gap-0.5 text-[10px] font-bold text-[#7A6E67] hover:text-[#801313] transition-colors"
-                                    title={`Open ${b.name} Store CRM`}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF7F4] hover:bg-[#801313] text-[#1E1815] hover:text-white text-[10px] font-black tracking-wide transition-all cursor-pointer shadow-2xs border border-[#EAE3DC] hover:border-[#801313] group"
+                                    title={`Open ${b.name} Loyalty Points Dashboard`}
                                   >
-                                    <span>Store CRM</span>
-                                    <ChevronRight className="w-2.5 h-2.5" />
+                                    <LayoutDashboard className="w-3 h-3 text-[#801313] group-hover:text-white" />
+                                    <span>Store Dashboard</span>
+                                    <ChevronRight className="w-3 h-3 text-[#7A6E67] group-hover:text-white" />
                                   </Link>
                                 </div>
                               </td>
@@ -5737,16 +5977,17 @@ export default function AdminPage() {
       {/* MODAL: CREATE CAMPAIGN OFFER                                    */}
       {/* ============================================================== */}
       {showCreateOfferModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl">
-            <div className="flex items-center justify-between mb-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-xl w-full shadow-2xl my-6 max-h-[92vh] flex flex-col">
+            <div className="flex items-center justify-between mb-4 shrink-0">
               <h3 className="font-extrabold text-lg text-[#1E1815] flex items-center gap-2">
-                <Tag className="w-5 h-5 text-[#C0392B]" />
+                <Tag className="w-5 h-5 text-[#801313]" />
                 Launch Promotional Campaign
               </h3>
               <button
+                type="button"
                 onClick={() => setShowCreateOfferModal(false)}
-                className="p-1 rounded-lg text-[#7A6E67] hover:bg-[#FAF7F4]"
+                className="p-1 rounded-lg text-[#7A6E67] hover:bg-[#FAF7F4] cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -5754,14 +5995,15 @@ export default function AdminPage() {
 
             {offerMsg && (
               <div
-                className={`p-3 rounded-xl text-xs font-semibold mb-4 ${offerMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#C0392B]/10 text-[#C0392B]"
-                  }`}
+                className={`p-3 rounded-xl text-xs font-semibold mb-4 shrink-0 ${
+                  offerMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#C0392B]/10 text-[#C0392B]"
+                }`}
               >
                 {offerMsg.text}
               </div>
             )}
 
-            <form onSubmit={createOffer} className="space-y-4">
+            <form onSubmit={createOffer} className="space-y-4 overflow-y-auto pr-1 custom-scrollbar">
               <div>
                 <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
                   Offer Title *
@@ -5769,23 +6011,23 @@ export default function AdminPage() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Weekend Family Brunch 20% Off"
+                  placeholder="e.g. Weekend Family Feast 20% Off"
                   value={newOffer.name}
                   onChange={(e) => setNewOffer({ ...newOffer, name: e.target.value })}
-                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
-                  Description
+                  Description / Eligibility Notes
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="e.g. Valid on all dine-in bills over AED 100 on Saturdays and Sundays."
+                  placeholder="e.g. Valid on dine-in bills over AED 100 on Saturdays and Sundays across selected branches."
                   value={newOffer.description}
                   onChange={(e) => setNewOffer({ ...newOffer, description: e.target.value })}
-                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
                 />
               </div>
 
@@ -5801,7 +6043,7 @@ export default function AdminPage() {
                     placeholder="e.g. 20"
                     value={newOffer.value}
                     onChange={(e) => setNewOffer({ ...newOffer, value: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#801313]"
                   />
                 </div>
                 <div>
@@ -5811,7 +6053,7 @@ export default function AdminPage() {
                   <select
                     value={newOffer.isPercent ? "pct" : "flat"}
                     onChange={(e) => setNewOffer({ ...newOffer, isPercent: e.target.value === "pct" })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
                   >
                     <option value="pct">Percentage (% Off)</option>
                     <option value="flat">Flat Amount (AED Off)</option>
@@ -5819,43 +6061,136 @@ export default function AdminPage() {
                 </div>
               </div>
 
+              {/* ===================== BRANCH SELECTION SECTION ===================== */}
+              <div className="p-3.5 bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                  <div>
+                    <label className="block text-xs font-black text-[#1E1815] uppercase tracking-wide">
+                      Branch / Outlet Assignment *
+                    </label>
+                    <p className="text-[11px] text-[#7A6E67]">
+                      {newOffer.branchIds.length === 0
+                        ? "✨ Applicable across ALL UAE branch outlets nationwide."
+                        : `📍 Targeted specifically to ${newOffer.branchIds.length} selected outlet${
+                            newOffer.branchIds.length === 1 ? "" : "s"
+                          }.`}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setNewOffer({ ...newOffer, branchIds: [] })}
+                      className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                        newOffer.branchIds.length === 0
+                          ? "bg-[#801313] text-white border-[#801313] shadow-2xs"
+                          : "bg-white text-[#7A6E67] border-[#EAE3DC] hover:text-[#1E1815]"
+                      }`}
+                    >
+                      All Outlets
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setNewOffer({
+                          ...newOffer,
+                          branchIds: branchesList.map((b: any) => b.id),
+                        })
+                      }
+                      className="text-[10px] font-bold px-2.5 py-1 rounded-lg border border-[#EAE3DC] bg-white text-[#7A6E67] hover:text-[#1E1815] transition-all cursor-pointer"
+                    >
+                      Select All
+                    </button>
+                    {newOffer.branchIds.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setNewOffer({ ...newOffer, branchIds: [] })}
+                        className="text-[10px] font-bold px-2 py-1 rounded-lg text-red-600 hover:bg-red-50 transition-all cursor-pointer"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Multi-Branch Checkbox Grid */}
+                <div className="max-h-44 overflow-y-auto p-2 bg-white border border-[#EAE3DC] rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-1.5 custom-scrollbar">
+                  {branchesList.map((b: any) => {
+                    const isSelected = newOffer.branchIds.includes(b.id);
+                    return (
+                      <label
+                        key={b.id}
+                        className={`flex items-center gap-2 p-2 rounded-lg text-xs cursor-pointer border transition-all ${
+                          isSelected
+                            ? "bg-[#801313]/5 border-[#801313] text-[#801313] font-bold shadow-2xs"
+                            : "bg-[#FAF7F4]/50 border-transparent text-[#4A3F39] hover:bg-[#FAF7F4] hover:border-[#EAE3DC]"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setNewOffer({
+                                ...newOffer,
+                                branchIds: [...newOffer.branchIds, b.id],
+                              });
+                            } else {
+                              setNewOffer({
+                                ...newOffer,
+                                branchIds: newOffer.branchIds.filter((id) => id !== b.id),
+                              });
+                            }
+                          }}
+                          className="w-3.5 h-3.5 text-[#801313] rounded border-[#DCD3CB] focus:ring-[#801313] cursor-pointer"
+                        />
+                        <span className="truncate flex-1 font-medium">{b.name}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#FAF7F4] text-[#7A6E67] font-mono shrink-0">
+                          #{b.code}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
-                    Start Date
+                    Start Date (Optional)
                   </label>
                   <input
                     type="date"
                     value={newOffer.startsAt}
                     onChange={(e) => setNewOffer({ ...newOffer, startsAt: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
-                    End Date
+                    End Date (Optional)
                   </label>
                   <input
                     type="date"
                     value={newOffer.endsAt}
                     onChange={(e) => setNewOffer({ ...newOffer, endsAt: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
                   />
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-[#EAE3DC] flex items-center justify-end gap-2">
+              <div className="pt-4 border-t border-[#EAE3DC] flex items-center justify-end gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={() => setShowCreateOfferModal(false)}
-                  className="px-4 py-2 rounded-xl border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:bg-[#FAF7F4]"
+                  className="px-4 py-2 rounded-xl border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:bg-[#FAF7F4] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={busy}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs shadow-md shadow-[#801313]/20 disabled:opacity-50 cursor-pointer"
                 >
                   {busy ? "Publishing…" : "Publish Campaign"}
                 </button>

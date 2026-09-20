@@ -60,6 +60,7 @@ export default function CustomerDashboardPage() {
   const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [err, setErr] = useState("");
+  const [dateFilter, setDateFilter] = useState<"all" | "today" | "7days" | "30days">("all");
   const [showSwitchModal, setShowSwitchModal] = useState(false);
   const [editing, setEditing] = useState(false);
   const [profile, setProfile] = useState({ name: "", email: "", birthday: "" });
@@ -323,6 +324,28 @@ export default function CustomerDashboardPage() {
   const { customer, qr, rewards, transactions, offers, nextTargets, currency, loyaltyRules, redemptionStatus } = data;
   const availableRewards = rewards?.filter((r: any) => r.status === "AVAILABLE") || [];
   const usedRewards = rewards?.filter((r: any) => r.status !== "AVAILABLE") || [];
+
+  // Filter transactions by selected date range
+  const filteredTransactions = (transactions || []).filter((t: any) => {
+    if (dateFilter === "all") return true;
+    if (!t.createdAt) return true;
+    const txDate = new Date(t.createdAt);
+    const now = new Date();
+    if (dateFilter === "today") {
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      return txDate >= startOfToday;
+    }
+    if (dateFilter === "7days") {
+      const cutoff = new Date(now.getTime() - 7 * 86400_000);
+      return txDate >= cutoff;
+    }
+    if (dateFilter === "30days") {
+      const cutoff = new Date(now.getTime() - 30 * 86400_000);
+      return txDate >= cutoff;
+    }
+    return true;
+  });
 
   // Milestone calculation from backend data
   const visitTarget = nextTargets?.find((t: any) => t.kind === "visits");
@@ -755,6 +778,56 @@ export default function CustomerDashboardPage() {
       </div>
 
       {/* ============================================================== */}
+      {/* 8.5 DATE RANGE FILTER PILL BAR                                 */}
+      {/* ============================================================== */}
+      <div className="bg-white rounded-2xl p-1 sm:p-1.5 border border-[#EAE3DC] shadow-2xs mb-4 flex items-center justify-between gap-1">
+        <button
+          type="button"
+          onClick={() => setDateFilter("all")}
+          className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
+            dateFilter === "all"
+              ? "bg-[#970709] text-white shadow-xs font-black"
+              : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
+          }`}
+        >
+          All Time
+        </button>
+        <button
+          type="button"
+          onClick={() => setDateFilter("today")}
+          className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
+            dateFilter === "today"
+              ? "bg-[#970709] text-white shadow-xs font-black"
+              : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
+          }`}
+        >
+          Today
+        </button>
+        <button
+          type="button"
+          onClick={() => setDateFilter("7days")}
+          className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
+            dateFilter === "7days"
+              ? "bg-[#970709] text-white shadow-xs font-black"
+              : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
+          }`}
+        >
+          Last 7 Days
+        </button>
+        <button
+          type="button"
+          onClick={() => setDateFilter("30days")}
+          className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
+            dateFilter === "30days"
+              ? "bg-[#970709] text-white shadow-xs font-black"
+              : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
+          }`}
+        >
+          Last 30 Days
+        </button>
+      </div>
+
+      {/* ============================================================== */}
       {/* 9. RECENT VISITS & RECEIPTS HISTORY (Backend Data)             */}
       {/* ============================================================== */}
       <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-xs border border-[#EAE3DC] mb-4">
@@ -763,18 +836,25 @@ export default function CustomerDashboardPage() {
             <div className="w-7 h-7 rounded-lg bg-[#801313]/10 text-[#801313] flex items-center justify-center">
               <History className="w-4 h-4" />
             </div>
-            <h3 className="font-bold text-sm text-[#1E1815]">
-              Recent Visits & Receipts
-            </h3>
+            <div>
+              <h3 className="font-bold text-sm text-[#1E1815]">
+                Recent Visits &amp; Receipts
+              </h3>
+              {dateFilter !== "all" && (
+                <div className="text-[10px] font-bold text-[#801313]">
+                  Showing: {dateFilter === "today" ? "Today" : dateFilter === "7days" ? "Past 7 Days" : "Past 30 Days"}
+                </div>
+              )}
+            </div>
           </div>
-          <span className="text-[10px] font-bold text-[#7A6E67] uppercase tracking-wider">
-            {transactions?.length || 0} Records
+          <span className="text-[10px] font-bold text-[#7A6E67] uppercase tracking-wider bg-[#FAF7F4] px-2 py-0.5 rounded-lg border border-[#EAE3DC]">
+            {filteredTransactions.length} {filteredTransactions.length === 1 ? "Record" : "Records"}
           </span>
         </div>
 
-        {transactions && transactions.length > 0 ? (
+        {filteredTransactions && filteredTransactions.length > 0 ? (
           <div className="divide-y divide-[#EFE8E1]">
-            {transactions.map((t: any) => (
+            {filteredTransactions.map((t: any) => (
               <div
                 key={t.id}
                 onClick={() => setSelectedReceipt(t)}
@@ -827,10 +907,25 @@ export default function CustomerDashboardPage() {
         ) : (
           <div className="text-center py-6 text-xs text-[#7A6E67]">
             <Receipt className="w-7 h-7 text-[#801313]/30 mx-auto mb-1.5" />
-            <p className="font-semibold">No previous visits recorded yet.</p>
-            <p className="text-[10px] text-[#A0938C] mt-0.5">
-              Points earned and redeemed on your dine-in bills will appear here automatically.
+            <p className="font-semibold">
+              {dateFilter === "all"
+                ? "No previous visits recorded yet."
+                : `No visits or receipts recorded for ${dateFilter === "today" ? "today" : dateFilter === "7days" ? "the last 7 days" : "the last 30 days"}.`}
             </p>
+            {dateFilter !== "all" && (
+              <button
+                type="button"
+                onClick={() => setDateFilter("all")}
+                className="mt-2 text-[11px] font-bold text-[#801313] hover:underline cursor-pointer"
+              >
+                Show All Time History ({transactions?.length || 0} Records)
+              </button>
+            )}
+            {dateFilter === "all" && (
+              <p className="text-[10px] text-[#A0938C] mt-0.5">
+                Points earned and redeemed on your dine-in bills will appear here automatically.
+              </p>
+            )}
           </div>
         )}
       </div>

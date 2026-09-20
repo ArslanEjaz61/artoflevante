@@ -68,11 +68,14 @@ export default function StoreCrmPage() {
   const [error, setError] = useState("");
   const [data, setData] = useState<any>(null);
 
-  // Active Store Tab
-  const [activeTab, setActiveTab] = useState<"live" | "customers" | "transactions" | "staff" | "offers">("live");
+  // Active Store Tab & Date Filter
+  const [activeTab, setActiveTab] = useState<"live" | "customers" | "visitors" | "transactions" | "staff" | "offers">("customers");
+  const [storeDateFilter, setStoreDateFilter] = useState<"all" | "today" | "7days" | "30days">("all");
 
   // Search in tables
   const [customerSearch, setCustomerSearch] = useState("");
+  const [visitorSearch, setVisitorSearch] = useState("");
+  const [visitorTypeFilter, setVisitorTypeFilter] = useState<"all" | "CHECK_IN" | "TRANSACTION">("all");
   const [transactionSearch, setTransactionSearch] = useState("");
   const [copiedBranchCode, setCopiedBranchCode] = useState(false);
   const [copiedCouponCode, setCopiedCouponCode] = useState(false);
@@ -83,14 +86,14 @@ export default function StoreCrmPage() {
   const [loadingCustDetail, setLoadingCustDetail] = useState(false);
   const [custDetailTab, setCustDetailTab] = useState<"overview" | "transactions" | "rewards" | "visits" | "ledger">("overview");
 
-  const fetchStoreData = useCallback(async (isRefresh = false) => {
+  const fetchStoreData = useCallback(async (isRefresh = false, dateFilter = storeDateFilter) => {
     if (!storeId) return;
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
     setError("");
 
     try {
-      const res = await fetch(`/api/admin/store/${encodeURIComponent(storeId)}`);
+      const res = await fetch(`/api/admin/store/${encodeURIComponent(storeId)}?dateRange=${encodeURIComponent(dateFilter)}`);
       const json = await res.json();
       if (!res.ok) {
         throw new Error(json.error || "Failed to load store data.");
@@ -102,7 +105,12 @@ export default function StoreCrmPage() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [storeId]);
+  }, [storeId, storeDateFilter]);
+
+  const handleDateFilterChange = (filter: "all" | "today" | "7days" | "30days") => {
+    setStoreDateFilter(filter);
+    fetchStoreData(true, filter);
+  };
 
   useEffect(() => {
     fetchStoreData();
@@ -184,7 +192,7 @@ export default function StoreCrmPage() {
     );
   }
 
-  const { store, metrics, staff, offers, customers, transactions, visits, birthdays, currency } = data;
+  const { store, metrics, staff, offers, customers, transactions, visits, visitors = [], birthdays, currency } = data;
 
   // Filtered lists
   const filteredCustomers = customers.filter((c: any) => {
@@ -194,6 +202,20 @@ export default function StoreCrmPage() {
       c.name?.toLowerCase().includes(q) ||
       c.mobile?.includes(q) ||
       c.email?.toLowerCase().includes(q)
+    );
+  });
+
+  const filteredVisitors = (visitors || []).filter((v: any) => {
+    if (visitorTypeFilter !== "all" && v.visitType !== visitorTypeFilter) return false;
+    if (!visitorSearch.trim()) return true;
+    const q = visitorSearch.toLowerCase();
+    return (
+      v.customerName?.toLowerCase().includes(q) ||
+      v.customerMobile?.includes(q) ||
+      v.couponCode?.toLowerCase().includes(q) ||
+      v.invoiceNumber?.toLowerCase().includes(q) ||
+      v.staffName?.toLowerCase().includes(q) ||
+      v.homeBranchName?.toLowerCase().includes(q)
     );
   });
 
@@ -363,92 +385,168 @@ export default function StoreCrmPage() {
           </div>
         </div>
 
-        {/* ===================== KEY STORE METRICS GRID ===================== */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 mb-6">
-          {/* Total Revenue */}
-          <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
-            <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
-              <span>Total Revenue</span>
-              <DollarSign className="w-3.5 h-3.5 text-[#801313]" />
-            </div>
-            <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
-              {formatMoney(currency, metrics.totalRevenue)}
-            </div>
-            <div className="text-[11px] text-[#1E7A4D] font-bold mt-1">
-              +{formatMoney(currency, metrics.todayRevenue)} today
-            </div>
+        {/* ===================== DATE RANGE FILTER BAR ===================== */}
+        <div className="bg-white border border-[#EAE3DC] rounded-2xl p-3 sm:p-3.5 shadow-2xs mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-[#801313]" />
+            <span className="text-xs font-black text-[#1E1815] uppercase tracking-wider">
+              Store Data Period:
+            </span>
+            <span className="text-xs font-bold text-[#801313] bg-[#801313]/10 px-2.5 py-0.5 rounded-lg border border-[#801313]/20">
+              {storeDateFilter === "all"
+                ? "All Time History"
+                : storeDateFilter === "today"
+                ? "Today's Live Data"
+                : storeDateFilter === "7days"
+                ? "Last 7 Days"
+                : "Last 30 Days"}
+            </span>
           </div>
 
-          {/* Total Visits */}
-          <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
-            <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
-              <span>Total Visits</span>
-              <Receipt className="w-3.5 h-3.5 text-[#801313]" />
-            </div>
-            <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
-              {metrics.totalVisits.toLocaleString()}
-            </div>
-            <div className="text-[11px] text-[#1E7A4D] font-bold mt-1">
-              +{metrics.todayVisits} visits today
-            </div>
-          </div>
-
-          {/* Registered Members */}
-          <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
-            <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
-              <span>Store Members</span>
-              <Users className="w-3.5 h-3.5 text-[#801313]" />
-            </div>
-            <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
-              {metrics.registeredCustomers.toLocaleString()}
-            </div>
-            <div className="text-[11px] text-[#7A6E67] font-bold mt-1">
-              Active local club
-            </div>
-          </div>
-
-          {/* Points Awarded */}
-          <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
-            <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
-              <span>Points Issued</span>
-              <Coins className="w-3.5 h-3.5 text-[#801313]" />
-            </div>
-            <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
-              {metrics.totalPointsEarned.toLocaleString()} <span className="text-xs">pts</span>
-            </div>
-            <div className="text-[11px] text-[#1E7A4D] font-bold mt-1">
-              +{metrics.todayPoints} pts today
-            </div>
-          </div>
-
-          {/* Average Bill */}
-          <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
-            <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
-              <span>Avg Bill</span>
-              <TrendingUp className="w-3.5 h-3.5 text-[#801313]" />
-            </div>
-            <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
-              {formatMoney(currency, metrics.avgBill)}
-            </div>
-            <div className="text-[11px] text-[#7A6E67] font-bold mt-1">
-              Per order average
-            </div>
-          </div>
-
-          {/* Discounts Given */}
-          <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
-            <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
-              <span>Discounts Saved</span>
-              <Percent className="w-3.5 h-3.5 text-[#801313]" />
-            </div>
-            <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
-              {formatMoney(currency, metrics.totalDiscounts)}
-            </div>
-            <div className="text-[11px] text-[#7A6E67] font-bold mt-1">
-              Member savings
-            </div>
+          <div className="flex items-center gap-1.5 bg-[#FAF7F4] border border-[#EAE3DC] p-1 rounded-xl w-fit">
+            <button
+              type="button"
+              onClick={() => handleDateFilterChange("all")}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                storeDateFilter === "all"
+                  ? "bg-[#801313] text-white shadow-xs"
+                  : "text-[#7A6E67] hover:text-[#1E1815]"
+              }`}
+            >
+              All Time
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDateFilterChange("today")}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                storeDateFilter === "today"
+                  ? "bg-[#801313] text-white shadow-xs"
+                  : "text-[#7A6E67] hover:text-[#1E1815]"
+              }`}
+            >
+              Today
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDateFilterChange("7days")}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                storeDateFilter === "7days"
+                  ? "bg-[#801313] text-white shadow-xs"
+                  : "text-[#7A6E67] hover:text-[#1E1815]"
+              }`}
+            >
+              Last 7 Days
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDateFilterChange("30days")}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                storeDateFilter === "30days"
+                  ? "bg-[#801313] text-white shadow-xs"
+                  : "text-[#7A6E67] hover:text-[#1E1815]"
+              }`}
+            >
+              Last 30 Days
+            </button>
           </div>
         </div>
+
+        {/* ===================== KEY STORE METRICS GRID ===================== */}
+        {(() => {
+          const displayRevenue = storeDateFilter === "all" ? metrics.totalRevenue : (metrics.periodRevenue ?? metrics.totalRevenue);
+          const displayVisits = storeDateFilter === "all" ? metrics.totalVisits : (metrics.periodVisits ?? metrics.totalVisits);
+          const displayPoints = storeDateFilter === "all" ? metrics.totalPointsEarned : (metrics.periodPoints ?? metrics.totalPointsEarned);
+          const displayDiscounts = storeDateFilter === "all" ? metrics.totalDiscounts : (metrics.periodDiscounts ?? metrics.totalDiscounts);
+          const displayAvgBill = storeDateFilter === "all" ? metrics.avgBill : (metrics.periodAvgBill ?? metrics.avgBill);
+
+          return (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 mb-6">
+              {/* Total Revenue */}
+              <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
+                <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
+                  <span>Revenue</span>
+                  <DollarSign className="w-3.5 h-3.5 text-[#801313]" />
+                </div>
+                <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
+                  {formatMoney(currency, displayRevenue)}
+                </div>
+                <div className="text-[11px] text-[#1E7A4D] font-bold mt-1">
+                  +{formatMoney(currency, metrics.todayRevenue)} today
+                </div>
+              </div>
+
+              {/* Total Visits */}
+              <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
+                <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
+                  <span>Visits</span>
+                  <Receipt className="w-3.5 h-3.5 text-[#801313]" />
+                </div>
+                <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
+                  {displayVisits.toLocaleString()}
+                </div>
+                <div className="text-[11px] text-[#1E7A4D] font-bold mt-1">
+                  +{metrics.todayVisits} visits today
+                </div>
+              </div>
+
+              {/* Registered Members */}
+              <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
+                <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
+                  <span>Store Members</span>
+                  <Users className="w-3.5 h-3.5 text-[#801313]" />
+                </div>
+                <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
+                  {metrics.registeredCustomers.toLocaleString()}
+                </div>
+                <div className="text-[11px] text-[#7A6E67] font-bold mt-1">
+                  Active local club
+                </div>
+              </div>
+
+              {/* Points Awarded */}
+              <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
+                <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
+                  <span>Points Issued</span>
+                  <Coins className="w-3.5 h-3.5 text-[#801313]" />
+                </div>
+                <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
+                  {displayPoints.toLocaleString()} <span className="text-xs">pts</span>
+                </div>
+                <div className="text-[11px] text-[#1E7A4D] font-bold mt-1">
+                  +{metrics.todayPoints} pts today
+                </div>
+              </div>
+
+              {/* Average Bill */}
+              <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
+                <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
+                  <span>Avg Bill</span>
+                  <TrendingUp className="w-3.5 h-3.5 text-[#801313]" />
+                </div>
+                <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
+                  {formatMoney(currency, displayAvgBill)}
+                </div>
+                <div className="text-[11px] text-[#7A6E67] font-bold mt-1">
+                  Per order average
+                </div>
+              </div>
+
+              {/* Discounts Given */}
+              <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
+                <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
+                  <span>Discounts Saved</span>
+                  <Percent className="w-3.5 h-3.5 text-[#801313]" />
+                </div>
+                <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
+                  {formatMoney(currency, displayDiscounts)}
+                </div>
+                <div className="text-[11px] text-[#7A6E67] font-bold mt-1">
+                  Member savings
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* ===================== STORE NAVIGATION TABS ===================== */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6 border-b border-[#EAE3DC]">
@@ -476,6 +574,19 @@ export default function StoreCrmPage() {
           >
             <Users className="w-3.5 h-3.5" />
             <span>Store Members ({customers.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("visitors")}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer shrink-0 ${
+              activeTab === "visitors"
+                ? "bg-[#801313] text-white shadow-xs"
+                : "bg-white text-[#5C504A] hover:bg-[#FAF7F4] border border-[#EAE3DC]"
+            }`}
+          >
+            <UserCheck className="w-3.5 h-3.5" />
+            <span>Store Visitors ({visitors.length})</span>
           </button>
 
           <button
@@ -744,6 +855,196 @@ export default function StoreCrmPage() {
           </div>
         )}
 
+        {/* ===================== TAB: STORE VISITORS ===================== */}
+        {activeTab === "visitors" && (
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm">
+            {/* Header & Controls */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+              <div>
+                <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
+                  <UserCheck className="w-4 h-4 text-[#801313]" />
+                  <span>Store Visitors &amp; In-Store Check-ins ({filteredVisitors.length})</span>
+                  <span className="text-xs font-bold text-[#801313] bg-[#801313]/10 px-2.5 py-0.5 rounded-lg border border-[#801313]/20">
+                    {storeDateFilter === "all" ? "All Time" : storeDateFilter === "today" ? "Today" : storeDateFilter === "7days" ? "Past 7 Days" : "Past 30 Days"}
+                  </span>
+                </h2>
+                <p className="text-xs text-[#7A6E67] mt-0.5">
+                  Complete log of guests who visited {store.name}, validated daily coupon passcodes, or placed dine-in orders. (Click any row to view member profile)
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Filter Selector */}
+                <div className="flex items-center gap-1 bg-[#FAF7F4] border border-[#EAE3DC] p-1 rounded-xl text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setVisitorTypeFilter("all")}
+                    className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                      visitorTypeFilter === "all" ? "bg-[#801313] text-white shadow-xs" : "text-[#7A6E67] hover:text-[#1E1815]"
+                    }`}
+                  >
+                    All ({visitors.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVisitorTypeFilter("CHECK_IN")}
+                    className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                      visitorTypeFilter === "CHECK_IN" ? "bg-[#801313] text-white shadow-xs" : "text-[#7A6E67] hover:text-[#1E1815]"
+                    }`}
+                  >
+                    Passcodes / QR ({visitors.filter((v: any) => v.visitType === "CHECK_IN").length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVisitorTypeFilter("TRANSACTION")}
+                    className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                      visitorTypeFilter === "TRANSACTION" ? "bg-[#801313] text-white shadow-xs" : "text-[#7A6E67] hover:text-[#1E1815]"
+                    }`}
+                  >
+                    Dine-in Bills ({visitors.filter((v: any) => v.visitType === "TRANSACTION").length})
+                  </button>
+                </div>
+
+                {/* Search Bar */}
+                <div className="relative w-full sm:w-64">
+                  <input
+                    type="text"
+                    placeholder="Search visitor, mobile, code…"
+                    value={visitorSearch}
+                    onChange={(e) => setVisitorSearch(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                  />
+                  <Search className="w-4 h-4 text-[#7A6E67] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </div>
+            </div>
+
+            {/* Table */}
+            {filteredVisitors.length === 0 ? (
+              <div className="p-10 text-center bg-[#FAF7F4] rounded-2xl border border-dashed border-[#EAE3DC]">
+                <UserCheck className="w-8 h-8 text-[#801313]/40 mx-auto mb-2" />
+                <h3 className="text-sm font-extrabold text-[#1E1815] mb-1">
+                  No Visitors Recorded For This Period
+                </h3>
+                <p className="text-xs text-[#7A6E67] max-w-sm mx-auto">
+                  When customers check in at {store.name} using the daily coupon code or pay at the cashier counter, their visit details appear here in real time.
+                </p>
+                {storeDateFilter !== "all" && (
+                  <button
+                    type="button"
+                    onClick={() => handleDateFilterChange("all")}
+                    className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#801313] hover:text-white border border-[#EAE3DC] text-xs font-bold text-[#801313] transition-all cursor-pointer"
+                  >
+                    <span>View All Time Visitors</span>
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-[#EAE3DC] text-[#7A6E67] font-extrabold uppercase text-[10px] tracking-wider">
+                      <th className="py-3 px-3">Visitor Name</th>
+                      <th className="py-3 px-3">Mobile Number</th>
+                      <th className="py-3 px-3">Visit Method / Ref</th>
+                      <th className="py-3 px-3">Bill / Spend</th>
+                      <th className="py-3 px-3">Points Earned</th>
+                      <th className="py-3 px-3">Lifetime Visits</th>
+                      <th className="py-3 px-3">Visit Time</th>
+                      <th className="py-3 px-3 text-right">Profile</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#EAE3DC]/60">
+                    {filteredVisitors.map((v: any) => (
+                      <tr
+                        key={v.id}
+                        onClick={() => v.customerId && openCustomerDetail(v.customerId)}
+                        className="hover:bg-[#801313]/5 transition-colors cursor-pointer group"
+                      >
+                        <td className="py-3 px-3 font-bold text-[#1E1815] group-hover:text-[#801313] transition-colors">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-full bg-[#801313]/10 text-[#801313] flex items-center justify-center font-black text-xs shrink-0">
+                              {v.customerName ? v.customerName.slice(0, 1).toUpperCase() : "V"}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <span>{v.customerName}</span>
+                                {v.isHomeMember ? (
+                                  <span className="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-[#EAF5EE] text-[#1E7A4D] border border-[#C8E6D3]">
+                                    Home Member
+                                  </span>
+                                ) : (
+                                  <span className="px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-[#FAF7F4] text-[#7A6E67] border border-[#EAE3DC]">
+                                    Guest ({v.homeBranchName})
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-[10.5px] text-[#7A6E67] font-normal font-mono">
+                                Points Bal: <span className="font-bold text-[#801313]">{v.pointsBalance} pts</span>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="py-3 px-3 font-mono font-medium text-[#7A6E67]">
+                          {v.customerMobile}
+                        </td>
+
+                        <td className="py-3 px-3">
+                          <div className="flex items-center gap-1.5">
+                            {v.visitType === "CHECK_IN" ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 font-bold text-[10.5px]">
+                                <MapPin className="w-3 h-3 text-blue-600" />
+                                <span>{v.couponCode ? `Coupon #${v.couponCode}` : v.method}</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-[10.5px]">
+                                <Receipt className="w-3 h-3 text-emerald-700" />
+                                <span>{v.invoiceNumber ? `Bill #${v.invoiceNumber}` : "POS Sale"}</span>
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[10px] text-[#7A6E67] mt-0.5 font-medium">
+                            {v.staffName}
+                          </div>
+                        </td>
+
+                        <td className="py-3 px-3 font-mono font-bold text-[#1E1815]">
+                          {v.amount > 0 ? (
+                            <span className="text-[#1E1815] font-black">{formatMoney(currency, v.amount)}</span>
+                          ) : (
+                            <span className="text-[#7A6E67] font-medium italic">Check-in</span>
+                          )}
+                        </td>
+
+                        <td className="py-3 px-3 font-mono font-bold text-[#1E7A4D]">
+                          {v.pointsEarned > 0 ? `+${v.pointsEarned} pts` : "—"}
+                        </td>
+
+                        <td className="py-3 px-3 font-mono font-bold text-[#1E1815]">
+                          {v.visitCount} visits
+                        </td>
+
+                        <td className="py-3 px-3 text-[#7A6E67]">
+                          <div className="font-bold text-[#1E1815]">{formatRelativeTime(v.createdAt)}</div>
+                          <div className="text-[10px] text-[#A0938C]">{new Date(v.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
+                        </td>
+
+                        <td className="py-3 px-3 text-right">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white group-hover:bg-[#801313] group-hover:text-white border border-[#EAE3DC] text-[11px] font-bold text-[#801313] shadow-2xs transition-all">
+                            <span>Profile</span>
+                            <ChevronRight className="w-3 h-3" />
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ===================== TAB 3: TRANSACTIONS LEDGER ===================== */}
         {activeTab === "transactions" && (
           <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm">
@@ -882,18 +1183,36 @@ export default function StoreCrmPage() {
         {/* ===================== TAB 5: STORE OFFERS ===================== */}
         {activeTab === "offers" && (
           <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm">
-            <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2 mb-1">
-              <Ticket className="w-4 h-4 text-[#801313]" />
-              Promotions &amp; Offers for {store.name} ({offers.length})
-            </h2>
-            <p className="text-xs text-[#7A6E67] mb-6">
-              Marketing campaigns and targeted discounts applicable at this location.
-            </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+              <div>
+                <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
+                  <Ticket className="w-4 h-4 text-[#801313]" />
+                  <span>Promotions &amp; Offers for {store.name}</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-xs font-bold">
+                    {offers.length} {offers.length === 1 ? "Offer" : "Offers"}
+                  </span>
+                </h2>
+                <p className="text-xs text-[#7A6E67] mt-0.5">
+                  Marketing campaigns and targeted discounts applicable at this location.
+                </p>
+              </div>
+
+              <Link
+                href="/admin"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FAF7F4] hover:bg-[#801313] hover:text-white border border-[#EAE3DC] text-xs font-bold text-[#4A3F39] transition-all cursor-pointer w-fit"
+              >
+                <span>Manage All UAE Campaigns in Admin →</span>
+              </Link>
+            </div>
 
             {offers.length === 0 ? (
-              <div className="p-8 text-center bg-[#FAF7F4] rounded-2xl border border-dashed border-[#EAE3DC]">
-                <p className="text-xs font-bold text-[#7A6E67]">
-                  No targeted campaigns configured for this store. Standard UAE rewards apply.
+              <div className="p-10 text-center bg-[#FAF7F4] rounded-2xl border border-dashed border-[#EAE3DC]">
+                <Ticket className="w-8 h-8 text-[#801313]/50 mx-auto mb-2" />
+                <h3 className="text-sm font-extrabold text-[#1E1815] mb-1">
+                  No Location-Specific Campaigns Configured
+                </h3>
+                <p className="text-xs text-[#7A6E67] max-w-sm mx-auto">
+                  Standard UAE rewards and visit milestone dishes apply across all check-ins at {store.name}.
                 </p>
               </div>
             ) : (
@@ -901,13 +1220,34 @@ export default function StoreCrmPage() {
                 {offers.map((o: any) => (
                   <div
                     key={o.id}
-                    className="p-5 rounded-2xl border border-[#EAE3DC] bg-[#FAF7F4] hover:bg-white transition-all shadow-2xs"
+                    className="p-5 rounded-2xl border border-[#EAE3DC] bg-[#FAF7F4] hover:bg-white transition-all shadow-2xs flex flex-col justify-between"
                   >
-                    <div className="font-black text-sm text-[#1E1815] mb-1">{o.name}</div>
-                    <p className="text-xs text-[#7A6E67] mb-3">{o.description}</p>
-                    <div className="text-xs font-bold text-[#801313]">
-                      Value: {o.isPercent ? `${o.value}% OFF` : `${currency} ${o.value} OFF`}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-[10px] font-black uppercase">
+                          <MapPin className="w-3 h-3 text-[#801313]" />
+                          <span>{store.name}</span>
+                        </span>
+                        <span className="font-black text-xs text-[#801313] bg-white px-2 py-0.5 rounded-lg border border-[#EAE3DC]">
+                          {o.isPercent ? `${o.value}% OFF` : `${currency} ${o.value} OFF`}
+                        </span>
+                      </div>
+
+                      <div className="font-black text-sm text-[#1E1815] mb-1">{o.name}</div>
+                      <p className="text-xs text-[#7A6E67] mb-3 leading-relaxed">
+                        {o.description || `Valid on eligible dining bills at ${store.name}.`}
+                      </p>
                     </div>
+
+                    {(o.startsAt || o.endsAt) && (
+                      <div className="pt-2 border-t border-[#EAE3DC] text-[11px] text-[#7A6E67] font-medium flex items-center justify-between">
+                        <span>Validity:</span>
+                        <span className="font-bold text-[#1E1815]">
+                          {o.startsAt ? new Date(o.startsAt).toLocaleDateString() : "Now"} –{" "}
+                          {o.endsAt ? new Date(o.endsAt).toLocaleDateString() : "Ongoing"}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
