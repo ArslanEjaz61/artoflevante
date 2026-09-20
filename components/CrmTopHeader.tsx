@@ -80,7 +80,7 @@ export function CrmTopHeader({ activeTab, onRefresh }: CrmTopHeaderProps) {
         <div className="inline-flex items-center bg-white border border-[#EAE3DC] p-1.5 rounded-2xl shadow-sm gap-1.5">
           <button
             type="button"
-            onClick={() => router.push("/")}
+            onClick={() => router.push("/crm")}
             className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
               currentTab === "customer"
                 ? "bg-[#591313] text-white shadow-sm"

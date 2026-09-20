@@ -1827,7 +1827,7 @@ export default function AdminPage() {
 
             {/* Customer Portal Link */}
             <Link
-              href="/"
+              href="/crm"
               className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#DCD3CB] bg-white hover:bg-[#FAF7F4] text-xs font-bold text-[#801313] shadow-2xs transition-all cursor-pointer"
               title="Open Customer Portal"
             >
@@ -1877,7 +1877,7 @@ export default function AdminPage() {
               <div className="bg-white border border-[#EAE3DC] rounded-2xl p-2.5 sm:p-3 shadow-2xs flex flex-wrap items-center gap-2.5">
                 {/* Customer Shortcut */}
                 <Link
-                  href="/"
+                  href="/crm"
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FAF7F4] hover:bg-[#801313] text-[#1E1815] hover:text-white border border-[#EAE3DC] hover:border-[#801313] text-xs font-black transition-all shadow-2xs cursor-pointer group"
                   title="Customer Portal"
                 >

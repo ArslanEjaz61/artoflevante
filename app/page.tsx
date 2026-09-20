@@ -41,7 +41,7 @@ function matchBranch(list: Branch[], raw: string): Branch | null {
   );
 }
 
-export default function HomePage() {
+export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader?: boolean }) {
   const router = useRouter();
   const { triggerInstall, isInstallable, isInstalled, isIos } = usePwaInstall();
   const [showInstallGuide, setShowInstallGuide] = useState(false);
@@ -266,7 +266,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#F0DBDB] flex flex-col font-sans selection:bg-[#970709] selection:text-white">
-      <CrmTopHeader activeTab="customer" />
+      {showCrmHeader && <CrmTopHeader activeTab="customer" />}
       <div className="flex-1 flex flex-col items-center justify-center p-3 sm:p-5 max-w-md w-full mx-auto">
         {/* Toast Notification */}
         {toast && (
@@ -703,4 +703,8 @@ export default function HomePage() {
       </div>
     </div>
   );
+}
+
+export default function HomePage() {
+  return <CustomerPortalContent showCrmHeader={false} />;
 }
