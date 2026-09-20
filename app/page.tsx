@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { usePwaInstall } from "@/lib/usePwaInstall";
 import { InstallGuideModal } from "@/components/InstallGuideModal";
+import { CrmTopHeader } from "@/components/CrmTopHeader";
 
 const BRAND = process.env.NEXT_PUBLIC_APP_NAME || "Bombay Chowpatty Loyalty";
 
@@ -263,14 +264,16 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F0DBDB] flex flex-col items-center justify-center p-3 sm:p-5 max-w-md mx-auto selection:bg-[#970709] selection:text-white">
-      {/* Toast Notification */}
-      {toast && (
-        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#1E1815] text-white px-4 py-2.5 rounded-full text-xs font-bold shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
-          <CheckCircle2 className="w-4 h-4 text-[#E5A93C]" />
-          <span>{toast}</span>
-        </div>
-      )}
+    <div className="min-h-screen bg-[#F0DBDB] flex flex-col font-sans selection:bg-[#970709] selection:text-white">
+      <CrmTopHeader activeTab="customer" />
+      <div className="flex-1 flex flex-col items-center justify-center p-3 sm:p-5 max-w-md w-full mx-auto">
+        {/* Toast Notification */}
+        {toast && (
+          <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#1E1815] text-white px-4 py-2.5 rounded-full text-xs font-bold shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
+            <CheckCircle2 className="w-4 h-4 text-[#E5A93C]" />
+            <span>{toast}</span>
+          </div>
+        )}
 
       {/* ============================================================== */}
       {/* 1. HERO ONBOARDING VIEW (Exact design matching reference)      */}
@@ -704,6 +707,7 @@ export default function HomePage() {
         onTriggerNative={triggerInstall}
         isNativeAvailable={isInstallable}
       />
+      </div>
     </div>
   );
 }

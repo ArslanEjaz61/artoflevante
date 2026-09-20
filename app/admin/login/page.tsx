@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, ShieldCheck, KeyRound, AlertTriangle, ArrowRight, Store } from "lucide-react";
+import { CrmTopHeader } from "@/components/CrmTopHeader";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -48,22 +49,29 @@ export default function AdminLoginPage() {
 
   if (checking) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#F8F5F0] text-[#1E1815]">
-        <div className="w-8 h-8 border-3 border-[#801313]/20 border-t-[#801313] rounded-full animate-spin mb-3" />
-        <p className="text-xs font-semibold text-[#7A6E67]">Verifying executive session…</p>
+      <div className="min-h-screen flex flex-col bg-[#F0DBDB] text-[#1E1815]">
+        <CrmTopHeader activeTab="master" />
+        <div className="flex-1 flex flex-col items-center justify-center p-4">
+          <div className="w-8 h-8 border-3 border-[#801313]/20 border-t-[#801313] rounded-full animate-spin mb-3" />
+          <p className="text-xs font-semibold text-[#7A6E67]">Verifying executive session…</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#F8F5F0] text-[#1E1815]">
+    <div className="min-h-screen flex flex-col bg-[#F0DBDB] text-[#1E1815]">
+      <CrmTopHeader activeTab="master" />
+      <div className="flex-1 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white border border-[#EAE3DC] rounded-3xl p-7 sm:p-8 shadow-xl">
         {/* Brand Header */}
         <div className="flex items-center gap-3.5 mb-6">
-          <div className="w-16 h-16 rounded-full overflow-hidden shrink-0 border-2 border-[#D4AF37]/60 shadow-md bg-[#801313] flex items-center justify-center p-1">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/lofoe.png" alt="Bombay Chowpatty" className="w-full h-full object-contain" />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/bc-roundel.png"
+            alt="Bombay Chowpatty"
+            className="w-14 h-14 object-contain shrink-0 drop-shadow-sm"
+          />
           <div>
             <h1 className="text-xl font-black tracking-tight text-[#1E1815] leading-none">Bombay Chowpatty</h1>
             <p className="text-xs font-semibold text-[#7A6E67] uppercase tracking-wider mt-1">
@@ -155,6 +163,7 @@ export default function AdminLoginPage() {
             )}
           </button>
         </form>
+      </div>
       </div>
     </div>
   );

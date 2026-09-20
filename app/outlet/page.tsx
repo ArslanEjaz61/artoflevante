@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import jsQR from "jsqr";
 import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/mobile";
+import { CrmTopHeader } from "@/components/CrmTopHeader";
 
 interface Branch {
   id: string;
@@ -605,9 +606,12 @@ export default function OutletPage() {
   // Render Loading Screen
   if (loadingSession) {
     return (
-      <div className="min-h-screen bg-[#F0DBDB] flex flex-col items-center justify-center p-4">
-        <div className="w-10 h-10 border-3 border-[#970709]/20 border-t-[#970709] rounded-full animate-spin mb-3" />
-        <p className="text-xs font-bold text-[#7A6E67] uppercase tracking-wider">Loading Outlet Terminal…</p>
+      <div className="min-h-screen bg-[#F0DBDB] flex flex-col font-sans">
+        <CrmTopHeader activeTab="outlet" />
+        <div className="flex-1 flex flex-col items-center justify-center p-4">
+          <div className="w-10 h-10 border-3 border-[#970709]/20 border-t-[#970709] rounded-full animate-spin mb-3" />
+          <p className="text-xs font-bold text-[#7A6E67] uppercase tracking-wider">Loading Outlet Terminal…</p>
+        </div>
       </div>
     );
   }
@@ -617,8 +621,10 @@ export default function OutletPage() {
   // =========================================================================
   if (screen === "entry" || !activeBranch) {
     return (
-      <div className="min-h-screen bg-[#F0DBDB] flex flex-col items-center justify-center p-4 sm:p-6 selection:bg-[#970709] selection:text-white">
-        <div className="max-w-md w-full bg-white rounded-3xl sm:rounded-4xl p-8 sm:p-10 shadow-sm border border-[#EAE3DC] text-center relative animate-in fade-in zoom-in duration-200">
+      <div className="min-h-screen bg-[#F0DBDB] flex flex-col font-sans selection:bg-[#970709] selection:text-white">
+        <CrmTopHeader activeTab="outlet" />
+        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6">
+          <div className="max-w-md w-full bg-white rounded-3xl sm:rounded-4xl p-8 sm:p-10 shadow-sm border border-[#EAE3DC] text-center relative animate-in fade-in zoom-in duration-200">
           {/* Brand mark */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -701,6 +707,7 @@ export default function OutletPage() {
             )}
           </div>
         </div>
+        </div>
       </div>
     );
   }
@@ -709,8 +716,10 @@ export default function OutletPage() {
   // SCREEN 2: OUTLET LOYALTY DESK
   // =========================================================================
   return (
-    <div className="min-h-screen bg-[#F0DBDB] py-8 px-4 sm:px-6 selection:bg-[#970709] selection:text-white">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-[#F0DBDB] flex flex-col font-sans selection:bg-[#970709] selection:text-white">
+      <CrmTopHeader activeTab="outlet" />
+      <div className="flex-1 py-6 px-4 sm:px-6">
+        <div className="max-w-4xl mx-auto">
         {/* Top Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3.5">
@@ -1848,6 +1857,7 @@ export default function OutletPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

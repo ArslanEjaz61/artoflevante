@@ -7,13 +7,13 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
-      { url: "/lofoe.png?v=2", type: "image/png" },
+      { url: "/bc-roundel.png", type: "image/png" },
       { url: "/icon-192.png?v=2", sizes: "192x192", type: "image/png" },
       { url: "/icon-512.png?v=2", sizes: "512x512", type: "image/png" },
     ],
-    shortcut: "/lofoe.png?v=2",
+    shortcut: "/bc-roundel.png",
     apple: [
-      { url: "/lofoe.png?v=2", sizes: "180x180", type: "image/png" },
+      { url: "/bc-roundel.png", sizes: "180x180", type: "image/png" },
     ],
   },
   appleWebApp: {
@@ -38,9 +38,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" type="image/png" href="/lofoe.png?v=2" />
-        <link rel="shortcut icon" type="image/png" href="/lofoe.png?v=2" />
-        <link rel="apple-touch-icon" href="/lofoe.png?v=2" />
+        <link rel="icon" type="image/png" href="/bc-roundel.png" />
+        <link rel="shortcut icon" type="image/png" href="/bc-roundel.png" />
+        <link rel="apple-touch-icon" href="/bc-roundel.png" />
         {/* Display face used across the branded screens. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

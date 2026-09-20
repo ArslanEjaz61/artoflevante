@@ -33,7 +33,9 @@ export async function GET(req: NextRequest) {
 
   // 2. Determine Branch Filter
   let effectiveBranchId: string | undefined = undefined;
-  if (branchIdParam && branchIdParam !== "all") {
+  if (!all && session.branchId) {
+    effectiveBranchId = session.branchId;
+  } else if (branchIdParam && branchIdParam !== "all") {
     effectiveBranchId = branchIdParam;
   }
 
@@ -56,6 +58,46 @@ export async function GET(req: NextRequest) {
       { homeBranchId: effectiveBranchId },
       { transactions: { some: { branchId: effectiveBranchId } } },
       { visits: { some: { branchId: effectiveBranchId } } },
+    ];
+  }
+
+  // Ledger filter
+  const ledgerWhereBase: any = {};
+  if (dateCutoff) {
+    ledgerWhereBase.createdAt = { gte: dateCutoff };
+  }
+  if (effectiveBranchId) {
+    ledgerWhereBase.OR = [
+      { transaction: { branchId: effectiveBranchId } },
+      { customer: custWhere },
+    ];
+  }
+
+  // Rewards filter
+  const rewardIssuedWhere: any = {};
+  if (dateCutoff) {
+    rewardIssuedWhere.issuedAt = { gte: dateCutoff };
+  }
+  if (effectiveBranchId) {
+    rewardIssuedWhere.customer = custWhere;
+  }
+
+  const rewardRedeemedWhere: any = { status: "REDEEMED" };
+  if (dateCutoff) {
+    rewardRedeemedWhere.redeemedAt = { gte: dateCutoff };
+  }
+  if (effectiveBranchId) {
+    rewardRedeemedWhere.OR = [
+      { redeemedTx: { branchId: effectiveBranchId } },
+      { customer: custWhere },
+    ];
+  }
+
+  const topRewardsWhere: any = {};
+  if (effectiveBranchId) {
+    topRewardsWhere.OR = [
+      { redeemedTx: { branchId: effectiveBranchId } },
+      { customer: custWhere },
     ];
   }
 
@@ -95,15 +137,15 @@ export async function GET(req: NextRequest) {
     }),
     prisma.pointsLedger.aggregate({
       where: {
+        ...ledgerWhereBase,
         delta: { gt: 0 },
-        ...(dateCutoff ? { createdAt: { gte: dateCutoff } } : {}),
       },
       _sum: { delta: true },
     }),
     prisma.pointsLedger.aggregate({
       where: {
+        ...ledgerWhereBase,
         delta: { lt: 0 },
-        ...(dateCutoff ? { createdAt: { gte: dateCutoff } } : {}),
       },
       _sum: { delta: true },
     }),
@@ -115,13 +157,10 @@ export async function GET(req: NextRequest) {
       where: { ...custWhere, visitCount: { gt: 1 } },
     }),
     prisma.customerReward.count({
-      where: dateCutoff ? { issuedAt: { gte: dateCutoff } } : undefined,
+      where: Object.keys(rewardIssuedWhere).length > 0 ? rewardIssuedWhere : undefined,
     }),
     prisma.customerReward.count({
-      where: {
-        status: "REDEEMED",
-        ...(dateCutoff ? { redeemedAt: { gte: dateCutoff } } : {}),
-      },
+      where: rewardRedeemedWhere,
     }),
     prisma.branch.findMany({
       where: { isActive: true },
@@ -140,6 +179,7 @@ export async function GET(req: NextRequest) {
     }),
     prisma.customerReward.groupBy({
       by: ["rewardId"],
+      where: Object.keys(topRewardsWhere).length > 0 ? topRewardsWhere : undefined,
       _count: { rewardId: true },
       orderBy: { _count: { rewardId: "desc" } },
       take: 5,

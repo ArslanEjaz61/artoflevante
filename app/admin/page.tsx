@@ -155,8 +155,26 @@ function formatMoney(cur: string, n: number): string {
   return `${cur} ${Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 }
 
+const DEFAULT_BRANCHES = [
+  { id: "1001", code: "1001", name: "The Dubai Mall", city: "Dubai" },
+  { id: "1002", code: "1002", name: "Dubai Hills Mall", city: "Dubai" },
+  { id: "1003", code: "1003", name: "Mall of the Emirates", city: "Dubai" },
+  { id: "1004", code: "1004", name: "Ibn Battuta Mall", city: "Dubai" },
+  { id: "1005", code: "1005", name: "Dubai Festival City", city: "Dubai" },
+  { id: "1006", code: "1006", name: "City Centre Deira", city: "Dubai" },
+  { id: "1007", code: "1007", name: "City Centre Mirdif", city: "Dubai" },
+  { id: "1008", code: "1008", name: "City Centre Shindagha", city: "Dubai" },
+  { id: "1009", code: "1009", name: "BurJuman Centre", city: "Dubai" },
+  { id: "1010", code: "1010", name: "Arabian Centre", city: "Dubai" },
+  { id: "1011", code: "1011", name: "Oasis Mall", city: "Dubai" },
+  { id: "1012", code: "1012", name: "City Centre Sharjah", city: "Sharjah" },
+  { id: "1013", code: "1013", name: "City Centre Al Zahia", city: "Sharjah" },
+  { id: "1014", code: "1014", name: "City Centre Ajman", city: "Ajman" },
+];
+
 export default function AdminPage() {
   const router = useRouter();
+  const [hubPortalTab, setHubPortalTab] = useState<"master" | "customer" | "outlet">("master");
   const [session, setSession] = useState<any>(null);
   const [login, setLogin] = useState({ username: "", pin: "" });
   const [tab, setTab] = useState<"overview" | "customers" | "offers" | "branches" | "staff" | "visits" | "outlet" | "audit" | "settings">("overview");
@@ -340,7 +358,7 @@ export default function AdminPage() {
             setOutletQrInput(found.data);
             handleAdminLookupCustomer(undefined, found.data);
           }
-        } catch {}
+        } catch { }
       }, 250);
     } catch (e: any) {
       setOutletSearchErr("Could not access camera. Please allow camera permissions or enter membership code manually.");
@@ -398,11 +416,11 @@ export default function AdminPage() {
       setOutletCustomer((prev: any) =>
         prev
           ? {
-              ...prev,
-              pointsBalance: d.customer.pointsBalance,
-              visitCount: d.customer.visitCount,
-              totalSpend: (prev.totalSpend || 0) + val,
-            }
+            ...prev,
+            pointsBalance: d.customer.pointsBalance,
+            visitCount: d.customer.visitCount,
+            totalSpend: (prev.totalSpend || 0) + val,
+          }
           : null
       );
 
@@ -469,10 +487,10 @@ export default function AdminPage() {
       setOutletCustomer((prev: any) =>
         prev
           ? {
-              ...prev,
-              visitCount: d.customer.visitCount,
-              pointsBalance: d.customer.pointsBalance,
-            }
+            ...prev,
+            visitCount: d.customer.visitCount,
+            pointsBalance: d.customer.pointsBalance,
+          }
           : null
       );
       if (d.newlyIssuedRewards && d.newlyIssuedRewards.length > 0) {
@@ -528,9 +546,9 @@ export default function AdminPage() {
       setOutletCustomer((prev: any) =>
         prev
           ? {
-              ...prev,
-              pointsBalance: d.customer.pointsBalance,
-            }
+            ...prev,
+            pointsBalance: d.customer.pointsBalance,
+          }
           : null
       );
       setOutletAvailableRewards(d.availableRewards || []);
@@ -697,7 +715,7 @@ export default function AdminPage() {
         },
       })
         .then((dataUrl) => setPortalQrDataUrl(dataUrl))
-        .catch(() => {});
+        .catch(() => { });
     }
   }, []);
 
@@ -710,7 +728,7 @@ export default function AdminPage() {
           text: "Scan or tap to register and open your Bombay Chowpatty Loyalty account!",
           url: url,
         });
-      } catch {}
+      } catch { }
     } else if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(url);
       setCopiedPortalLink(true);
@@ -1440,6 +1458,7 @@ export default function AdminPage() {
 
   // Filtered branches for Branches Tab
   const allBranches = branchesData?.branches || data?.branches || data?.branchLeaderboard || data?.branchPerformance || [];
+  const branchesList = allBranches.length > 0 ? allBranches : DEFAULT_BRANCHES;
   const cities: string[] = Array.from(
     new Set(allBranches.map((b: any) => String(b.city || "").trim()).filter(Boolean))
   );
@@ -1526,7 +1545,7 @@ export default function AdminPage() {
       : 0;
 
   return (
-    <div className="h-screen overflow-hidden bg-[#F8F5F2] text-[#221C1A] flex flex-col md:flex-row relative">
+    <div className="h-screen overflow-hidden bg-[#F0DBDB] text-[#221C1A] flex flex-col md:flex-row relative">
       {/* Mobile Backdrop Overlay */}
       {mobileMenuOpen && (
         <div
@@ -1539,17 +1558,18 @@ export default function AdminPage() {
       {/* ===================== SIDEBAR NAVIGATION ===================== */}
       {/* Fixed drawer sliding from left on mobile, permanent left sidebar on desktop */}
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-50 w-72 md:w-64 h-full bg-[#FAF7F4] text-[#1E1815] flex-shrink-0 flex flex-col border-r border-[#EAE3DC] shadow-xl md:shadow-none transition-transform duration-300 ease-in-out ${
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        }`}
+        className={`fixed md:static inset-y-0 left-0 z-50 w-72 md:w-64 h-full bg-[#FAF7F4] text-[#1E1815] flex-shrink-0 flex flex-col border-r border-[#EAE3DC] shadow-xl md:shadow-none transition-transform duration-300 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          }`}
       >
         {/* Brand Header */}
         <div className="p-5 flex items-center justify-between border-b border-[#EAE3DC]">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-[#D4AF37]/60 shadow-md bg-[#801313] flex items-center justify-center p-0.5">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/lofoe.png" alt="Bombay Chowpatty" className="w-full h-full object-contain" />
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/bc-roundel.png"
+              alt="Bombay Chowpatty"
+              className="w-11 h-11 object-contain shrink-0 drop-shadow-sm"
+            />
             <div>
               <div className="font-extrabold text-base tracking-tight leading-tight text-[#1E1815]">Bombay Chowpatty</div>
               <div className="text-[11px] text-[#7A6E67] uppercase tracking-wider font-semibold">
@@ -1575,8 +1595,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "overview"
-                ? "bg-[#801313] text-white shadow-xs"
-                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
+              ? "bg-[#801313] text-white shadow-xs"
+              : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <LayoutDashboard className="w-4 h-4" />
@@ -1589,8 +1609,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "customers"
-                ? "bg-[#801313] text-white shadow-xs"
-                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
+              ? "bg-[#801313] text-white shadow-xs"
+              : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <Users className="w-4 h-4" />
@@ -1617,8 +1637,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "branches"
-                ? "bg-[#801313] text-white shadow-xs"
-                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
+              ? "bg-[#801313] text-white shadow-xs"
+              : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <Building2 className="w-4 h-4" />
@@ -1631,8 +1651,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "staff"
-                ? "bg-[#801313] text-white shadow-xs"
-                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
+              ? "bg-[#801313] text-white shadow-xs"
+              : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <Store className="w-4 h-4" />
@@ -1645,8 +1665,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "visits"
-                ? "bg-[#801313] text-white shadow-xs"
-                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
+              ? "bg-[#801313] text-white shadow-xs"
+              : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <MapPin className="w-4 h-4" />
@@ -1659,8 +1679,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "outlet"
-                ? "bg-[#801313] text-white shadow-xs"
-                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
+              ? "bg-[#801313] text-white shadow-xs"
+              : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <CreditCard className="w-4 h-4" />
@@ -1673,8 +1693,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "settings"
-                ? "bg-[#801313] text-white shadow-xs"
-                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
+              ? "bg-[#801313] text-white shadow-xs"
+              : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <Settings className="w-4 h-4" />
@@ -1687,8 +1707,8 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "audit"
-                ? "bg-[#801313] text-white shadow-xs"
-                : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
+              ? "bg-[#801313] text-white shadow-xs"
+              : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
             <ShieldCheck className="w-4 h-4" />
@@ -1734,7 +1754,11 @@ export default function AdminPage() {
 
             <div className="min-w-0">
               <h1 className="text-base sm:text-xl font-black tracking-tight text-[#1E1815] capitalize flex items-center gap-2 truncate">
-                {tab === "overview" && "Executive Overview"}
+                {tab === "overview" && (
+                  overviewBranchFilter !== "all" && allBranches.find((b: any) => b.id === overviewBranchFilter)
+                    ? `${allBranches.find((b: any) => b.id === overviewBranchFilter)?.name} Overview`
+                    : "Executive Overview"
+                )}
                 {tab === "customers" && "Member Directory"}
                 {tab === "offers" && "Promotions & Campaign Engine"}
                 {tab === "branches" && "Branch Management"}
@@ -1745,8 +1769,11 @@ export default function AdminPage() {
                 {tab === "audit" && "Security & Activity Audit Log"}
               </h1>
               <p className="text-[11px] sm:text-xs text-[#7A6E67] mt-0.5 truncate">
-                {session.branchName ? `${session.branchName} • ` : "All 14 UAE Locations • "}
-                Live sync active
+                {tab === "overview" && overviewBranchFilter !== "all" && allBranches.find((b: any) => b.id === overviewBranchFilter)
+                  ? `${allBranches.find((b: any) => b.id === overviewBranchFilter)?.name} (${allBranches.find((b: any) => b.id === overviewBranchFilter)?.city || "UAE"}) • Live sync active`
+                  : session.branchName
+                    ? `${session.branchName} • Live sync active`
+                    : "All 14 UAE Locations • Live sync active"}
               </p>
             </div>
           </div>
@@ -1782,6 +1809,7 @@ export default function AdminPage() {
             {tab === "offers" && (
               <button
                 onClick={() => {
+                  setNewOffer({ name: "", description: "", value: "", isPercent: true, branchIds: [], startsAt: "", endsAt: "" });
                   setOfferMsg(null);
                   setShowCreateOfferModal(true);
                 }}
@@ -1792,15 +1820,15 @@ export default function AdminPage() {
               </button>
             )}
 
-            {/* Customer Portal QR Code Button */}
-            <button
-              onClick={() => setShowPortalQrModal(true)}
+            {/* Multi-Portal Hub Switcher Link */}
+            <a
+              href="/crm"
               className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#DCD3CB] bg-white hover:bg-[#FAF7F4] text-xs font-bold text-[#801313] shadow-2xs transition-all cursor-pointer"
-              title="Customer Portal QR Code"
+              title="Open Multi-Portal Hub Switcher"
             >
-              <QrCode className="w-3.5 h-3.5 text-[#801313]" />
-              <span>QR Code</span>
-            </button>
+              <LayoutDashboard className="w-3.5 h-3.5 text-[#801313]" />
+              <span className="hidden sm:inline">Portal Hub</span>
+            </a>
 
             <button
               onClick={() => {
@@ -1865,44 +1893,40 @@ export default function AdminPage() {
                   <button
                     type="button"
                     onClick={() => setOverviewDateFilter("all")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      overviewDateFilter === "all"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${overviewDateFilter === "all"
                         ? "bg-[#C0392B] text-white shadow-xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
-                    }`}
+                      }`}
                   >
                     All Time
                   </button>
                   <button
                     type="button"
                     onClick={() => setOverviewDateFilter("today")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      overviewDateFilter === "today"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${overviewDateFilter === "today"
                         ? "bg-[#C0392B] text-white shadow-xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
-                    }`}
+                      }`}
                   >
                     Today
                   </button>
                   <button
                     type="button"
                     onClick={() => setOverviewDateFilter("7days")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      overviewDateFilter === "7days"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${overviewDateFilter === "7days"
                         ? "bg-[#C0392B] text-white shadow-xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
-                    }`}
+                      }`}
                   >
                     Last 7 Days
                   </button>
                   <button
                     type="button"
                     onClick={() => setOverviewDateFilter("30days")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      overviewDateFilter === "30days"
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${overviewDateFilter === "30days"
                         ? "bg-[#C0392B] text-white shadow-xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
-                    }`}
+                      }`}
                   >
                     Last 30 Days
                   </button>
@@ -2079,123 +2103,166 @@ export default function AdminPage() {
                     <p className="text-xs text-[#B8ADA6] mt-1">
                       VIP members receiving complimentary birthday dining gifts and vouchers.
                     </p>
-                    <div className="mt-6 flex items-baseline gap-2">
-                      <span className="text-4xl font-black text-white">{data?.birthdays?.length ?? data?.birthdaysThisMonth ?? 0}</span>
+                    <div className="mt-4 flex items-baseline gap-2">
+                      <span className="text-3xl font-black text-white">{data?.birthdays?.length ?? data?.birthdaysThisMonth ?? 0}</span>
                       <span className="text-xs text-[#C68A1E] font-bold">Celebrations this month</span>
                     </div>
+
+                    {/* Member Birthday List */}
+                    {data?.birthdays && data.birthdays.length > 0 ? (
+                      <div className="mt-4 space-y-2 max-h-44 overflow-y-auto pr-1">
+                        {data.birthdays.map((b: any, idx: number) => (
+                          <div
+                            key={b.id || idx}
+                            className="flex items-center justify-between bg-white/10 hover:bg-white/15 transition-colors rounded-xl px-3 py-2 text-xs border border-white/5"
+                          >
+                            <div className="min-w-0">
+                              <p className="font-bold text-white truncate">{b.name || "Member"}</p>
+                              <p className="text-[10px] text-[#B8ADA6] truncate">{b.mobile || ""}</p>
+                            </div>
+                            <span className="text-xs font-bold text-[#E5A93C] bg-[#801313]/60 px-2.5 py-1 rounded-lg shrink-0 border border-[#D4AF37]/30">
+                              {b.day ? `Day ${b.day}` : "This Month"}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-[#B8ADA6] mt-3 bg-white/5 rounded-xl p-3 text-center">
+                        No upcoming member birthdays this month.
+                      </p>
+                    )}
                   </div>
-                  <div className="mt-6 pt-4 border-t border-[#3E3430] flex items-center justify-between text-xs text-[#B8ADA6]">
+                  <div className="mt-5 pt-3 border-t border-[#3E3430] flex items-center justify-between text-xs text-[#B8ADA6]">
                     <span>Automated Trigger: Active</span>
                     <span className="text-white font-bold">VIP Tier 1</span>
                   </div>
                 </div>
               </div>
 
-              {/* Branch Leaderboard & Live Stream */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Branch Leaderboard */}
-                <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm">
-                  <div className="flex items-center justify-between mb-5">
-                    <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-[#C0392B]" />
-                      Branch Revenue & Performance
-                    </h2>
-                    <button
-                      onClick={() => setTab("branches")}
-                      className="text-xs font-bold text-[#C0392B] hover:underline cursor-pointer flex items-center gap-1"
-                    >
-                      <span>Manage All</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  <div className="divide-y divide-[#EFE8E1]">
-                    {(data?.branchLeaderboard || data?.branchPerformance) && (data?.branchLeaderboard || data?.branchPerformance).length > 0 ? (
-                      (data?.branchLeaderboard || data?.branchPerformance).slice(0, 7).map((b: any, idx: number) => {
-                        const allRows = data?.branchLeaderboard || data?.branchPerformance;
-                        const maxRev = Math.max(...allRows.map((x: any) => x.revenue || 1));
-                        const pct = Math.min(100, Math.round(((b.revenue || 0) / maxRev) * 100));
-                        return (
-                          <div key={b.id} className="py-3 flex items-center gap-4">
-                            <div className="w-6 text-center font-black text-xs text-[#7A6E67]">
-                              #{idx + 1}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="font-bold text-xs text-[#1E1815] truncate">{b.name}</span>
-                                <span className="font-black text-xs text-[#C0392B]">
-                                  {formatMoney(cur, b.revenue || 0)}
-                                </span>
-                              </div>
-                              <div className="w-full bg-[#EAE3DC] h-1.5 rounded-full overflow-hidden">
-                                <div
-                                  className="bg-gradient-to-r from-[#C0392B] to-[#C68A1E] h-full rounded-full transition-all duration-500"
-                                  style={{ width: `${Math.max(pct, 4)}%` }}
-                                />
-                              </div>
-                              <div className="flex items-center justify-between text-[10px] text-[#7A6E67] mt-1">
-                                <span>{b.city}</span>
-                                <span>
-                                  {b.visits} visits • +{b.pointsAwarded ?? b.points ?? 0} pts
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="text-xs text-[#7A6E67] text-center py-8">No branch data available.</div>
-                    )}
-                  </div>
+              {/* Recent Live Transactions */}
+              <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-5">
+                  <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-[#1E7A4D]" />
+                    Live Sales & Points Stream
+                  </h2>
+                  <span className="text-[11px] font-semibold text-[#1E7A4D] flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-[#1E7A4D] animate-ping" />
+                    Live
+                  </span>
                 </div>
-
-                {/* Recent Live Transactions */}
-                <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm">
-                  <div className="flex items-center justify-between mb-5">
-                    <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-[#1E7A4D]" />
-                      Live Sales & Points Stream
-                    </h2>
-                    <span className="text-[11px] font-semibold text-[#1E7A4D] flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-[#1E7A4D] animate-ping" />
-                      Live
-                    </span>
-                  </div>
-                  <div className="space-y-3">
-                    {data?.recentTransactions && data.recentTransactions.length > 0 ? (
-                      data.recentTransactions.slice(0, 6).map((t: any) => (
-                        <div
-                          key={t.id}
-                          className="p-3 rounded-2xl border border-[#EAE3DC] bg-[#FAF7F4] flex items-center justify-between hover:border-[#D0C6BE] transition-colors"
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-9 h-9 rounded-xl bg-white border border-[#E5DDD5] flex items-center justify-center font-bold text-xs text-[#C0392B] shrink-0">
-                              <Receipt className="w-4 h-4" />
-                            </div>
-                            <div className="min-w-0">
-                              <div className="font-bold text-xs text-[#1E1815] truncate">
-                                {t.customer?.name || t.customer || "Member"} • Inv #{t.invoiceNumber}
-                              </div>
-                              <div className="text-[11px] text-[#7A6E67] truncate">
-                                {t.branch?.name || t.branch || "Branch"} • {formatRelativeTime(t.createdAt)}
-                              </div>
-                            </div>
+                <div className="space-y-3">
+                  {data?.recentTransactions && data.recentTransactions.length > 0 ? (
+                    data.recentTransactions.slice(0, 6).map((t: any) => (
+                      <div
+                        key={t.id}
+                        className="p-3 rounded-2xl border border-[#EAE3DC] bg-[#FAF7F4] flex items-center justify-between hover:border-[#D0C6BE] transition-colors"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 rounded-xl bg-white border border-[#E5DDD5] flex items-center justify-center font-bold text-xs text-[#C0392B] shrink-0">
+                            <Receipt className="w-4 h-4" />
                           </div>
-                          <div className="text-right shrink-0">
-                            <div className="font-black text-xs text-[#1E1815]">
-                              {formatMoney(cur, t.amount)}
+                          <div className="min-w-0">
+                            <div className="font-bold text-xs text-[#1E1815] truncate">
+                              {t.customer?.name || t.customer || "Member"} • Inv #{t.invoiceNumber}
                             </div>
-                            <div className="text-[10px] font-bold text-[#1E7A4D]">
-                              +{t.pointsEarned ?? t.points ?? 0} pts
+                            <div className="text-[11px] text-[#7A6E67] truncate">
+                              {t.branch?.name || t.branch || "Branch"} • {formatRelativeTime(t.createdAt)}
                             </div>
                           </div>
                         </div>
-                      ))
-                    ) : (
-                      <div className="text-xs text-[#7A6E67] text-center py-8">
-                        No transactions registered yet. Scan cards or record visits!
+                        <div className="text-right shrink-0">
+                          <div className="font-black text-xs text-[#1E1815]">
+                            {formatMoney(cur, t.amount)}
+                          </div>
+                          <div className="text-[10px] font-bold text-[#1E7A4D]">
+                            +{t.pointsEarned ?? t.points ?? 0} pts
+                          </div>
+                        </div>
                       </div>
-                    )}
+                    ))
+                  ) : (
+                    <div className="text-xs text-[#7A6E67] text-center py-8">
+                      No transactions registered yet. Scan cards or record visits!
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* All Store CRM Grid */}
+              <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                  <div>
+                    <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
+                      <Building2 className="w-4 h-4 text-[#801313]" />
+                      All store CRM
+                    </h2>
+                    <p className="text-xs text-[#7A6E67] mt-0.5">
+                      Select any store to filter executive metrics, active members, and branch CRM data.
+                    </p>
                   </div>
+                  {overviewBranchFilter !== "all" && (
+                    <button
+                      onClick={() => setOverviewBranchFilter("all")}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#801313]/10 text-[#801313] hover:bg-[#801313] hover:text-white font-bold text-xs transition-all cursor-pointer w-fit"
+                    >
+                      <span>Show All Branches Overview</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {branchesList.map((b: any) => {
+                    const isSelected = overviewBranchFilter === b.id || overviewBranchFilter === b.code;
+                    return (
+                      <button
+                        key={b.id || b.code}
+                        type="button"
+                        onClick={() => {
+                          setOverviewBranchFilter(b.id || b.code);
+                          const mainElem = document.querySelector("main");
+                          if (mainElem) mainElem.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                        className={`text-left p-4 rounded-2xl border transition-all cursor-pointer relative overflow-hidden group ${isSelected
+                            ? "bg-gradient-to-br from-[#801313] to-[#590D0D] text-white border-[#801313] shadow-md ring-2 ring-[#801313]/30"
+                            : "bg-[#FAF7F4] hover:bg-white text-[#1E1815] border-[#EAE3DC] hover:border-[#801313]/40 hover:shadow-sm"
+                          }`}
+                      >
+                        <div className="flex items-center justify-between mb-2.5">
+                          <div
+                            className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${isSelected
+                                ? "bg-white/20 text-white"
+                                : "bg-[#801313]/10 text-[#801313] group-hover:bg-[#801313] group-hover:text-white"
+                              } transition-colors`}
+                          >
+                            <Store className="w-4 h-4" />
+                          </div>
+                          <span
+                            className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full flex items-center gap-1 ${isSelected
+                                ? "bg-[#D4AF37] text-[#1E1815]"
+                                : "bg-[#1E7A4D]/10 text-[#1E7A4D]"
+                              }`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-[#1E1815]" : "bg-[#1E7A4D]"}`} />
+                            {isSelected ? "Active View" : "Online"}
+                          </span>
+                        </div>
+
+                        <div className={`font-black text-sm leading-snug tracking-tight mb-1 ${isSelected ? "text-white" : "text-[#1E1815]"}`}>
+                          {b.name} CRM
+                        </div>
+
+                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-black/5 dark:border-white/10 text-[11px]">
+                          <span className={isSelected ? "text-white/80" : "text-[#7A6E67]"}>
+                            {b.city || "Dubai"} • #{b.code || b.id}
+                          </span>
+                          <span className={`font-bold text-[10px] flex items-center gap-0.5 ${isSelected ? "text-[#FEF7C5]" : "text-[#801313]"}`}>
+                            {isSelected ? "Selected" : "Open CRM →"}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </>
@@ -2317,8 +2384,8 @@ export default function AdminPage() {
               {offerMsg && (
                 <div
                   className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between ${offerMsg.type === "ok"
-                      ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                      : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                    ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
+                    : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
                     }`}
                 >
                   <span>{offerMsg.text}</span>
@@ -2340,8 +2407,8 @@ export default function AdminPage() {
                         <div className="flex items-center justify-between mb-3">
                           <span
                             className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${o.isActive
-                                ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                                : "bg-[#7A6E67]/10 text-[#7A6E67]"
+                              ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
+                              : "bg-[#7A6E67]/10 text-[#7A6E67]"
                               }`}
                           >
                             {o.isActive ? "Active Campaign" : "Disabled"}
@@ -2383,8 +2450,8 @@ export default function AdminPage() {
                           <button
                             onClick={() => toggleOffer(o.id, !o.isActive)}
                             className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-colors cursor-pointer ${o.isActive
-                                ? "bg-[#C0392B]/10 hover:bg-[#C0392B]/20 text-[#C0392B]"
-                                : "bg-[#1E7A4D]/10 hover:bg-[#1E7A4D]/20 text-[#1E7A4D]"
+                              ? "bg-[#C0392B]/10 hover:bg-[#C0392B]/20 text-[#C0392B]"
+                              : "bg-[#1E7A4D]/10 hover:bg-[#1E7A4D]/20 text-[#1E7A4D]"
                               }`}
                           >
                             {o.isActive ? "Pause Campaign" : "Activate Campaign"}
@@ -2410,8 +2477,8 @@ export default function AdminPage() {
               {branchMsg && (
                 <div
                   className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between shadow-sm ${branchMsg.type === "ok"
-                      ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                      : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                    ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
+                    : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
                     }`}
                 >
                   <div className="flex items-center gap-2">
@@ -2622,8 +2689,8 @@ export default function AdminPage() {
                                 <button
                                   onClick={() => handleToggleBranch(b)}
                                   className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer transition-all ${b.isActive !== false
-                                      ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30 hover:bg-[#1E7A4D]/20"
-                                      : "bg-[#7A6E67]/10 text-[#7A6E67] border border-[#7A6E67]/30 hover:bg-[#7A6E67]/20"
+                                    ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30 hover:bg-[#1E7A4D]/20"
+                                    : "bg-[#7A6E67]/10 text-[#7A6E67] border border-[#7A6E67]/30 hover:bg-[#7A6E67]/20"
                                     }`}
                                 >
                                   <span
@@ -2687,8 +2754,8 @@ export default function AdminPage() {
               {staffMsg && (
                 <div
                   className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between ${staffMsg.type === "ok"
-                      ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                      : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                    ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
+                    : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
                     }`}
                 >
                   <div className="flex items-center gap-2">
@@ -2870,8 +2937,8 @@ export default function AdminPage() {
                                 type="button"
                                 onClick={() => handleToggleStaff(s)}
                                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black cursor-pointer transition-colors ${s.isActive
-                                    ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20 hover:bg-[#1E7A4D]/20"
-                                    : "bg-[#7A6E67]/10 text-[#7A6E67] border border-[#7A6E67]/20 hover:bg-[#7A6E67]/20"
+                                  ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20 hover:bg-[#1E7A4D]/20"
+                                  : "bg-[#7A6E67]/10 text-[#7A6E67] border border-[#7A6E67]/20 hover:bg-[#7A6E67]/20"
                                   }`}
                               >
                                 <span
@@ -2925,8 +2992,8 @@ export default function AdminPage() {
               {visitMsg && (
                 <div
                   className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between ${visitMsg.type === "ok"
-                      ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                      : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                    ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
+                    : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
                     }`}
                 >
                   <div className="flex items-center gap-2">
@@ -3218,16 +3285,14 @@ export default function AdminPage() {
                         stopOutletCamera();
                         setOutletSearchErr("");
                       }}
-                      className={`p-4.5 rounded-2xl border text-left flex items-center gap-3.5 transition-all cursor-pointer ${
-                        outletSearchTab === "phone"
+                      className={`p-4.5 rounded-2xl border text-left flex items-center gap-3.5 transition-all cursor-pointer ${outletSearchTab === "phone"
                           ? "bg-[#FAF7F4] border-[#801313] shadow-xs ring-1 ring-[#801313]"
                           : "bg-white border-[#EAE3DC] hover:border-[#B5AAA2] hover:bg-[#FAF7F4]/50"
-                      }`}
+                        }`}
                     >
                       <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                          outletSearchTab === "phone" ? "bg-[#801313]/10 text-[#801313]" : "bg-[#FAF7F4] text-[#7A6E67]"
-                        }`}
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${outletSearchTab === "phone" ? "bg-[#801313]/10 text-[#801313]" : "bg-[#FAF7F4] text-[#7A6E67]"
+                          }`}
                       >
                         <Phone className="w-5 h-5" />
                       </div>
@@ -3244,16 +3309,14 @@ export default function AdminPage() {
                         setOutletSearchErr("");
                         setTimeout(() => outletQrInputRef.current?.focus(), 50);
                       }}
-                      className={`p-4.5 rounded-2xl border text-left flex items-center gap-3.5 transition-all cursor-pointer ${
-                        outletSearchTab === "qr"
+                      className={`p-4.5 rounded-2xl border text-left flex items-center gap-3.5 transition-all cursor-pointer ${outletSearchTab === "qr"
                           ? "bg-[#FAF7F4] border-[#801313] shadow-xs ring-1 ring-[#801313]"
                           : "bg-white border-[#EAE3DC] hover:border-[#B5AAA2] hover:bg-[#FAF7F4]/50"
-                      }`}
+                        }`}
                     >
                       <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                          outletSearchTab === "qr" ? "bg-[#801313]/10 text-[#801313]" : "bg-[#FAF7F4] text-[#7A6E67]"
-                        }`}
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${outletSearchTab === "qr" ? "bg-[#801313]/10 text-[#801313]" : "bg-[#FAF7F4] text-[#7A6E67]"
+                          }`}
                       >
                         <Scan className="w-5 h-5" />
                       </div>
@@ -3446,11 +3509,10 @@ export default function AdminPage() {
                         setOutletActionMode("points");
                         setOutletBillErr("");
                       }}
-                      className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
-                        outletActionMode === "points"
+                      className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${outletActionMode === "points"
                           ? "bg-[#FAF7F4] border-[#801313] shadow-sm ring-2 ring-[#801313]/20"
                           : "bg-white border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4]/40"
-                      }`}
+                        }`}
                     >
                       <div className="text-[#801313] mb-3">
                         <RibbonIcon className="w-7 h-7 text-[#801313]" />
@@ -3475,11 +3537,10 @@ export default function AdminPage() {
                         setOutletActionMode("redeem_points");
                         setOutletBillErr("");
                       }}
-                      className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
-                        outletActionMode === "redeem_points"
+                      className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${outletActionMode === "redeem_points"
                           ? "bg-[#FAF7F4] border-[#801313] shadow-sm ring-2 ring-[#801313]/20"
                           : "bg-white border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4]/40"
-                      }`}
+                        }`}
                     >
                       <div className="text-[#801313] mb-3">
                         <Coins className="w-7 h-7 text-[#801313]" />
@@ -3505,11 +3566,10 @@ export default function AdminPage() {
                         setOutletRewardErr("");
                         setOutletRewardSuccessReceipt(null);
                       }}
-                      className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
-                        outletActionMode === "reward"
+                      className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${outletActionMode === "reward"
                           ? "bg-[#FAF7F4] border-[#801313] shadow-sm ring-2 ring-[#801313]/20"
                           : "bg-white border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4]/40"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center justify-between mb-3 text-[#801313]">
                         <Gift className="w-7 h-7 text-[#801313] stroke-[1.8]" />
@@ -3755,11 +3815,10 @@ export default function AdminPage() {
                                           setOutletPointsToRedeem(isSelected ? 0 : pts);
                                           setOutletCustomRedeem("");
                                         }}
-                                        className={`px-3.5 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                                          isSelected
+                                        className={`px-3.5 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${isSelected
                                             ? "bg-[#801313] text-white border-[#801313] shadow-xs ring-2 ring-[#801313]/20"
                                             : "bg-white text-[#1E1815] border-[#EAE3DC] hover:border-[#801313]"
-                                        }`}
+                                          }`}
                                       >
                                         {pts} pts (-{outletLoyaltyRules.currency} {offVal})
                                       </button>
@@ -3781,11 +3840,10 @@ export default function AdminPage() {
                                           setOutletPointsToRedeem(isMaxSelected ? 0 : maxPts);
                                           setOutletCustomRedeem("");
                                         }}
-                                        className={`px-4 py-2.5 rounded-xl text-xs font-black border transition-all cursor-pointer ${
-                                          isMaxSelected
+                                        className={`px-4 py-2.5 rounded-xl text-xs font-black border transition-all cursor-pointer ${isMaxSelected
                                             ? "bg-emerald-700 text-white border-emerald-700 shadow-xs ring-2 ring-emerald-700/20"
                                             : "bg-white text-[#801313] border-[#EAE3DC] hover:border-[#801313]"
-                                        }`}
+                                          }`}
                                       >
                                         Redeem Max ({maxPts} pts = -{outletLoyaltyRules.currency} {maxOff})
                                       </button>
@@ -4064,8 +4122,8 @@ export default function AdminPage() {
                                       {reward.isPercent
                                         ? `${reward.value}% Discount Offer`
                                         : reward.value > 0
-                                        ? `${outletLoyaltyRules.currency} ${reward.value} Value`
-                                        : "Complimentary Item / Milestone Gift"}
+                                          ? `${outletLoyaltyRules.currency} ${reward.value} Value`
+                                          : "Complimentary Item / Milestone Gift"}
                                     </div>
                                   </div>
                                   <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase shrink-0">
@@ -4291,8 +4349,8 @@ export default function AdminPage() {
               {settingsMsg && (
                 <div
                   className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between ${settingsMsg.type === "ok"
-                      ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                      : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                    ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
+                    : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
                     }`}
                 >
                   <div className="flex items-center gap-2">
@@ -4311,8 +4369,8 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => setSettingsCategory("general")}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${settingsCategory === "general"
-                      ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
-                      : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
+                    ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
+                    : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
                 >
                   ⚙️ General Settings
@@ -4321,8 +4379,8 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => setSettingsCategory("loyalty")}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${settingsCategory === "loyalty"
-                      ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
-                      : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
+                    ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
+                    : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
                 >
                   🪙 Loyalty & Points Engine
@@ -4331,8 +4389,8 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => setSettingsCategory("security")}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${settingsCategory === "security"
-                      ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
-                      : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
+                    ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
+                    : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
                 >
                   🛡️ Security & Anti-Fraud
@@ -4341,8 +4399,8 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => setSettingsCategory("password")}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${settingsCategory === "password"
-                      ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
-                      : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
+                    ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
+                    : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
                 >
                   🔑 Admin PIN & Password
@@ -4376,8 +4434,8 @@ export default function AdminPage() {
                   {pinMsg && (
                     <div
                       className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between ${pinMsg.type === "ok"
-                          ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                          : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                        ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
+                        : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
                         }`}
                     >
                       <div className="flex items-center gap-2">
@@ -4783,11 +4841,10 @@ export default function AdminPage() {
 
                   {visitRewardMsg && (
                     <div
-                      className={`p-3.5 rounded-2xl text-xs font-bold flex items-center justify-between ${
-                        visitRewardMsg.type === "ok"
+                      className={`p-3.5 rounded-2xl text-xs font-bold flex items-center justify-between ${visitRewardMsg.type === "ok"
                           ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
                           : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-2">
                         {visitRewardMsg.type === "ok" ? (
@@ -4809,11 +4866,10 @@ export default function AdminPage() {
                       {visitRewardsList.map((reward, index) => (
                         <div
                           key={reward.id}
-                          className={`p-5 rounded-2xl border transition-all flex flex-col justify-between relative overflow-hidden ${
-                            reward.isActive
+                          className={`p-5 rounded-2xl border transition-all flex flex-col justify-between relative overflow-hidden ${reward.isActive
                               ? "bg-[#FAF7F4] border-[#EAE3DC] shadow-2xs hover:shadow-md"
                               : "bg-[#F5F2EF]/60 border-[#E5DDD6] opacity-70"
-                          }`}
+                            }`}
                         >
                           {/* Top Badge & Actions */}
                           <div>
@@ -4880,16 +4936,14 @@ export default function AdminPage() {
                               <button
                                 type="button"
                                 onClick={() => handleToggleVisitReward(reward)}
-                                className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black cursor-pointer transition-colors ${
-                                  reward.isActive
+                                className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black cursor-pointer transition-colors ${reward.isActive
                                     ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20 hover:bg-[#1E7A4D]/20"
                                     : "bg-[#7A6E67]/10 text-[#7A6E67] border border-[#7A6E67]/20 hover:bg-[#7A6E67]/20"
-                                }`}
+                                  }`}
                               >
                                 <span
-                                  className={`w-1.5 h-1.5 rounded-full ${
-                                    reward.isActive ? "bg-[#1E7A4D]" : "bg-[#7A6E67]"
-                                  }`}
+                                  className={`w-1.5 h-1.5 rounded-full ${reward.isActive ? "bg-[#1E7A4D]" : "bg-[#7A6E67]"
+                                    }`}
                                 />
                                 <span>{reward.isActive ? "ACTIVE" : "PAUSED"}</span>
                               </button>
@@ -6398,55 +6452,50 @@ export default function AdminPage() {
               <button
                 type="button"
                 onClick={() => setCustomerDetailTab("overview")}
-                className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
-                  customerDetailTab === "overview"
+                className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${customerDetailTab === "overview"
                     ? "border-[#C0392B] text-[#C0392B]"
                     : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
-                }`}
+                  }`}
               >
                 <Users className="w-3.5 h-3.5" /> Overview & Profile
               </button>
               <button
                 type="button"
                 onClick={() => setCustomerDetailTab("transactions")}
-                className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
-                  customerDetailTab === "transactions"
+                className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${customerDetailTab === "transactions"
                     ? "border-[#C0392B] text-[#C0392B]"
                     : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
-                }`}
+                  }`}
               >
                 <Receipt className="w-3.5 h-3.5" /> Invoices ({selectedCustomerData?.transactions?.length || 0})
               </button>
               <button
                 type="button"
                 onClick={() => setCustomerDetailTab("rewards")}
-                className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
-                  customerDetailTab === "rewards"
+                className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${customerDetailTab === "rewards"
                     ? "border-[#C0392B] text-[#C0392B]"
                     : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
-                }`}
+                  }`}
               >
                 <Gift className="w-3.5 h-3.5" /> Vouchers ({selectedCustomerData?.rewards?.length || 0})
               </button>
               <button
                 type="button"
                 onClick={() => setCustomerDetailTab("visits")}
-                className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
-                  customerDetailTab === "visits"
+                className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${customerDetailTab === "visits"
                     ? "border-[#C0392B] text-[#C0392B]"
                     : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
-                }`}
+                  }`}
               >
                 <MapPin className="w-3.5 h-3.5" /> Dine-In Check-ins ({selectedCustomerData?.visits?.length || 0})
               </button>
               <button
                 type="button"
                 onClick={() => setCustomerDetailTab("ledger")}
-                className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
-                  customerDetailTab === "ledger"
+                className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${customerDetailTab === "ledger"
                     ? "border-[#C0392B] text-[#C0392B]"
                     : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
-                }`}
+                  }`}
               >
                 <TrendingUp className="w-3.5 h-3.5" /> Points History ({selectedCustomerData?.ledger?.length || 0})
               </button>
@@ -6468,11 +6517,10 @@ export default function AdminPage() {
                   {/* Toast Alert */}
                   {customerDetailMsg && (
                     <div
-                      className={`mb-4 p-3 rounded-xl text-xs font-bold flex items-center gap-2 ${
-                        customerDetailMsg.type === "ok"
+                      className={`mb-4 p-3 rounded-xl text-xs font-bold flex items-center gap-2 ${customerDetailMsg.type === "ok"
                           ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
                           : "bg-red-50 text-red-800 border border-red-200"
-                      }`}
+                        }`}
                     >
                       {customerDetailMsg.type === "ok" ? (
                         <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -6572,11 +6620,10 @@ export default function AdminPage() {
                           <button
                             type="button"
                             onClick={() => toggleCustomerBlock(selectedCustomerData.id, !selectedCustomerData.isBlocked)}
-                            className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
-                              selectedCustomerData.isBlocked
+                            className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ${selectedCustomerData.isBlocked
                                 ? "bg-emerald-600 hover:bg-emerald-700 text-white"
                                 : "bg-[#C0392B]/10 hover:bg-[#C0392B]/20 text-[#C0392B]"
-                            }`}
+                              }`}
                           >
                             {selectedCustomerData.isBlocked ? (
                               <>
@@ -6662,13 +6709,12 @@ export default function AdminPage() {
                                 <div className="flex items-center justify-between gap-2 mb-1">
                                   <h5 className="font-bold text-xs text-[#1E1815]">{r.name}</h5>
                                   <span
-                                    className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${
-                                      r.status === "AVAILABLE"
+                                    className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${r.status === "AVAILABLE"
                                         ? "bg-emerald-100 text-emerald-800"
                                         : r.status === "REDEEMED"
-                                        ? "bg-blue-100 text-blue-800"
-                                        : "bg-gray-100 text-gray-700"
-                                    }`}
+                                          ? "bg-blue-100 text-blue-800"
+                                          : "bg-gray-100 text-gray-700"
+                                      }`}
                                   >
                                     {r.status}
                                   </span>
@@ -6767,9 +6813,8 @@ export default function AdminPage() {
                                   {l.branch?.name || "—"}
                                 </td>
                                 <td
-                                  className={`py-2.5 px-3 font-black ${
-                                    l.delta >= 0 ? "text-emerald-700" : "text-[#C0392B]"
-                                  }`}
+                                  className={`py-2.5 px-3 font-black ${l.delta >= 0 ? "text-emerald-700" : "text-[#C0392B]"
+                                    }`}
                                 >
                                   {l.delta >= 0 ? `+${l.delta}` : l.delta} pts
                                 </td>

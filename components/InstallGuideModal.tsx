@@ -51,7 +51,7 @@ export function InstallGuideModal({
         <div className="text-center mb-5">
           <div className="w-16 h-16 rounded-2xl mx-auto mb-3 bg-white p-2 border border-[#EAE3DC] shadow-sm flex items-center justify-center overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/lofoe.png" alt="Loyalty Club" className="w-full h-full object-contain" />
+            <img src="/bc-roundel.png" alt="Loyalty Club" className="w-full h-full object-contain" />
           </div>
           <h3 className="font-serif font-black text-lg text-[#801313]">Install Loyalty App</h3>
           <p className="text-xs text-[#7A6E67] mt-0.5">
