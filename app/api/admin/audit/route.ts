@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/adminScope";
 
-const PAGE_SIZE = 30;
+const PAGE_SIZE = 50;
 
 export async function GET(req: NextRequest) {
   const auth = await requireAdmin();
@@ -14,7 +14,14 @@ export async function GET(req: NextRequest) {
   const page = Math.max(1, Number(searchParams.get("page") || 1));
   const action = searchParams.get("action") || "";
 
-  const where = action ? { action } : {};
+  let where: any = {};
+  if (action && action !== "all") {
+    if (action.endsWith("*")) {
+      where = { action: { startsWith: action.replace("*", "") } };
+    } else {
+      where = { action: { contains: action } };
+    }
+  }
 
   const [total, rows, blocked] = await Promise.all([
     prisma.auditLog.count({ where }),
@@ -28,20 +35,25 @@ export async function GET(req: NextRequest) {
     prisma.auditLog.count({ where: { action: "transaction.duplicate_blocked" } }),
   ]);
 
+  const mappedLogs = rows.map((a) => ({
+    id: a.id,
+    action: a.action,
+    staff: a.staff?.name ?? (a.staff?.username ? `@${a.staff.username}` : "System Admin"),
+    staffUsername: a.staff?.username ?? null,
+    entityType: a.entityType,
+    entityId: a.entityId,
+    reason: a.reason,
+    metadata: a.metadata,
+    createdAt: a.createdAt,
+  }));
+
   return NextResponse.json({
-    entries: rows.map((a) => ({
-      id: a.id,
-      action: a.action,
-      staff: a.staff?.name ?? "system",
-      entityType: a.entityType,
-      entityId: a.entityId,
-      reason: a.reason,
-      metadata: a.metadata,
-      createdAt: a.createdAt,
-    })),
+    logs: mappedLogs,
+    entries: mappedLogs,
     total,
     page,
     pages: Math.max(1, Math.ceil(total / PAGE_SIZE)),
     duplicatesBlocked: blocked,
   });
 }
+

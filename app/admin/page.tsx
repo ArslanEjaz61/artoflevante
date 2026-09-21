@@ -571,6 +571,9 @@ export default function AdminPage() {
 
   // Audit tab
   const [audit, setAudit] = useState<any>(null);
+  const [auditSearch, setAuditSearch] = useState("");
+  const [auditActionFilter, setAuditActionFilter] = useState("all");
+  const [loadingAudit, setLoadingAudit] = useState(false);
 
   // Offers tab
   const [offers, setOffers] = useState<any>(null);
@@ -877,12 +880,19 @@ export default function AdminPage() {
   }, [overviewBranchFilter, overviewDateFilter, router]);
 
   const loadAudit = useCallback(async () => {
+    setLoadingAudit(true);
     try {
-      const r = await fetch("/api/admin/audit");
+      const url =
+        auditActionFilter && auditActionFilter !== "all"
+          ? `/api/admin/audit?action=${encodeURIComponent(auditActionFilter)}`
+          : "/api/admin/audit";
+      const r = await fetch(url);
       const d = await r.json();
       if (r.ok) setAudit(d);
-    } catch { }
-  }, []);
+    } catch { } finally {
+      setLoadingAudit(false);
+    }
+  }, [auditActionFilter]);
 
   const loadOffers = useCallback(async () => {
     try {
@@ -956,23 +966,23 @@ export default function AdminPage() {
   }, [loadOverview]);
 
   useEffect(() => {
-    if (session && tab === "customers") loadCustomers();
-    if (session && tab === "audit") loadAudit();
-    if (session && tab === "offers") loadOffers();
-    if (session && tab === "branches") loadBranches();
-    if (session && tab === "settings") {
+    if (tab === "customers") loadCustomers();
+    if (tab === "audit") loadAudit();
+    if (tab === "offers") loadOffers();
+    if (tab === "branches") loadBranches();
+    if (tab === "settings") {
       loadSettings();
       loadVisitRewards();
     }
-    if (session && tab === "staff") {
+    if (tab === "staff") {
       loadStaff();
       loadBranches();
     }
-    if (session && tab === "visits") {
+    if (tab === "visits") {
       loadVisits();
       loadBranches();
     }
-  }, [session, tab, loadCustomers, loadAudit, loadOffers, loadBranches, loadSettings, loadVisitRewards, loadStaff, loadVisits]);
+  }, [tab, loadCustomers, loadAudit, loadOffers, loadBranches, loadSettings, loadVisitRewards, loadStaff, loadVisits]);
 
   // Branch Coupon Generator Helper
   function generateRandomCouponCode(prefix: string) {
@@ -5377,53 +5387,267 @@ export default function AdminPage() {
           {/* ============================================================== */}
           {/* TAB 7: SECURITY & AUDIT LOG                                    */}
           {/* ============================================================== */}
-          {tab === "audit" && (
-            <div className="bg-white border border-[#EAE3DC] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <h2 className="font-extrabold text-base text-[#1E1815]">Security Audit Log</h2>
-                  <p className="text-xs text-[#7A6E67]">
-                    Immutable audit trail of management logins, billings, reverse transactions, and branch updates.
-                  </p>
-                </div>
-                <span className="px-3 py-1 rounded-full bg-[#1E7A4D]/10 text-[#1E7A4D] font-bold text-xs w-fit">
-                  Encrypted Ledger
-                </span>
-              </div>
+          {tab === "audit" && (() => {
+            const rawLogs: any[] = audit?.logs || audit?.entries || [];
+            const filteredLogs = rawLogs.filter((l: any) => {
+              if (auditSearch.trim()) {
+                const s = auditSearch.toLowerCase();
+                const matchAction = l.action?.toLowerCase().includes(s);
+                const matchStaff =
+                  (typeof l.staff === "string" ? l.staff : l.staff?.name)?.toLowerCase().includes(s) ||
+                  l.staffUsername?.toLowerCase().includes(s);
+                const matchReason = l.reason?.toLowerCase().includes(s);
+                const matchEntity = l.entityType?.toLowerCase().includes(s) || l.entityId?.toLowerCase().includes(s);
+                const matchMeta = l.metadata ? JSON.stringify(l.metadata).toLowerCase().includes(s) : false;
+                if (!matchAction && !matchStaff && !matchReason && !matchEntity && !matchMeta) return false;
+              }
+              return true;
+            });
 
-              <div className="divide-y divide-[#EFE8E1]">
-                {audit?.logs && audit.logs.length > 0 ? (
-                  audit.logs.map((l: any) => (
-                    <div key={l.id} className="py-3 flex flex-col sm:flex-row sm:items-start justify-between gap-2 sm:gap-4">
-                      <div>
-                        <div className="font-bold text-xs text-[#1E1815] flex items-center gap-2 flex-wrap">
-                          <span className="px-2 py-0.5 rounded bg-[#FAF7F4] border border-[#EAE3DC] font-mono text-[10px]">
-                            {l.action}
-                          </span>
-                          <span>{l.staff?.name || "System"}</span>
-                        </div>
-                        {l.reason && (
-                          <div className="text-[11px] text-[#C0392B] font-medium mt-0.5">
-                            Reason: {l.reason}
-                          </div>
-                        )}
-                        {l.metadata && (
-                          <pre className="text-[10px] text-[#7A6E67] font-mono mt-1 bg-[#FAF7F4] p-1.5 rounded-lg max-w-lg overflow-x-auto">
-                            {JSON.stringify(l.metadata)}
-                          </pre>
-                        )}
-                      </div>
-                      <div className="text-[10px] text-[#7A6E67] font-mono whitespace-nowrap">
-                        {new Date(l.createdAt).toLocaleString()}
-                      </div>
+            return (
+              <div className="space-y-4 sm:space-y-6">
+                {/* Top Audit KPI & Summary Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-2xs">
+                    <div className="flex items-center justify-between text-[#7A6E67] text-xs font-bold uppercase tracking-wider">
+                      <span>Total Audit Records</span>
+                      <ShieldCheck className="w-4 h-4 text-[#801313]" />
                     </div>
-                  ))
-                ) : (
-                  <div className="text-center py-8 text-xs text-[#7A6E67]">No security events logged yet.</div>
-                )}
+                    <div className="text-2xl font-black text-[#1E1815] mt-1.5">
+                      {audit?.total ?? rawLogs.length}
+                    </div>
+                    <div className="text-[11px] font-semibold text-[#1E7A4D] mt-0.5 flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Immutable Cryptographic Trail</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-2xs">
+                    <div className="flex items-center justify-between text-[#7A6E67] text-xs font-bold uppercase tracking-wider">
+                      <span>Fraud &amp; Duplicates Blocked</span>
+                      <AlertTriangle className="w-4 h-4 text-[#C0392B]" />
+                    </div>
+                    <div className="text-2xl font-black text-[#C0392B] mt-1.5">
+                      {audit?.duplicatesBlocked ?? 0}
+                    </div>
+                    <div className="text-[11px] font-semibold text-[#7A6E67] mt-0.5">
+                      Automatic Anti-Fraud Protection
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-2xs">
+                    <div className="flex items-center justify-between text-[#7A6E67] text-xs font-bold uppercase tracking-wider">
+                      <span>Ledger Status</span>
+                      <Lock className="w-4 h-4 text-[#1E7A4D]" />
+                    </div>
+                    <div className="text-sm font-black text-[#1E7A4D] mt-2 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[#1E7A4D] animate-ping" />
+                      <span>Live Audit Sync Active</span>
+                    </div>
+                    <div className="text-[11px] font-semibold text-[#7A6E67] mt-0.5">
+                      All Manager &amp; Till Operations
+                    </div>
+                  </div>
+                </div>
+
+                {/* Audit Toolbar & Filter Header */}
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <ShieldCheck className="w-5 h-5 text-[#801313] shrink-0" />
+                        <h2 className="font-extrabold text-base text-[#1E1815]">Security Audit Log</h2>
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-xs font-bold">
+                          {filteredLogs.length} Events Loaded
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#7A6E67] mt-0.5">
+                        Immutable audit trail of management logins, coupon rotations, staff changes, rewards, and system settings.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => loadAudit()}
+                        disabled={loadingAudit}
+                        className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#DCD3CB] bg-[#FAF7F4] hover:bg-white text-xs font-bold text-[#1E1815] transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 ${loadingAudit ? "animate-spin text-[#C0392B]" : ""}`} />
+                        <span>Refresh Logs</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Filter Toolbar Controls */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 pt-3 border-t border-[#EAE3DC]">
+                    {/* Search Input */}
+                    <div className="relative">
+                      <Search className="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7A6E67]" />
+                      <input
+                        type="text"
+                        placeholder="Search logs by staff name, username, action, reason, entity…"
+                        value={auditSearch}
+                        onChange={(e) => setAuditSearch(e.target.value)}
+                        className="w-full pl-9 pr-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#C0392B]"
+                      />
+                    </div>
+
+                    {/* Action Category Filter */}
+                    <div>
+                      <select
+                        value={auditActionFilter}
+                        onChange={(e) => setAuditActionFilter(e.target.value)}
+                        className="w-full px-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B] cursor-pointer"
+                      >
+                        <option value="all">🔍 All Audit Action Categories</option>
+                        <option value="staff">👤 Staff &amp; POS Tills (staff.*)</option>
+                        <option value="branch">🏢 Branch Locations &amp; Coupons (branch.*)</option>
+                        <option value="offer">🏷️ Promotions &amp; Campaigns (offer.*)</option>
+                        <option value="settings">⚙️ System &amp; Points Engine (settings.*)</option>
+                        <option value="visit-reward">🎁 Visit Milestones &amp; Perks (visit-reward.*)</option>
+                        <option value="customer">👥 Members &amp; Accounts (customer.*)</option>
+                        <option value="pin">🔑 Master Security PIN (pin.*)</option>
+                        <option value="transaction">💳 Transactions &amp; Receipts (transaction.*)</option>
+                        <option value="blocked">🚫 Fraud &amp; Duplicates Blocked</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Audit Event List */}
+                  <div className="divide-y divide-[#EFE8E1] pt-2">
+                    {filteredLogs.length > 0 ? (
+                      filteredLogs.map((l: any) => {
+                        const staffDisplayName =
+                          typeof l.staff === "string" ? l.staff : l.staff?.name || "System Admin";
+                        const isDanger =
+                          l.action?.includes("delete") ||
+                          l.action?.includes("block") ||
+                          l.action?.includes("fraud") ||
+                          l.action?.includes("deactivate");
+                        const isSuccess =
+                          l.action?.includes("create") ||
+                          l.action?.includes("active") ||
+                          l.action?.includes("unlock") ||
+                          l.action?.includes("stamp");
+                        const isWarning =
+                          l.action?.includes("rotate") ||
+                          l.action?.includes("pin") ||
+                          l.action?.includes("pause");
+
+                        return (
+                          <div
+                            key={l.id}
+                            className="py-3.5 hover:bg-[#FAF7F4]/80 p-3 rounded-2xl transition-colors flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 sm:gap-4 border border-transparent hover:border-[#EAE3DC]"
+                          >
+                            <div className="min-w-0 space-y-1.5 flex-1">
+                              {/* Top Action & Staff Header */}
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span
+                                  className={`px-2.5 py-1 rounded-lg font-mono text-[11px] font-black uppercase tracking-wide border ${
+                                    isDanger
+                                      ? "bg-[#C0392B]/10 text-[#C0392B] border-[#C0392B]/20"
+                                      : isSuccess
+                                      ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border-[#1E7A4D]/20"
+                                      : isWarning
+                                      ? "bg-[#C68A1E]/10 text-[#9E690B] border-[#C68A1E]/20"
+                                      : "bg-[#801313]/10 text-[#801313] border-[#801313]/20"
+                                  }`}
+                                >
+                                  {l.action}
+                                </span>
+
+                                <div className="flex items-center gap-1.5 text-xs text-[#1E1815] font-bold">
+                                  <span className="w-5 h-5 rounded-full bg-[#EAE3DC] text-[#4A3F39] text-[10px] font-black flex items-center justify-center shrink-0">
+                                    {staffDisplayName.charAt(0).toUpperCase()}
+                                  </span>
+                                  <span>{staffDisplayName}</span>
+                                  {l.staffUsername && (
+                                    <span className="text-[10px] text-[#7A6E67] font-mono">
+                                      (@{l.staffUsername})
+                                    </span>
+                                  )}
+                                </div>
+
+                                {l.entityType && (
+                                  <span className="px-2 py-0.5 rounded-full bg-[#FAF7F4] border border-[#EAE3DC] text-[10px] text-[#7A6E67] font-semibold">
+                                    {l.entityType} {l.entityId ? `#${l.entityId}` : ""}
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Reason note */}
+                              {l.reason && (
+                                <div className="text-[11px] text-[#C0392B] font-semibold flex items-center gap-1">
+                                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                                  <span>Note: {l.reason}</span>
+                                </div>
+                              )}
+
+                              {/* Metadata breakdown */}
+                              {l.metadata && Object.keys(l.metadata).length > 0 && (
+                                <div className="bg-[#FAF7F4] p-2 sm:p-2.5 rounded-xl border border-[#EAE3DC] text-[11px] font-mono text-[#4A3F39] max-w-2xl overflow-x-auto custom-scrollbar">
+                                  {typeof l.metadata === "object" ? (
+                                    <div className="flex flex-wrap gap-x-3 gap-y-1">
+                                      {Object.entries(l.metadata).map(([k, v]) => (
+                                        <div key={k} className="inline-flex items-center gap-1">
+                                          <span className="text-[#7A6E67] font-bold">{k}:</span>
+                                          <span className="font-semibold text-[#1E1815]">
+                                            {typeof v === "object" ? JSON.stringify(v) : String(v)}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <span>{String(l.metadata)}</span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Timestamp & ID */}
+                            <div className="text-left sm:text-right shrink-0 pt-1 sm:pt-0">
+                              <div className="text-xs font-bold text-[#1E1815]">
+                                {formatRelativeTime(l.createdAt)}
+                              </div>
+                              <div className="text-[10px] text-[#7A6E67] font-mono mt-0.5">
+                                {new Date(l.createdAt).toLocaleString([], {
+                                  dateStyle: "medium",
+                                  timeStyle: "short",
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="text-center py-12 bg-[#FAF7F4] rounded-2xl border border-[#EAE3DC] p-6 mt-3">
+                        <ShieldCheck className="w-10 h-10 text-[#801313]/30 mx-auto mb-2" />
+                        <h4 className="font-extrabold text-sm text-[#1E1815]">No Audit Events Found</h4>
+                        <p className="text-xs text-[#7A6E67] max-w-md mx-auto mt-1 mb-4">
+                          {auditSearch || auditActionFilter !== "all"
+                            ? "No audit events match your search query or action filter. Try resetting filters."
+                            : "No management security events have been logged yet."}
+                        </p>
+                        {(auditSearch || auditActionFilter !== "all") && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAuditSearch("");
+                              setAuditActionFilter("all");
+                            }}
+                            className="px-4 py-2 rounded-xl bg-white border border-[#EAE3DC] text-xs font-bold text-[#1E1815] hover:bg-[#FAF7F4] cursor-pointer shadow-2xs"
+                          >
+                            Reset Filters
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       </main>
 
