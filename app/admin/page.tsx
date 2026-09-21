@@ -54,6 +54,11 @@ import {
   Lock,
   KeyRound,
   Key,
+  Eye,
+  EyeOff,
+  LogIn,
+  Smartphone,
+  Laptop,
   UserPlus,
   Ticket,
   Copy,
@@ -680,6 +685,9 @@ export default function AdminPage() {
     newPin: "",
     confirmPin: "",
   });
+  const [showCurrPin, setShowCurrPin] = useState(false);
+  const [showNewPin, setShowNewPin] = useState(false);
+  const [showConfirmPin, setShowConfirmPin] = useState(false);
   const [pinSaving, setPinSaving] = useState(false);
   const [pinMsg, setPinMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
@@ -692,6 +700,8 @@ export default function AdminPage() {
   const [showEditStaffModal, setShowEditStaffModal] = useState(false);
   const [showDeleteStaffModal, setShowDeleteStaffModal] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState<any>(null);
+  const [showStaffPin, setShowStaffPin] = useState(false);
+  const [showEditStaffPin, setShowEditStaffPin] = useState(false);
   const [staffForm, setStaffForm] = useState<{
     id?: string;
     username: string;
@@ -4795,15 +4805,23 @@ export default function AdminPage() {
                       <div className="relative">
                         <input
                           id="currPin"
-                          type="password"
+                          type={showCurrPin ? "text" : "password"}
                           inputMode="numeric"
                           required
                           value={pinForm.currentPin}
                           onChange={(e) => setPinForm({ ...pinForm, currentPin: e.target.value })}
-                          placeholder="Enter your current 6-digit PIN"
-                          className="w-full px-4 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-mono tracking-widest text-sm focus:outline-none focus:border-[#C0392B]"
+                          placeholder={showCurrPin ? "123456" : "Enter your current 6-digit PIN"}
+                          className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-mono tracking-widest text-sm focus:outline-none focus:border-[#C0392B]"
                         />
-                        <Lock className="w-4 h-4 text-[#8C7F78] absolute right-3.5 top-1/2 -translate-y-1/2" />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrPin(!showCurrPin)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8C7F78] hover:text-[#C0392B] transition-colors rounded-lg focus:outline-none cursor-pointer"
+                          title={showCurrPin ? "Hide Current PIN" : "Show Current PIN"}
+                          aria-label={showCurrPin ? "Hide Current PIN" : "Show Current PIN"}
+                        >
+                          {showCurrPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
                       </div>
                     </div>
 
@@ -4815,16 +4833,24 @@ export default function AdminPage() {
                         <div className="relative">
                           <input
                             id="nPin"
-                            type="password"
+                            type={showNewPin ? "text" : "password"}
                             inputMode="numeric"
                             required
                             minLength={4}
                             value={pinForm.newPin}
                             onChange={(e) => setPinForm({ ...pinForm, newPin: e.target.value })}
-                            placeholder="Min 4 digits"
-                            className="w-full px-4 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-mono tracking-widest text-sm focus:outline-none focus:border-[#C0392B]"
+                            placeholder={showNewPin ? "123456" : "Min 4 digits"}
+                            className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-mono tracking-widest text-sm focus:outline-none focus:border-[#C0392B]"
                           />
-                          <Key className="w-4 h-4 text-[#8C7F78] absolute right-3.5 top-1/2 -translate-y-1/2" />
+                          <button
+                            type="button"
+                            onClick={() => setShowNewPin(!showNewPin)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8C7F78] hover:text-[#C0392B] transition-colors rounded-lg focus:outline-none cursor-pointer"
+                            title={showNewPin ? "Hide New PIN" : "Show New PIN"}
+                            aria-label={showNewPin ? "Hide New PIN" : "Show New PIN"}
+                          >
+                            {showNewPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
                         </div>
                       </div>
 
@@ -4835,16 +4861,24 @@ export default function AdminPage() {
                         <div className="relative">
                           <input
                             id="cPin"
-                            type="password"
+                            type={showConfirmPin ? "text" : "password"}
                             inputMode="numeric"
                             required
                             minLength={4}
                             value={pinForm.confirmPin}
                             onChange={(e) => setPinForm({ ...pinForm, confirmPin: e.target.value })}
-                            placeholder="Re-enter new PIN"
-                            className="w-full px-4 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-mono tracking-widest text-sm focus:outline-none focus:border-[#C0392B]"
+                            placeholder={showConfirmPin ? "123456" : "Re-enter new PIN"}
+                            className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-mono tracking-widest text-sm focus:outline-none focus:border-[#C0392B]"
                           />
-                          <Key className="w-4 h-4 text-[#8C7F78] absolute right-3.5 top-1/2 -translate-y-1/2" />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPin(!showConfirmPin)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8C7F78] hover:text-[#C0392B] transition-colors rounded-lg focus:outline-none cursor-pointer"
+                            title={showConfirmPin ? "Hide Confirm PIN" : "Show Confirm PIN"}
+                            aria-label={showConfirmPin ? "Hide Confirm PIN" : "Show Confirm PIN"}
+                          >
+                            {showConfirmPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -5501,13 +5535,14 @@ export default function AdminPage() {
                         className="w-full px-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B] cursor-pointer"
                       >
                         <option value="all">🔍 All Audit Action Categories</option>
+                        <option value="login">🔐 Sign-In &amp; Logins (admin, customer, staff)</option>
+                        <option value="customer">👥 Members &amp; Accounts (customer.*)</option>
                         <option value="staff">👤 Staff &amp; POS Tills (staff.*)</option>
+                        <option value="pin">🔑 Master Security PIN (pin.*, staff.pin_*)</option>
                         <option value="branch">🏢 Branch Locations &amp; Coupons (branch.*)</option>
                         <option value="offer">🏷️ Promotions &amp; Campaigns (offer.*)</option>
                         <option value="settings">⚙️ System &amp; Points Engine (settings.*)</option>
                         <option value="visit-reward">🎁 Visit Milestones &amp; Perks (visit-reward.*)</option>
-                        <option value="customer">👥 Members &amp; Accounts (customer.*)</option>
-                        <option value="pin">🔑 Master Security PIN (pin.*)</option>
                         <option value="transaction">💳 Transactions &amp; Receipts (transaction.*)</option>
                         <option value="blocked">🚫 Fraud &amp; Duplicates Blocked</option>
                       </select>
@@ -5518,8 +5553,24 @@ export default function AdminPage() {
                   <div className="divide-y divide-[#EFE8E1] pt-2">
                     {filteredLogs.length > 0 ? (
                       filteredLogs.map((l: any) => {
-                        const staffDisplayName =
-                          typeof l.staff === "string" ? l.staff : l.staff?.name || "System Admin";
+                        const isCustomerEvent = l.action?.startsWith("customer.");
+                        const isAdminLogin = l.action === "admin.login";
+                        const isStaffLogin = l.action === "staff.login";
+                        const isCustomerLogin = l.action === "customer.login";
+                        const isCustomerRegister = l.action === "customer.register";
+                        const isPinEvent = l.action?.includes("pin");
+
+                        // Resolve Customer Name for customer events or entity
+                        const resolvedCustomerName =
+                          l.entityName ||
+                          l.metadata?.customer ||
+                          l.metadata?.name ||
+                          (l.metadata?.mobile ? `+${l.metadata.mobile}` : null);
+
+                        const staffDisplayName = isCustomerEvent
+                          ? (resolvedCustomerName || (typeof l.staff === "string" && l.staff !== "System Admin" ? l.staff : "Customer Member"))
+                          : (typeof l.staff === "string" ? l.staff : l.staff?.name || "System Admin");
+
                         const isDanger =
                           l.action?.includes("delete") ||
                           l.action?.includes("block") ||
@@ -5529,11 +5580,117 @@ export default function AdminPage() {
                           l.action?.includes("create") ||
                           l.action?.includes("active") ||
                           l.action?.includes("unlock") ||
-                          l.action?.includes("stamp");
+                          l.action?.includes("stamp") ||
+                          isCustomerRegister;
                         const isWarning =
                           l.action?.includes("rotate") ||
-                          l.action?.includes("pin") ||
+                          isPinEvent ||
                           l.action?.includes("pause");
+
+                        // Dynamic badge styles and label
+                        let badgeClass = "bg-[#801313]/10 text-[#801313] border-[#801313]/20";
+                        let badgeIcon = null;
+
+                        if (isAdminLogin) {
+                          badgeClass = "bg-purple-100 text-purple-900 border-purple-300";
+                          badgeIcon = <LogIn className="w-3 h-3" />;
+                        } else if (isStaffLogin) {
+                          badgeClass = "bg-blue-100 text-blue-900 border-blue-300";
+                          badgeIcon = <Laptop className="w-3 h-3" />;
+                        } else if (isCustomerLogin) {
+                          badgeClass = "bg-emerald-100 text-emerald-900 border-emerald-300";
+                          badgeIcon = <Smartphone className="w-3 h-3" />;
+                        } else if (isCustomerRegister) {
+                          badgeClass = "bg-teal-100 text-teal-900 border-teal-300";
+                          badgeIcon = <Sparkles className="w-3 h-3" />;
+                        } else if (isPinEvent) {
+                          badgeClass = "bg-amber-100 text-amber-900 border-amber-300";
+                          badgeIcon = <Key className="w-3 h-3" />;
+                        } else if (isDanger) {
+                          badgeClass = "bg-[#C0392B]/10 text-[#C0392B] border-[#C0392B]/20";
+                        } else if (isSuccess) {
+                          badgeClass = "bg-[#1E7A4D]/10 text-[#1E7A4D] border-[#1E7A4D]/20";
+                        } else if (isWarning) {
+                          badgeClass = "bg-[#C68A1E]/10 text-[#9E690B] border-[#C68A1E]/20";
+                        }
+
+                        // Helper to format metadata key names
+                        const formatMetaKey = (k: string) => {
+                          const map: Record<string, string> = {
+                            branchId: "Branch",
+                            branch: "Branch",
+                            branchName: "Branch",
+                            homeBranchId: "Home Outlet",
+                            homeBranch: "Home Outlet",
+                            mobile: "Mobile",
+                            name: "Customer Name",
+                            customer: "Customer",
+                            customerId: "Customer",
+                            role: "Role",
+                            username: "Username",
+                            welcomeBonusPoints: "Welcome Bonus",
+                            welcomeDiscountPercent: "Welcome Voucher",
+                            pointsBalance: "Points",
+                            visitCount: "Visits",
+                            totalSpend: "Total Spend",
+                            ip: "IP",
+                            userAgent: "Device",
+                            delta: "Points Change",
+                          };
+                          return map[k] || k.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
+                        };
+
+                        // Helper to format metadata values
+                        const formatMetaVal = (k: string, v: any) => {
+                          if (v === null || v === undefined) return "";
+                          if (typeof v === "object") return JSON.stringify(v);
+                          const str = String(v);
+
+                          if (k.toLowerCase().includes("branch") || k === "branchId") {
+                            const foundB = allBranches.find((br: any) => br.id === str || br.code === str);
+                            if (foundB) return `${foundB.name} (${foundB.city || foundB.code})`;
+                          }
+
+                          if (k === "mobile") {
+                            const clean = str.replace(/\D/g, "");
+                            if (clean.startsWith("971") && clean.length === 12) {
+                              return `+971 ${clean.slice(3, 5)} ${clean.slice(5, 8)} ${clean.slice(8)}`;
+                            }
+                            return `+${str.replace(/^\+/, "")}`;
+                          }
+
+                          if (k === "welcomeBonusPoints" || k === "pointsBalance" || k === "delta") {
+                            return `${str} Pts`;
+                          }
+                          if (k === "welcomeDiscountPercent") {
+                            return `${str}% Off`;
+                          }
+
+                          return str;
+                        };
+
+                        // Resolved entity label
+                        let entityBadge = null;
+                        if (l.entityType) {
+                          let entityLabel = l.entityType;
+                          let entityVal = l.entityName;
+
+                          if (!entityVal && l.entityType.toLowerCase() === "customer") {
+                            entityVal = resolvedCustomerName;
+                          } else if (!entityVal && l.entityType.toLowerCase() === "branch" && l.entityId) {
+                            const foundB = allBranches.find((b: any) => b.id === l.entityId || b.code === l.entityId);
+                            entityVal = foundB ? foundB.name : null;
+                          }
+
+                          entityBadge = (
+                            <span className="px-2.5 py-0.5 rounded-full bg-[#FAF7F4] border border-[#EAE3DC] text-[10px] text-[#7A6E67] font-semibold flex items-center gap-1">
+                              <span>{entityLabel}:</span>
+                              <strong className="text-[#1E1815] font-bold">
+                                {entityVal || `#${String(l.entityId || "").slice(-6)}`}
+                              </strong>
+                            </span>
+                          );
+                        }
 
                         return (
                           <div
@@ -5544,21 +5701,16 @@ export default function AdminPage() {
                               {/* Top Action & Staff Header */}
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span
-                                  className={`px-2.5 py-1 rounded-lg font-mono text-[11px] font-black uppercase tracking-wide border ${
-                                    isDanger
-                                      ? "bg-[#C0392B]/10 text-[#C0392B] border-[#C0392B]/20"
-                                      : isSuccess
-                                      ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border-[#1E7A4D]/20"
-                                      : isWarning
-                                      ? "bg-[#C68A1E]/10 text-[#9E690B] border-[#C68A1E]/20"
-                                      : "bg-[#801313]/10 text-[#801313] border-[#801313]/20"
-                                  }`}
+                                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-mono text-[11px] font-black uppercase tracking-wide border shadow-2xs ${badgeClass}`}
                                 >
-                                  {l.action}
+                                  {badgeIcon}
+                                  <span>{l.action}</span>
                                 </span>
 
                                 <div className="flex items-center gap-1.5 text-xs text-[#1E1815] font-bold">
-                                  <span className="w-5 h-5 rounded-full bg-[#EAE3DC] text-[#4A3F39] text-[10px] font-black flex items-center justify-center shrink-0">
+                                  <span className={`w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center shrink-0 ${
+                                    isCustomerEvent ? "bg-emerald-100 text-emerald-800" : "bg-[#EAE3DC] text-[#4A3F39]"
+                                  }`}>
                                     {staffDisplayName.charAt(0).toUpperCase()}
                                   </span>
                                   <span>{staffDisplayName}</span>
@@ -5567,20 +5719,23 @@ export default function AdminPage() {
                                       (@{l.staffUsername})
                                     </span>
                                   )}
+                                  {isCustomerEvent && l.metadata?.mobile && (
+                                    <span className="text-[10px] text-emerald-700 font-mono bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                      +{String(l.metadata.mobile).replace(/^\+/, "")}
+                                    </span>
+                                  )}
                                 </div>
 
-                                {l.entityType && (
-                                  <span className="px-2 py-0.5 rounded-full bg-[#FAF7F4] border border-[#EAE3DC] text-[10px] text-[#7A6E67] font-semibold">
-                                    {l.entityType} {l.entityId ? `#${l.entityId}` : ""}
-                                  </span>
-                                )}
+                                {entityBadge}
                               </div>
 
                               {/* Reason note */}
                               {l.reason && (
-                                <div className="text-[11px] text-[#C0392B] font-semibold flex items-center gap-1">
-                                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                                  <span>Note: {l.reason}</span>
+                                <div className={`text-[11px] font-semibold flex items-center gap-1.5 ${
+                                  isDanger ? "text-[#C0392B]" : isCustomerEvent ? "text-emerald-800" : "text-[#4A3F39]"
+                                }`}>
+                                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0 opacity-70" />
+                                  <span>{l.reason}</span>
                                 </div>
                               )}
 
@@ -5588,15 +5743,18 @@ export default function AdminPage() {
                               {l.metadata && Object.keys(l.metadata).length > 0 && (
                                 <div className="bg-[#FAF7F4] p-2 sm:p-2.5 rounded-xl border border-[#EAE3DC] text-[11px] font-mono text-[#4A3F39] max-w-2xl overflow-x-auto custom-scrollbar">
                                   {typeof l.metadata === "object" ? (
-                                    <div className="flex flex-wrap gap-x-3 gap-y-1">
-                                      {Object.entries(l.metadata).map(([k, v]) => (
-                                        <div key={k} className="inline-flex items-center gap-1">
-                                          <span className="text-[#7A6E67] font-bold">{k}:</span>
-                                          <span className="font-semibold text-[#1E1815]">
-                                            {typeof v === "object" ? JSON.stringify(v) : String(v)}
-                                          </span>
-                                        </div>
-                                      ))}
+                                    <div className="flex flex-wrap gap-x-3.5 gap-y-1.5">
+                                      {Object.entries(l.metadata).map(([k, v]) => {
+                                        if (v === null || v === undefined || v === "") return null;
+                                        return (
+                                          <div key={k} className="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded-md border border-[#EFE8E1]">
+                                            <span className="text-[#7A6E67] font-bold text-[10px] uppercase">{formatMetaKey(k)}:</span>
+                                            <span className="font-semibold text-[#1E1815]">
+                                              {formatMetaVal(k, v)}
+                                            </span>
+                                          </div>
+                                        );
+                                      })}
                                     </div>
                                   ) : (
                                     <span>{String(l.metadata)}</span>
@@ -6695,16 +6853,26 @@ export default function AdminPage() {
                   <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
                     Security PIN / Password *
                   </label>
-                  <input
-                    type="password"
-                    inputMode="numeric"
-                    required
-                    minLength={4}
-                    placeholder="Min 4 digits"
-                    value={staffForm.pin}
-                    onChange={(e) => setStaffForm({ ...staffForm, pin: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showStaffPin ? "text" : "password"}
+                      inputMode="numeric"
+                      required
+                      minLength={4}
+                      placeholder={showStaffPin ? "1234" : "Min 4 digits"}
+                      value={staffForm.pin}
+                      onChange={(e) => setStaffForm({ ...staffForm, pin: e.target.value })}
+                      className="w-full pl-3 pr-8 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowStaffPin(!showStaffPin)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-[#8C7F78] hover:text-[#C0392B] transition-colors rounded focus:outline-none cursor-pointer"
+                      title={showStaffPin ? "Hide PIN" : "Show PIN"}
+                    >
+                      {showStaffPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -6836,15 +7004,25 @@ export default function AdminPage() {
                   <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
                     Reset PIN / Password (Optional)
                   </label>
-                  <input
-                    type="password"
-                    inputMode="numeric"
-                    minLength={4}
-                    placeholder="Leave blank to keep current"
-                    value={staffForm.pin}
-                    onChange={(e) => setStaffForm({ ...staffForm, pin: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showEditStaffPin ? "text" : "password"}
+                      inputMode="numeric"
+                      minLength={4}
+                      placeholder={showEditStaffPin ? "1234" : "Leave blank to keep current"}
+                      value={staffForm.pin}
+                      onChange={(e) => setStaffForm({ ...staffForm, pin: e.target.value })}
+                      className="w-full pl-3 pr-8 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowEditStaffPin(!showEditStaffPin)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-[#8C7F78] hover:text-[#C0392B] transition-colors rounded focus:outline-none cursor-pointer"
+                      title={showEditStaffPin ? "Hide PIN" : "Show PIN"}
+                    >
+                      {showEditStaffPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
                 </div>
               </div>
 

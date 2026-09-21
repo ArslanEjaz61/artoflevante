@@ -29,6 +29,33 @@ export async function POST(req: NextRequest) {
   await prisma.staff.update({ where: { id: staff.id }, data: { lastLogin: new Date() } });
   await setStaffSession(staff);
 
+  // Record Staff POS Till Sign-In Audit Log
+  try {
+    const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "127.0.0.1";
+    const userAgent = req.headers.get("user-agent")?.slice(0, 150) || "POS Till Browser";
+    await prisma.auditLog.create({
+      data: {
+        action: "staff.login",
+        staffId: staff.id,
+        entityType: "StaffTill",
+        entityId: staff.id,
+        reason: `POS Till session started for @${staff.username} (${staff.name} at ${staff.branch?.name || "Corporate HQ"})`,
+        metadata: {
+          username: staff.username,
+          name: staff.name,
+          role: staff.role,
+          branchName: staff.branch?.name || "Corporate HQ (All Outlets)",
+          branchCity: staff.branch?.city || "All",
+          branchId: staff.branchId,
+          ip,
+          userAgent,
+        },
+      },
+    });
+  } catch (auditErr) {
+    console.error("Failed to write staff.login audit record:", auditErr);
+  }
+
   return NextResponse.json({
     ok: true,
     staff: {

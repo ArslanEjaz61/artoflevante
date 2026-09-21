@@ -16,7 +16,22 @@ export async function GET(req: NextRequest) {
 
   let where: any = {};
   if (action && action !== "all") {
-    if (action.endsWith("*")) {
+    if (action === "blocked") {
+      where = {
+        OR: [
+          { action: { contains: "blocked" } },
+          { action: { contains: "duplicate" } },
+          { action: { contains: "fraud" } },
+        ],
+      };
+    } else if (action === "login") {
+      where = {
+        OR: [
+          { action: { contains: "login" } },
+          { action: { contains: "register" } },
+        ],
+      };
+    } else if (action.endsWith("*")) {
       where = { action: { startsWith: action.replace("*", "") } };
     } else {
       where = { action: { contains: action } };
@@ -35,17 +50,93 @@ export async function GET(req: NextRequest) {
     prisma.auditLog.count({ where: { action: "transaction.duplicate_blocked" } }),
   ]);
 
-  const mappedLogs = rows.map((a) => ({
-    id: a.id,
-    action: a.action,
-    staff: a.staff?.name ?? (a.staff?.username ? `@${a.staff.username}` : "System Admin"),
-    staffUsername: a.staff?.username ?? null,
-    entityType: a.entityType,
-    entityId: a.entityId,
-    reason: a.reason,
-    metadata: a.metadata,
-    createdAt: a.createdAt,
-  }));
+  // Collect referenced customer IDs and branch IDs to resolve human-readable names
+  const customerIds = new Set<string>();
+  const branchIds = new Set<string>();
+
+  rows.forEach((r) => {
+    if (r.entityType?.toLowerCase() === "customer" && r.entityId) {
+      customerIds.add(r.entityId);
+    }
+    if (r.entityType?.toLowerCase() === "branch" && r.entityId) {
+      branchIds.add(r.entityId);
+    }
+    const meta = r.metadata as Record<string, any> | null;
+    if (meta && typeof meta === "object") {
+      if (meta.customerId) customerIds.add(String(meta.customerId));
+      if (meta.branchId) branchIds.add(String(meta.branchId));
+      if (meta.homeBranchId) branchIds.add(String(meta.homeBranchId));
+    }
+  });
+
+  const [customerList, branchList] = await Promise.all([
+    customerIds.size > 0
+      ? prisma.customer.findMany({
+          where: { id: { in: Array.from(customerIds) } },
+          select: { id: true, name: true, mobile: true },
+        })
+      : [],
+    prisma.branch.findMany({
+      select: { id: true, name: true, city: true, code: true },
+    }),
+  ]);
+
+  const customerMap = new Map(customerList.map((c) => [c.id, c]));
+  const branchMap = new Map(branchList.map((b) => [b.id, b]));
+
+  const mappedLogs = rows.map((a) => {
+    const isCustomerAction = a.action.startsWith("customer.");
+    const meta = (a.metadata as Record<string, any>) || {};
+
+    let entityName: string | null = null;
+    if (a.entityType?.toLowerCase() === "customer" && a.entityId) {
+      entityName = customerMap.get(a.entityId)?.name || meta.name || null;
+    } else if (a.entityType?.toLowerCase() === "branch" && a.entityId) {
+      entityName = branchMap.get(a.entityId)?.name || null;
+    }
+
+    // Translate any branchId in metadata to branchName
+    const enrichedMeta: Record<string, any> = { ...meta };
+    if (enrichedMeta.branchId) {
+      const b = branchMap.get(enrichedMeta.branchId);
+      if (b) {
+        enrichedMeta.branch = b.name;
+        delete enrichedMeta.branchId;
+      }
+    }
+    if (enrichedMeta.homeBranchId) {
+      const b = branchMap.get(enrichedMeta.homeBranchId);
+      if (b) {
+        enrichedMeta.homeBranch = b.name;
+        delete enrichedMeta.homeBranchId;
+      }
+    }
+    if (enrichedMeta.customerId && customerMap.has(enrichedMeta.customerId)) {
+      enrichedMeta.customer = customerMap.get(enrichedMeta.customerId)?.name;
+      delete enrichedMeta.customerId;
+    }
+
+    // Determine clean actor name
+    let staffName = a.staff?.name ?? (a.staff?.username ? `@${a.staff.username}` : null);
+    if (isCustomerAction && !a.staff) {
+      staffName = entityName || meta.name || (meta.mobile ? `+${meta.mobile}` : "Customer Member");
+    } else if (!staffName) {
+      staffName = "System Admin";
+    }
+
+    return {
+      id: a.id,
+      action: a.action,
+      staff: staffName,
+      staffUsername: a.staff?.username ?? null,
+      entityType: a.entityType,
+      entityId: a.entityId,
+      entityName,
+      reason: a.reason,
+      metadata: enrichedMeta,
+      createdAt: a.createdAt,
+    };
+  });
 
   return NextResponse.json({
     logs: mappedLogs,

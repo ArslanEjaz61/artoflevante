@@ -36,6 +36,31 @@ export async function POST(req: NextRequest) {
   await prisma.staff.update({ where: { id: staff.id }, data: { lastLogin: new Date() } });
   await setStaffSession(staff);
 
+  // Record Admin Sign-In Audit Log
+  try {
+    const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "127.0.0.1";
+    const userAgent = req.headers.get("user-agent")?.slice(0, 150) || "Browser Session";
+    await prisma.auditLog.create({
+      data: {
+        action: "admin.login",
+        staffId: staff.id,
+        entityType: "AdminPortal",
+        entityId: staff.id,
+        reason: `Executive login by @${staff.username} (${staff.name} - ${staff.role})`,
+        metadata: {
+          username: staff.username,
+          name: staff.name,
+          role: staff.role,
+          branch: staff.branch?.name || "Corporate HQ (All Outlets)",
+          ip,
+          userAgent,
+        },
+      },
+    });
+  } catch (auditErr) {
+    console.error("Failed to write admin.login audit record:", auditErr);
+  }
+
   return NextResponse.json({
     ok: true,
     admin: {

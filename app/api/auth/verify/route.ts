@@ -57,18 +57,73 @@ export async function POST(req: NextRequest) {
   await prisma.otpCode.update({ where: { id: otp.id }, data: { consumedAt: new Date() } });
 
   if (purpose === "login") {
-    const customer = await prisma.customer.findUnique({ where: { mobile: normalized } });
+    const customer = await prisma.customer.findUnique({
+      where: { mobile: normalized },
+      include: { homeBranch: { select: { id: true, name: true, city: true } } },
+    });
     if (!customer) {
       return NextResponse.json({ error: "No account found for this number." }, { status: 404 });
     }
     await setCustomerSession(customer.id);
+
+    // Record Customer Sign-In Audit Log
+    try {
+      const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "127.0.0.1";
+      const userAgent = req.headers.get("user-agent")?.slice(0, 150) || "Mobile Web Portal";
+      await prisma.auditLog.create({
+        data: {
+          action: "customer.login",
+          entityType: "Customer",
+          entityId: customer.id,
+          reason: `Customer sign in via SMS OTP: ${customer.name || "Member"} (${customer.mobile})`,
+          metadata: {
+            mobile: customer.mobile,
+            name: customer.name || "Guest Member",
+            pointsBalance: customer.pointsBalance,
+            visitCount: customer.visitCount,
+            homeBranch: customer.homeBranch?.name || "Not assigned",
+            ip,
+            userAgent,
+          },
+        },
+      });
+    } catch (auditErr) {
+      console.error("Failed to write customer.login audit record:", auditErr);
+    }
+
     return NextResponse.json({ ok: true, customerId: customer.id, isNew: false });
   }
 
   // Guard against race condition on dual verification
-  const alreadyThere = await prisma.customer.findUnique({ where: { mobile: normalized } });
+  const alreadyThere = await prisma.customer.findUnique({
+    where: { mobile: normalized },
+    include: { homeBranch: { select: { id: true, name: true, city: true } } },
+  });
   if (alreadyThere) {
     await setCustomerSession(alreadyThere.id);
+
+    try {
+      const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "127.0.0.1";
+      await prisma.auditLog.create({
+        data: {
+          action: "customer.login",
+          entityType: "Customer",
+          entityId: alreadyThere.id,
+          reason: `Customer sign in via SMS OTP: ${alreadyThere.name || "Member"} (${alreadyThere.mobile})`,
+          metadata: {
+            mobile: alreadyThere.mobile,
+            name: alreadyThere.name || "Guest Member",
+            pointsBalance: alreadyThere.pointsBalance,
+            visitCount: alreadyThere.visitCount,
+            homeBranch: alreadyThere.homeBranch?.name || "Not assigned",
+            ip,
+          },
+        },
+      });
+    } catch (auditErr) {
+      console.error("Failed to write customer.login audit record:", auditErr);
+    }
+
     return NextResponse.json({ ok: true, customerId: alreadyThere.id, isNew: false });
   }
 
@@ -135,16 +190,21 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "127.0.0.1";
     await tx.auditLog.create({
       data: {
         action: "customer.register",
         entityType: "Customer",
         entityId: created.id,
+        reason: `New member registered: ${otp.pendingName || "Guest"} (${normalized})`,
         metadata: {
           mobile: normalized,
+          name: otp.pendingName || "Guest",
+          email: otp.pendingEmail || null,
           branchId: otp.pendingBranchId ?? null,
           welcomeBonusPoints,
           welcomeDiscountPercent,
+          ip,
         },
       },
     });

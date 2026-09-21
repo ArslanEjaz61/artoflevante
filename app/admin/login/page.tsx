@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, ShieldCheck, KeyRound, AlertTriangle, ArrowRight, Store } from "lucide-react";
+import { Lock, ShieldCheck, KeyRound, AlertTriangle, ArrowRight, Store, Eye, EyeOff } from "lucide-react";
 import { CrmTopHeader } from "@/components/CrmTopHeader";
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ username: "", pin: "" });
+  const [showPin, setShowPin] = useState(false);
   const [busy, setBusy] = useState(false);
   const [checking, setChecking] = useState(true);
   const [err, setErr] = useState("");
@@ -94,7 +95,7 @@ export default function AdminLoginPage() {
               <input
                 id="admin-u"
                 type="text"
-                className="w-full px-4 py-3 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#801313] transition-colors font-medium text-sm"
+                className="w-full px-4 py-3 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#801313] transition-colors font-medium text-sm pr-10"
                 value={form.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
                 autoComplete="username"
@@ -113,10 +114,10 @@ export default function AdminLoginPage() {
             <div className="relative">
               <input
                 id="admin-p"
-                type="password"
+                type={showPin ? "text" : "password"}
                 inputMode="numeric"
                 pattern="[0-9]*"
-                className="w-full px-4 py-3 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313] font-mono tracking-widest transition-colors text-sm"
+                className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313] font-mono tracking-widest transition-colors text-sm"
                 value={form.pin}
                 onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, "") })}
                 onKeyDown={(e) => {
@@ -131,10 +132,18 @@ export default function AdminLoginPage() {
                     e.preventDefault();
                   }
                 }}
-                placeholder="••••••"
+                placeholder={showPin ? "123456" : "••••••"}
                 required
               />
-              <KeyRound className="w-4 h-4 text-[#8C7F78] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <button
+                type="button"
+                onClick={() => setShowPin(!showPin)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8C7F78] hover:text-[#801313] transition-colors rounded-lg focus:outline-none cursor-pointer"
+                title={showPin ? "Hide PIN" : "Show PIN"}
+                aria-label={showPin ? "Hide PIN" : "Show PIN"}
+              >
+                {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 
