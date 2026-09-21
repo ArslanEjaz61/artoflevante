@@ -109,38 +109,24 @@ export default function AdminLoginPage() {
 
           <div>
             <label className="block text-[10px] font-extrabold uppercase tracking-wider text-[#7A6E67] mb-1.5" htmlFor="admin-p">
-              Security PIN Code
+              Admin Password / PIN Code
             </label>
             <div className="relative">
               <input
                 id="admin-p"
                 type={showPin ? "text" : "password"}
-                inputMode="numeric"
-                pattern="[0-9]*"
-                className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313] font-mono tracking-widest transition-colors text-sm"
+                className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313] font-medium transition-colors text-sm"
                 value={form.pin}
-                onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, "") })}
-                onKeyDown={(e) => {
-                  if (
-                    ["Backspace", "Delete", "Tab", "ArrowLeft", "ArrowRight", "Enter"].includes(e.key) ||
-                    e.ctrlKey ||
-                    e.metaKey
-                  ) {
-                    return;
-                  }
-                  if (!/^\d$/.test(e.key)) {
-                    e.preventDefault();
-                  }
-                }}
-                placeholder={showPin ? "123456" : "••••••"}
+                onChange={(e) => setForm({ ...form, pin: e.target.value })}
+                placeholder={showPin ? "Enter password" : "••••••••"}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPin(!showPin)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8C7F78] hover:text-[#801313] transition-colors rounded-lg focus:outline-none cursor-pointer"
-                title={showPin ? "Hide PIN" : "Show PIN"}
-                aria-label={showPin ? "Hide PIN" : "Show PIN"}
+                title={showPin ? "Hide Password" : "Show Password"}
+                aria-label={showPin ? "Hide Password" : "Show Password"}
               >
                 {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
