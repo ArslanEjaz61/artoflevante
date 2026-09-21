@@ -4800,25 +4800,24 @@ export default function AdminPage() {
                   <form onSubmit={handleUpdatePin} className="max-w-xl space-y-4">
                     <div>
                       <label className="block text-xs font-bold text-[#1E1815] uppercase tracking-wider mb-1.5" htmlFor="currPin">
-                        Current Master PIN *
+                        Current Master Password / PIN *
                       </label>
                       <div className="relative">
                         <input
                           id="currPin"
                           type={showCurrPin ? "text" : "password"}
-                          inputMode="numeric"
                           required
                           value={pinForm.currentPin}
                           onChange={(e) => setPinForm({ ...pinForm, currentPin: e.target.value })}
-                          placeholder={showCurrPin ? "123456" : "Enter your current 6-digit PIN"}
-                          className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-mono tracking-widest text-sm focus:outline-none focus:border-[#C0392B]"
+                          placeholder={showCurrPin ? "Enter current password" : "••••••••"}
+                          className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-medium text-sm focus:outline-none focus:border-[#C0392B]"
                         />
                         <button
                           type="button"
                           onClick={() => setShowCurrPin(!showCurrPin)}
                           className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8C7F78] hover:text-[#C0392B] transition-colors rounded-lg focus:outline-none cursor-pointer"
-                          title={showCurrPin ? "Hide Current PIN" : "Show Current PIN"}
-                          aria-label={showCurrPin ? "Hide Current PIN" : "Show Current PIN"}
+                          title={showCurrPin ? "Hide Current Password" : "Show Current Password"}
+                          aria-label={showCurrPin ? "Hide Current Password" : "Show Current Password"}
                         >
                           {showCurrPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
@@ -4828,26 +4827,25 @@ export default function AdminPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-bold text-[#1E1815] uppercase tracking-wider mb-1.5" htmlFor="nPin">
-                          New Security PIN *
+                          New Security Password / PIN *
                         </label>
                         <div className="relative">
                           <input
                             id="nPin"
                             type={showNewPin ? "text" : "password"}
-                            inputMode="numeric"
                             required
                             minLength={4}
                             value={pinForm.newPin}
                             onChange={(e) => setPinForm({ ...pinForm, newPin: e.target.value })}
-                            placeholder={showNewPin ? "123456" : "Min 4 digits"}
-                            className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-mono tracking-widest text-sm focus:outline-none focus:border-[#C0392B]"
+                            placeholder={showNewPin ? "Enter new password" : "Min 4 characters"}
+                            className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-medium text-sm focus:outline-none focus:border-[#C0392B]"
                           />
                           <button
                             type="button"
                             onClick={() => setShowNewPin(!showNewPin)}
                             className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8C7F78] hover:text-[#C0392B] transition-colors rounded-lg focus:outline-none cursor-pointer"
-                            title={showNewPin ? "Hide New PIN" : "Show New PIN"}
-                            aria-label={showNewPin ? "Hide New PIN" : "Show New PIN"}
+                            title={showNewPin ? "Hide New Password" : "Show New Password"}
+                            aria-label={showNewPin ? "Hide New Password" : "Show New Password"}
                           >
                             {showNewPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
@@ -4856,26 +4854,25 @@ export default function AdminPage() {
 
                       <div>
                         <label className="block text-xs font-bold text-[#1E1815] uppercase tracking-wider mb-1.5" htmlFor="cPin">
-                          Confirm New PIN *
+                          Confirm New Password / PIN *
                         </label>
                         <div className="relative">
                           <input
                             id="cPin"
                             type={showConfirmPin ? "text" : "password"}
-                            inputMode="numeric"
                             required
                             minLength={4}
                             value={pinForm.confirmPin}
                             onChange={(e) => setPinForm({ ...pinForm, confirmPin: e.target.value })}
-                            placeholder={showConfirmPin ? "123456" : "Re-enter new PIN"}
-                            className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-mono tracking-widest text-sm focus:outline-none focus:border-[#C0392B]"
+                            placeholder={showConfirmPin ? "Confirm password" : "Re-enter password"}
+                            className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-medium text-sm focus:outline-none focus:border-[#C0392B]"
                           />
                           <button
                             type="button"
                             onClick={() => setShowConfirmPin(!showConfirmPin)}
                             className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8C7F78] hover:text-[#C0392B] transition-colors rounded-lg focus:outline-none cursor-pointer"
-                            title={showConfirmPin ? "Hide Confirm PIN" : "Show Confirm PIN"}
-                            aria-label={showConfirmPin ? "Hide Confirm PIN" : "Show Confirm PIN"}
+                            title={showConfirmPin ? "Hide Confirm Password" : "Show Confirm Password"}
+                            aria-label={showConfirmPin ? "Hide Confirm Password" : "Show Confirm Password"}
                           >
                             {showConfirmPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
@@ -6856,19 +6853,18 @@ export default function AdminPage() {
                   <div className="relative">
                     <input
                       type={showStaffPin ? "text" : "password"}
-                      inputMode="numeric"
                       required
                       minLength={4}
-                      placeholder={showStaffPin ? "1234" : "Min 4 digits"}
+                      placeholder={showStaffPin ? "Enter password" : "Min 4 characters"}
                       value={staffForm.pin}
                       onChange={(e) => setStaffForm({ ...staffForm, pin: e.target.value })}
-                      className="w-full pl-3 pr-8 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full pl-3 pr-8 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-medium text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowStaffPin(!showStaffPin)}
                       className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-[#8C7F78] hover:text-[#C0392B] transition-colors rounded focus:outline-none cursor-pointer"
-                      title={showStaffPin ? "Hide PIN" : "Show PIN"}
+                      title={showStaffPin ? "Hide Password" : "Show Password"}
                     >
                       {showStaffPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
@@ -7007,18 +7003,17 @@ export default function AdminPage() {
                   <div className="relative">
                     <input
                       type={showEditStaffPin ? "text" : "password"}
-                      inputMode="numeric"
                       minLength={4}
-                      placeholder={showEditStaffPin ? "1234" : "Leave blank to keep current"}
+                      placeholder={showEditStaffPin ? "Enter new password" : "Leave blank to keep current"}
                       value={staffForm.pin}
                       onChange={(e) => setStaffForm({ ...staffForm, pin: e.target.value })}
-                      className="w-full pl-3 pr-8 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full pl-3 pr-8 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-medium text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowEditStaffPin(!showEditStaffPin)}
                       className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-[#8C7F78] hover:text-[#C0392B] transition-colors rounded focus:outline-none cursor-pointer"
-                      title={showEditStaffPin ? "Hide PIN" : "Show PIN"}
+                      title={showEditStaffPin ? "Hide Password" : "Show Password"}
                     >
                       {showEditStaffPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
