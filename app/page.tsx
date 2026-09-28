@@ -300,7 +300,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
             }}
             aria-label="Join now"
             className="absolute rounded-full cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F5EFE0]"
-            style={{ left: "7.5%", top: "66.0%", width: "73.0%", height: "6.3%" }}
+            style={{ left: "22.6%", top: "66.8%", width: "53.1%", height: "7.5%" }}
           />
 
           <button
@@ -311,21 +311,21 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
             }}
             aria-label="View my rewards"
             className="absolute rounded-md cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F5EFE0]"
-            style={{ left: "7.8%", top: "75.6%", width: "84.6%", height: "2.6%" }}
+            style={{ left: "17.7%", top: "76.5%", width: "64.9%", height: "3.0%" }}
           />
 
           <button
             onClick={handleShare}
             aria-label="Treat a friend"
             className="absolute rounded-xl cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F5EFE0]"
-            style={{ left: "8.85%", top: "83.2%", width: "40.4%", height: "12.0%" }}
+            style={{ left: "18.0%", top: "83.8%", width: "31.2%", height: "12.7%" }}
           />
 
           <button
             onClick={handleInstall}
             aria-label="Get the loyalty app"
             className="absolute rounded-xl cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F5EFE0]"
-            style={{ left: "53.1%", top: "83.2%", width: "38.0%", height: "12.0%" }}
+            style={{ left: "52.7%", top: "83.8%", width: "31.2%", height: "12.6%" }}
           />
         </div>
       )}
