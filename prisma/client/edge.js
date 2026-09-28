@@ -374,7 +374,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "D:\\morangoprojects\\loyalty\\prisma\\client",
+      "value": "/var/www/artoflevante/prisma/client",
       "fromEnvVar": null
     },
     "config": {
@@ -383,12 +383,12 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "debian-openssl-3.0.x",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "D:\\morangoprojects\\loyalty\\prisma\\schema.prisma",
+    "sourceFilePath": "/var/www/artoflevante/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -402,7 +402,6 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {

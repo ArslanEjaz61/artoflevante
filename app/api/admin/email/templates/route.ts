@@ -5,12 +5,12 @@ import { prisma } from "@/lib/db";
 const DEFAULT_BIRTHDAY_TEMPLATE = {
   name: "🎂 Royal Birthday Celebration & Treat",
   category: "BIRTHDAY",
-  subject: "🎂 Happy Birthday {customer_name}! A Special Gift from Bombay Chowpatty",
+  subject: "🎂 Happy Birthday {customer_name}! A Special Gift from Levante",
   isDefault: true,
   content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #FAF7F4; padding: 28px; border-radius: 20px; border: 1px solid #EAE3DC;">
   <div style="text-align: center; margin-bottom: 24px;">
-    <h1 style="color: #801313; margin: 0; font-size: 26px; font-weight: 900;">🎉 Happy Birthday, {customer_name}! 🎂</h1>
-    <p style="color: #7A6E67; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 6px; font-weight: bold;">Bombay Chowpatty Loyalty Club</p>
+    <h1 style="color: #0E331E; margin: 0; font-size: 26px; font-weight: 900;">🎉 Happy Birthday, {customer_name}! 🎂</h1>
+    <p style="color: #7A6E67; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 6px; font-weight: bold;">Levante Rewards</p>
   </div>
   
   <div style="background: white; padding: 26px; border-radius: 16px; border: 1px solid #EAE3DC; color: #1E1815; line-height: 1.6;">
@@ -18,21 +18,21 @@ const DEFAULT_BIRTHDAY_TEMPLATE = {
     
     <div style="background: #FAF3E6; border: 2px dashed #C68A1E; border-radius: 14px; padding: 20px; margin: 20px 0; text-align: center;">
       <div style="font-size: 12px; color: #9E690B; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px;">YOUR EXCLUSIVE BIRTHDAY REWARD</div>
-      <div style="font-size: 20px; color: #801313; font-weight: 900; margin: 8px 0;">{reward_name}</div>
+      <div style="font-size: 20px; color: #0E331E; font-weight: 900; margin: 8px 0;">{reward_name}</div>
       <p style="font-size: 13px; color: #5C504A; margin: 6px 0 0 0;">{reward_description}</p>
       <div style="margin-top: 12px; font-size: 11px; color: #7A6E67; font-weight: bold;">Valid for 30 Days Across All 14 UAE Outlets</div>
     </div>
     
     <div style="background: #FAF7F4; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; display: flex; justify-content: space-between;">
       <span style="font-size: 13px; color: #7A6E67;">Your Loyalty Points Balance:</span>
-      <strong style="font-size: 14px; color: #801313;">{points_balance} Points</strong>
+      <strong style="font-size: 14px; color: #0E331E;">{points_balance} Points</strong>
     </div>
 
     <p style="font-size: 13px; color: #5C504A; margin-bottom: 0;">Simply present your digital loyalty card or phone number at checkout to redeem your complimentary birthday treat!</p>
   </div>
   
   <div style="text-align: center; margin-top: 20px; font-size: 11px; color: #8C7F78;">
-    <p style="margin: 0;">Bombay Chowpatty UAE • Dubai • Sharjah • Ajman</p>
+    <p style="margin: 0;">Levante UAE • Dubai • Sharjah • Ajman</p>
   </div>
 </div>`,
 };
@@ -40,12 +40,12 @@ const DEFAULT_BIRTHDAY_TEMPLATE = {
 const DEFAULT_OFFERS_TEMPLATE = {
   name: "🔥 VIP Exclusive Deals & Special Promotions",
   category: "OFFERS",
-  subject: "🔥 Exclusive Deal for {customer_name}: Special Treat at Bombay Chowpatty!",
+  subject: "🔥 Exclusive Deal for {customer_name}: Special Treat at Levante!",
   isDefault: true,
   content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #FAF7F4; padding: 28px; border-radius: 20px; border: 1px solid #EAE3DC;">
   <div style="text-align: center; margin-bottom: 24px;">
-    <h1 style="color: #801313; margin: 0; font-size: 26px; font-weight: 900;">🔥 Special Member Treat Awaits You! 🌟</h1>
-    <p style="color: #7A6E67; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 6px; font-weight: bold;">Bombay Chowpatty Loyalty Club Exclusive</p>
+    <h1 style="color: #0E331E; margin: 0; font-size: 26px; font-weight: 900;">🔥 Special Member Treat Awaits You! 🌟</h1>
+    <p style="color: #7A6E67; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 6px; font-weight: bold;">Levante Rewards Exclusive</p>
   </div>
   
   <div style="background: white; padding: 26px; border-radius: 16px; border: 1px solid #EAE3DC; color: #1E1815; line-height: 1.6;">
@@ -54,20 +54,20 @@ const DEFAULT_OFFERS_TEMPLATE = {
     
     <div style="background: #EAF5EE; border: 2px dashed #1E7A4D; border-radius: 14px; padding: 20px; margin: 20px 0; text-align: center;">
       <div style="font-size: 12px; color: #1E7A4D; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px;">LIMITED TIME PROMOTIONAL OFFER</div>
-      <div style="font-size: 22px; color: #801313; font-weight: 900; margin: 8px 0;">{offer_title}</div>
-      <p style="font-size: 13px; color: #355E44; margin: 6px 0 0 0;">Valid across all Bombay Chowpatty UAE locations.</p>
+      <div style="font-size: 22px; color: #0E331E; font-weight: 900; margin: 8px 0;">{offer_title}</div>
+      <p style="font-size: 13px; color: #355E44; margin: 6px 0 0 0;">Valid across all Levante UAE locations.</p>
     </div>
     
     <div style="background: #FAF7F4; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px;">
       <span style="font-size: 13px; color: #7A6E67;">Your Available Points: </span>
-      <strong style="font-size: 14px; color: #801313;">{points_balance} Points</strong>
+      <strong style="font-size: 14px; color: #0E331E;">{points_balance} Points</strong>
     </div>
 
-    <p style="font-size: 13px; color: #5C504A; margin-bottom: 0;">Visit your nearest Bombay Chowpatty branch or show your digital card to enjoy this exclusive offer today.</p>
+    <p style="font-size: 13px; color: #5C504A; margin-bottom: 0;">Visit your nearest Levante branch or show your digital card to enjoy this exclusive offer today.</p>
   </div>
   
   <div style="text-align: center; margin-top: 20px; font-size: 11px; color: #8C7F78;">
-    <p style="margin: 0;">Bombay Chowpatty UAE • Authentic Indian Street Food & Sweets</p>
+    <p style="margin: 0;">Levante UAE • Authentic Indian Street Food & Sweets</p>
   </div>
 </div>`,
 };

@@ -21,7 +21,7 @@ import { InstallGuideModal } from "@/components/InstallGuideModal";
 import { CrmTopHeader } from "@/components/CrmTopHeader";
 import { CountryCodePicker } from "@/components/CountryCodePicker";
 
-const BRAND = process.env.NEXT_PUBLIC_APP_NAME || "Bombay Chowpatty Loyalty";
+const BRAND = process.env.NEXT_PUBLIC_APP_NAME || "Levante Rewards";
 
 interface Branch {
   id: string;
@@ -162,8 +162,8 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
     if (typeof navigator !== "undefined" && navigator.share) {
       navigator
         .share({
-          title: "Bombay Chowpatty Loyalty",
-          text: "Join Bombay Chowpatty Loyalty Club and get an instant 10% discount on your first order!",
+          title: "Levante Rewards",
+          text: "Join Levante Rewards and get an instant 10% discount on your first order!",
           url: window.location.origin,
         })
         .catch(() => {});
@@ -265,7 +265,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
   }
 
   return (
-    <div className="min-h-screen bg-[#F0DBDB] flex flex-col font-sans selection:bg-[#970709] selection:text-white">
+    <div className="min-h-screen bg-[#F5EFE0] flex flex-col font-sans selection:bg-[#0E331E] selection:text-white">
       {showCrmHeader && <CrmTopHeader activeTab="customer" />}
       <div className="flex-1 flex flex-col items-center justify-center p-3 sm:p-5 max-w-md w-full mx-auto">
         {/* Toast Notification */}
@@ -299,8 +299,8 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
               setErr("");
             }}
             aria-label="Join now"
-            className="absolute rounded-full cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FEF7C5]"
-            style={{ left: "17.75%", top: "65.72%", width: "62.97%", height: "7.73%" }}
+            className="absolute rounded-full cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F5EFE0]"
+            style={{ left: "7.5%", top: "66.0%", width: "73.0%", height: "6.3%" }}
           />
 
           <button
@@ -310,22 +310,22 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
               setErr("");
             }}
             aria-label="View my rewards"
-            className="absolute rounded-md cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FEF7C5]"
-            style={{ left: "51.48%", top: "75.14%", width: "36.69%", height: "3.25%" }}
+            className="absolute rounded-md cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F5EFE0]"
+            style={{ left: "7.8%", top: "75.6%", width: "84.6%", height: "2.6%" }}
           />
 
           <button
             onClick={handleShare}
             aria-label="Treat a friend"
-            className="absolute rounded-xl cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FEF7C5]"
-            style={{ left: "12.09%", top: "82.96%", width: "37.16%", height: "12.89%" }}
+            className="absolute rounded-xl cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F5EFE0]"
+            style={{ left: "8.85%", top: "83.2%", width: "40.4%", height: "12.0%" }}
           />
 
           <button
             onClick={handleInstall}
             aria-label="Get the loyalty app"
-            className="absolute rounded-xl cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FEF7C5]"
-            style={{ left: "51.02%", top: "82.27%", width: "40.17%", height: "13.99%" }}
+            className="absolute rounded-xl cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F5EFE0]"
+            style={{ left: "53.1%", top: "83.2%", width: "38.0%", height: "12.0%" }}
           />
         </div>
       )}
@@ -352,12 +352,12 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/bc-roundel.png"
-              alt="Bombay Chowpatty"
+              alt="Levante"
               className="w-12 h-12 object-contain shrink-0"
             />
             <div>
-              <div className="text-[9px] font-extrabold tracking-widest text-[#970709] uppercase">
-                BOMBAY CHOWPATTY
+              <div className="text-[9px] font-extrabold tracking-widest text-[#0E331E] uppercase">
+                LEVANTE
               </div>
               <h2 className="text-xl font-black text-[#1E1815] leading-tight">
                 {mode === "register" ? "Join the Loyalty Club" : "Sign In to Your Card"}
@@ -382,7 +382,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
                   placeholder="e.g. Imran Sheikh"
                   value={f.name}
                   onChange={setField("name")}
-                  className="w-full px-3.5 py-2.5 text-sm bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#970709] font-medium"
+                  className="w-full px-3.5 py-2.5 text-sm bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E] font-medium"
                   required
                 />
               </div>
@@ -403,7 +403,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
                   placeholder="501234567"
                   value={f.mobile}
                   onChange={handleMobileChange}
-                  className="flex-1 min-w-0 px-3.5 py-2.5 text-sm bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-mono font-bold focus:outline-none focus:border-[#970709]"
+                  className="flex-1 min-w-0 px-3.5 py-2.5 text-sm bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-mono font-bold focus:outline-none focus:border-[#0E331E]"
                   required
                 />
               </div>
@@ -420,7 +420,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
                     placeholder="name@example.com"
                     value={f.email}
                     onChange={setField("email")}
-                    className="w-full px-3.5 py-2.5 text-sm bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#970709]"
+                    className="w-full px-3.5 py-2.5 text-sm bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                     required
                   />
                 </div>
@@ -433,7 +433,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
                     type="date"
                     value={f.birthday}
                     onChange={setField("birthday")}
-                    className="w-full px-3.5 py-2.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#970709]"
+                    className="w-full px-3.5 py-2.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                   />
                 </div>
 
@@ -445,7 +445,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
                     <select
                       value={f.branchId}
                       onChange={setField("branchId")}
-                      className="w-full px-3.5 py-2.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#970709] font-bold"
+                      className="w-full px-3.5 py-2.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E] font-bold"
                     >
                       {branches.map((b) => (
                         <option key={b.id} value={b.id}>
@@ -461,7 +461,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
             <button
               type="submit"
               disabled={busy}
-              className="w-full py-3.5 px-4 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-sm uppercase tracking-wider shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 mt-2"
+              className="w-full py-3.5 px-4 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-sm uppercase tracking-wider shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 mt-2"
             >
               {busy ? (
                 <>
@@ -493,7 +493,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
                     setMode("login");
                     setErr("");
                   }}
-                  className="font-bold text-[#970709] hover:underline cursor-pointer"
+                  className="font-bold text-[#0E331E] hover:underline cursor-pointer"
                 >
                   Sign in here
                 </button>
@@ -507,7 +507,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
                     setMode("register");
                     setErr("");
                   }}
-                  className="font-bold text-[#970709] hover:underline cursor-pointer"
+                  className="font-bold text-[#0E331E] hover:underline cursor-pointer"
                 >
                   Join now & get rewards
                 </button>
@@ -547,7 +547,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
           <form onSubmit={verify} className="space-y-4">
             <div>
               <input
-                className="w-full py-3 sm:py-3.5 text-center text-2xl sm:text-3xl font-black tracking-[0.22em] sm:tracking-[0.35em] bg-[#FAF7F4] border-2 border-[#EAE3DC] focus:border-[#970709] rounded-2xl text-[#1E1815] focus:outline-none transition-all font-mono"
+                className="w-full py-3 sm:py-3.5 text-center text-2xl sm:text-3xl font-black tracking-[0.22em] sm:tracking-[0.35em] bg-[#FAF7F4] border-2 border-[#EAE3DC] focus:border-[#0E331E] rounded-2xl text-[#1E1815] focus:outline-none transition-all font-mono"
                 inputMode="numeric"
                 maxLength={6}
                 placeholder="000000"
@@ -560,7 +560,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
             <button
               type="submit"
               disabled={busy || code.length < 4}
-              className="w-full py-3.5 px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md disabled:opacity-50 transition-all cursor-pointer"
+              className="w-full py-3.5 px-6 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md disabled:opacity-50 transition-all cursor-pointer"
             >
               {busy ? (
                 <>
@@ -586,7 +586,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
                   type="button"
                   onClick={handleResendCode}
                   disabled={resending}
-                  className="font-bold text-[#970709] hover:underline cursor-pointer inline-flex items-center gap-1.5 disabled:opacity-50"
+                  className="font-bold text-[#0E331E] hover:underline cursor-pointer inline-flex items-center gap-1.5 disabled:opacity-50"
                 >
                   <RotateCw className={`w-3.5 h-3.5 ${resending ? "animate-spin" : ""}`} />
                   {resending ? "Resending Code…" : "Resend Verification Code"}
@@ -626,7 +626,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/bc-roundel.png"
-              alt="Bombay Chowpatty"
+              alt="Levante"
               className="w-20 h-20 object-contain mx-auto"
             />
 
@@ -635,7 +635,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
                 Membership Activated!
               </span>
               <h3 className="text-2xl font-black text-[#1E1815] tracking-tight mt-2">
-                Welcome to Bombay Chowpatty!
+                Welcome to Levante!
               </h3>
               <p className="text-xs text-[#7A6E67] mt-1">
                 Your account is ready! We&apos;ve credited your welcome gifts directly to your new digital card:
@@ -664,7 +664,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
 
               {/* Gift 2: Welcome Discount Voucher */}
               <div className="p-3.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#970709] to-[#7C0608] flex items-center justify-center text-white font-bold text-lg shadow-xs shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0E331E] to-[#0A2617] flex items-center justify-center text-white font-bold text-lg shadow-xs shrink-0">
                   🏷️
                 </div>
                 <div className="flex-1 min-w-0">
@@ -684,7 +684,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
             {/* Action Button */}
             <button
               onClick={() => router.push("/dashboard")}
-              className="w-full py-3.5 px-6 rounded-2xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-sm uppercase tracking-wider shadow-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="w-full py-3.5 px-6 rounded-2xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-sm uppercase tracking-wider shadow-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
               <span>Open My Digital Card</span>
               <ArrowRight className="w-4 h-4" />

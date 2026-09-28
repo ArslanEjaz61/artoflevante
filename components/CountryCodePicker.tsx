@@ -69,7 +69,7 @@ export function CountryCodePicker({
         type="button"
         disabled={disabled}
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center gap-2 px-3.5 py-3.5 bg-white border border-[#EAE3DC] hover:border-[#801313]/40 rounded-xl text-xs font-bold text-[#1E1815] shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+        className="flex items-center gap-2 px-3.5 py-3.5 bg-white border border-[#EAE3DC] hover:border-[#0E331E]/40 rounded-xl text-xs font-bold text-[#1E1815] shadow-2xs transition-all cursor-pointer disabled:opacity-50"
       >
         <span className="text-base leading-none">{selectedCountry.flag}</span>
         <span className="font-extrabold text-xs text-[#1E1815]">
@@ -80,7 +80,7 @@ export function CountryCodePicker({
         </span>
         <ChevronDown
           className={`w-3.5 h-3.5 text-[#7A6E67] transition-transform duration-200 ${
-            isOpen ? "rotate-180 text-[#801313]" : ""
+            isOpen ? "rotate-180 text-[#0E331E]" : ""
           }`}
         />
       </button>
@@ -98,7 +98,7 @@ export function CountryCodePicker({
                 placeholder="Search country or code..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-8.5 pr-3 py-2 bg-white border border-[#EAE3DC] rounded-xl text-xs font-medium text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] transition-colors"
+                className="w-full pl-8.5 pr-3 py-2 bg-white border border-[#EAE3DC] rounded-xl text-xs font-medium text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] transition-colors"
               />
             </div>
           </div>
@@ -119,7 +119,7 @@ export function CountryCodePicker({
                     onClick={() => handleSelect(c)}
                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs transition-colors cursor-pointer ${
                       isSelected
-                        ? "bg-[#801313]/10 text-[#801313] font-black"
+                        ? "bg-[#0E331E]/10 text-[#0E331E] font-black"
                         : "text-[#1E1815] hover:bg-[#FAF7F4] font-medium"
                     }`}
                   >
@@ -134,14 +134,14 @@ export function CountryCodePicker({
                       <span
                         className={`font-mono text-[11px] px-1.5 py-0.5 rounded-md ${
                           isSelected
-                            ? "bg-[#801313] text-white font-bold"
+                            ? "bg-[#0E331E] text-white font-bold"
                             : "bg-[#F0EBE6] text-[#5C504A] font-semibold"
                         }`}
                       >
                         +{c.code}
                       </span>
                       {isSelected && (
-                        <Check className="w-3.5 h-3.5 text-[#801313] shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-[#0E331E] shrink-0" />
                       )}
                     </div>
                   </button>

@@ -632,10 +632,10 @@ function OutletContent() {
   // Render Loading Screen
   if (loadingSession) {
     return (
-      <div className="min-h-screen bg-[#F0DBDB] flex flex-col font-sans">
+      <div className="min-h-screen bg-[#F5EFE0] flex flex-col font-sans">
         <CrmTopHeader activeTab="outlet" />
         <div className="flex-1 flex flex-col items-center justify-center p-4">
-          <div className="w-10 h-10 border-3 border-[#970709]/20 border-t-[#970709] rounded-full animate-spin mb-3" />
+          <div className="w-10 h-10 border-3 border-[#0E331E]/20 border-t-[#0E331E] rounded-full animate-spin mb-3" />
           <p className="text-xs font-bold text-[#7A6E67] uppercase tracking-wider">Loading Outlet Terminal…</p>
         </div>
       </div>
@@ -647,7 +647,7 @@ function OutletContent() {
   // =========================================================================
   if (screen === "entry" || !activeBranch) {
     return (
-      <div className="min-h-screen bg-[#F0DBDB] flex flex-col font-sans selection:bg-[#970709] selection:text-white">
+      <div className="min-h-screen bg-[#F5EFE0] flex flex-col font-sans selection:bg-[#0E331E] selection:text-white">
         <CrmTopHeader activeTab="outlet" />
         <div className="flex-1 flex flex-col items-center justify-center p-3.5 sm:p-6">
           <div className="max-w-md w-full bg-white rounded-3xl sm:rounded-4xl p-6 sm:p-10 shadow-sm border border-[#EAE3DC] text-center relative animate-in fade-in zoom-in duration-200">
@@ -655,12 +655,12 @@ function OutletContent() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/bc-roundel.png"
-            alt="Bombay Chowpatty"
+            alt="Levante"
             className="w-16 h-16 sm:w-20 sm:h-20 object-contain mx-auto mb-3 sm:mb-4"
           />
 
           {/* Subtitle */}
-          <div className="text-[11px] font-black tracking-widest text-[#970709] uppercase mb-1.5">
+          <div className="text-[11px] font-black tracking-widest text-[#0E331E] uppercase mb-1.5">
             OUTLET ENTRY
           </div>
 
@@ -688,7 +688,7 @@ function OutletContent() {
                 onChange={(e) => setOutletCodeInput(e.target.value.toUpperCase())}
                 autoFocus
                 required
-                className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-black text-[#1E1815] uppercase tracking-wider placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs transition-colors"
+                className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-black text-[#1E1815] uppercase tracking-wider placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs transition-colors"
               />
             </div>
 
@@ -702,7 +702,7 @@ function OutletContent() {
             <button
               type="submit"
               disabled={!outletCodeInput.trim() || outletAuthBusy}
-              className="w-full mt-2 py-3.5 px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full mt-2 py-3.5 px-6 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {outletAuthBusy ? (
                 <>
@@ -723,7 +723,7 @@ function OutletContent() {
                 <button
                   type="button"
                   onClick={() => setOutletCodeInput(sampleBranch.code)}
-                  className="font-bold font-mono text-[#1E1815] hover:text-[#970709] underline cursor-pointer"
+                  className="font-bold font-mono text-[#1E1815] hover:text-[#0E331E] underline cursor-pointer"
                 >
                   {sampleBranch.code}
                 </button>
@@ -742,7 +742,7 @@ function OutletContent() {
   // SCREEN 2: OUTLET LOYALTY DESK
   // =========================================================================
   return (
-    <div className="min-h-screen bg-[#F0DBDB] flex flex-col font-sans selection:bg-[#970709] selection:text-white">
+    <div className="min-h-screen bg-[#F5EFE0] flex flex-col font-sans selection:bg-[#0E331E] selection:text-white">
       <CrmTopHeader activeTab="outlet" />
       <div className="flex-1 py-4 sm:py-6 px-3 sm:px-6">
         <div className="max-w-4xl mx-auto">
@@ -752,15 +752,15 @@ function OutletContent() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/bc-roundel.png"
-              alt="Bombay Chowpatty"
+              alt="Levante"
               className="w-12 h-12 sm:w-16 sm:h-16 object-contain shrink-0"
             />
             <div className="min-w-0">
               {/* Highlighted Branch Badge */}
-              <div className="inline-flex items-center flex-wrap gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-[#801313]/10 border border-[#801313]/25 text-[#801313] text-[11px] sm:text-xs font-black tracking-wide mb-1 shadow-2xs max-w-full truncate">
-                <Building2 className="w-3.5 h-3.5 text-[#801313] shrink-0" />
+              <div className="inline-flex items-center flex-wrap gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full bg-[#0E331E]/10 border border-[#0E331E]/25 text-[#0E331E] text-[11px] sm:text-xs font-black tracking-wide mb-1 shadow-2xs max-w-full truncate">
+                <Building2 className="w-3.5 h-3.5 text-[#0E331E] shrink-0" />
                 <span className="font-extrabold uppercase truncate">{activeBranch.name}</span>
-                <span className="px-1.5 py-0.5 rounded-md bg-[#801313] text-white text-[10px] font-mono font-bold shrink-0">
+                <span className="px-1.5 py-0.5 rounded-md bg-[#0E331E] text-white text-[10px] font-mono font-bold shrink-0">
                   #{activeBranch.code}
                 </span>
               </div>
@@ -776,10 +776,10 @@ function OutletContent() {
 
           <button
             onClick={handleSwitchOutlet}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4] text-xs font-black text-[#801313] shadow-2xs transition-all cursor-pointer group shrink-0"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-[#EAE3DC] hover:border-[#0E331E]/50 hover:bg-[#FAF7F4] text-xs font-black text-[#0E331E] shadow-2xs transition-all cursor-pointer group shrink-0"
             title="Exit this branch and login to another branch"
           >
-            <LogOut className="w-4 h-4 text-[#801313] group-hover:-translate-x-0.5 transition-transform shrink-0" />
+            <LogOut className="w-4 h-4 text-[#0E331E] group-hover:-translate-x-0.5 transition-transform shrink-0" />
             <span>Switch Branch</span>
           </button>
         </div>
@@ -798,13 +798,13 @@ function OutletContent() {
               }}
               className={`p-4.5 rounded-2xl border text-left flex items-center gap-3.5 transition-all cursor-pointer ${
                 searchTab === "phone"
-                  ? "bg-[#FAF7F4] border-[#970709] shadow-xs ring-1 ring-[#970709]"
+                  ? "bg-[#FAF7F4] border-[#0E331E] shadow-xs ring-1 ring-[#0E331E]"
                   : "bg-white border-[#EAE3DC] hover:border-[#B5AAA2] hover:bg-[#FAF7F4]/50"
               }`}
             >
               <div
                 className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                  searchTab === "phone" ? "bg-[#970709]/10 text-[#970709]" : "bg-[#FAF7F4] text-[#7A6E67]"
+                  searchTab === "phone" ? "bg-[#0E331E]/10 text-[#0E331E]" : "bg-[#FAF7F4] text-[#7A6E67]"
                 }`}
               >
                 <Phone className="w-5 h-5" />
@@ -825,13 +825,13 @@ function OutletContent() {
               }}
               className={`p-4.5 rounded-2xl border text-left flex items-center gap-3.5 transition-all cursor-pointer ${
                 searchTab === "qr"
-                  ? "bg-[#FAF7F4] border-[#970709] shadow-xs ring-1 ring-[#970709]"
+                  ? "bg-[#FAF7F4] border-[#0E331E] shadow-xs ring-1 ring-[#0E331E]"
                   : "bg-white border-[#EAE3DC] hover:border-[#B5AAA2] hover:bg-[#FAF7F4]/50"
               }`}
             >
               <div
                 className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                  searchTab === "qr" ? "bg-[#970709]/10 text-[#970709]" : "bg-[#FAF7F4] text-[#7A6E67]"
+                  searchTab === "qr" ? "bg-[#0E331E]/10 text-[#0E331E]" : "bg-[#FAF7F4] text-[#7A6E67]"
                 }`}
               >
                 <Scan className="w-5 h-5" />
@@ -865,13 +865,13 @@ function OutletContent() {
                   onChange={(e) => setMobileInput(e.target.value.replace(/[^\d\s]/g, ""))}
                   autoFocus
                   required
-                  className="flex-1 px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs transition-colors"
+                  className="flex-1 px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs transition-colors"
                 />
 
                 <button
                   type="submit"
                   disabled={!mobileInput.trim() || searchBusy}
-                  className="py-3.5 px-7 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
+                  className="py-3.5 px-7 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
                 >
                   {searchBusy ? (
                     <>
@@ -908,7 +908,7 @@ function OutletContent() {
                       }
                     }}
                     autoFocus
-                    className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
+                    className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs"
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                     <span className="flex h-2 w-2 relative">
@@ -921,7 +921,7 @@ function OutletContent() {
                 <button
                   type="submit"
                   disabled={!qrInput.trim() || searchBusy}
-                  className="py-3.5 px-7 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
+                  className="py-3.5 px-7 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
                 >
                   {searchBusy ? "FINDING…" : "LOOKUP QR"}
                 </button>
@@ -934,7 +934,7 @@ function OutletContent() {
                   }}
                   className="py-3.5 px-4 rounded-xl bg-[#FAF7F4] hover:bg-[#EAE3DC] border border-[#EAE3DC] text-[#1E1815] font-bold text-xs flex items-center justify-center gap-2 shrink-0 transition-colors cursor-pointer"
                 >
-                  <Camera className="w-4 h-4 text-[#970709]" />
+                  <Camera className="w-4 h-4 text-[#0E331E]" />
                   <span>{isCameraActive ? "Stop Camera" : "Camera Scan"}</span>
                 </button>
               </form>
@@ -981,8 +981,8 @@ function OutletContent() {
             <div className="bg-[#FAF5F0] rounded-2xl p-4 sm:p-5 border border-[#EFE8E0] flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4">
               <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
                 {/* Circular Avatar Icon */}
-                <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full border-2 border-[#970709] flex items-center justify-center text-[#970709] shrink-0 bg-white shadow-2xs">
-                  <User className="w-5 h-5 sm:w-7 sm:h-7 stroke-[1.8] text-[#970709]" />
+                <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full border-2 border-[#0E331E] flex items-center justify-center text-[#0E331E] shrink-0 bg-white shadow-2xs">
+                  <User className="w-5 h-5 sm:w-7 sm:h-7 stroke-[1.8] text-[#0E331E]" />
                 </div>
                 <div className="min-w-0">
                   <h2 className="font-display font-black text-lg sm:text-2xl text-[#1E1815] leading-tight truncate">
@@ -1029,12 +1029,12 @@ function OutletContent() {
                 }}
                 className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
                   actionMode === "points"
-                    ? "bg-[#FAF7F4] border-[#970709] shadow-sm ring-2 ring-[#970709]/20"
-                    : "bg-white border-[#EAE3DC] hover:border-[#970709]/50 hover:bg-[#FAF7F4]/40"
+                    ? "bg-[#FAF7F4] border-[#0E331E] shadow-sm ring-2 ring-[#0E331E]/20"
+                    : "bg-white border-[#EAE3DC] hover:border-[#0E331E]/50 hover:bg-[#FAF7F4]/40"
                 }`}
               >
-                <div className="text-[#970709] mb-3">
-                  <RibbonIcon className="w-7 h-7 text-[#970709]" />
+                <div className="text-[#0E331E] mb-3">
+                  <RibbonIcon className="w-7 h-7 text-[#0E331E]" />
                 </div>
                 <div>
                   <h3 className="font-bold text-sm sm:text-base text-[#1E1815] leading-snug">
@@ -1045,7 +1045,7 @@ function OutletContent() {
                   </p>
                 </div>
                 {actionMode === "points" && (
-                  <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#970709]" />
+                  <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#0E331E]" />
                 )}
               </button>
 
@@ -1058,8 +1058,8 @@ function OutletContent() {
                 }}
                 className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
                   actionMode === "redeem_points"
-                    ? "bg-[#FAF7F4] border-[#970709] shadow-sm ring-2 ring-[#970709]/20"
-                    : "bg-white border-[#EAE3DC] hover:border-[#970709]/50 hover:bg-[#FAF7F4]/40"
+                    ? "bg-[#FAF7F4] border-[#0E331E] shadow-sm ring-2 ring-[#0E331E]/20"
+                    : "bg-white border-[#EAE3DC] hover:border-[#0E331E]/50 hover:bg-[#FAF7F4]/40"
                 }`}
               >
                 <div className="text-[#CC8820] mb-3">
@@ -1074,7 +1074,7 @@ function OutletContent() {
                   </p>
                 </div>
                 {actionMode === "redeem_points" && (
-                  <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#970709]" />
+                  <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#0E331E]" />
                 )}
               </button>
 
@@ -1088,14 +1088,14 @@ function OutletContent() {
                 }}
                 className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
                   actionMode === "reward"
-                    ? "bg-[#FAF7F4] border-[#970709] shadow-sm ring-2 ring-[#970709]/20"
-                    : "bg-white border-[#EAE3DC] hover:border-[#970709]/50 hover:bg-[#FAF7F4]/40"
+                    ? "bg-[#FAF7F4] border-[#0E331E] shadow-sm ring-2 ring-[#0E331E]/20"
+                    : "bg-white border-[#EAE3DC] hover:border-[#0E331E]/50 hover:bg-[#FAF7F4]/40"
                 }`}
               >
-                <div className="flex items-center justify-between mb-3 text-[#970709]">
-                  <Gift className="w-7 h-7 text-[#970709] stroke-[1.8]" />
+                <div className="flex items-center justify-between mb-3 text-[#0E331E]">
+                  <Gift className="w-7 h-7 text-[#0E331E] stroke-[1.8]" />
                   {availableRewards.length > 0 && (
-                    <span className="px-2 py-0.5 rounded-full bg-[#970709]/10 text-[#970709] text-[9px] font-black uppercase">
+                    <span className="px-2 py-0.5 rounded-full bg-[#0E331E]/10 text-[#0E331E] text-[9px] font-black uppercase">
                       {availableRewards.length} AVAILABLE
                     </span>
                   )}
@@ -1109,7 +1109,7 @@ function OutletContent() {
                   </p>
                 </div>
                 {actionMode === "reward" && (
-                  <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#970709]" />
+                  <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#0E331E]" />
                 )}
               </button>
             </div>
@@ -1141,7 +1141,7 @@ function OutletContent() {
                             value={invoiceNumber}
                             onChange={(e) => setInvoiceNumber(e.target.value.toUpperCase())}
                             required
-                            className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
+                            className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs"
                           />
                         </div>
 
@@ -1158,7 +1158,7 @@ function OutletContent() {
                             value={billAmount}
                             onChange={(e) => setBillAmount(e.target.value)}
                             required
-                            className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
+                            className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs"
                           />
                         </div>
                       </div>
@@ -1189,7 +1189,7 @@ function OutletContent() {
 
                           <div className="pt-2 border-t border-[#EAE3DC] flex justify-between items-center">
                             <span className="font-bold text-[#1E1815]">Customer New Total Balance:</span>
-                            <span className="font-black font-mono text-base text-[#970709]">
+                            <span className="font-black font-mono text-base text-[#0E331E]">
                               {customer.pointsBalance + estimatedPointsToEarn} pts
                             </span>
                           </div>
@@ -1217,7 +1217,7 @@ function OutletContent() {
                         <button
                           type="submit"
                           disabled={submittingBill || !invoiceNumber.trim() || !billAmount.trim()}
-                          className="flex-1 py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-wider sm:tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 text-center"
+                          className="flex-1 py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-wider sm:tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 text-center"
                         >
                           {submittingBill ? (
                             <>
@@ -1251,11 +1251,11 @@ function OutletContent() {
                         <div>
                           <h4 className="font-extrabold text-sm sm:text-base text-[#1E1815] leading-tight">Redeem Points for Direct Cash Discount</h4>
                           <p className="text-xs text-[#7A6E67] font-medium mt-0.5">
-                            Customer currently has <strong className="text-[#970709] font-bold">{customer.pointsBalance} points</strong> available.
+                            Customer currently has <strong className="text-[#0E331E] font-bold">{customer.pointsBalance} points</strong> available.
                           </p>
                         </div>
                       </div>
-                      <span className="self-start sm:self-auto px-3 py-1 rounded-lg bg-[#CC8820]/20 text-[#970709] text-xs font-black shrink-0">
+                      <span className="self-start sm:self-auto px-3 py-1 rounded-lg bg-[#CC8820]/20 text-[#0E331E] text-xs font-black shrink-0">
                         {loyaltyRules.pointsRequiredForRedemption} pts = {loyaltyRules.currency} {loyaltyRules.currencyValuePerRedemptionPoints} off
                       </span>
                     </div>
@@ -1281,8 +1281,8 @@ function OutletContent() {
                                   }}
                                   className={`px-3.5 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                                     isSelected
-                                      ? "bg-[#970709] text-white border-[#970709] shadow-xs ring-2 ring-[#970709]/20"
-                                      : "bg-white text-[#1E1815] border-[#EAE3DC] hover:border-[#970709]"
+                                      ? "bg-[#0E331E] text-white border-[#0E331E] shadow-xs ring-2 ring-[#0E331E]/20"
+                                      : "bg-white text-[#1E1815] border-[#EAE3DC] hover:border-[#0E331E]"
                                   }`}
                                 >
                                   {pts} pts (-{loyaltyRules.currency} {offVal})
@@ -1308,7 +1308,7 @@ function OutletContent() {
                                   className={`px-4 py-2.5 rounded-xl text-xs font-black border transition-all cursor-pointer ${
                                     isMaxSelected
                                       ? "bg-emerald-700 text-white border-emerald-700 shadow-xs ring-2 ring-emerald-700/20"
-                                      : "bg-white text-[#970709] border-[#EAE3DC] hover:border-[#970709]"
+                                      : "bg-white text-[#0E331E] border-[#EAE3DC] hover:border-[#0E331E]"
                                   }`}
                                 >
                                   Redeem Max ({maxPts} pts = -{loyaltyRules.currency} {maxOff})
@@ -1350,7 +1350,7 @@ function OutletContent() {
                                   setPointsToRedeemInput(num);
                                 }
                               }}
-                              className="w-full sm:w-48 px-3.5 py-2.5 bg-white border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#970709]"
+                              className="w-full sm:w-48 px-3.5 py-2.5 bg-white border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                             />
                             {pointsToRedeemInput > 0 && (
                               <span className="text-xs font-bold text-emerald-800 shrink-0">
@@ -1373,7 +1373,7 @@ function OutletContent() {
                               value={invoiceNumber}
                               onChange={(e) => setInvoiceNumber(e.target.value.toUpperCase())}
                               required
-                              className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
+                              className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs"
                             />
                           </div>
 
@@ -1390,7 +1390,7 @@ function OutletContent() {
                               value={billAmount}
                               onChange={(e) => setBillAmount(e.target.value)}
                               required
-                              className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#970709] shadow-2xs"
+                              className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs"
                             />
                           </div>
                         </div>
@@ -1417,7 +1417,7 @@ function OutletContent() {
 
                             <div className="pt-2 border-t border-[#EAE3DC] flex justify-between items-center">
                               <span className="font-black text-sm text-[#1E1815]">Net Payable by Customer:</span>
-                              <span className="font-black text-base text-[#970709] font-mono">
+                              <span className="font-black text-base text-[#0E331E] font-mono">
                                 {loyaltyRules.currency} {netPayable.toFixed(2)}
                               </span>
                             </div>
@@ -1434,7 +1434,7 @@ function OutletContent() {
                         <button
                           type="submit"
                           disabled={submittingBill || !invoiceNumber.trim() || !billAmount.trim() || pointsToRedeemInput <= 0}
-                          className="w-full py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-wider sm:tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 text-center"
+                          className="w-full py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-wider sm:tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 text-center"
                         >
                           {submittingBill ? (
                             <>
@@ -1455,7 +1455,7 @@ function OutletContent() {
                           Points Threshold Not Reached
                         </div>
                         <p className="text-xs text-[#7A6E67]">
-                          Customer currently has <strong className="text-[#970709]">{customer.pointsBalance} points</strong>. A minimum of <strong className="text-[#1E1815]">{loyaltyRules.pointsRequiredForRedemption} points</strong> is required to unlock direct bill cash discount redemption.
+                          Customer currently has <strong className="text-[#0E331E]">{customer.pointsBalance} points</strong>. A minimum of <strong className="text-[#1E1815]">{loyaltyRules.pointsRequiredForRedemption} points</strong> is required to unlock direct bill cash discount redemption.
                         </p>
                       </div>
                     )}
@@ -1472,11 +1472,11 @@ function OutletContent() {
                 {!visitSuccessReceipt ? (
                   <div className="p-6 rounded-3xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-6 text-center sm:text-left">
                     <div className="flex flex-col sm:flex-row items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-[#970709]/10 text-[#970709] flex items-center justify-center shrink-0">
-                        <StampIcon className="w-7 h-7 text-[#970709]" />
+                      <div className="w-14 h-14 rounded-2xl bg-[#0E331E]/10 text-[#0E331E] flex items-center justify-center shrink-0">
+                        <StampIcon className="w-7 h-7 text-[#0E331E]" />
                       </div>
                       <div>
-                        <div className="text-[11px] font-black tracking-widest text-[#970709] uppercase">
+                        <div className="text-[11px] font-black tracking-widest text-[#0E331E] uppercase">
                           OUTLET VISIT CHECK-IN
                         </div>
                         <h3 className="text-xl font-display font-black text-[#1E1815]">
@@ -1496,10 +1496,10 @@ function OutletContent() {
                           {customer.visitCount}
                         </div>
                       </div>
-                      <ArrowRight className="w-5 h-5 text-[#970709]" />
+                      <ArrowRight className="w-5 h-5 text-[#0E331E]" />
                       <div>
-                        <div className="text-[10px] font-bold text-[#970709] uppercase">New Visit Count</div>
-                        <div className="font-display font-black text-2xl text-[#970709] mt-0.5">
+                        <div className="text-[10px] font-bold text-[#0E331E] uppercase">New Visit Count</div>
+                        <div className="font-display font-black text-2xl text-[#0E331E] mt-0.5">
                           {customer.visitCount + 1}
                         </div>
                       </div>
@@ -1517,7 +1517,7 @@ function OutletContent() {
                         type="button"
                         onClick={handleGiveVisit}
                         disabled={submittingVisit}
-                        className="flex-1 py-4 px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="flex-1 py-4 px-6 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                       >
                         {submittingVisit ? (
                           <>
@@ -1586,7 +1586,7 @@ function OutletContent() {
                           setQrInput("");
                           setScreen("ready");
                         }}
-                        className="flex-1 py-3.5 px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+                        className="flex-1 py-3.5 px-6 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
                       >
                         NEXT CUSTOMER
                       </button>
@@ -1602,8 +1602,8 @@ function OutletContent() {
             {actionMode === "reward" && (
               <div className="pt-2 animate-in fade-in duration-200 space-y-4 sm:space-y-5">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
-                  <div className="text-xs font-black tracking-wider uppercase text-[#970709] flex items-center gap-2">
-                    <Gift className="w-4 h-4 text-[#970709] shrink-0" />
+                  <div className="text-xs font-black tracking-wider uppercase text-[#0E331E] flex items-center gap-2">
+                    <Gift className="w-4 h-4 text-[#0E331E] shrink-0" />
                     <span>UNLOCKED VISIT OFFERS &amp; MEMBER GIFTS</span>
                   </div>
                   <span className="text-xs font-bold text-[#7A6E67]">
@@ -1645,7 +1645,7 @@ function OutletContent() {
                       return (
                         <div
                           key={reward.id}
-                          className="p-4 sm:p-4.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex flex-col justify-between gap-3.5 shadow-2xs hover:border-[#970709]/40 transition-colors"
+                          className="p-4 sm:p-4.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex flex-col justify-between gap-3.5 shadow-2xs hover:border-[#0E331E]/40 transition-colors"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
@@ -1657,7 +1657,7 @@ function OutletContent() {
                                   {reward.description}
                                 </p>
                               )}
-                              <div className="text-[11px] text-[#970709] font-bold mt-1">
+                              <div className="text-[11px] text-[#0E331E] font-bold mt-1">
                                 {reward.isPercent
                                   ? `${reward.value}% Discount Offer`
                                   : reward.value > 0
@@ -1679,7 +1679,7 @@ function OutletContent() {
                               type="button"
                               disabled={isBusy}
                               onClick={() => handleRedeemReward(reward.id)}
-                              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-wider shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+                              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-wider shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
                             >
                               {isBusy ? (
                                 <>
@@ -1730,10 +1730,10 @@ function OutletContent() {
                       title="Click to view detailed receipt breakdown"
                     >
                       <div className="min-w-0">
-                        <div className="font-bold text-[#1E1815] group-hover:text-[#970709] transition-colors flex items-center gap-1.5 flex-wrap">
+                        <div className="font-bold text-[#1E1815] group-hover:text-[#0E331E] transition-colors flex items-center gap-1.5 flex-wrap">
                           <span>{t.branchName || "Branch Visit"}</span>
                           <span className="font-mono text-[11px] text-[#7A6E67]">#{t.invoiceNumber}</span>
-                          <span className="text-[10px] text-[#A0938C] font-normal group-hover:text-[#970709]">›</span>
+                          <span className="text-[10px] text-[#A0938C] font-normal group-hover:text-[#0E331E]">›</span>
                         </div>
                         <div className="text-[10px] text-[#7A6E67] mt-0.5 flex items-center gap-1.5">
                           <Clock className="w-3 h-3 text-[#A0938C]" />
@@ -1752,7 +1752,7 @@ function OutletContent() {
                           <div className="text-[11px] font-bold text-red-700 font-mono mt-1 flex items-center gap-1 flex-wrap">
                             <span>Discount: -{loyaltyRules.currency} {Number(t.discountGiven).toFixed(2)}</span>
                             {t.redeemedRewards && t.redeemedRewards.length > 0 && (
-                              <span className="text-[#970709] font-sans text-[10px]">({t.redeemedRewards.join(", ")})</span>
+                              <span className="text-[#0E331E] font-sans text-[10px]">({t.redeemedRewards.join(", ")})</span>
                             )}
                           </div>
                         )}
@@ -1840,8 +1840,8 @@ function OutletContent() {
               )}
 
               <div className="flex justify-between items-center text-[#1E1815] pt-1.5 border-t border-[#EAE3DC]">
-                <span className="font-black text-xs text-[#970709]">Customer Paid (Net):</span>
-                <span className="font-black text-sm text-[#970709] font-mono">
+                <span className="font-black text-xs text-[#0E331E]">Customer Paid (Net):</span>
+                <span className="font-black text-sm text-[#0E331E] font-mono">
                   {loyaltyRules.currency} {Number(
                     selectedHistoryReceipt.amountPaid ??
                     Math.max(0, Number(selectedHistoryReceipt.amount || 0) - Number(selectedHistoryReceipt.discountGiven || 0))
@@ -1871,7 +1871,7 @@ function OutletContent() {
 
             <button
               onClick={() => setSelectedHistoryReceipt(null)}
-              className="w-full py-3 px-6 rounded-xl bg-[#970709] hover:bg-[#7C0608] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+              className="w-full py-3 px-6 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
             >
               CLOSE RECEIPT
             </button>
@@ -1887,10 +1887,10 @@ export default function OutletPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#F0DBDB] flex flex-col font-sans">
+        <div className="min-h-screen bg-[#F5EFE0] flex flex-col font-sans">
           <CrmTopHeader activeTab="outlet" />
           <div className="flex-1 flex flex-col items-center justify-center p-4">
-            <div className="w-10 h-10 border-3 border-[#970709]/20 border-t-[#970709] rounded-full animate-spin mb-3" />
+            <div className="w-10 h-10 border-3 border-[#0E331E]/20 border-t-[#0E331E] rounded-full animate-spin mb-3" />
             <p className="text-xs font-bold text-[#7A6E67] uppercase tracking-wider">
               Loading Outlet Terminal…
             </p>

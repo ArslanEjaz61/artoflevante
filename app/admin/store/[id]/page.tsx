@@ -162,8 +162,8 @@ export default function StoreCrmPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F0DBDB] flex flex-col items-center justify-center p-6 font-sans">
-        <div className="w-10 h-10 border-3 border-[#801313]/20 border-t-[#801313] rounded-full animate-spin mb-3" />
+      <div className="min-h-screen bg-[#F5EFE0] flex flex-col items-center justify-center p-6 font-sans">
+        <div className="w-10 h-10 border-3 border-[#0E331E]/20 border-t-[#0E331E] rounded-full animate-spin mb-3" />
         <p className="text-xs font-bold text-[#7A6E67] uppercase tracking-wider">
           Loading Store Loyalty Points Dashboard…
         </p>
@@ -173,7 +173,7 @@ export default function StoreCrmPage() {
 
   if (error || !data?.store) {
     return (
-      <div className="min-h-screen bg-[#F0DBDB] flex flex-col items-center justify-center p-6 text-center font-sans">
+      <div className="min-h-screen bg-[#F5EFE0] flex flex-col items-center justify-center p-6 text-center font-sans">
         <div className="w-14 h-14 rounded-2xl bg-red-100 border border-red-200 flex items-center justify-center text-red-600 mb-4 shadow-sm">
           <AlertCircle className="w-7 h-7" />
         </div>
@@ -183,7 +183,7 @@ export default function StoreCrmPage() {
         </p>
         <Link
           href="/admin"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs uppercase tracking-wider shadow-md transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-bold text-xs uppercase tracking-wider shadow-md transition-all cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to All Stores</span>
@@ -231,13 +231,13 @@ export default function StoreCrmPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#F0DBDB] text-[#1E1815] flex flex-col font-sans selection:bg-[#801313] selection:text-white pb-16">
+    <div className="min-h-screen bg-[#F5EFE0] text-[#1E1815] flex flex-col font-sans selection:bg-[#0E331E] selection:text-white pb-16">
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         {/* ===================== TOP BREADCRUMB & BACK ===================== */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
           <Link
             href="/admin"
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-[#EAE3DC] hover:border-[#801313]/40 text-[#5C504A] hover:text-[#801313] text-xs font-black shadow-2xs transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-[#EAE3DC] hover:border-[#0E331E]/40 text-[#5C504A] hover:text-[#0E331E] text-xs font-black shadow-2xs transition-all cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to All Stores</span>
@@ -250,13 +250,13 @@ export default function StoreCrmPage() {
               disabled={refreshing}
               className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#DCD3CB] bg-white hover:bg-[#FAF7F4] text-xs font-bold text-[#4A3F39] shadow-2xs transition-all cursor-pointer disabled:opacity-50"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-[#801313]" : ""}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-[#0E331E]" : ""}`} />
               <span>Refresh Store</span>
             </button>
 
             <Link
               href={`/outlet?code=${encodeURIComponent(store.code || store.id)}`}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white text-xs font-black shadow-sm transition-all cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white text-xs font-black shadow-sm transition-all cursor-pointer"
             >
               <Store className="w-3.5 h-3.5" />
               <span>Launch {store.name} POS</span>
@@ -272,7 +272,7 @@ export default function StoreCrmPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/bc-roundel.png"
-                alt="Bombay Chowpatty"
+                alt="Levante"
                 className="w-16 h-16 sm:w-18 sm:h-18 object-contain shrink-0 drop-shadow-sm"
               />
 
@@ -290,8 +290,8 @@ export default function StoreCrmPage() {
                   </span>
                 </div>
 
-                <div className="text-[11px] font-black uppercase tracking-widest text-[#801313] mb-0.5 flex items-center gap-1.5">
-                  <Coins className="w-3.5 h-3.5 text-[#801313]" />
+                <div className="text-[11px] font-black uppercase tracking-widest text-[#0E331E] mb-0.5 flex items-center gap-1.5">
+                  <Coins className="w-3.5 h-3.5 text-[#0E331E]" />
                   <span>Loyalty Points Dashboard</span>
                 </div>
 
@@ -302,19 +302,19 @@ export default function StoreCrmPage() {
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#7A6E67] font-medium mt-1">
                   {store.address && (
                     <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-[#801313]" />
+                      <MapPin className="w-3.5 h-3.5 text-[#0E331E]" />
                       <span>{store.address}</span>
                     </span>
                   )}
                   {store.phone && (
                     <span className="flex items-center gap-1">
-                      <Phone className="w-3.5 h-3.5 text-[#801313]" />
+                      <Phone className="w-3.5 h-3.5 text-[#0E331E]" />
                       <span>{store.phone}</span>
                     </span>
                   )}
                   {store.hours && (
                     <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-[#801313]" />
+                      <Clock className="w-3.5 h-3.5 text-[#0E331E]" />
                       <span>{store.hours}</span>
                     </span>
                   )}
@@ -327,7 +327,7 @@ export default function StoreCrmPage() {
               {/* 1. Branch Outlet Code */}
               <div className="bg-[#FAF7F4] border border-[#EAE3DC] p-3.5 rounded-2xl flex items-center justify-between gap-4 min-w-[200px] shadow-2xs">
                 <div>
-                  <div className="text-[10px] font-black uppercase tracking-wider text-[#801313] flex items-center gap-1">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-[#0E331E] flex items-center gap-1">
                     <Store className="w-3 h-3" />
                     <span>Branch Outlet Code</span>
                   </div>
@@ -356,7 +356,7 @@ export default function StoreCrmPage() {
               {store.dailyCode && (
                 <div className="bg-[#FAF7F4] border border-[#EAE3DC] p-3.5 rounded-2xl flex items-center justify-between gap-4 min-w-[220px] shadow-2xs">
                   <div>
-                    <div className="text-[10px] font-black uppercase tracking-wider text-[#801313] flex items-center gap-1">
+                    <div className="text-[10px] font-black uppercase tracking-wider text-[#0E331E] flex items-center gap-1">
                       <Sparkles className="w-3 h-3" />
                       <span>24H Visit Coupon</span>
                     </div>
@@ -388,11 +388,11 @@ export default function StoreCrmPage() {
         {/* ===================== DATE RANGE FILTER BAR ===================== */}
         <div className="bg-white border border-[#EAE3DC] rounded-2xl p-3 sm:p-3.5 shadow-2xs mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-[#801313]" />
+            <Calendar className="w-4 h-4 text-[#0E331E]" />
             <span className="text-xs font-black text-[#1E1815] uppercase tracking-wider">
               Store Data Period:
             </span>
-            <span className="text-xs font-bold text-[#801313] bg-[#801313]/10 px-2.5 py-0.5 rounded-lg border border-[#801313]/20">
+            <span className="text-xs font-bold text-[#0E331E] bg-[#0E331E]/10 px-2.5 py-0.5 rounded-lg border border-[#0E331E]/20">
               {storeDateFilter === "all"
                 ? "All Time History"
                 : storeDateFilter === "today"
@@ -409,7 +409,7 @@ export default function StoreCrmPage() {
               onClick={() => handleDateFilterChange("all")}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 storeDateFilter === "all"
-                  ? "bg-[#801313] text-white shadow-xs"
+                  ? "bg-[#0E331E] text-white shadow-xs"
                   : "text-[#7A6E67] hover:text-[#1E1815]"
               }`}
             >
@@ -420,7 +420,7 @@ export default function StoreCrmPage() {
               onClick={() => handleDateFilterChange("today")}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 storeDateFilter === "today"
-                  ? "bg-[#801313] text-white shadow-xs"
+                  ? "bg-[#0E331E] text-white shadow-xs"
                   : "text-[#7A6E67] hover:text-[#1E1815]"
               }`}
             >
@@ -431,7 +431,7 @@ export default function StoreCrmPage() {
               onClick={() => handleDateFilterChange("7days")}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 storeDateFilter === "7days"
-                  ? "bg-[#801313] text-white shadow-xs"
+                  ? "bg-[#0E331E] text-white shadow-xs"
                   : "text-[#7A6E67] hover:text-[#1E1815]"
               }`}
             >
@@ -442,7 +442,7 @@ export default function StoreCrmPage() {
               onClick={() => handleDateFilterChange("30days")}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 storeDateFilter === "30days"
-                  ? "bg-[#801313] text-white shadow-xs"
+                  ? "bg-[#0E331E] text-white shadow-xs"
                   : "text-[#7A6E67] hover:text-[#1E1815]"
               }`}
             >
@@ -465,7 +465,7 @@ export default function StoreCrmPage() {
               <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
                 <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
                   <span>Revenue</span>
-                  <DollarSign className="w-3.5 h-3.5 text-[#801313]" />
+                  <DollarSign className="w-3.5 h-3.5 text-[#0E331E]" />
                 </div>
                 <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
                   {formatMoney(currency, displayRevenue)}
@@ -479,7 +479,7 @@ export default function StoreCrmPage() {
               <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
                 <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
                   <span>Visits</span>
-                  <Receipt className="w-3.5 h-3.5 text-[#801313]" />
+                  <Receipt className="w-3.5 h-3.5 text-[#0E331E]" />
                 </div>
                 <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
                   {displayVisits.toLocaleString()}
@@ -493,7 +493,7 @@ export default function StoreCrmPage() {
               <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
                 <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
                   <span>Store Members</span>
-                  <Users className="w-3.5 h-3.5 text-[#801313]" />
+                  <Users className="w-3.5 h-3.5 text-[#0E331E]" />
                 </div>
                 <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
                   {metrics.registeredCustomers.toLocaleString()}
@@ -507,7 +507,7 @@ export default function StoreCrmPage() {
               <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
                 <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
                   <span>Points Issued</span>
-                  <Coins className="w-3.5 h-3.5 text-[#801313]" />
+                  <Coins className="w-3.5 h-3.5 text-[#0E331E]" />
                 </div>
                 <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
                   {displayPoints.toLocaleString()} <span className="text-xs">pts</span>
@@ -521,7 +521,7 @@ export default function StoreCrmPage() {
               <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
                 <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
                   <span>Avg Bill</span>
-                  <TrendingUp className="w-3.5 h-3.5 text-[#801313]" />
+                  <TrendingUp className="w-3.5 h-3.5 text-[#0E331E]" />
                 </div>
                 <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
                   {formatMoney(currency, displayAvgBill)}
@@ -535,7 +535,7 @@ export default function StoreCrmPage() {
               <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4.5 shadow-2xs">
                 <div className="text-[10.5px] uppercase tracking-wider text-[#7A6E67] font-black mb-1 flex items-center justify-between">
                   <span>Discounts Saved</span>
-                  <Percent className="w-3.5 h-3.5 text-[#801313]" />
+                  <Percent className="w-3.5 h-3.5 text-[#0E331E]" />
                 </div>
                 <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
                   {formatMoney(currency, displayDiscounts)}
@@ -555,7 +555,7 @@ export default function StoreCrmPage() {
             onClick={() => setActiveTab("live")}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer shrink-0 ${
               activeTab === "live"
-                ? "bg-[#801313] text-white shadow-xs"
+                ? "bg-[#0E331E] text-white shadow-xs"
                 : "bg-white text-[#5C504A] hover:bg-[#FAF7F4] border border-[#EAE3DC]"
             }`}
           >
@@ -568,7 +568,7 @@ export default function StoreCrmPage() {
             onClick={() => setActiveTab("customers")}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer shrink-0 ${
               activeTab === "customers"
-                ? "bg-[#801313] text-white shadow-xs"
+                ? "bg-[#0E331E] text-white shadow-xs"
                 : "bg-white text-[#5C504A] hover:bg-[#FAF7F4] border border-[#EAE3DC]"
             }`}
           >
@@ -581,7 +581,7 @@ export default function StoreCrmPage() {
             onClick={() => setActiveTab("visitors")}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer shrink-0 ${
               activeTab === "visitors"
-                ? "bg-[#801313] text-white shadow-xs"
+                ? "bg-[#0E331E] text-white shadow-xs"
                 : "bg-white text-[#5C504A] hover:bg-[#FAF7F4] border border-[#EAE3DC]"
             }`}
           >
@@ -594,7 +594,7 @@ export default function StoreCrmPage() {
             onClick={() => setActiveTab("transactions")}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer shrink-0 ${
               activeTab === "transactions"
-                ? "bg-[#801313] text-white shadow-xs"
+                ? "bg-[#0E331E] text-white shadow-xs"
                 : "bg-white text-[#5C504A] hover:bg-[#FAF7F4] border border-[#EAE3DC]"
             }`}
           >
@@ -607,7 +607,7 @@ export default function StoreCrmPage() {
             onClick={() => setActiveTab("staff")}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer shrink-0 ${
               activeTab === "staff"
-                ? "bg-[#801313] text-white shadow-xs"
+                ? "bg-[#0E331E] text-white shadow-xs"
                 : "bg-white text-[#5C504A] hover:bg-[#FAF7F4] border border-[#EAE3DC]"
             }`}
           >
@@ -620,7 +620,7 @@ export default function StoreCrmPage() {
             onClick={() => setActiveTab("offers")}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer shrink-0 ${
               activeTab === "offers"
-                ? "bg-[#801313] text-white shadow-xs"
+                ? "bg-[#0E331E] text-white shadow-xs"
                 : "bg-white text-[#5C504A] hover:bg-[#FAF7F4] border border-[#EAE3DC]"
             }`}
           >
@@ -644,7 +644,7 @@ export default function StoreCrmPage() {
                     Real-time transaction feed processed at {store.name} (Tap any member to view profile)
                   </p>
                 </div>
-                <span className="text-xs font-bold text-[#801313]">
+                <span className="text-xs font-bold text-[#0E331E]">
                   {transactions.length} orders recorded
                 </span>
               </div>
@@ -662,14 +662,14 @@ export default function StoreCrmPage() {
                     <div
                       key={t.id}
                       onClick={() => t.customerId && openCustomerDetail(t.customerId)}
-                      className="p-4 rounded-2xl bg-[#FAF7F4] hover:bg-white border border-[#EAE3DC] hover:border-[#801313]/30 hover:shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer group"
+                      className="p-4 rounded-2xl bg-[#FAF7F4] hover:bg-white border border-[#EAE3DC] hover:border-[#0E331E]/30 hover:shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer group"
                     >
                       <div className="flex items-center gap-3.5">
-                        <div className="w-10 h-10 rounded-xl bg-white border border-[#EAE3DC] group-hover:border-[#801313]/30 flex items-center justify-center font-bold text-xs text-[#801313] shrink-0 shadow-2xs">
+                        <div className="w-10 h-10 rounded-xl bg-white border border-[#EAE3DC] group-hover:border-[#0E331E]/30 flex items-center justify-center font-bold text-xs text-[#0E331E] shrink-0 shadow-2xs">
                           <Receipt className="w-4 h-4" />
                         </div>
                         <div>
-                          <div className="font-extrabold text-sm text-[#1E1815] group-hover:text-[#801313] flex items-center gap-2 transition-colors">
+                          <div className="font-extrabold text-sm text-[#1E1815] group-hover:text-[#0E331E] flex items-center gap-2 transition-colors">
                             <span>{t.customerName}</span>
                             <span className="text-[11px] font-mono text-[#7A6E67]">
                               {t.customerMobile}
@@ -704,7 +704,7 @@ export default function StoreCrmPage() {
               {/* Today's Stats Summary Card */}
               <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm">
                 <h3 className="font-extrabold text-sm text-[#1E1815] uppercase tracking-wider mb-4 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-[#801313]" />
+                  <TrendingUp className="w-4 h-4 text-[#0E331E]" />
                   <span>Performance Summary</span>
                 </h3>
 
@@ -735,7 +735,7 @@ export default function StoreCrmPage() {
               {/* Upcoming Birthdays at this store */}
               <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm">
                 <h3 className="font-extrabold text-sm text-[#1E1815] uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <PartyPopper className="w-4 h-4 text-[#801313]" />
+                  <PartyPopper className="w-4 h-4 text-[#0E331E]" />
                   <span>Store Birthdays ({birthdays.length})</span>
                 </h3>
                 <p className="text-xs text-[#7A6E67] mb-4">
@@ -751,10 +751,10 @@ export default function StoreCrmPage() {
                         key={b.id}
                         type="button"
                         onClick={() => openCustomerDetail(b.id)}
-                        className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#FAF7F4] hover:bg-[#801313]/5 border border-[#EAE3DC] text-xs transition-colors cursor-pointer text-left"
+                        className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#FAF7F4] hover:bg-[#0E331E]/5 border border-[#EAE3DC] text-xs transition-colors cursor-pointer text-left"
                       >
-                        <div className="font-bold text-[#1E1815] hover:text-[#801313]">{b.name}</div>
-                        <div className="font-black text-[#801313] font-mono">Day {b.day}</div>
+                        <div className="font-bold text-[#1E1815] hover:text-[#0E331E]">{b.name}</div>
+                        <div className="font-black text-[#0E331E] font-mono">Day {b.day}</div>
                       </button>
                     ))}
                   </div>
@@ -770,7 +770,7 @@ export default function StoreCrmPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div>
                 <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
-                  <Users className="w-4 h-4 text-[#801313]" />
+                  <Users className="w-4 h-4 text-[#0E331E]" />
                   Store Members &amp; Loyalty Accounts ({filteredCustomers.length})
                 </h2>
                 <p className="text-xs text-[#7A6E67] mt-0.5">
@@ -784,7 +784,7 @@ export default function StoreCrmPage() {
                   placeholder="Search name, mobile, email…"
                   value={customerSearch}
                   onChange={(e) => setCustomerSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                  className="w-full pl-9 pr-4 py-2 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                 />
                 <Search className="w-4 h-4 text-[#7A6E67] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
@@ -815,11 +815,11 @@ export default function StoreCrmPage() {
                       <tr
                         key={c.id}
                         onClick={() => openCustomerDetail(c.id)}
-                        className="hover:bg-[#801313]/5 transition-colors cursor-pointer group"
+                        className="hover:bg-[#0E331E]/5 transition-colors cursor-pointer group"
                       >
-                        <td className="py-3 px-3 font-bold text-[#1E1815] group-hover:text-[#801313] transition-colors">
+                        <td className="py-3 px-3 font-bold text-[#1E1815] group-hover:text-[#0E331E] transition-colors">
                           <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full bg-[#801313]/10 text-[#801313] flex items-center justify-center font-black text-[11px] shrink-0">
+                            <div className="w-7 h-7 rounded-full bg-[#0E331E]/10 text-[#0E331E] flex items-center justify-center font-black text-[11px] shrink-0">
                               {c.name ? c.name.slice(0, 1).toUpperCase() : "M"}
                             </div>
                             <span>{c.name}</span>
@@ -828,7 +828,7 @@ export default function StoreCrmPage() {
                         <td className="py-3 px-3 font-mono font-medium text-[#7A6E67]">
                           {c.mobile}
                         </td>
-                        <td className="py-3 px-3 font-mono font-black text-[#801313]">
+                        <td className="py-3 px-3 font-mono font-black text-[#0E331E]">
                           {c.pointsBalance} pts
                         </td>
                         <td className="py-3 px-3 font-mono font-bold text-[#1E1815]">
@@ -841,7 +841,7 @@ export default function StoreCrmPage() {
                           {formatRelativeTime(c.lastVisitAt)}
                         </td>
                         <td className="py-3 px-3 text-right">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white group-hover:bg-[#801313] group-hover:text-white border border-[#EAE3DC] text-[11px] font-bold text-[#801313] shadow-2xs transition-all">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white group-hover:bg-[#0E331E] group-hover:text-white border border-[#EAE3DC] text-[11px] font-bold text-[#0E331E] shadow-2xs transition-all">
                             <span>Details</span>
                             <ChevronRight className="w-3 h-3" />
                           </span>
@@ -862,9 +862,9 @@ export default function StoreCrmPage() {
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
               <div>
                 <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
-                  <UserCheck className="w-4 h-4 text-[#801313]" />
+                  <UserCheck className="w-4 h-4 text-[#0E331E]" />
                   <span>Store Visitors &amp; In-Store Check-ins ({filteredVisitors.length})</span>
-                  <span className="text-xs font-bold text-[#801313] bg-[#801313]/10 px-2.5 py-0.5 rounded-lg border border-[#801313]/20">
+                  <span className="text-xs font-bold text-[#0E331E] bg-[#0E331E]/10 px-2.5 py-0.5 rounded-lg border border-[#0E331E]/20">
                     {storeDateFilter === "all" ? "All Time" : storeDateFilter === "today" ? "Today" : storeDateFilter === "7days" ? "Past 7 Days" : "Past 30 Days"}
                   </span>
                 </h2>
@@ -880,7 +880,7 @@ export default function StoreCrmPage() {
                     type="button"
                     onClick={() => setVisitorTypeFilter("all")}
                     className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                      visitorTypeFilter === "all" ? "bg-[#801313] text-white shadow-xs" : "text-[#7A6E67] hover:text-[#1E1815]"
+                      visitorTypeFilter === "all" ? "bg-[#0E331E] text-white shadow-xs" : "text-[#7A6E67] hover:text-[#1E1815]"
                     }`}
                   >
                     All ({visitors.length})
@@ -889,7 +889,7 @@ export default function StoreCrmPage() {
                     type="button"
                     onClick={() => setVisitorTypeFilter("CHECK_IN")}
                     className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                      visitorTypeFilter === "CHECK_IN" ? "bg-[#801313] text-white shadow-xs" : "text-[#7A6E67] hover:text-[#1E1815]"
+                      visitorTypeFilter === "CHECK_IN" ? "bg-[#0E331E] text-white shadow-xs" : "text-[#7A6E67] hover:text-[#1E1815]"
                     }`}
                   >
                     Passcodes / QR ({visitors.filter((v: any) => v.visitType === "CHECK_IN").length})
@@ -898,7 +898,7 @@ export default function StoreCrmPage() {
                     type="button"
                     onClick={() => setVisitorTypeFilter("TRANSACTION")}
                     className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                      visitorTypeFilter === "TRANSACTION" ? "bg-[#801313] text-white shadow-xs" : "text-[#7A6E67] hover:text-[#1E1815]"
+                      visitorTypeFilter === "TRANSACTION" ? "bg-[#0E331E] text-white shadow-xs" : "text-[#7A6E67] hover:text-[#1E1815]"
                     }`}
                   >
                     Dine-in Bills ({visitors.filter((v: any) => v.visitType === "TRANSACTION").length})
@@ -912,7 +912,7 @@ export default function StoreCrmPage() {
                     placeholder="Search visitor, mobile, code…"
                     value={visitorSearch}
                     onChange={(e) => setVisitorSearch(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    className="w-full pl-9 pr-4 py-2 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                   />
                   <Search className="w-4 h-4 text-[#7A6E67] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
@@ -922,7 +922,7 @@ export default function StoreCrmPage() {
             {/* Table */}
             {filteredVisitors.length === 0 ? (
               <div className="p-10 text-center bg-[#FAF7F4] rounded-2xl border border-dashed border-[#EAE3DC]">
-                <UserCheck className="w-8 h-8 text-[#801313]/40 mx-auto mb-2" />
+                <UserCheck className="w-8 h-8 text-[#0E331E]/40 mx-auto mb-2" />
                 <h3 className="text-sm font-extrabold text-[#1E1815] mb-1">
                   No Visitors Recorded For This Period
                 </h3>
@@ -933,7 +933,7 @@ export default function StoreCrmPage() {
                   <button
                     type="button"
                     onClick={() => handleDateFilterChange("all")}
-                    className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#801313] hover:text-white border border-[#EAE3DC] text-xs font-bold text-[#801313] transition-all cursor-pointer"
+                    className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#0E331E] hover:text-white border border-[#EAE3DC] text-xs font-bold text-[#0E331E] transition-all cursor-pointer"
                   >
                     <span>View All Time Visitors</span>
                   </button>
@@ -959,11 +959,11 @@ export default function StoreCrmPage() {
                       <tr
                         key={v.id}
                         onClick={() => v.customerId && openCustomerDetail(v.customerId)}
-                        className="hover:bg-[#801313]/5 transition-colors cursor-pointer group"
+                        className="hover:bg-[#0E331E]/5 transition-colors cursor-pointer group"
                       >
-                        <td className="py-3 px-3 font-bold text-[#1E1815] group-hover:text-[#801313] transition-colors">
+                        <td className="py-3 px-3 font-bold text-[#1E1815] group-hover:text-[#0E331E] transition-colors">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-full bg-[#801313]/10 text-[#801313] flex items-center justify-center font-black text-xs shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-[#0E331E]/10 text-[#0E331E] flex items-center justify-center font-black text-xs shrink-0">
                               {v.customerName ? v.customerName.slice(0, 1).toUpperCase() : "V"}
                             </div>
                             <div>
@@ -980,7 +980,7 @@ export default function StoreCrmPage() {
                                 )}
                               </div>
                               <div className="text-[10.5px] text-[#7A6E67] font-normal font-mono">
-                                Points Bal: <span className="font-bold text-[#801313]">{v.pointsBalance} pts</span>
+                                Points Bal: <span className="font-bold text-[#0E331E]">{v.pointsBalance} pts</span>
                               </div>
                             </div>
                           </div>
@@ -1031,7 +1031,7 @@ export default function StoreCrmPage() {
                         </td>
 
                         <td className="py-3 px-3 text-right">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white group-hover:bg-[#801313] group-hover:text-white border border-[#EAE3DC] text-[11px] font-bold text-[#801313] shadow-2xs transition-all">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white group-hover:bg-[#0E331E] group-hover:text-white border border-[#EAE3DC] text-[11px] font-bold text-[#0E331E] shadow-2xs transition-all">
                             <span>Profile</span>
                             <ChevronRight className="w-3 h-3" />
                           </span>
@@ -1051,7 +1051,7 @@ export default function StoreCrmPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div>
                 <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
-                  <Receipt className="w-4 h-4 text-[#801313]" />
+                  <Receipt className="w-4 h-4 text-[#0E331E]" />
                   Sales &amp; Transaction Ledger ({filteredTransactions.length})
                 </h2>
                 <p className="text-xs text-[#7A6E67] mt-0.5">
@@ -1065,7 +1065,7 @@ export default function StoreCrmPage() {
                   placeholder="Search invoice, customer, cashier…"
                   value={transactionSearch}
                   onChange={(e) => setTransactionSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                  className="w-full pl-9 pr-4 py-2 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                 />
                 <Search className="w-4 h-4 text-[#7A6E67] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
@@ -1096,12 +1096,12 @@ export default function StoreCrmPage() {
                       <tr
                         key={t.id}
                         onClick={() => t.customerId && openCustomerDetail(t.customerId)}
-                        className="hover:bg-[#801313]/5 transition-colors cursor-pointer group"
+                        className="hover:bg-[#0E331E]/5 transition-colors cursor-pointer group"
                       >
                         <td className="py-3 px-3 font-mono font-bold text-[#1E1815]">
                           #{t.invoiceNumber}
                         </td>
-                        <td className="py-3 px-3 font-bold text-[#1E1815] group-hover:text-[#801313] transition-colors">
+                        <td className="py-3 px-3 font-bold text-[#1E1815] group-hover:text-[#0E331E] transition-colors">
                           {t.customerName}
                         </td>
                         <td className="py-3 px-3 font-mono text-[#7A6E67]">
@@ -1132,7 +1132,7 @@ export default function StoreCrmPage() {
         {activeTab === "staff" && (
           <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm">
             <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2 mb-1">
-              <ShieldCheck className="w-4 h-4 text-[#801313]" />
+              <ShieldCheck className="w-4 h-4 text-[#0E331E]" />
               Store POS Cashiers &amp; Accounts ({staff.length})
             </h2>
             <p className="text-xs text-[#7A6E67] mb-6">
@@ -1153,7 +1153,7 @@ export default function StoreCrmPage() {
                     className="p-4.5 rounded-2xl border border-[#EAE3DC] bg-[#FAF7F4] hover:bg-white transition-all shadow-2xs"
                   >
                     <div className="flex items-center justify-between gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-[#801313]/10 text-[#801313] font-bold text-xs flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-[#0E331E]/10 text-[#0E331E] font-bold text-xs flex items-center justify-center">
                         {s.name?.slice(0, 2).toUpperCase()}
                       </div>
                       <span
@@ -1186,9 +1186,9 @@ export default function StoreCrmPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
               <div>
                 <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
-                  <Ticket className="w-4 h-4 text-[#801313]" />
+                  <Ticket className="w-4 h-4 text-[#0E331E]" />
                   <span>Promotions &amp; Offers for {store.name}</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-xs font-bold">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#0E331E]/10 text-[#0E331E] text-xs font-bold">
                     {offers.length} {offers.length === 1 ? "Offer" : "Offers"}
                   </span>
                 </h2>
@@ -1199,7 +1199,7 @@ export default function StoreCrmPage() {
 
               <Link
                 href="/admin"
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FAF7F4] hover:bg-[#801313] hover:text-white border border-[#EAE3DC] text-xs font-bold text-[#4A3F39] transition-all cursor-pointer w-fit"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#FAF7F4] hover:bg-[#0E331E] hover:text-white border border-[#EAE3DC] text-xs font-bold text-[#4A3F39] transition-all cursor-pointer w-fit"
               >
                 <span>Manage All UAE Campaigns in Admin →</span>
               </Link>
@@ -1207,7 +1207,7 @@ export default function StoreCrmPage() {
 
             {offers.length === 0 ? (
               <div className="p-10 text-center bg-[#FAF7F4] rounded-2xl border border-dashed border-[#EAE3DC]">
-                <Ticket className="w-8 h-8 text-[#801313]/50 mx-auto mb-2" />
+                <Ticket className="w-8 h-8 text-[#0E331E]/50 mx-auto mb-2" />
                 <h3 className="text-sm font-extrabold text-[#1E1815] mb-1">
                   No Location-Specific Campaigns Configured
                 </h3>
@@ -1224,11 +1224,11 @@ export default function StoreCrmPage() {
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-[10px] font-black uppercase">
-                          <MapPin className="w-3 h-3 text-[#801313]" />
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#0E331E]/10 text-[#0E331E] text-[10px] font-black uppercase">
+                          <MapPin className="w-3 h-3 text-[#0E331E]" />
                           <span>{store.name}</span>
                         </span>
-                        <span className="font-black text-xs text-[#801313] bg-white px-2 py-0.5 rounded-lg border border-[#EAE3DC]">
+                        <span className="font-black text-xs text-[#0E331E] bg-white px-2 py-0.5 rounded-lg border border-[#EAE3DC]">
                           {o.isPercent ? `${o.value}% OFF` : `${currency} ${o.value} OFF`}
                         </span>
                       </div>
@@ -1263,7 +1263,7 @@ export default function StoreCrmPage() {
             {/* Modal Header */}
             <div className="p-5 sm:p-6 border-b border-[#EAE3DC] flex items-center justify-between bg-[#FAF7F4] shrink-0">
               <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-[#801313] text-white flex items-center justify-center font-black text-lg shadow-sm shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-[#0E331E] text-white flex items-center justify-center font-black text-lg shadow-sm shrink-0">
                   {custDetail.name ? custDetail.name.slice(0, 2).toUpperCase() : "CU"}
                 </div>
                 <div>
@@ -1305,7 +1305,7 @@ export default function StoreCrmPage() {
                 <div className="text-[10px] font-black uppercase tracking-wider text-[#7A6E67]">
                   Points Balance
                 </div>
-                <div className="text-lg font-black text-[#801313] mt-0.5">
+                <div className="text-lg font-black text-[#0E331E] mt-0.5">
                   {custDetail.pointsBalance} <span className="text-xs font-bold">pts</span>
                 </div>
                 <div className="text-[10.5px] text-[#7A6E67]">
@@ -1357,7 +1357,7 @@ export default function StoreCrmPage() {
                 onClick={() => setCustDetailTab("overview")}
                 className={`px-3.5 py-2 text-xs font-black border-b-2 transition-all cursor-pointer ${
                   custDetailTab === "overview"
-                    ? "border-[#801313] text-[#801313]"
+                    ? "border-[#0E331E] text-[#0E331E]"
                     : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
                 }`}
               >
@@ -1369,7 +1369,7 @@ export default function StoreCrmPage() {
                 onClick={() => setCustDetailTab("transactions")}
                 className={`px-3.5 py-2 text-xs font-black border-b-2 transition-all cursor-pointer ${
                   custDetailTab === "transactions"
-                    ? "border-[#801313] text-[#801313]"
+                    ? "border-[#0E331E] text-[#0E331E]"
                     : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
                 }`}
               >
@@ -1381,7 +1381,7 @@ export default function StoreCrmPage() {
                 onClick={() => setCustDetailTab("rewards")}
                 className={`px-3.5 py-2 text-xs font-black border-b-2 transition-all cursor-pointer ${
                   custDetailTab === "rewards"
-                    ? "border-[#801313] text-[#801313]"
+                    ? "border-[#0E331E] text-[#0E331E]"
                     : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
                 }`}
               >
@@ -1393,7 +1393,7 @@ export default function StoreCrmPage() {
                 onClick={() => setCustDetailTab("visits")}
                 className={`px-3.5 py-2 text-xs font-black border-b-2 transition-all cursor-pointer ${
                   custDetailTab === "visits"
-                    ? "border-[#801313] text-[#801313]"
+                    ? "border-[#0E331E] text-[#0E331E]"
                     : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
                 }`}
               >
@@ -1405,7 +1405,7 @@ export default function StoreCrmPage() {
                 onClick={() => setCustDetailTab("ledger")}
                 className={`px-3.5 py-2 text-xs font-black border-b-2 transition-all cursor-pointer ${
                   custDetailTab === "ledger"
-                    ? "border-[#801313] text-[#801313]"
+                    ? "border-[#0E331E] text-[#0E331E]"
                     : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
                 }`}
               >
@@ -1417,7 +1417,7 @@ export default function StoreCrmPage() {
             <div className="p-5 sm:p-6 overflow-y-auto flex-1 custom-scrollbar">
               {loadingCustDetail ? (
                 <div className="py-12 flex flex-col items-center justify-center">
-                  <div className="w-8 h-8 border-3 border-[#801313]/20 border-t-[#801313] rounded-full animate-spin mb-3" />
+                  <div className="w-8 h-8 border-3 border-[#0E331E]/20 border-t-[#0E331E] rounded-full animate-spin mb-3" />
                   <p className="text-xs font-bold text-[#7A6E67]">Loading full member history…</p>
                 </div>
               ) : (
@@ -1428,7 +1428,7 @@ export default function StoreCrmPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="p-4 bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl space-y-2">
                           <div className="font-extrabold text-xs text-[#1E1815] mb-2 flex items-center gap-1.5">
-                            <User className="w-4 h-4 text-[#801313]" />
+                            <User className="w-4 h-4 text-[#0E331E]" />
                             <span>Contact &amp; Account Details</span>
                           </div>
                           <div className="flex justify-between py-1 border-b border-[#EAE3DC]/60">
@@ -1453,7 +1453,7 @@ export default function StoreCrmPage() {
 
                         <div className="p-4 bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl space-y-2">
                           <div className="font-extrabold text-xs text-[#1E1815] mb-2 flex items-center gap-1.5">
-                            <Building2 className="w-4 h-4 text-[#801313]" />
+                            <Building2 className="w-4 h-4 text-[#0E331E]" />
                             <span>Loyalty Activity Summary</span>
                           </div>
                           <div className="flex justify-between py-1 border-b border-[#EAE3DC]/60">
@@ -1472,7 +1472,7 @@ export default function StoreCrmPage() {
                           </div>
                           <div className="flex justify-between py-1">
                             <span className="text-[#7A6E67]">Card QR Token:</span>
-                            <span className="font-mono font-black text-[#801313]">
+                            <span className="font-mono font-black text-[#0E331E]">
                               {custDetail.cardCode || "ACTIVE"}
                             </span>
                           </div>
@@ -1533,7 +1533,7 @@ export default function StoreCrmPage() {
                             className="p-3.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex items-center justify-between text-xs"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-xl bg-[#801313]/10 text-[#801313] flex items-center justify-center shrink-0">
+                              <div className="w-9 h-9 rounded-xl bg-[#0E331E]/10 text-[#0E331E] flex items-center justify-center shrink-0">
                                 <Gift className="w-4 h-4" />
                               </div>
                               <div>
@@ -1613,7 +1613,7 @@ export default function StoreCrmPage() {
                             </div>
                             <div
                               className={`font-mono font-black text-sm ${
-                                l.delta > 0 ? "text-[#1E7A4D]" : "text-[#801313]"
+                                l.delta > 0 ? "text-[#1E7A4D]" : "text-[#0E331E]"
                               }`}
                             >
                               {l.delta > 0 ? `+${l.delta}` : l.delta} pts

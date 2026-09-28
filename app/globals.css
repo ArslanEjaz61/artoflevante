@@ -7,10 +7,10 @@
 
 :root {
   /* Brand artwork palette */
-  --bc-cream: #FEF7C5;
-  --bc-red: #970709;
+  --bc-cream: #F5EFE0;
+  --bc-red: #0E331E;
   --bc-gold: #CC8820;
-  --bc-blush: #F0DBDB;
+  --bc-blush: #F5EFE0;
 
   --paper: #FAF7F4;
   --surface: #FFFFFF;
@@ -18,9 +18,9 @@
   --ink: #1A1512;
   --ink-2: #6B5D55;
   --ink-3: #9A8C83;
-  --brand: #C0392B;
-  --brand-deep: #96291D;
-  --brand-soft: #FBEAE7;
+  --brand: #143F26;
+  --brand-deep: #0A2617;
+  --brand-soft: #E7F0EA;
   --gold: #C68A1E;
   --gold-soft: #FBF1DC;
   --good: #1E7A4D;
@@ -37,9 +37,9 @@
     --ink: #F5EFEB;
     --ink-2: #B8ADA6;
     --ink-3: #8C7F78;
-    --brand: #E85B4B;
-    --brand-deep: #C0392B;
-    --brand-soft: #2E1815;
+    --brand: #3FA76B;
+    --brand-deep: #143F26;
+    --brand-soft: #12271C;
     --gold: #E5A844;
     --gold-soft: #2E2211;
     --good: #4DB37E;

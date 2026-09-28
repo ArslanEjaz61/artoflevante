@@ -5,20 +5,7 @@ import { DEFAULTS } from "../lib/loyalty";
 const prisma = new PrismaClient();
 
 const BRANCHES = [
-  { code: "1001", name: "The Dubai Mall", city: "Dubai" },
-  { code: "1002", name: "Dubai Hills Mall", city: "Dubai" },
-  { code: "1003", name: "Mall of the Emirates", city: "Dubai" },
-  { code: "1004", name: "Ibn Battuta Mall", city: "Dubai" },
-  { code: "1005", name: "Dubai Festival City", city: "Dubai" },
-  { code: "1006", name: "City Centre Deira", city: "Dubai" },
-  { code: "1007", name: "City Centre Mirdif", city: "Dubai" },
-  { code: "1008", name: "City Centre Shindagha", city: "Dubai" },
-  { code: "1009", name: "BurJuman Centre", city: "Dubai" },
-  { code: "1010", name: "Arabian Centre", city: "Dubai" },
-  { code: "1011", name: "Oasis Mall", city: "Dubai" },
-  { code: "1012", name: "City Centre Sharjah", city: "Sharjah" },
-  { code: "1013", name: "City Centre Al Zahia", city: "Sharjah" },
-  { code: "1014", name: "City Centre Ajman", city: "Ajman" },
+  { code: "1001", name: "Levante - Al Jaddaf", city: "Dubai" },
 ];
 
 const REWARDS = [

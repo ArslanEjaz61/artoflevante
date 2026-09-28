@@ -203,7 +203,7 @@ export default function CustomerDashboardPage() {
         margin: 1,
         width: 400,
         color: {
-          dark: "#721424",
+          dark: "#143F26",
           light: "#FFFFFF",
         },
       })
@@ -217,8 +217,8 @@ export default function CustomerDashboardPage() {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
-          title: "Bombay Chowpatty Loyalty",
-          text: "Scan or tap to join Bombay Chowpatty Loyalty Club and get exclusive rewards!",
+          title: "Levante Rewards",
+          text: "Scan or tap to join Levante Rewards and get exclusive rewards!",
           url: url,
         });
       } catch {}
@@ -426,12 +426,12 @@ export default function CustomerDashboardPage() {
     return (
       <div className="min-h-screen bg-[#F8F5F0] flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white border border-[#EAE3DC] rounded-3xl p-6 text-center shadow-lg">
-          <AlertCircle className="w-12 h-12 text-[#801313] mx-auto mb-3" />
+          <AlertCircle className="w-12 h-12 text-[#0E331E] mx-auto mb-3" />
           <h2 className="text-xl font-bold mb-2 text-[#1E1815]">Notice</h2>
           <p className="text-sm text-[#7A6E67] mb-4">{err}</p>
           <button
             onClick={() => router.push("/login")}
-            className="py-2.5 px-6 rounded-xl bg-[#801313] text-white font-bold text-sm cursor-pointer shadow-md"
+            className="py-2.5 px-6 rounded-xl bg-[#0E331E] text-white font-bold text-sm cursor-pointer shadow-md"
           >
             Sign In Again
           </button>
@@ -443,7 +443,7 @@ export default function CustomerDashboardPage() {
   if (!data) {
     return (
       <div className="min-h-screen bg-[#F8F5F0] flex flex-col items-center justify-center p-4 max-w-md mx-auto">
-        <div className="w-9 h-9 border-3 border-[#801313]/20 border-t-[#801313] rounded-full animate-spin mb-3" />
+        <div className="w-9 h-9 border-3 border-[#0E331E]/20 border-t-[#0E331E] rounded-full animate-spin mb-3" />
         <p className="text-sm font-semibold text-[#7A6E67]">Loading your loyalty profile…</p>
       </div>
     );
@@ -521,7 +521,7 @@ export default function CustomerDashboardPage() {
   const firstName = customer?.name ? customer.name.trim().split(" ")[0] : "VIP Member";
 
   return (
-    <div className="min-h-screen bg-[#F0DBDB] text-[#1E1815] pb-24 px-3.5 sm:px-4 pt-3.5 sm:pt-5 max-w-md w-full mx-auto selection:bg-[#801313] selection:text-white">
+    <div className="min-h-screen bg-[#F5EFE0] text-[#1E1815] pb-24 px-3.5 sm:px-4 pt-3.5 sm:pt-5 max-w-md w-full mx-auto selection:bg-[#0E331E] selection:text-white">
       {/* Toast Notification */}
       {toast && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#1E1815] text-white px-4 py-2.5 rounded-full text-xs font-bold shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-top-4 max-w-[90vw] text-center">
@@ -538,10 +538,10 @@ export default function CustomerDashboardPage() {
           {/* Brand Logo Avatar */}
           <div className="w-12 h-12 sm:w-16 sm:h-16 shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/bc-roundel.png" alt="Bombay Chowpatty" className="w-full h-full object-contain" />
+            <img src="/bc-roundel.png" alt="Levante" className="w-full h-full object-contain" />
           </div>
           <div className="min-w-0">
-            <div className="font-display font-bold uppercase tracking-[0.02em] text-[16px] sm:text-[21px] leading-none text-[#FEF7C5] [text-shadow:0_1px_2px_rgba(120,20,20,0.45)] truncate">
+            <div className="font-display font-bold uppercase tracking-[0.02em] text-[16px] sm:text-[21px] leading-none text-[#F5EFE0] [text-shadow:0_1px_2px_rgba(120,20,20,0.45)] truncate">
               Welcome Back
             </div>
             <h1 className="font-display text-[17px] sm:text-[21px] font-bold text-[#1E1815] leading-tight mt-0.5 truncate">
@@ -555,13 +555,13 @@ export default function CustomerDashboardPage() {
           {/* Active Deals / Notifications Bell */}
           <button
             onClick={handleOpenOffersModal}
-            className="w-10 h-10 rounded-2xl bg-[#EFE9E2] hover:bg-[#E5DDD4] text-[#801313] flex items-center justify-center transition-all shadow-xs cursor-pointer active:scale-95 relative"
+            className="w-10 h-10 rounded-2xl bg-[#EFE9E2] hover:bg-[#E5DDD4] text-[#0E331E] flex items-center justify-center transition-all shadow-xs cursor-pointer active:scale-95 relative"
             title="Special Offers & Deals"
             aria-label="View Deals"
           >
-            <Bell className="w-5 h-5 text-[#801313]" />
+            <Bell className="w-5 h-5 text-[#0E331E]" />
             {unreadOffersCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#801313] text-white rounded-full text-[10px] font-black flex items-center justify-center border-2 border-[#FAF7F4] animate-pulse">
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#0E331E] text-white rounded-full text-[10px] font-black flex items-center justify-center border-2 border-[#FAF7F4] animate-pulse">
                 {unreadOffersCount}
               </span>
             )}
@@ -570,11 +570,11 @@ export default function CustomerDashboardPage() {
           {/* Hamburger Menu Button */}
           <button
             onClick={() => setShowSwitchModal(true)}
-            className="w-10 h-10 rounded-2xl bg-[#EFE9E2] hover:bg-[#E5DDD4] text-[#801313] flex items-center justify-center transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
+            className="w-10 h-10 rounded-2xl bg-[#EFE9E2] hover:bg-[#E5DDD4] text-[#0E331E] flex items-center justify-center transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
             title="Account Menu"
             aria-label="Open Menu"
           >
-            <Menu className="w-5 h-5 text-[#801313]" />
+            <Menu className="w-5 h-5 text-[#0E331E]" />
           </button>
         </div>
       </header>
@@ -668,7 +668,7 @@ export default function CustomerDashboardPage() {
                   }}
                   className={`transition-all rounded-full pointer-events-auto cursor-pointer ${
                     currentSlideIndex === idx
-                      ? "w-6 h-1.5 bg-[#FEF7C5] shadow-xs"
+                      ? "w-6 h-1.5 bg-[#F5EFE0] shadow-xs"
                       : "w-1.5 h-1.5 bg-white/50 hover:bg-white/80"
                   }`}
                   aria-label={`Slide ${idx + 1}`}
@@ -686,14 +686,14 @@ export default function CustomerDashboardPage() {
         <div className="grid grid-cols-2 gap-2.5">
           <button
             onClick={handleShare}
-            className="bg-white hover:bg-[#FAF7F4] text-[#970709] rounded-2xl py-3.5 px-3 font-display font-bold text-[15px] leading-tight shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.99]"
+            className="bg-white hover:bg-[#FAF7F4] text-[#0E331E] rounded-2xl py-3.5 px-3 font-display font-bold text-[15px] leading-tight shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.99]"
           >
             <Share2 className="w-[18px] h-[18px] shrink-0" />
             <span>Share with a<span className="block">friend</span></span>
           </button>
           <button
             onClick={() => setShowPortalQrModal(true)}
-            className="bg-white hover:bg-[#FAF7F4] text-[#970709] rounded-2xl py-3.5 px-3 font-display font-bold text-[15px] leading-tight shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.99]"
+            className="bg-white hover:bg-[#FAF7F4] text-[#0E331E] rounded-2xl py-3.5 px-3 font-display font-bold text-[15px] leading-tight shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.99]"
           >
             <QrCode className="w-[18px] h-[18px] shrink-0" />
             <span>QR Code</span>
@@ -701,7 +701,7 @@ export default function CustomerDashboardPage() {
         </div>
         <button
           onClick={handleInstall}
-          className="w-full bg-white hover:bg-[#FAF7F4] text-[#970709] rounded-2xl py-3 px-4 font-display font-bold text-[15px] shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.99]"
+          className="w-full bg-white hover:bg-[#FAF7F4] text-[#0E331E] rounded-2xl py-3 px-4 font-display font-bold text-[15px] shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.99]"
         >
           <Download className="w-[18px] h-[18px] shrink-0" />
           <span>Install loyalty app</span>
@@ -711,12 +711,12 @@ export default function CustomerDashboardPage() {
       {/* ============================================================== */}
       {/* 4. AVAILABLE POINTS VELVET CARD                                */}
       {/* ============================================================== */}
-      <div className="rounded-3xl bg-[#970709] px-4.5 sm:px-6 pt-4 pb-5 shadow-md mb-4 relative overflow-hidden">
+      <div className="rounded-3xl bg-[#0E331E] px-4.5 sm:px-6 pt-4 pb-5 shadow-md mb-4 relative overflow-hidden">
         {/* Subtle Decorative Background Ring */}
         <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full bg-white/5 blur-xl pointer-events-none" />
 
         <div className="relative z-10">
-          <div className="font-display font-extrabold uppercase tracking-[0.01em] text-[#FEF7C5] text-[20px] sm:text-[26px] leading-tight">
+          <div className="font-display font-extrabold uppercase tracking-[0.01em] text-[#F5EFE0] text-[20px] sm:text-[26px] leading-tight">
             Available Points
           </div>
 
@@ -751,7 +751,7 @@ export default function CustomerDashboardPage() {
             Your Membership QR
           </span>
         </div>
-        <h3 className="font-display text-[18px] sm:text-[20px] font-bold text-[#970709] mb-4 sm:mb-5">
+        <h3 className="font-display text-[18px] sm:text-[20px] font-bold text-[#0E331E] mb-4 sm:mb-5">
           Scan at any outlet
         </h3>
 
@@ -766,7 +766,7 @@ export default function CustomerDashboardPage() {
         </div>
 
         {/* Monospace Code */}
-        <div className="font-mono text-sm sm:text-base font-bold text-[#970709] tracking-[0.16em] sm:tracking-[0.18em]">
+        <div className="font-mono text-sm sm:text-base font-bold text-[#0E331E] tracking-[0.16em] sm:tracking-[0.18em]">
           {qr.code}
         </div>
 
@@ -819,22 +819,22 @@ export default function CustomerDashboardPage() {
 
         {/* Case B: Birthday Treat Unlocked (Available State) */}
         {birthdayStatus?.status === "AVAILABLE" && (
-          <div className="rounded-2xl p-4 bg-gradient-to-br from-[#FFF5F5] to-[#FBF0EE] border-2 border-[#801313] shadow-md relative overflow-hidden">
+          <div className="rounded-2xl p-4 bg-gradient-to-br from-[#FFF5F5] to-[#FBF0EE] border-2 border-[#0E331E] shadow-md relative overflow-hidden">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0 pr-1">
-                <div className="w-10 h-10 rounded-2xl bg-[#801313] text-white flex items-center justify-center shadow-md shadow-[#801313]/25 shrink-0">
-                  <PartyPopper className="w-5 h-5 text-[#FEF7C5]" />
+                <div className="w-10 h-10 rounded-2xl bg-[#0E331E] text-white flex items-center justify-center shadow-md shadow-[#0E331E]/25 shrink-0">
+                  <PartyPopper className="w-5 h-5 text-[#F5EFE0]" />
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[9px] font-black uppercase tracking-wider text-[#801313] bg-[#801313]/10 px-2 py-0.5 rounded-md">
+                    <span className="text-[9px] font-black uppercase tracking-wider text-[#0E331E] bg-[#0E331E]/10 px-2 py-0.5 rounded-md">
                       🎉 Happy Birthday Treat!
                     </span>
                     <span className="text-[9px] font-black text-emerald-700 flex items-center gap-1">
                       <Unlock className="w-2.5 h-2.5" /> Unlocked
                     </span>
                   </div>
-                  <div className="font-extrabold text-xs sm:text-sm text-[#801313] truncate mt-0.5">
+                  <div className="font-extrabold text-xs sm:text-sm text-[#0E331E] truncate mt-0.5">
                     {birthdayStatus.reward?.name || "Special Birthday Gift"}
                   </div>
                   <div className="text-[10px] text-[#5C504A] leading-tight mt-0.5">
@@ -893,8 +893,8 @@ export default function CustomerDashboardPage() {
             <div
               className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${
                 isSurpriseUnlocked
-                  ? "bg-[#801313] text-white border-[#801313]"
-                  : "bg-[#801313]/10 text-[#801313] border-[#801313]/15"
+                  ? "bg-[#0E331E] text-white border-[#0E331E]"
+                  : "bg-[#0E331E]/10 text-[#0E331E] border-[#0E331E]/15"
               }`}
             >
               {isSurpriseUnlocked ? <Gift className="w-5 h-5" /> : <Sparkles className="w-4 h-4" />}
@@ -933,12 +933,12 @@ export default function CustomerDashboardPage() {
             <div className="text-[9px] font-extrabold tracking-widest text-[#7A6E67] uppercase">
               YOUR REPEAT-VISIT REWARD PATH
             </div>
-            <div className="font-black text-sm text-[#801313] mt-0.5">
+            <div className="font-black text-sm text-[#0E331E] mt-0.5">
               {customer.homeBranch?.name || "Dubai Festival City"}
             </div>
           </div>
           <div className="text-right">
-            <div className="font-black text-sm text-[#801313]">
+            <div className="font-black text-sm text-[#0E331E]">
               {visitsIntoCycle} of {milestoneThreshold} visits
             </div>
             {milestoneProgress?.cycleNumber && milestoneProgress.cycleNumber > 1 && (
@@ -962,7 +962,7 @@ export default function CustomerDashboardPage() {
                   key={stepNum}
                   className={`w-9 h-9 rounded-full flex items-center justify-center relative shadow-xs ${
                     isCompleted
-                      ? "bg-[#801313] text-white border-2 border-[#E5A93C]"
+                      ? "bg-[#0E331E] text-white border-2 border-[#E5A93C]"
                       : "border-2 border-dashed border-[#E5A93C] bg-[#FFFBF0] text-[#C68A1E]"
                   }`}
                 >
@@ -970,7 +970,7 @@ export default function CustomerDashboardPage() {
                   <span
                     className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full text-[8px] font-black flex items-center justify-center ${
                       isCompleted
-                        ? "bg-[#801313] border border-white text-white"
+                        ? "bg-[#0E331E] border border-white text-white"
                         : "bg-[#FFFBF0] border border-[#E5A93C] text-[#C68A1E]"
                     }`}
                   >
@@ -985,7 +985,7 @@ export default function CustomerDashboardPage() {
                 key={stepNum}
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                   isCompleted
-                    ? "bg-[#801313] text-white shadow-xs"
+                    ? "bg-[#0E331E] text-white shadow-xs"
                     : "border border-dashed border-[#D5CBC3] text-[#8C7F78] bg-[#FAF7F4]"
                 }`}
               >
@@ -998,7 +998,7 @@ export default function CustomerDashboardPage() {
         {/* Dynamic Progress Bar (Fills according to completed visits) */}
         <div className="w-full mt-3.5 mb-2">
           <div
-            className="bg-[#801313] h-2 rounded-full transition-all duration-500 ease-out"
+            className="bg-[#0E331E] h-2 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${Math.max(progressPercent, 2)}%` }}
           />
         </div>
@@ -1021,7 +1021,7 @@ export default function CustomerDashboardPage() {
           onClick={() => setHistoryTab("bills")}
           className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
             historyTab === "bills"
-              ? "bg-white text-[#801313] shadow-xs font-black"
+              ? "bg-white text-[#0E331E] shadow-xs font-black"
               : "text-[#7A6E67] hover:text-[#1E1815]"
           }`}
         >
@@ -1033,7 +1033,7 @@ export default function CustomerDashboardPage() {
           onClick={() => setHistoryTab("rewards")}
           className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
             historyTab === "rewards"
-              ? "bg-white text-[#801313] shadow-xs font-black"
+              ? "bg-white text-[#0E331E] shadow-xs font-black"
               : "text-[#7A6E67] hover:text-[#1E1815]"
           }`}
         >
@@ -1052,7 +1052,7 @@ export default function CustomerDashboardPage() {
             onClick={() => setDateFilter("all")}
             className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
               dateFilter === "all"
-                ? "bg-[#970709] text-white shadow-xs font-black"
+                ? "bg-[#0E331E] text-white shadow-xs font-black"
                 : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
             }`}
           >
@@ -1063,7 +1063,7 @@ export default function CustomerDashboardPage() {
             onClick={() => setDateFilter("today")}
             className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
               dateFilter === "today"
-                ? "bg-[#970709] text-white shadow-xs font-black"
+                ? "bg-[#0E331E] text-white shadow-xs font-black"
                 : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
             }`}
           >
@@ -1074,7 +1074,7 @@ export default function CustomerDashboardPage() {
             onClick={() => setDateFilter("7days")}
             className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
               dateFilter === "7days"
-                ? "bg-[#970709] text-white shadow-xs font-black"
+                ? "bg-[#0E331E] text-white shadow-xs font-black"
                 : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
             }`}
           >
@@ -1085,7 +1085,7 @@ export default function CustomerDashboardPage() {
             onClick={() => setDateFilter("30days")}
             className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
               dateFilter === "30days"
-                ? "bg-[#970709] text-white shadow-xs font-black"
+                ? "bg-[#0E331E] text-white shadow-xs font-black"
                 : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
             }`}
           >
@@ -1102,7 +1102,7 @@ export default function CustomerDashboardPage() {
           <>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-[#801313]/10 text-[#801313] flex items-center justify-center">
+                <div className="w-7 h-7 rounded-lg bg-[#0E331E]/10 text-[#0E331E] flex items-center justify-center">
                   <History className="w-4 h-4" />
                 </div>
                 <div>
@@ -1110,7 +1110,7 @@ export default function CustomerDashboardPage() {
                     Recent Visits &amp; Receipts
                   </h3>
                   {dateFilter !== "all" && (
-                    <div className="text-[10px] font-bold text-[#801313]">
+                    <div className="text-[10px] font-bold text-[#0E331E]">
                       Showing: {dateFilter === "today" ? "Today" : dateFilter === "7days" ? "Past 7 Days" : "Past 30 Days"}
                     </div>
                   )}
@@ -1133,9 +1133,9 @@ export default function CustomerDashboardPage() {
                     title="Click to view full receipt breakdown"
                   >
                     <div className="min-w-0 flex-1">
-                      <div className="font-bold text-xs sm:text-sm text-[#1E1815] group-hover:text-[#801313] transition-colors truncate flex items-center gap-1.5">
+                      <div className="font-bold text-xs sm:text-sm text-[#1E1815] group-hover:text-[#0E331E] transition-colors truncate flex items-center gap-1.5">
                         <span>{t.branch || customer.homeBranch?.name || "Branch Visit"}</span>
-                        <span className="text-[10px] text-[#A0938C] font-normal group-hover:text-[#801313]">›</span>
+                        <span className="text-[10px] text-[#A0938C] font-normal group-hover:text-[#0E331E]">›</span>
                       </div>
                       <div className="text-[10px] text-[#7A6E67] flex items-center gap-1.5 mt-0.5 flex-wrap">
                         {t.invoiceNumber && (
@@ -1149,7 +1149,7 @@ export default function CustomerDashboardPage() {
                         <span>{new Date(t.createdAt).toLocaleDateString()}</span>
                       </div>
                       {t.discountGiven > 0 && (
-                        <div className="text-[10px] text-[#801313] font-bold mt-0.5">
+                        <div className="text-[10px] text-[#0E331E] font-bold mt-0.5">
                           Discount: -{currency} {Number(t.discountGiven).toFixed(2)}
                           {t.redeemedRewards?.length > 0 && ` (${t.redeemedRewards.join(", ")})`}
                         </div>
@@ -1175,7 +1175,7 @@ export default function CustomerDashboardPage() {
               </div>
             ) : (
               <div className="text-center py-6 text-xs text-[#7A6E67]">
-                <Receipt className="w-7 h-7 text-[#801313]/30 mx-auto mb-1.5" />
+                <Receipt className="w-7 h-7 text-[#0E331E]/30 mx-auto mb-1.5" />
                 <p className="font-semibold">
                   {dateFilter === "all"
                     ? "No previous visits recorded yet."
@@ -1185,7 +1185,7 @@ export default function CustomerDashboardPage() {
                   <button
                     type="button"
                     onClick={() => setDateFilter("all")}
-                    className="mt-2 text-[11px] font-bold text-[#801313] hover:underline cursor-pointer"
+                    className="mt-2 text-[11px] font-bold text-[#0E331E] hover:underline cursor-pointer"
                   >
                     Show All Time History ({transactions?.length || 0} Records)
                   </button>
@@ -1251,7 +1251,7 @@ export default function CustomerDashboardPage() {
               </div>
             ) : (
               <div className="text-center py-6 text-xs text-[#7A6E67]">
-                <Gift className="w-7 h-7 text-[#801313]/30 mx-auto mb-1.5" />
+                <Gift className="w-7 h-7 text-[#0E331E]/30 mx-auto mb-1.5" />
                 <p className="font-semibold">No claimed perks yet.</p>
                 <p className="text-[10px] text-[#A0938C] mt-0.5">
                   When you redeem milestone treats, birthday gifts, or vouchers at checkout, they will appear here in your permanent rewards history.
@@ -1271,7 +1271,7 @@ export default function CustomerDashboardPage() {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-[#EAE3DC] pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#801313] text-white flex items-center justify-center font-bold text-sm">
+                <div className="w-10 h-10 rounded-full bg-[#0E331E] text-white flex items-center justify-center font-bold text-sm">
                   {firstName.slice(0, 2).toUpperCase()}
                 </div>
                 <div>
@@ -1321,7 +1321,7 @@ export default function CustomerDashboardPage() {
                     onClick={openEditor}
                     className="flex-1 py-2.5 rounded-xl bg-[#FAF7F4] border border-[#EAE3DC] text-xs font-bold text-[#1E1815] hover:bg-[#EFE9E2] flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    <Edit3 className="w-3.5 h-3.5 text-[#801313]" /> Edit Profile
+                    <Edit3 className="w-3.5 h-3.5 text-[#0E331E]" /> Edit Profile
                   </button>
                   <button
                     onClick={loadCard}
@@ -1352,7 +1352,7 @@ export default function CustomerDashboardPage() {
                     required
                     value={profile.name}
                     onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                   />
                 </div>
                 <div>
@@ -1361,7 +1361,7 @@ export default function CustomerDashboardPage() {
                     type="email"
                     value={profile.email}
                     onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                   />
                 </div>
                 <div>
@@ -1370,14 +1370,14 @@ export default function CustomerDashboardPage() {
                     type="date"
                     value={profile.birthday}
                     onChange={(e) => setProfile({ ...profile, birthday: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                   />
                 </div>
                 <div className="flex gap-2 pt-2">
                   <button
                     type="submit"
                     disabled={profileBusy}
-                    className="flex-1 py-2 rounded-xl bg-[#801313] hover:bg-[#6E1111] text-white text-xs font-bold cursor-pointer"
+                    className="flex-1 py-2 rounded-xl bg-[#0E331E] hover:bg-[#143F26] text-white text-xs font-bold cursor-pointer"
                   >
                     {profileBusy ? "Saving…" : "Save Details"}
                   </button>
@@ -1397,7 +1397,7 @@ export default function CustomerDashboardPage() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="w-full py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100 text-[#801313] font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-full py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100 text-[#0E331E] font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <LogOut className="w-4 h-4" /> Sign Out / Switch Account
               </button>
@@ -1414,7 +1414,7 @@ export default function CustomerDashboardPage() {
           <div className="w-full max-w-md bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-2xl text-[#1E1815] space-y-4">
             <div className="flex items-start justify-between border-b border-[#EAE3DC] pb-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#801313] text-white flex items-center justify-center shadow-md shadow-[#801313]/20">
+                <div className="w-10 h-10 rounded-2xl bg-[#0E331E] text-white flex items-center justify-center shadow-md shadow-[#0E331E]/20">
                   <Receipt className="w-5 h-5" />
                 </div>
                 <div>
@@ -1423,7 +1423,7 @@ export default function CustomerDashboardPage() {
                     <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[9px] uppercase">
                       ✓ {verifiedBranch?.name || "Branch Verified"}
                     </span>
-                    <span className="font-mono text-[9px] font-bold text-[#801313]">
+                    <span className="font-mono text-[9px] font-bold text-[#0E331E]">
                       {verifiedCoupon}
                     </span>
                   </div>
@@ -1450,7 +1450,7 @@ export default function CustomerDashboardPage() {
                   placeholder="e.g. INV-1002"
                   value={invoiceInput}
                   onChange={(e) => setInvoiceInput(e.target.value.toUpperCase())}
-                  className="w-full px-3 py-2.5 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                  className="w-full px-3 py-2.5 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                   autoFocus
                 />
               </div>
@@ -1465,7 +1465,7 @@ export default function CustomerDashboardPage() {
                   placeholder="e.g. 150.00"
                   value={billAmountInput}
                   onChange={(e) => setBillAmountInput(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                  className="w-full px-3 py-2.5 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                 />
               </div>
 
@@ -1480,7 +1480,7 @@ export default function CustomerDashboardPage() {
                 <button
                   type="submit"
                   disabled={billSubmitting || !invoiceInput.trim() || !billAmountInput || Number(billAmountInput) <= 0}
-                  className="flex-[2] py-2.5 rounded-xl bg-[#801313] hover:bg-[#6E1111] text-white font-bold text-xs shadow-md shadow-[#801313]/20 disabled:opacity-50"
+                  className="flex-[2] py-2.5 rounded-xl bg-[#0E331E] hover:bg-[#143F26] text-white font-bold text-xs shadow-md shadow-[#0E331E]/20 disabled:opacity-50"
                 >
                   {billSubmitting ? "Adding Points…" : "Confirm & Earn"}
                 </button>
@@ -1526,7 +1526,7 @@ export default function CustomerDashboardPage() {
                 />
               ) : (
                 <div className="w-52 h-52 flex items-center justify-center">
-                  <div className="w-8 h-8 border-3 border-[#801313]/20 border-t-[#801313] rounded-full animate-spin" />
+                  <div className="w-8 h-8 border-3 border-[#0E331E]/20 border-t-[#0E331E] rounded-full animate-spin" />
                 </div>
               )}
             </div>
@@ -1534,17 +1534,17 @@ export default function CustomerDashboardPage() {
             {/* Subtext & URL Display */}
             <div className="my-3 space-y-1">
               <div className="text-xs font-semibold text-[#7A6E67]">
-                Scan to join Bombay Chowpatty Loyalty
+                Scan to join Levante Rewards
               </div>
-              <div className="text-[10px] font-mono text-[#801313] break-all px-2 font-bold select-all bg-white/70 py-1.5 rounded-lg border border-[#EAE3DC]/60">
-                {portalUrl || "https://bombaychowpatty.ae"}
+              <div className="text-[10px] font-mono text-[#0E331E] break-all px-2 font-bold select-all bg-white/70 py-1.5 rounded-lg border border-[#EAE3DC]/60">
+                {portalUrl || "https://artoflevante.ae"}
               </div>
             </div>
 
             {/* Share Link Button */}
             <button
               onClick={handleSharePortalLink}
-              className="w-full mt-2 py-3 px-5 rounded-2xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
+              className="w-full mt-2 py-3 px-5 rounded-2xl bg-[#092015] hover:bg-[#092015] text-white font-black text-xs uppercase tracking-wider shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
             >
               <Share2 className="w-4 h-4" />
               <span>{copiedPortalLink ? "Link Copied to Clipboard!" : "SHARE LINK"}</span>
@@ -1611,8 +1611,8 @@ export default function CustomerDashboardPage() {
               )}
 
               <div className="flex justify-between items-center text-[#1E1815] pt-1.5 border-t border-[#EAE3DC]">
-                <span className="font-black text-xs text-[#801313]">Customer Paid (Net):</span>
-                <span className="font-black text-sm text-[#801313] font-mono">
+                <span className="font-black text-xs text-[#0E331E]">Customer Paid (Net):</span>
+                <span className="font-black text-sm text-[#0E331E] font-mono">
                   {currency} {Number(
                     selectedReceipt.amountPaid ??
                     Math.max(0, Number(selectedReceipt.amount || 0) - Number(selectedReceipt.discountGiven || 0))
@@ -1642,7 +1642,7 @@ export default function CustomerDashboardPage() {
 
             <button
               onClick={() => setSelectedReceipt(null)}
-              className="w-full py-3 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+              className="w-full py-3 px-6 rounded-xl bg-[#092015] hover:bg-[#092015] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
             >
               CLOSE RECEIPT
             </button>
@@ -1665,7 +1665,7 @@ export default function CustomerDashboardPage() {
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="bg-white border border-[#EAE3DC] rounded-3xl max-w-sm w-full shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 relative">
             {/* Top decorative gradient bar */}
-            <div className="h-2 bg-gradient-to-r from-[#801313] via-[#D4AF37] to-[#801313]" />
+            <div className="h-2 bg-gradient-to-r from-[#0E331E] via-[#D4AF37] to-[#0E331E]" />
 
             {/* Offer Banner Image if available */}
             {popupOffer.imageUrl && (
@@ -1677,7 +1677,7 @@ export default function CustomerDashboardPage() {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-                <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-[#801313] text-white font-display font-extrabold text-[11px] uppercase tracking-wider shadow-md">
+                <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-[#0E331E] text-white font-display font-extrabold text-[11px] uppercase tracking-wider shadow-md">
                   🔥 Special Deal
                 </span>
                 <button
@@ -1694,7 +1694,7 @@ export default function CustomerDashboardPage() {
             <div className="p-5 text-center space-y-3">
               {!popupOffer.imageUrl && (
                 <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-2xl bg-[#801313]/10 text-[#801313] border border-[#801313]/20 flex items-center justify-center mx-auto shadow-sm">
+                  <div className="w-12 h-12 rounded-2xl bg-[#0E331E]/10 text-[#0E331E] border border-[#0E331E]/20 flex items-center justify-center mx-auto shadow-sm">
                     <Sparkles className="w-6 h-6 animate-pulse" />
                   </div>
                   <button
@@ -1709,7 +1709,7 @@ export default function CustomerDashboardPage() {
               )}
 
               <div>
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#801313]/10 text-[#801313] text-xs font-display font-bold uppercase tracking-wider mb-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0E331E]/10 text-[#0E331E] text-xs font-display font-bold uppercase tracking-wider mb-2">
                   <Tag className="w-3.5 h-3.5" />
                   <span>
                     {popupOffer.isPercent ? `${popupOffer.value}% DISCOUNT` : `AED ${popupOffer.value} OFF`}
@@ -1719,12 +1719,12 @@ export default function CustomerDashboardPage() {
                   {popupOffer.name}
                 </h3>
                 <p className="text-xs text-[#7A6E67] mt-1.5 leading-relaxed font-body">
-                  {popupOffer.description || "Visit any Bombay Chowpatty outlet to enjoy this special deal on your next dine-in or takeaway order!"}
+                  {popupOffer.description || "Visit the Levante boutique to enjoy this special deal on your next dine-in or takeaway order!"}
                 </p>
               </div>
 
               {popupOffer.endsAt && (
-                <div className="text-[11px] font-semibold text-[#801313] bg-[#FAF7F4] py-1.5 px-3 rounded-xl border border-[#EAE3DC] inline-block">
+                <div className="text-[11px] font-semibold text-[#0E331E] bg-[#FAF7F4] py-1.5 px-3 rounded-xl border border-[#EAE3DC] inline-block">
                   ⏳ Valid until {new Date(popupOffer.endsAt).toLocaleDateString()}
                 </div>
               )}
@@ -1733,7 +1733,7 @@ export default function CustomerDashboardPage() {
                 <button
                   type="button"
                   onClick={() => handleDismissPopupOffer(popupOffer.id)}
-                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#801313] to-[#590D0D] hover:from-[#6A0F0F] text-white font-display font-bold text-sm tracking-wide shadow-md shadow-[#801313]/30 transition-all cursor-pointer active:scale-98"
+                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#0E331E] to-[#0E331E] hover:from-[#0A2617] text-white font-display font-bold text-sm tracking-wide shadow-md shadow-[#0E331E]/30 transition-all cursor-pointer active:scale-98"
                 >
                   Got it, Let&apos;s Dine! 🎉
                 </button>
@@ -1764,7 +1764,7 @@ export default function CustomerDashboardPage() {
             <div className="bg-white border border-[#EAE3DC] rounded-3xl max-w-md w-full shadow-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between px-5 py-4 border-b border-[#EAE3DC] bg-[#FAF7F4] shrink-0">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-2xl bg-[#801313] text-white flex items-center justify-center shadow-xs">
+                  <div className="w-9 h-9 rounded-2xl bg-[#0E331E] text-white flex items-center justify-center shadow-xs">
                     <Tag className="w-4 h-4" />
                   </div>
                   <div>
@@ -1778,7 +1778,7 @@ export default function CustomerDashboardPage() {
                     <button
                       type="button"
                       onClick={handleClearAllOffers}
-                      className="px-2.5 py-1 text-[11px] font-bold text-[#7A6E67] hover:text-[#C0392B] hover:bg-white rounded-lg border border-transparent hover:border-[#EAE3DC] transition-all flex items-center gap-1 cursor-pointer"
+                      className="px-2.5 py-1 text-[11px] font-bold text-[#7A6E67] hover:text-[#143F26] hover:bg-white rounded-lg border border-transparent hover:border-[#EAE3DC] transition-all flex items-center gap-1 cursor-pointer"
                       title="Clear all active offers from list"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -1800,7 +1800,7 @@ export default function CustomerDashboardPage() {
                   visibleOffers.map((offer: any) => (
                     <div
                       key={offer.id}
-                      className="p-3 rounded-2xl bg-[#FAF7F4] hover:bg-white border border-[#EAE3DC] hover:border-[#801313]/30 transition-all flex items-start gap-3 shadow-2xs relative overflow-hidden group"
+                      className="p-3 rounded-2xl bg-[#FAF7F4] hover:bg-white border border-[#EAE3DC] hover:border-[#0E331E]/30 transition-all flex items-start gap-3 shadow-2xs relative overflow-hidden group"
                     >
                       {/* Left Side Thumbnail Image */}
                       {offer.imageUrl ? (
@@ -1813,7 +1813,7 @@ export default function CustomerDashboardPage() {
                           />
                         </div>
                       ) : (
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-[#801313]/10 to-[#FAF3E6] border border-[#801313]/20 flex items-center justify-center text-[#801313] shrink-0">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-[#0E331E]/10 to-[#FAF3E6] border border-[#0E331E]/20 flex items-center justify-center text-[#0E331E] shrink-0">
                           <Tag className="w-6 h-6" />
                         </div>
                       )}
@@ -1822,10 +1822,10 @@ export default function CustomerDashboardPage() {
                       <div className="flex-1 min-w-0 flex flex-col justify-between self-stretch pr-5">
                         <div>
                           <div className="flex items-start justify-between gap-1.5">
-                            <h4 className="font-display font-bold text-xs sm:text-sm text-[#1E1815] leading-snug line-clamp-1 group-hover:text-[#801313] transition-colors">
+                            <h4 className="font-display font-bold text-xs sm:text-sm text-[#1E1815] leading-snug line-clamp-1 group-hover:text-[#0E331E] transition-colors">
                               {offer.name}
                             </h4>
-                            <span className="shrink-0 px-2 py-0.5 rounded-lg bg-[#801313] text-white font-display font-black text-[10px] sm:text-[11px] whitespace-nowrap shadow-2xs">
+                            <span className="shrink-0 px-2 py-0.5 rounded-lg bg-[#0E331E] text-white font-display font-black text-[10px] sm:text-[11px] whitespace-nowrap shadow-2xs">
                               {offer.isPercent ? `${offer.value}% OFF` : `AED ${offer.value} OFF`}
                             </span>
                           </div>
@@ -1836,7 +1836,7 @@ export default function CustomerDashboardPage() {
                         </div>
 
                         {offer.endsAt && (
-                          <div className="text-[10px] font-bold text-[#801313] flex items-center gap-1 mt-1.5 pt-1 border-t border-[#EAE3DC]/60">
+                          <div className="text-[10px] font-bold text-[#0E331E] flex items-center gap-1 mt-1.5 pt-1 border-t border-[#EAE3DC]/60">
                             <Clock className="w-3 h-3 text-[#C68A1E] shrink-0" />
                             <span>Valid until {new Date(offer.endsAt).toLocaleDateString()}</span>
                           </div>
@@ -1850,7 +1850,7 @@ export default function CustomerDashboardPage() {
                           e.stopPropagation();
                           handleClearSingleOffer(offer.id);
                         }}
-                        className="absolute top-2 right-2 p-1 text-[#7A6E67] hover:text-[#C0392B] hover:bg-white rounded-md transition-colors cursor-pointer"
+                        className="absolute top-2 right-2 p-1 text-[#7A6E67] hover:text-[#143F26] hover:bg-white rounded-md transition-colors cursor-pointer"
                         title="Dismiss / Clear this offer"
                       >
                         <X className="w-3.5 h-3.5" />
@@ -1859,7 +1859,7 @@ export default function CustomerDashboardPage() {
                   ))
                 ) : hasClearedAny ? (
                   <div className="text-center py-8 text-xs text-[#7A6E67] space-y-2">
-                    <Sparkles className="w-8 h-8 text-[#801313]/40 mx-auto" />
+                    <Sparkles className="w-8 h-8 text-[#0E331E]/40 mx-auto" />
                     <p className="font-bold text-[#1E1815] text-sm">All Deals Cleared</p>
                     <p className="text-[11px] text-[#7A6E67] max-w-xs mx-auto">
                       You have cleared active promotions from your list. You can restore them anytime to view current deals.
@@ -1867,7 +1867,7 @@ export default function CustomerDashboardPage() {
                     <button
                       type="button"
                       onClick={handleRestoreOffers}
-                      className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F4] hover:bg-[#FAF3E6] border border-[#EAE3DC] text-xs font-bold text-[#801313] transition-colors cursor-pointer"
+                      className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF7F4] hover:bg-[#FAF3E6] border border-[#EAE3DC] text-xs font-bold text-[#0E331E] transition-colors cursor-pointer"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
                       <span>Restore All Deals</span>
@@ -1875,7 +1875,7 @@ export default function CustomerDashboardPage() {
                   </div>
                 ) : (
                   <div className="text-center py-8 text-xs text-[#7A6E67]">
-                    <Sparkles className="w-8 h-8 text-[#801313]/30 mx-auto mb-2" />
+                    <Sparkles className="w-8 h-8 text-[#0E331E]/30 mx-auto mb-2" />
                     <p className="font-bold text-[#1E1815]">No Active Promotions at This Moment</p>
                     <p className="text-[11px] mt-1">Watch this space for upcoming weekend deals and special discounts!</p>
                   </div>
@@ -1887,7 +1887,7 @@ export default function CustomerDashboardPage() {
                   <button
                     type="button"
                     onClick={handleRestoreOffers}
-                    className="flex-1 py-2.5 rounded-xl bg-white border border-[#EAE3DC] hover:bg-[#FAF3E6] font-display font-bold text-xs text-[#801313] cursor-pointer flex items-center justify-center gap-1.5"
+                    className="flex-1 py-2.5 rounded-xl bg-white border border-[#EAE3DC] hover:bg-[#FAF3E6] font-display font-bold text-xs text-[#0E331E] cursor-pointer flex items-center justify-center gap-1.5"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     <span>Restore Deals</span>

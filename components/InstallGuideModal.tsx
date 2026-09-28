@@ -53,7 +53,7 @@ export function InstallGuideModal({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/bc-roundel.png" alt="Loyalty Club" className="w-full h-full object-contain" />
           </div>
-          <h3 className="font-serif font-black text-lg text-[#801313]">Install Loyalty App</h3>
+          <h3 className="font-serif font-black text-lg text-[#0E331E]">Install Loyalty App</h3>
           <p className="text-xs text-[#7A6E67] mt-0.5">
             Add to your home screen for quick 1-tap access
           </p>
@@ -66,7 +66,7 @@ export function InstallGuideModal({
               await onTriggerNative();
               onClose();
             }}
-            className="w-full mb-4 py-3 px-4 rounded-xl bg-[#801313] hover:bg-[#6E1111] text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
+            className="w-full mb-4 py-3 px-4 rounded-xl bg-[#0E331E] hover:bg-[#143F26] text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
           >
             <Download className="w-4 h-4 text-white" />
             <span>Install Instantly</span>
@@ -79,7 +79,7 @@ export function InstallGuideModal({
             onClick={() => setActiveTab("android")}
             className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all ${
               activeTab === "android"
-                ? "bg-white text-[#801313] shadow-xs"
+                ? "bg-white text-[#0E331E] shadow-xs"
                 : "text-[#7A6E67] hover:text-[#1E1815]"
             }`}
           >
@@ -89,7 +89,7 @@ export function InstallGuideModal({
             onClick={() => setActiveTab("ios")}
             className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all ${
               activeTab === "ios"
-                ? "bg-white text-[#801313] shadow-xs"
+                ? "bg-white text-[#0E331E] shadow-xs"
                 : "text-[#7A6E67] hover:text-[#1E1815]"
             }`}
           >
@@ -99,7 +99,7 @@ export function InstallGuideModal({
             onClick={() => setActiveTab("desktop")}
             className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all ${
               activeTab === "desktop"
-                ? "bg-white text-[#801313] shadow-xs"
+                ? "bg-white text-[#0E331E] shadow-xs"
                 : "text-[#7A6E67] hover:text-[#1E1815]"
             }`}
           >
@@ -112,15 +112,15 @@ export function InstallGuideModal({
           {activeTab === "android" && (
             <div className="space-y-3">
               <div className="flex items-start gap-2.5">
-                <div className="w-5 h-5 rounded-full bg-[#801313]/10 text-[#801313] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-5 h-5 rounded-full bg-[#0E331E]/10 text-[#0E331E] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
                   1
                 </div>
                 <div>
-                  Tap browser menu <MoreVertical className="w-3.5 h-3.5 inline text-[#801313] -mt-0.5" /> (three dots in top right)
+                  Tap browser menu <MoreVertical className="w-3.5 h-3.5 inline text-[#0E331E] -mt-0.5" /> (three dots in top right)
                 </div>
               </div>
               <div className="flex items-start gap-2.5">
-                <div className="w-5 h-5 rounded-full bg-[#801313]/10 text-[#801313] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-5 h-5 rounded-full bg-[#0E331E]/10 text-[#0E331E] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
                   2
                 </div>
                 <div>
@@ -128,7 +128,7 @@ export function InstallGuideModal({
                 </div>
               </div>
               <div className="flex items-start gap-2.5">
-                <div className="w-5 h-5 rounded-full bg-[#801313]/10 text-[#801313] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-5 h-5 rounded-full bg-[#0E331E]/10 text-[#0E331E] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
                   3
                 </div>
                 <div>
@@ -141,23 +141,23 @@ export function InstallGuideModal({
           {activeTab === "ios" && (
             <div className="space-y-3">
               <div className="flex items-start gap-2.5">
-                <div className="w-5 h-5 rounded-full bg-[#801313]/10 text-[#801313] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-5 h-5 rounded-full bg-[#0E331E]/10 text-[#0E331E] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
                   1
                 </div>
                 <div>
-                  In Safari, tap the <strong>Share</strong> button <Share className="w-3.5 h-3.5 inline text-[#801313] -mt-0.5" /> at the bottom
+                  In Safari, tap the <strong>Share</strong> button <Share className="w-3.5 h-3.5 inline text-[#0E331E] -mt-0.5" /> at the bottom
                 </div>
               </div>
               <div className="flex items-start gap-2.5">
-                <div className="w-5 h-5 rounded-full bg-[#801313]/10 text-[#801313] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-5 h-5 rounded-full bg-[#0E331E]/10 text-[#0E331E] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
                   2
                 </div>
                 <div>
-                  Scroll down &amp; tap <strong>&ldquo;Add to Home Screen&rdquo;</strong> <PlusSquare className="w-3.5 h-3.5 inline text-[#801313] -mt-0.5" />
+                  Scroll down &amp; tap <strong>&ldquo;Add to Home Screen&rdquo;</strong> <PlusSquare className="w-3.5 h-3.5 inline text-[#0E331E] -mt-0.5" />
                 </div>
               </div>
               <div className="flex items-start gap-2.5">
-                <div className="w-5 h-5 rounded-full bg-[#801313]/10 text-[#801313] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-5 h-5 rounded-full bg-[#0E331E]/10 text-[#0E331E] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
                   3
                 </div>
                 <div>
@@ -170,7 +170,7 @@ export function InstallGuideModal({
           {activeTab === "desktop" && (
             <div className="space-y-3">
               <div className="flex items-start gap-2.5">
-                <div className="w-5 h-5 rounded-full bg-[#801313]/10 text-[#801313] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-5 h-5 rounded-full bg-[#0E331E]/10 text-[#0E331E] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
                   1
                 </div>
                 <div>
@@ -178,15 +178,15 @@ export function InstallGuideModal({
                 </div>
               </div>
               <div className="flex items-start gap-2.5">
-                <div className="w-5 h-5 rounded-full bg-[#801313]/10 text-[#801313] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-5 h-5 rounded-full bg-[#0E331E]/10 text-[#0E331E] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
                   2
                 </div>
                 <div>
-                  Click the <strong>Install App</strong> icon <Download className="w-3.5 h-3.5 inline text-[#801313] -mt-0.5" />
+                  Click the <strong>Install App</strong> icon <Download className="w-3.5 h-3.5 inline text-[#0E331E] -mt-0.5" />
                 </div>
               </div>
               <div className="flex items-start gap-2.5">
-                <div className="w-5 h-5 rounded-full bg-[#801313]/10 text-[#801313] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-5 h-5 rounded-full bg-[#0E331E]/10 text-[#0E331E] font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
                   3
                 </div>
                 <div>

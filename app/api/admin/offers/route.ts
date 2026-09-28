@@ -136,11 +136,11 @@ export async function POST(req: NextRequest) {
     batchSize: 50, // 50 recipients per chunk
     delayBetweenBatchesMs: 300, // 300ms gap between batches to prevent spam-block
     concurrencyPerBatch: 5, // 5 parallel sends at a time
-    buildSubject: (cust) => `🎉 New Exclusive Offer: ${offer.name} (${discountBadge}) — Bombay Chowpatty`,
+    buildSubject: (cust) => `🎉 New Exclusive Offer: ${offer.name} (${discountBadge}) — Levante`,
     buildHtml: (cust) => `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #FAF7F4; padding: 24px; border-radius: 20px; border: 1px solid #EAE3DC;">
         <div style="text-align: center; margin-bottom: 24px;">
-          <h1 style="color: #801313; margin: 0; font-size: 24px; font-weight: 900; letter-spacing: -0.5px;">BOMBAY CHOWPATTY</h1>
+          <h1 style="color: #0E331E; margin: 0; font-size: 24px; font-weight: 900; letter-spacing: -0.5px;">LEVANTE</h1>
           <p style="color: #7A6E67; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; font-weight: 700;">Exclusive Loyalty Club</p>
         </div>
 
@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
               : ""
           }
 
-          <div style="display: inline-block; background: #801313; color: #FFFFFF; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
+          <div style="display: inline-block; background: #0E331E; color: #FFFFFF; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
             ${discountBadge}
           </div>
 
@@ -162,7 +162,7 @@ export async function POST(req: NextRequest) {
           </h2>
 
           <p style="font-size: 14px; color: #5C504A; line-height: 1.6; margin: 0 0 20px 0;">
-            ${offer.description || "We are excited to share a brand new exclusive promotion with all our loyal members! Visit us to savor the authentic taste of Bombay with special savings."}
+            ${offer.description || "We are excited to share a brand new exclusive promotion with all our loyal members! Visit us to experience the elegance of Levante with special savings."}
           </p>
 
           <div style="background: #FAF7F4; border: 1px solid #EAE3DC; border-radius: 12px; padding: 14px 16px; margin-bottom: 20px;">
@@ -171,7 +171,7 @@ export async function POST(req: NextRequest) {
               📅 Valid ${start ? `from ${start.toLocaleDateString()}` : "immediately"} ${end ? `until ${end.toLocaleDateString()}` : "for a limited time"}
             </div>
             <div style="font-size: 12px; color: #5C504A; margin-top: 4px;">
-              📍 Applicable across Bombay Chowpatty UAE branch locations (Dine In &amp; Takeaway)
+              📍 Applicable across Levante UAE branch locations (Dine In &amp; Takeaway)
             </div>
           </div>
 
@@ -183,8 +183,8 @@ export async function POST(req: NextRequest) {
         </div>
 
         <div style="text-align: center; margin-top: 20px; font-size: 11px; color: #7A6E67; line-height: 1.5;">
-          <p style="margin: 0;">Hello <strong>${cust.name || "Valued Member"}</strong>, you received this because you are an active member of Bombay Chowpatty Loyalty Club.</p>
-          <p style="margin: 4px 0 0 0;">Your Current Balance: <strong style="color: #801313;">${cust.pointsBalance || 0} Points</strong></p>
+          <p style="margin: 0;">Hello <strong>${cust.name || "Valued Member"}</strong>, you received this because you are an active member of Levante Rewards.</p>
+          <p style="margin: 4px 0 0 0;">Your Current Balance: <strong style="color: #0E331E;">${cust.pointsBalance || 0} Points</strong></p>
           <p style="margin: 4px 0 0 0;">UAE • 14 Outlets • Dine In &amp; Takeaway</p>
         </div>
       </div>

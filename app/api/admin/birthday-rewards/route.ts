@@ -257,7 +257,7 @@ export async function POST(req: NextRequest) {
             where: { category: "BIRTHDAY", isDefault: true },
           });
 
-          let emailSubject = `🎂 Happy Birthday ${cust.name}! A Special Gift from Bombay Chowpatty`;
+          let emailSubject = `🎂 Happy Birthday ${cust.name}! A Special Gift from Levante`;
           let emailHtml = "";
 
           if (defaultBdayTpl) {
@@ -278,14 +278,14 @@ export async function POST(req: NextRequest) {
             emailHtml = `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #FAF7F4; padding: 24px; border-radius: 16px; border: 1px solid #EAE3DC;">
                 <div style="text-align: center; margin-bottom: 20px;">
-                  <h1 style="color: #801313; margin: 0; font-size: 24px;">🎉 Happy Birthday, ${cust.name}! 🎂</h1>
-                  <p style="color: #7A6E67; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-top: 6px;">Bombay Chowpatty Loyalty Club</p>
+                  <h1 style="color: #0E331E; margin: 0; font-size: 24px;">🎉 Happy Birthday, ${cust.name}! 🎂</h1>
+                  <p style="color: #7A6E67; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-top: 6px;">Levante Rewards</p>
                 </div>
                 <div style="background: white; padding: 24px; border-radius: 14px; border: 1px solid #EAE3DC; color: #1E1815; line-height: 1.6;">
                   <p style="font-size: 15px; margin-top: 0;">We wish you a wonderful and delicious birthday filled with joy and sweet memories!</p>
                   <div style="background: #FAF3E6; border: 1px dashed #C68A1E; border-radius: 12px; padding: 18px; margin: 18px 0; text-align: center;">
                     <div style="font-size: 12px; color: #9E690B; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">YOUR BIRTHDAY GIFT VOUCHER</div>
-                    <div style="font-size: 18px; color: #801313; font-weight: 900; margin: 6px 0;">${activeBirthdayReward.name}</div>
+                    <div style="font-size: 18px; color: #0E331E; font-weight: 900; margin: 6px 0;">${activeBirthdayReward.name}</div>
                     <p style="font-size: 13px; color: #5C504A; margin: 4px 0 0 0;">${activeBirthdayReward.description}</p>
                     <div style="margin-top: 10px; font-size: 11px; color: #7A6E67;">Valid until: <strong>${expiryDate.toLocaleDateString()}</strong></div>
                   </div>

@@ -50,10 +50,10 @@ export default function AdminLoginPage() {
 
   if (checking) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#F0DBDB] text-[#1E1815]">
+      <div className="min-h-screen flex flex-col bg-[#F5EFE0] text-[#1E1815]">
         <CrmTopHeader activeTab="master" />
         <div className="flex-1 flex flex-col items-center justify-center p-4">
-          <div className="w-8 h-8 border-3 border-[#801313]/20 border-t-[#801313] rounded-full animate-spin mb-3" />
+          <div className="w-8 h-8 border-3 border-[#0E331E]/20 border-t-[#0E331E] rounded-full animate-spin mb-3" />
           <p className="text-xs font-semibold text-[#7A6E67]">Verifying executive session…</p>
         </div>
       </div>
@@ -61,7 +61,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F0DBDB] text-[#1E1815]">
+    <div className="min-h-screen flex flex-col bg-[#F5EFE0] text-[#1E1815]">
       <CrmTopHeader activeTab="master" />
       <div className="flex-1 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white border border-[#EAE3DC] rounded-3xl p-7 sm:p-8 shadow-xl">
@@ -70,11 +70,11 @@ export default function AdminLoginPage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/bc-roundel.png"
-            alt="Bombay Chowpatty"
+            alt="Levante"
             className="w-14 h-14 object-contain shrink-0 drop-shadow-sm"
           />
           <div>
-            <h1 className="text-xl font-black tracking-tight text-[#1E1815] leading-none">Bombay Chowpatty</h1>
+            <h1 className="text-xl font-black tracking-tight text-[#1E1815] leading-none">Levante</h1>
             <p className="text-xs font-semibold text-[#7A6E67] uppercase tracking-wider mt-1">
               Executive Portal
             </p>
@@ -95,7 +95,7 @@ export default function AdminLoginPage() {
               <input
                 id="admin-u"
                 type="text"
-                className="w-full px-4 py-3 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#801313] transition-colors font-medium text-sm pr-10"
+                className="w-full px-4 py-3 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#0E331E] transition-colors font-medium text-sm pr-10"
                 value={form.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
                 autoComplete="username"
@@ -115,7 +115,7 @@ export default function AdminLoginPage() {
               <input
                 id="admin-p"
                 type={showPin ? "text" : "password"}
-                className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313] font-medium transition-colors text-sm"
+                className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E] font-medium transition-colors text-sm"
                 value={form.pin}
                 onChange={(e) => setForm({ ...form, pin: e.target.value })}
                 placeholder={showPin ? "Enter password" : "••••••••"}
@@ -124,7 +124,7 @@ export default function AdminLoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPin(!showPin)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8C7F78] hover:text-[#801313] transition-colors rounded-lg focus:outline-none cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8C7F78] hover:text-[#0E331E] transition-colors rounded-lg focus:outline-none cursor-pointer"
                 title={showPin ? "Hide Password" : "Show Password"}
                 aria-label={showPin ? "Hide Password" : "Show Password"}
               >
@@ -143,7 +143,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={busy || !form.username.trim() || !form.pin.trim()}
-            className="w-full py-3.5 px-6 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-sm tracking-wide shadow-md hover:shadow-lg transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-3.5 px-6 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-bold text-sm tracking-wide shadow-md hover:shadow-lg transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
           >
             {busy ? (
               <>

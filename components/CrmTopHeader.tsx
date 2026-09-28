@@ -35,7 +35,7 @@ export function CrmTopHeader({ activeTab, onRefresh }: CrmTopHeaderProps) {
   };
 
   return (
-    <div className="w-full shrink-0 z-40 bg-[#F0DBDB]">
+    <div className="w-full shrink-0 z-40 bg-[#F5EFE0]">
       {/* Top Main Brand Header */}
       <header className="bg-white border-b border-[#EAE3DC] px-3.5 sm:px-8 py-2.5 sm:py-3.5 flex items-center justify-between shadow-2xs">
         {/* Brand Left */}
@@ -43,12 +43,12 @@ export function CrmTopHeader({ activeTab, onRefresh }: CrmTopHeaderProps) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/bc-roundel.png"
-            alt="Bombay Chowpatty"
+            alt="Levante"
             className="w-8 h-8 sm:w-10 sm:h-10 object-contain shrink-0 drop-shadow-sm group-hover:scale-105 transition-transform"
           />
           <div className="min-w-0">
             <div className="font-extrabold text-sm sm:text-lg tracking-tight leading-tight text-[#1E1815] truncate">
-              Bombay Chowpatty
+              Levante
             </div>
             <div className="text-[9px] sm:text-[10px] text-[#7A6E67] uppercase tracking-wider sm:tracking-widest font-extrabold truncate">
               <span className="hidden sm:inline">Loyalty Points Dashboard</span>
@@ -73,7 +73,7 @@ export function CrmTopHeader({ activeTab, onRefresh }: CrmTopHeaderProps) {
             disabled={refreshing}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#DCD3CB] bg-white hover:bg-[#FAF7F4] text-xs font-bold text-[#4A3F39] shadow-2xs transition-all cursor-pointer disabled:opacity-50"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-[#801313]" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-[#0E331E]" : ""}`} />
             <span className="hidden sm:inline">Refresh</span>
           </button>
         </div>
@@ -87,7 +87,7 @@ export function CrmTopHeader({ activeTab, onRefresh }: CrmTopHeaderProps) {
             onClick={() => router.push("/crm")}
             className={`flex items-center justify-center gap-1.5 sm:gap-2.5 px-2 sm:px-6 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
               currentTab === "customer"
-                ? "bg-[#591313] text-white shadow-sm"
+                ? "bg-[#0E331E] text-white shadow-sm"
                 : "text-[#5C504A] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
             }`}
           >
@@ -100,7 +100,7 @@ export function CrmTopHeader({ activeTab, onRefresh }: CrmTopHeaderProps) {
             onClick={() => router.push("/outlet")}
             className={`flex items-center justify-center gap-1.5 sm:gap-2.5 px-2 sm:px-6 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
               currentTab === "outlet"
-                ? "bg-[#591313] text-white shadow-sm"
+                ? "bg-[#0E331E] text-white shadow-sm"
                 : "text-[#5C504A] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
             }`}
           >
@@ -113,7 +113,7 @@ export function CrmTopHeader({ activeTab, onRefresh }: CrmTopHeaderProps) {
             onClick={() => router.push("/admin")}
             className={`flex items-center justify-center gap-1.5 sm:gap-2.5 px-2 sm:px-6 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
               currentTab === "master"
-                ? "bg-[#591313] text-white shadow-sm"
+                ? "bg-[#0E331E] text-white shadow-sm"
                 : "text-[#5C504A] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
             }`}
           >

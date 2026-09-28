@@ -19,8 +19,8 @@ export async function getSmtpConfig(): Promise<SmtpConfig> {
   const secure = ((await getSetting("smtp_secure")) || process.env.SMTP_SECURE || "false") === "true";
   const user = (await getSetting("smtp_user")) || process.env.SMTP_USER || "";
   const pass = (await getSetting("smtp_pass")) || process.env.SMTP_PASS || "";
-  const fromEmail = (await getSetting("smtp_from_email")) || process.env.SMTP_FROM_EMAIL || user || "loyalty@bombaychowpatty.com";
-  const fromName = (await getSetting("smtp_from_name")) || process.env.SMTP_FROM_NAME || "Bombay Chowpatty Loyalty Club";
+  const fromEmail = (await getSetting("smtp_from_email")) || process.env.SMTP_FROM_EMAIL || user || "loyalty@artoflevante.ae";
+  const fromName = (await getSetting("smtp_from_name")) || process.env.SMTP_FROM_NAME || "Levante Rewards";
 
   return { host, port, secure, user, pass, fromEmail, fromName };
 }
@@ -299,11 +299,11 @@ export async function testSmtpConnection(
   const info = await transporter.sendMail({
     from: fromAddress,
     to: testRecipient,
-    subject: "✅ SMTP Test Email — Bombay Chowpatty Loyalty Club",
+    subject: "✅ SMTP Test Email — Levante Rewards",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #FAF7F4; padding: 24px; border-radius: 16px; border: 1px solid #EAE3DC;">
         <div style="text-align: center; margin-bottom: 20px;">
-          <h2 style="color: #801313; margin: 0; font-size: 22px;">Bombay Chowpatty Loyalty</h2>
+          <h2 style="color: #0E331E; margin: 0; font-size: 22px;">Levante Rewards</h2>
           <p style="color: #7A6E67; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">SMTP Connection Verified</p>
         </div>
         <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #EAE3DC;">

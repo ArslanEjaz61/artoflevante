@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
       smtp_secure: secure === true || secure === "true" ? "true" : "false",
       smtp_user: String(user || "").trim(),
       smtp_from_email: String(fromEmail || user || "").trim(),
-      smtp_from_name: String(fromName || "Bombay Chowpatty Loyalty Club").trim(),
+      smtp_from_name: String(fromName || "Levante Rewards").trim(),
     };
 
     // Only update password if a new non-empty and unmasked password is provided

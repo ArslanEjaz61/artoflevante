@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
         .replace(/{customer_name}/g, "Valued Member")
         .replace(/{name}/g, "Valued Member")
         .replace(/{points_balance}/g, "0")
-        .replace(/{app_name}/g, "Bombay Chowpatty Loyalty");
+        .replace(/{app_name}/g, "Levante Rewards");
 
       const personalizedSubject = subject
         .replace(/{customer_name}/g, "Valued Member")
@@ -83,14 +83,14 @@ export async function POST(req: NextRequest) {
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #FAF7F4; padding: 24px; border-radius: 16px; border: 1px solid #EAE3DC;">
             <div style="text-align: center; margin-bottom: 20px;">
-              <h2 style="color: #801313; margin: 0; font-size: 22px;">Bombay Chowpatty</h2>
+              <h2 style="color: #0E331E; margin: 0; font-size: 22px;">Levante</h2>
               <p style="color: #7A6E67; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">Exclusive Loyalty Club</p>
             </div>
             <div style="background: white; padding: 24px; border-radius: 14px; border: 1px solid #EAE3DC; color: #1E1815; line-height: 1.6;">
               ${personalizedHtml}
             </div>
             <div style="text-align: center; margin-top: 20px; font-size: 11px; color: #7A6E67;">
-              <p style="margin: 0;">You received this because you are a registered member of Bombay Chowpatty Loyalty Club.</p>
+              <p style="margin: 0;">You received this because you are a registered member of Levante Rewards.</p>
               <p style="margin: 4px 0 0 0;">UAE • Dine In • Takeaway • Rewards</p>
             </div>
           </div>
@@ -165,19 +165,19 @@ export async function POST(req: NextRequest) {
           .replace(/{customer_name}/g, cName)
           .replace(/{name}/g, cName)
           .replace(/{points_balance}/g, String(cust.pointsBalance || 0))
-          .replace(/{app_name}/g, "Bombay Chowpatty Loyalty");
+          .replace(/{app_name}/g, "Levante Rewards");
 
         return `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #FAF7F4; padding: 24px; border-radius: 16px; border: 1px solid #EAE3DC;">
             <div style="text-align: center; margin-bottom: 20px;">
-              <h2 style="color: #801313; margin: 0; font-size: 22px;">Bombay Chowpatty</h2>
+              <h2 style="color: #0E331E; margin: 0; font-size: 22px;">Levante</h2>
               <p style="color: #7A6E67; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">Exclusive Loyalty Club</p>
             </div>
             <div style="background: white; padding: 24px; border-radius: 14px; border: 1px solid #EAE3DC; color: #1E1815; line-height: 1.6;">
               ${personalizedHtml}
             </div>
             <div style="text-align: center; margin-top: 20px; font-size: 11px; color: #7A6E67;">
-              <p style="margin: 0;">You received this because you are a registered member of Bombay Chowpatty Loyalty Club.</p>
+              <p style="margin: 0;">You received this because you are a registered member of Levante Rewards.</p>
               <p style="margin: 4px 0 0 0;">UAE • Dine In • Takeaway • Rewards</p>
             </div>
           </div>

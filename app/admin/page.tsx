@@ -800,7 +800,7 @@ export default function AdminPage() {
         margin: 1,
         width: 400,
         color: {
-          dark: "#721424",
+          dark: "#143F26",
           light: "#FFFFFF",
         },
       })
@@ -814,8 +814,8 @@ export default function AdminPage() {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
-          title: "Bombay Chowpatty Loyalty",
-          text: "Scan or tap to register and open your Bombay Chowpatty Loyalty account!",
+          title: "Levante Rewards",
+          text: "Scan or tap to register and open your Levante Rewards account!",
           url: url,
         });
       } catch { }
@@ -896,7 +896,7 @@ export default function AdminPage() {
     user: "",
     pass: "",
     fromEmail: "",
-    fromName: "Bombay Chowpatty Loyalty Club",
+    fromName: "Levante Rewards",
   });
   const [smtpTestRecipient, setSmtpTestRecipient] = useState("");
   const [smtpTesting, setSmtpTesting] = useState(false);
@@ -1108,7 +1108,7 @@ export default function AdminPage() {
           user: d.settings.user || "",
           pass: d.settings.pass || "",
           fromEmail: d.settings.fromEmail || "",
-          fromName: d.settings.fromName || "Bombay Chowpatty Loyalty Club",
+          fromName: d.settings.fromName || "Levante Rewards",
         });
       }
     } catch { }
@@ -2191,7 +2191,7 @@ export default function AdminPage() {
   if (!session) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-[#120F0E] via-[#1B1716] to-[#251D1A] text-white">
-        <div className="w-8 h-8 border-3 border-[#C0392B]/30 border-t-[#C0392B] rounded-full animate-spin mb-3" />
+        <div className="w-8 h-8 border-3 border-[#143F26]/30 border-t-[#143F26] rounded-full animate-spin mb-3" />
         <p className="text-xs font-semibold text-[#B8ADA6]">Connecting to Executive Control…</p>
       </div>
     );
@@ -2290,7 +2290,7 @@ export default function AdminPage() {
       : 0;
 
   return (
-    <div className="h-screen overflow-hidden bg-[#F0DBDB] text-[#221C1A] flex flex-col md:flex-row relative">
+    <div className="h-screen overflow-hidden bg-[#F5EFE0] text-[#221C1A] flex flex-col md:flex-row relative">
       {/* Mobile Backdrop Overlay */}
       {mobileMenuOpen && (
         <div
@@ -2312,11 +2312,11 @@ export default function AdminPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/bc-roundel.png"
-              alt="Bombay Chowpatty"
+              alt="Levante"
               className="w-11 h-11 object-contain shrink-0 drop-shadow-sm"
             />
             <div>
-              <div className="font-extrabold text-sm tracking-tight leading-tight text-[#1E1815]">Bombay Chowpatty</div>
+              <div className="font-extrabold text-sm tracking-tight leading-tight text-[#1E1815]">Levante</div>
               <div className="text-[9.5px] text-[#8C7F78] uppercase tracking-widest font-bold mt-0.5">
                 Admin Control
               </div>
@@ -2340,7 +2340,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "overview"
-              ? "bg-[#801313] text-white shadow-xs"
+              ? "bg-[#0E331E] text-white shadow-xs"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -2354,7 +2354,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "customers"
-              ? "bg-[#801313] text-white shadow-xs"
+              ? "bg-[#0E331E] text-white shadow-xs"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -2368,7 +2368,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "offers"
-              ? "bg-[#801313] text-white shadow-xs"
+              ? "bg-[#0E331E] text-white shadow-xs"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -2382,7 +2382,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "branches"
-              ? "bg-[#801313] text-white shadow-xs"
+              ? "bg-[#0E331E] text-white shadow-xs"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -2396,7 +2396,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "staff"
-              ? "bg-[#801313] text-white shadow-xs"
+              ? "bg-[#0E331E] text-white shadow-xs"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -2410,7 +2410,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "visits"
-              ? "bg-[#801313] text-white shadow-xs"
+              ? "bg-[#0E331E] text-white shadow-xs"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -2424,7 +2424,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "outlet"
-              ? "bg-[#801313] text-white shadow-xs"
+              ? "bg-[#0E331E] text-white shadow-xs"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -2438,7 +2438,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "settings"
-              ? "bg-[#801313] text-white shadow-xs"
+              ? "bg-[#0E331E] text-white shadow-xs"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -2452,7 +2452,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "audit"
-              ? "bg-[#801313] text-white shadow-xs"
+              ? "bg-[#0E331E] text-white shadow-xs"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -2464,7 +2464,7 @@ export default function AdminPage() {
         {/* User Card & Sign Out */}
         <div className="p-4 border-t border-[#EAE3DC] bg-[#FAF7F4]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[#801313]/10 border border-[#801313]/20 flex items-center justify-center font-bold text-xs text-[#801313]">
+            <div className="w-9 h-9 rounded-full bg-[#0E331E]/10 border border-[#0E331E]/20 flex items-center justify-center font-bold text-xs text-[#0E331E]">
               {session.name ? session.name.slice(0, 2).toUpperCase() : "AD"}
             </div>
             <div className="flex-1 min-w-0">
@@ -2475,7 +2475,7 @@ export default function AdminPage() {
               type="button"
               onClick={handleLogout}
               title="Sign Out"
-              className="p-1.5 rounded-lg text-[#7A6E67] hover:text-[#801313] hover:bg-[#EFE9E2] transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-[#7A6E67] hover:text-[#0E331E] hover:bg-[#EFE9E2] transition-colors cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -2546,7 +2546,7 @@ export default function AdminPage() {
                   setBranchMsg(null);
                   setShowCreateBranchModal(true);
                 }}
-                className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#143F26] to-[#0A2617] hover:from-[#143F26] text-white font-bold text-xs shadow-md shadow-[#143F26]/20 transition-all cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Branch</span>
@@ -2571,7 +2571,7 @@ export default function AdminPage() {
                   setOfferMsg(null);
                   setShowCreateOfferModal(true);
                 }}
-                className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#143F26] to-[#0A2617] hover:from-[#143F26] text-white font-bold text-xs shadow-md shadow-[#143F26]/20 transition-all cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>New Campaign</span>
@@ -2581,10 +2581,10 @@ export default function AdminPage() {
             {/* Customer Portal Link */}
             <Link
               href="/crm"
-              className="flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-xl border border-[#DCD3CB] bg-white hover:bg-[#FAF7F4] text-xs font-bold text-[#801313] shadow-2xs transition-all cursor-pointer"
+              className="flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-xl border border-[#DCD3CB] bg-white hover:bg-[#FAF7F4] text-xs font-bold text-[#0E331E] shadow-2xs transition-all cursor-pointer"
               title="Open Customer Portal"
             >
-              <Users className="w-3.5 h-3.5 text-[#801313]" />
+              <Users className="w-3.5 h-3.5 text-[#0E331E]" />
               <span className="hidden sm:inline">Customer Portal</span>
             </Link>
 
@@ -2608,7 +2608,7 @@ export default function AdminPage() {
               disabled={refreshing}
               className="flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-xl border border-[#DCD3CB] bg-white hover:bg-[#FAF7F4] text-xs font-bold text-[#4A3F39] shadow-sm transition-all cursor-pointer disabled:opacity-50"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-[#C0392B]" : ""}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-[#143F26]" : ""}`} />
               <span className="hidden sm:inline">Refresh</span>
             </button>
           </div>
@@ -2616,7 +2616,7 @@ export default function AdminPage() {
 
         {/* Global Error Banner */}
         {err && (
-          <div className="mx-4 sm:mx-6 mt-4 p-3.5 sm:p-4 bg-[#C0392B]/10 border border-[#C0392B]/30 rounded-2xl text-xs font-semibold text-[#C0392B] flex items-center justify-between">
+          <div className="mx-4 sm:mx-6 mt-4 p-3.5 sm:p-4 bg-[#143F26]/10 border border-[#143F26]/30 rounded-2xl text-xs font-semibold text-[#143F26] flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{err}</span>
@@ -2639,10 +2639,10 @@ export default function AdminPage() {
                 {/* Customer Shortcut */}
                 <Link
                   href="/crm"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FAF7F4] hover:bg-[#801313] text-[#1E1815] hover:text-white border border-[#EAE3DC] hover:border-[#801313] text-xs font-black transition-all shadow-2xs cursor-pointer group"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FAF7F4] hover:bg-[#0E331E] text-[#1E1815] hover:text-white border border-[#EAE3DC] hover:border-[#0E331E] text-xs font-black transition-all shadow-2xs cursor-pointer group"
                   title="Customer Portal"
                 >
-                  <Users className="w-4 h-4 text-[#801313] group-hover:text-white transition-colors" />
+                  <Users className="w-4 h-4 text-[#0E331E] group-hover:text-white transition-colors" />
                   <span>Customer</span>
                 </Link>
 
@@ -2657,10 +2657,10 @@ export default function AdminPage() {
                       setTab("branches");
                     }
                   }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#801313]/10 hover:bg-[#801313] text-[#801313] hover:text-white border border-[#801313]/30 text-xs font-black transition-all shadow-2xs cursor-pointer group"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0E331E]/10 hover:bg-[#0E331E] text-[#0E331E] hover:text-white border border-[#0E331E]/30 text-xs font-black transition-all shadow-2xs cursor-pointer group"
                   title="Store Dashboards"
                 >
-                  <Building2 className="w-4 h-4 text-[#801313] group-hover:text-white transition-colors" />
+                  <Building2 className="w-4 h-4 text-[#0E331E] group-hover:text-white transition-colors" />
                   <span>Stores</span>
                 </button>
               </div>
@@ -2669,12 +2669,12 @@ export default function AdminPage() {
               <div className="bg-white border border-[#EAE3DC] rounded-2xl p-3.5 sm:p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
                 <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto">
                   <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <Building2 className="w-4 h-4 text-[#C0392B] shrink-0" />
+                    <Building2 className="w-4 h-4 text-[#143F26] shrink-0" />
                     <span className="text-xs font-bold text-[#7A6E67] uppercase tracking-wider shrink-0">Branch:</span>
                     <select
                       value={overviewBranchFilter}
                       onChange={(e) => setOverviewBranchFilter(e.target.value)}
-                      className="w-full sm:w-auto px-3 py-1.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-bold focus:outline-none focus:border-[#C0392B]"
+                      className="w-full sm:w-auto px-3 py-1.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-bold focus:outline-none focus:border-[#143F26]"
                     >
                       <option value="all">All Branches (All UAE Outlets)</option>
                       {allBranches.map((b: any) => (
@@ -2691,7 +2691,7 @@ export default function AdminPage() {
                     type="button"
                     onClick={() => setOverviewDateFilter("all")}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${overviewDateFilter === "all"
-                        ? "bg-[#801313] text-white shadow-xs"
+                        ? "bg-[#0E331E] text-white shadow-xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
                       }`}
                   >
@@ -2701,7 +2701,7 @@ export default function AdminPage() {
                     type="button"
                     onClick={() => setOverviewDateFilter("today")}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${overviewDateFilter === "today"
-                        ? "bg-[#801313] text-white shadow-xs"
+                        ? "bg-[#0E331E] text-white shadow-xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
                       }`}
                   >
@@ -2711,7 +2711,7 @@ export default function AdminPage() {
                     type="button"
                     onClick={() => setOverviewDateFilter("7days")}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${overviewDateFilter === "7days"
-                        ? "bg-[#801313] text-white shadow-xs"
+                        ? "bg-[#0E331E] text-white shadow-xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
                       }`}
                   >
@@ -2721,7 +2721,7 @@ export default function AdminPage() {
                     type="button"
                     onClick={() => setOverviewDateFilter("30days")}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${overviewDateFilter === "30days"
-                        ? "bg-[#801313] text-white shadow-xs"
+                        ? "bg-[#0E331E] text-white shadow-xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
                       }`}
                   >
@@ -2734,10 +2734,10 @@ export default function AdminPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Metric 1: Total Revenue */}
                 <div className="bg-white border border-[#EAE3DC] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#C0392B]/10 to-transparent rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#143F26]/10 to-transparent rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
                   <div className="flex items-center justify-between text-[#7A6E67] mb-2 text-xs font-bold uppercase tracking-wider">
                     <span>Tracked Revenue</span>
-                    <Receipt className="w-4 h-4 text-[#C0392B]" />
+                    <Receipt className="w-4 h-4 text-[#143F26]" />
                   </div>
                   <div className="text-2xl font-black text-[#1E1815] tracking-tight">
                     {formatMoney(cur, metrics.totalRevenue || 0)}
@@ -2810,7 +2810,7 @@ export default function AdminPage() {
                 <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-5">
                     <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
-                      <CreditCard className="w-4 h-4 text-[#C0392B]" />
+                      <CreditCard className="w-4 h-4 text-[#143F26]" />
                       Points Economy
                     </h2>
                     <span className="text-xs font-semibold text-[#7A6E67]">Live Ledger</span>
@@ -2831,11 +2831,11 @@ export default function AdminPage() {
                     <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#FAF7F4] border border-[#EFE8E1]">
                       <div>
                         <div className="text-xs font-bold text-[#7A6E67] uppercase">Redeemed / Spent</div>
-                        <div className="text-xl font-black text-[#C0392B] mt-0.5">
+                        <div className="text-xl font-black text-[#143F26] mt-0.5">
                           -{Number(metrics.pointsRedeemed || 0).toLocaleString()}
                         </div>
                       </div>
-                      <div className="w-10 h-10 rounded-xl bg-[#C0392B]/10 text-[#C0392B] flex items-center justify-center font-bold">
+                      <div className="w-10 h-10 rounded-xl bg-[#143F26]/10 text-[#143F26] flex items-center justify-center font-bold">
                         pts
                       </div>
                     </div>
@@ -2891,7 +2891,7 @@ export default function AdminPage() {
                 <div className="bg-gradient-to-br from-[#1F1917] to-[#2B221E] text-white rounded-3xl p-6 shadow-md flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <span className="px-2.5 py-1 rounded-lg bg-[#C0392B] text-white font-black text-[10px] uppercase tracking-wider">
+                      <span className="px-2.5 py-1 rounded-lg bg-[#143F26] text-white font-black text-[10px] uppercase tracking-wider">
                         Automated Loyalty
                       </span>
                       <Calendar className="w-4 h-4 text-[#C68A1E]" />
@@ -2917,7 +2917,7 @@ export default function AdminPage() {
                               <p className="font-bold text-white truncate">{b.name || "Member"}</p>
                               <p className="text-[10px] text-[#B8ADA6] truncate">{b.mobile || ""}</p>
                             </div>
-                            <span className="text-xs font-bold text-[#E5A93C] bg-[#801313]/60 px-2.5 py-1 rounded-lg shrink-0 border border-[#D4AF37]/30">
+                            <span className="text-xs font-bold text-[#E5A93C] bg-[#0E331E]/60 px-2.5 py-1 rounded-lg shrink-0 border border-[#D4AF37]/30">
                               {b.day ? `Day ${b.day}` : "This Month"}
                             </span>
                           </div>
@@ -2956,7 +2956,7 @@ export default function AdminPage() {
                         className="p-3 rounded-2xl border border-[#EAE3DC] bg-[#FAF7F4] flex items-center justify-between hover:border-[#D0C6BE] hover:bg-white transition-colors shadow-2xs"
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-9 h-9 rounded-xl bg-white border border-[#E5DDD5] flex items-center justify-center font-bold text-xs text-[#C0392B] shrink-0">
+                          <div className="w-9 h-9 rounded-xl bg-white border border-[#E5DDD5] flex items-center justify-center font-bold text-xs text-[#143F26] shrink-0">
                             <Receipt className="w-4 h-4" />
                           </div>
                           <div className="min-w-0">
@@ -2991,7 +2991,7 @@ export default function AdminPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                   <div>
                     <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-[#801313]" />
+                      <Building2 className="w-4 h-4 text-[#0E331E]" />
                       All Stores
                     </h2>
                     <p className="text-xs text-[#7A6E67] mt-0.5">
@@ -3001,7 +3001,7 @@ export default function AdminPage() {
                   {overviewBranchFilter !== "all" && (
                     <button
                       onClick={() => setOverviewBranchFilter("all")}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#801313]/10 text-[#801313] hover:bg-[#801313] hover:text-white font-bold text-xs transition-all cursor-pointer w-fit"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0E331E]/10 text-[#0E331E] hover:bg-[#0E331E] hover:text-white font-bold text-xs transition-all cursor-pointer w-fit"
                     >
                       <span>Show All Branches Overview</span>
                     </button>
@@ -3017,15 +3017,15 @@ export default function AdminPage() {
                         type="button"
                         onClick={() => handleOpenStoreCrm(b)}
                         className={`text-left p-4 rounded-2xl border transition-all cursor-pointer relative overflow-hidden group ${isSelected
-                            ? "bg-gradient-to-br from-[#801313] to-[#590D0D] text-white border-[#801313] shadow-md ring-2 ring-[#801313]/30"
-                            : "bg-[#FAF7F4] hover:bg-white text-[#1E1815] border-[#EAE3DC] hover:border-[#801313]/40 hover:shadow-sm"
+                            ? "bg-gradient-to-br from-[#0E331E] to-[#0E331E] text-white border-[#0E331E] shadow-md ring-2 ring-[#0E331E]/30"
+                            : "bg-[#FAF7F4] hover:bg-white text-[#1E1815] border-[#EAE3DC] hover:border-[#0E331E]/40 hover:shadow-sm"
                           }`}
                       >
                         <div className="flex items-center justify-between mb-2.5">
                           <div
                             className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${isSelected
                                 ? "bg-white/20 text-white"
-                                : "bg-[#801313]/10 text-[#801313] group-hover:bg-[#801313] group-hover:text-white"
+                                : "bg-[#0E331E]/10 text-[#0E331E] group-hover:bg-[#0E331E] group-hover:text-white"
                               }`}
                           >
                             <Store className="w-4 h-4" />
@@ -3049,7 +3049,7 @@ export default function AdminPage() {
                           <span className={isSelected ? "text-white/80" : "text-[#7A6E67]"}>
                             {b.city || "Dubai"} • #{b.code || b.id}
                           </span>
-                          <span className={`font-bold text-[10px] flex items-center gap-1 ${isSelected ? "text-[#FEF7C5]" : "text-[#801313]"}`}>
+                          <span className={`font-bold text-[10px] flex items-center gap-1 ${isSelected ? "text-[#F5EFE0]" : "text-[#0E331E]"}`}>
                             {b.crmUrl ? (
                               <>
                                 <span>Open CRM</span>
@@ -3085,7 +3085,7 @@ export default function AdminPage() {
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Search by name, mobile, email…"
-                    className="w-full pl-10 pr-4 py-2.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full pl-10 pr-4 py-2.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#143F26]"
                   />
                 </div>
 
@@ -3094,7 +3094,7 @@ export default function AdminPage() {
                   <select
                     value={filter}
                     onChange={(e) => setFilter(e.target.value)}
-                    className="w-full sm:w-auto px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B]"
+                    className="w-full sm:w-auto px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#143F26]"
                   >
                     <option value="all">All Members</option>
                     <option value="recent">Active Recently</option>
@@ -3128,14 +3128,14 @@ export default function AdminPage() {
                         >
                           <td className="py-3.5 px-3.5 sm:px-4 whitespace-nowrap">
                             <div className="flex items-center gap-2.5">
-                              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#C0392B] to-[#96291D] text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-xs">
+                              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#143F26] to-[#0A2617] text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-xs">
                                 {c.name ? c.name.slice(0, 2).toUpperCase() : "MB"}
                               </div>
                               <div className="min-w-0">
-                                <div className="font-bold text-[#1E1815] group-hover:text-[#C0392B] transition-colors flex items-center gap-1.5">
+                                <div className="font-bold text-[#1E1815] group-hover:text-[#143F26] transition-colors flex items-center gap-1.5">
                                   <span>{c.name}</span>
                                   {c.isBlocked && (
-                                    <span className="px-1.5 py-0.5 rounded bg-[#C0392B]/10 text-[#C0392B] text-[9px] font-black uppercase">
+                                    <span className="px-1.5 py-0.5 rounded bg-[#143F26]/10 text-[#143F26] text-[9px] font-black uppercase">
                                       Blocked
                                     </span>
                                   )}
@@ -3151,7 +3151,7 @@ export default function AdminPage() {
                             {c.email && <div className="text-[10px] text-[#7A6E67] truncate max-w-[170px]">{c.email}</div>}
                           </td>
                           <td className="py-3.5 px-3.5 sm:px-4 text-[#7A6E67] font-medium whitespace-nowrap">{c.homeBranch?.name || c.branch || "—"}</td>
-                          <td className="py-3.5 px-3.5 sm:px-4 font-black text-[#C0392B] whitespace-nowrap">{c.pointsBalance ?? c.points ?? 0} pts</td>
+                          <td className="py-3.5 px-3.5 sm:px-4 font-black text-[#143F26] whitespace-nowrap">{c.pointsBalance ?? c.points ?? 0} pts</td>
                           <td className="py-3.5 px-3.5 sm:px-4 font-bold text-[#1E1815] whitespace-nowrap">{c.visitCount ?? c.visits ?? 0} visits</td>
                           <td className="py-3.5 px-3.5 sm:px-4 font-bold text-[#1E1815] whitespace-nowrap">
                             {formatMoney(cur, c.totalSpend ?? c.spend ?? 0)}
@@ -3159,7 +3159,7 @@ export default function AdminPage() {
                           <td className="py-3.5 px-3.5 sm:px-4 text-[#7A6E67] whitespace-nowrap">
                             <div className="flex items-center justify-between">
                               <span>{formatRelativeTime(c.lastVisitAt)}</span>
-                              <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[#C0392B] font-bold text-[11px] flex items-center gap-0.5 ml-2">
+                              <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[#143F26] font-bold text-[11px] flex items-center gap-0.5 ml-2">
                                 Details <ChevronRight className="w-3 h-3" />
                               </span>
                             </div>
@@ -3219,7 +3219,7 @@ export default function AdminPage() {
                     className={`p-3.5 sm:p-4 rounded-2xl text-xs font-bold flex items-center justify-between shadow-sm ${
                       offerMsg.type === "ok"
                         ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                        : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                        : "bg-[#143F26]/10 text-[#143F26] border border-[#143F26]/30"
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -3241,11 +3241,11 @@ export default function AdminPage() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <Tag className="w-5 h-5 text-[#801313] shrink-0" />
+                        <Tag className="w-5 h-5 text-[#0E331E] shrink-0" />
                         <h2 className="font-extrabold text-base text-[#1E1815]">
                           Promotions &amp; Campaign Engine
                         </h2>
-                        <span className="px-2.5 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-xs font-bold">
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#0E331E]/10 text-[#0E331E] text-xs font-bold">
                           {filteredOffers.length} {filteredOffers.length === 1 ? "Offer" : "Offers"}
                         </span>
                       </div>
@@ -3273,7 +3273,7 @@ export default function AdminPage() {
                             setCompressedImgStats(null);
                             setShowCreateOfferModal(true);
                           }}
-                          className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white text-xs font-black shadow-sm transition-all cursor-pointer"
+                          className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white text-xs font-black shadow-sm transition-all cursor-pointer"
                         >
                           <Plus className="w-4 h-4 shrink-0" />
                           <span>Launch Promotional Campaign</span>
@@ -3292,7 +3292,7 @@ export default function AdminPage() {
                         placeholder="Search campaign, discount, branch…"
                         value={offerSearch}
                         onChange={(e) => setOfferSearch(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                        className="w-full pl-9 pr-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                       />
                     </div>
 
@@ -3301,7 +3301,7 @@ export default function AdminPage() {
                       <select
                         value={offerBranchFilter}
                         onChange={(e) => setOfferBranchFilter(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#801313] cursor-pointer"
+                        className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#0E331E] cursor-pointer"
                       >
                         <option value="all">📍 All Branches (Nationwide View)</option>
                         {branchesList.map((b: any) => (
@@ -3317,7 +3317,7 @@ export default function AdminPage() {
                       <select
                         value={offerStatusFilter}
                         onChange={(e) => setOfferStatusFilter(e.target.value as any)}
-                        className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#801313] cursor-pointer"
+                        className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#0E331E] cursor-pointer"
                       >
                         <option value="all">All Campaign Statuses</option>
                         <option value="active">Active Campaigns Only</option>
@@ -3337,7 +3337,7 @@ export default function AdminPage() {
                           key={o.id}
                           className="bg-white border border-[#EAE3DC] rounded-3xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between relative overflow-hidden group"
                         >
-                          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#801313]/10 to-transparent rounded-bl-full pointer-events-none" />
+                          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#0E331E]/10 to-transparent rounded-bl-full pointer-events-none" />
                           <div>
                             {/* Card Hero Banner (if uploaded) */}
                             {o.imageUrl && (
@@ -3367,14 +3367,14 @@ export default function AdminPage() {
                               >
                                 {o.isActive ? "Active Campaign" : "Paused"}
                               </span>
-                              <div className="font-black text-lg text-[#801313] bg-[#801313]/10 px-2.5 py-0.5 rounded-xl border border-[#801313]/20">
+                              <div className="font-black text-lg text-[#0E331E] bg-[#0E331E]/10 px-2.5 py-0.5 rounded-xl border border-[#0E331E]/20">
                                 {o.isPercent ? `${o.value}% OFF` : `AED ${o.value} OFF`}
                               </div>
                             </div>
 
                             <h3 className="font-black text-base text-[#1E1815] leading-snug">{o.name}</h3>
                             <p className="text-xs text-[#7A6E67] mt-1 leading-relaxed">
-                              {o.description || "Applicable on eligible menu orders at designated Bombay Chowpatty outlets."}
+                              {o.description || "Applicable on eligible menu orders at the Levante boutique."}
                             </p>
 
                             {/* ================= PROMINENT BRANCH LOCATION BADGES ================= */}
@@ -3395,9 +3395,9 @@ export default function AdminPage() {
                                   {o.branches.map((b: any) => (
                                     <span
                                       key={b.id || b.code}
-                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white border border-[#801313]/30 text-[#801313] text-[11px] font-bold shadow-2xs"
+                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white border border-[#0E331E]/30 text-[#0E331E] text-[11px] font-bold shadow-2xs"
                                     >
-                                      <MapPin className="w-3 h-3 text-[#801313] shrink-0" />
+                                      <MapPin className="w-3 h-3 text-[#0E331E] shrink-0" />
                                       <span className="truncate max-w-[130px]">{b.name}</span>
                                     </span>
                                   ))}
@@ -3435,7 +3435,7 @@ export default function AdminPage() {
                                   className="p-1.5 rounded-xl bg-[#FAF7F4] hover:bg-[#EAE3DC] text-[#1E1815] border border-[#EAE3DC] transition-colors cursor-pointer flex items-center gap-1 text-xs font-bold px-2.5"
                                   title="Edit Promotional Campaign"
                                 >
-                                  <Edit2 className="w-3.5 h-3.5 text-[#801313]" />
+                                  <Edit2 className="w-3.5 h-3.5 text-[#0E331E]" />
                                   <span>Edit</span>
                                 </button>
                                 <button
@@ -3465,7 +3465,7 @@ export default function AdminPage() {
                     })
                   ) : (
                     <div className="col-span-full bg-white border border-[#EAE3DC] rounded-3xl p-12 text-center">
-                      <div className="w-12 h-12 rounded-2xl bg-[#801313]/10 text-[#801313] flex items-center justify-center mx-auto mb-3">
+                      <div className="w-12 h-12 rounded-2xl bg-[#0E331E]/10 text-[#0E331E] flex items-center justify-center mx-auto mb-3">
                         <Tag className="w-6 h-6" />
                       </div>
                       <h3 className="text-sm font-extrabold text-[#1E1815] mb-1">
@@ -3508,7 +3508,7 @@ export default function AdminPage() {
                               setCompressedImgStats(null);
                               setShowCreateOfferModal(true);
                             }}
-                            className="px-4 py-2 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white text-xs font-black cursor-pointer shadow-sm"
+                            className="px-4 py-2 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white text-xs font-black cursor-pointer shadow-sm"
                           >
                             + Launch New Campaign
                           </button>
@@ -3530,7 +3530,7 @@ export default function AdminPage() {
                 <div
                   className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between shadow-sm ${branchMsg.type === "ok"
                     ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                    : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                    : "bg-[#143F26]/10 text-[#143F26] border border-[#143F26]/30"
                     }`}
                 >
                   <div className="flex items-center gap-2">
@@ -3551,7 +3551,7 @@ export default function AdminPage() {
               <div className="bg-white border border-[#EAE3DC] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#143F26] to-[#0A2617] flex items-center justify-center font-bold text-white shadow-md shadow-[#143F26]/30 shrink-0">
                       <Building2 className="w-5 h-5" />
                     </div>
                     <div>
@@ -3585,7 +3585,7 @@ export default function AdminPage() {
                         setBranchMsg(null);
                         setShowCreateBranchModal(true);
                       }}
-                      className="w-full sm:w-auto justify-center flex items-center gap-1.5 px-3.5 py-2.5 sm:py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-sm transition-all cursor-pointer shrink-0"
+                      className="w-full sm:w-auto justify-center flex items-center gap-1.5 px-3.5 py-2.5 sm:py-2 rounded-xl bg-gradient-to-r from-[#143F26] to-[#0A2617] hover:from-[#143F26] text-white font-bold text-xs shadow-sm transition-all cursor-pointer shrink-0"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Add Branch</span>
@@ -3612,7 +3612,7 @@ export default function AdminPage() {
                 </div>
                 <div className="bg-white border border-[#EAE3DC] rounded-2xl p-3.5 sm:p-4 shadow-sm">
                   <div className="text-[11px] sm:text-xs font-bold text-[#7A6E67] uppercase">Network Revenue</div>
-                  <div className="text-xl sm:text-2xl font-black text-[#C0392B] mt-1">
+                  <div className="text-xl sm:text-2xl font-black text-[#143F26] mt-1">
                     {formatMoney(cur, allBranches.reduce((acc: number, b: any) => acc + (b.totalRevenue || b.revenue || 0), 0))}
                   </div>
                 </div>
@@ -3628,7 +3628,7 @@ export default function AdminPage() {
                       value={branchSearch}
                       onChange={(e) => setBranchSearch(e.target.value)}
                       placeholder="Search branches by code, name, city, coupon…"
-                      className="w-full pl-10 pr-4 py-2.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full pl-10 pr-4 py-2.5 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#143F26]"
                     />
                   </div>
 
@@ -3637,7 +3637,7 @@ export default function AdminPage() {
                     <select
                       value={branchCityFilter}
                       onChange={(e) => setBranchCityFilter(e.target.value)}
-                      className="w-full sm:w-auto px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B]"
+                      className="w-full sm:w-auto px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#143F26]"
                     >
                       <option value="all">All Cities</option>
                       {cities.map((city: string) => (
@@ -3673,8 +3673,8 @@ export default function AdminPage() {
 
                           return (
                             <tr key={b.id || b.code} className="hover:bg-[#FAF7F4] transition-colors">
-                              <td className="py-3 px-3 font-mono font-bold text-[#C0392B]">
-                                <span className="px-2 py-1 rounded-lg bg-[#C0392B]/10 border border-[#C0392B]/20">
+                              <td className="py-3 px-3 font-mono font-bold text-[#143F26]">
+                                <span className="px-2 py-1 rounded-lg bg-[#143F26]/10 border border-[#143F26]/20">
                                   {b.code}
                                 </span>
                               </td>
@@ -3685,19 +3685,19 @@ export default function AdminPage() {
                                   <Link
                                     href={`/outlet?code=${encodeURIComponent(b.code || b.id)}`}
                                     target="_blank"
-                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#801313]/10 hover:bg-[#801313] text-[#801313] hover:text-white text-[10px] font-black tracking-wide transition-all cursor-pointer shadow-2xs border border-[#801313]/20 group"
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#0E331E]/10 hover:bg-[#0E331E] text-[#0E331E] hover:text-white text-[10px] font-black tracking-wide transition-all cursor-pointer shadow-2xs border border-[#0E331E]/20 group"
                                     title={`Launch ${b.name} Outlet POS Terminal`}
                                   >
-                                    <Store className="w-3 h-3 text-[#801313] group-hover:text-white" />
+                                    <Store className="w-3 h-3 text-[#0E331E] group-hover:text-white" />
                                     <span>Launch Outlet POS</span>
                                   </Link>
                                   <button
                                     type="button"
                                     onClick={() => handleOpenStoreCrm(b)}
-                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF7F4] hover:bg-[#801313] text-[#1E1815] hover:text-white text-[10px] font-black tracking-wide transition-all cursor-pointer shadow-2xs border border-[#EAE3DC] hover:border-[#801313] group"
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF7F4] hover:bg-[#0E331E] text-[#1E1815] hover:text-white text-[10px] font-black tracking-wide transition-all cursor-pointer shadow-2xs border border-[#EAE3DC] hover:border-[#0E331E] group"
                                     title={b.crmUrl ? `Open ${b.name} CRM Dashboard` : `CRM Dashboard Coming Soon for ${b.name}`}
                                   >
-                                    <LayoutDashboard className="w-3 h-3 text-[#801313] group-hover:text-white" />
+                                    <LayoutDashboard className="w-3 h-3 text-[#0E331E] group-hover:text-white" />
                                     <span>{b.crmUrl ? "CRM Dashboard" : "CRM (Coming Soon)"}</span>
                                     {b.crmUrl ? (
                                       <ExternalLink className="w-3 h-3 text-[#7A6E67] group-hover:text-white" />
@@ -3711,14 +3711,14 @@ export default function AdminPage() {
                                 {b.dailyCode ? (
                                   <div className="space-y-1">
                                     <div className="inline-flex items-center gap-1.5 p-1 px-2 rounded-xl bg-[#FAF7F4] border border-[#E0D7CF]">
-                                      <Ticket className="w-3.5 h-3.5 text-[#C0392B] shrink-0" />
-                                      <span className="font-mono font-black text-xs text-[#C0392B] tracking-wider">
+                                      <Ticket className="w-3.5 h-3.5 text-[#143F26] shrink-0" />
+                                      <span className="font-mono font-black text-xs text-[#143F26] tracking-wider">
                                         {b.dailyCode}
                                       </span>
                                       <button
                                         onClick={() => copyToClipboard(b.dailyCode)}
                                         title="Copy Coupon Code"
-                                        className="p-1 rounded hover:bg-white text-[#7A6E67] hover:text-[#C0392B] transition-colors cursor-pointer ml-1"
+                                        className="p-1 rounded hover:bg-white text-[#7A6E67] hover:text-[#143F26] transition-colors cursor-pointer ml-1"
                                       >
                                         <Copy className="w-3 h-3" />
                                       </button>
@@ -3726,9 +3726,9 @@ export default function AdminPage() {
                                         onClick={() => handleRotateBranchCode(b.id)}
                                         disabled={isRotating}
                                         title="Rotate Code Now"
-                                        className="p-1 rounded hover:bg-white text-[#7A6E67] hover:text-[#C0392B] transition-colors cursor-pointer"
+                                        className="p-1 rounded hover:bg-white text-[#7A6E67] hover:text-[#143F26] transition-colors cursor-pointer"
                                       >
-                                        <RotateCw className={`w-3 h-3 ${isRotating ? "animate-spin text-[#C0392B]" : ""}`} />
+                                        <RotateCw className={`w-3 h-3 ${isRotating ? "animate-spin text-[#143F26]" : ""}`} />
                                       </button>
                                       {isCopied && (
                                         <span className="text-[9px] font-bold text-[#1E7A4D] bg-[#1E7A4D]/10 px-1.5 py-0.5 rounded">
@@ -3786,7 +3786,7 @@ export default function AdminPage() {
                                   {b.visitCount ?? b.visits ?? b.transactionCount ?? 0} Visits / Txs
                                 </div>
                               </td>
-                              <td className="py-3 px-3 font-black text-[#C0392B]">
+                              <td className="py-3 px-3 font-black text-[#143F26]">
                                 {formatMoney(cur, b.totalRevenue || b.revenue || 0)}
                               </td>
                               <td className="py-3 px-3 text-right">
@@ -3795,21 +3795,21 @@ export default function AdminPage() {
                                     href={`/outlet?code=${encodeURIComponent(b.code || b.id)}`}
                                     target="_blank"
                                     title={`Launch ${b.name} Outlet POS Terminal`}
-                                    className="p-1.5 rounded-lg border border-[#801313]/30 bg-[#801313]/10 hover:bg-[#801313] text-[#801313] hover:text-white transition-all cursor-pointer"
+                                    className="p-1.5 rounded-lg border border-[#0E331E]/30 bg-[#0E331E]/10 hover:bg-[#0E331E] text-[#0E331E] hover:text-white transition-all cursor-pointer"
                                   >
                                     <Store className="w-3.5 h-3.5" />
                                   </Link>
                                   <button
                                     onClick={() => openEditBranch(b)}
                                     title="Edit Branch Details"
-                                    className="p-1.5 rounded-lg border border-[#EAE3DC] bg-white hover:bg-[#FAF7F4] text-[#4A3F39] hover:text-[#C0392B] transition-colors cursor-pointer"
+                                    className="p-1.5 rounded-lg border border-[#EAE3DC] bg-white hover:bg-[#FAF7F4] text-[#4A3F39] hover:text-[#143F26] transition-colors cursor-pointer"
                                   >
                                     <Edit2 className="w-3.5 h-3.5" />
                                   </button>
                                   <button
                                     onClick={() => openDeleteBranch(b)}
                                     title="Delete / Deactivate Branch"
-                                    className="p-1.5 rounded-lg border border-[#EAE3DC] bg-white hover:bg-[#C0392B]/10 text-[#4A3F39] hover:text-[#C0392B] transition-colors cursor-pointer"
+                                    className="p-1.5 rounded-lg border border-[#EAE3DC] bg-white hover:bg-[#143F26]/10 text-[#4A3F39] hover:text-[#143F26] transition-colors cursor-pointer"
                                   >
                                     <Trash2 className="w-3.5 h-3.5" />
                                   </button>
@@ -3841,7 +3841,7 @@ export default function AdminPage() {
                 <div
                   className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between ${staffMsg.type === "ok"
                     ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                    : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                    : "bg-[#143F26]/10 text-[#143F26] border border-[#143F26]/30"
                     }`}
                 >
                   <div className="flex items-center gap-2">
@@ -3858,7 +3858,7 @@ export default function AdminPage() {
               <div className="bg-white border border-[#EAE3DC] rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div className="flex items-center gap-3 sm:gap-3.5">
-                    <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
+                    <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-2xl bg-gradient-to-br from-[#143F26] to-[#0A2617] flex items-center justify-center font-bold text-white shadow-md shadow-[#143F26]/30 shrink-0">
                       <Users className="w-5 sm:w-6 h-5 sm:h-6" />
                     </div>
                     <div>
@@ -3885,7 +3885,7 @@ export default function AdminPage() {
                         setStaffMsg(null);
                         setShowCreateStaffModal(true);
                       }}
-                      className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer shrink-0"
+                      className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#143F26] to-[#0A2617] hover:from-[#143F26] text-white font-bold text-xs shadow-md shadow-[#143F26]/20 transition-all cursor-pointer shrink-0"
                     >
                       <UserPlus className="w-4 h-4" />
                       <span>Add Staff Account</span>
@@ -3901,7 +3901,7 @@ export default function AdminPage() {
                       placeholder="Search by name, username, branch, or role…"
                       value={staffSearch}
                       onChange={(e) => setStaffSearch(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full pl-9 pr-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#143F26]"
                     />
                     <Search className="w-4 h-4 text-[#8C7F78] absolute left-3 top-1/2 -translate-y-1/2" />
                   </div>
@@ -3910,7 +3910,7 @@ export default function AdminPage() {
                     <select
                       value={staffRoleFilter}
                       onChange={(e) => setStaffRoleFilter(e.target.value)}
-                      className="w-full px-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#143F26]"
                     >
                       <option value="all">All System Roles</option>
                       <option value="CASHIER">Cashiers (POS Front Tills)</option>
@@ -3924,7 +3924,7 @@ export default function AdminPage() {
                     <select
                       value={staffBranchFilter}
                       onChange={(e) => setStaffBranchFilter(e.target.value)}
-                      className="w-full px-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#143F26]"
                     >
                       <option value="all">All Outlet Assignments</option>
                       <option value="hq">🏢 Corporate Head Office (All Outlets)</option>
@@ -3974,7 +3974,7 @@ export default function AdminPage() {
                             <td className="py-3.5 px-3.5 sm:px-4 whitespace-nowrap">
                               {s.branch ? (
                                 <div className="flex items-center gap-1.5">
-                                  <Store className="w-3.5 h-3.5 text-[#C0392B]" />
+                                  <Store className="w-3.5 h-3.5 text-[#143F26]" />
                                   <span className="font-bold text-xs text-[#1E1815]">
                                     {s.branch.name}
                                   </span>
@@ -3993,7 +3993,7 @@ export default function AdminPage() {
                             </td>
                             <td className="py-3.5 px-3.5 sm:px-4 whitespace-nowrap">
                               {s.role === "SUPER_ADMIN" && (
-                                <span className="px-2.5 py-1 rounded-full bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/20 text-[10px] font-black uppercase tracking-wider">
+                                <span className="px-2.5 py-1 rounded-full bg-[#143F26]/10 text-[#143F26] border border-[#143F26]/20 text-[10px] font-black uppercase tracking-wider">
                                   SUPER ADMIN
                                 </span>
                               )}
@@ -4047,7 +4047,7 @@ export default function AdminPage() {
                                 <button
                                   type="button"
                                   onClick={() => openDeleteStaff(s)}
-                                  className="p-1.5 rounded-lg text-[#C0392B] hover:bg-[#C0392B]/10 transition-colors cursor-pointer"
+                                  className="p-1.5 rounded-lg text-[#143F26] hover:bg-[#143F26]/10 transition-colors cursor-pointer"
                                   title="Delete / Deactivate staff account"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
@@ -4079,7 +4079,7 @@ export default function AdminPage() {
                 <div
                   className={`p-3.5 sm:p-4 rounded-2xl text-xs font-bold flex items-center justify-between ${visitMsg.type === "ok"
                     ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                    : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                    : "bg-[#143F26]/10 text-[#143F26] border border-[#143F26]/30"
                     }`}
                 >
                   <div className="flex items-center gap-2">
@@ -4110,7 +4110,7 @@ export default function AdminPage() {
                   <div className="text-[10px] sm:text-[11px] font-bold text-[#7A6E67] uppercase tracking-wider">
                     Today&apos;s Check-ins
                   </div>
-                  <div className="text-xl sm:text-2xl font-black text-[#C0392B] mt-1">
+                  <div className="text-xl sm:text-2xl font-black text-[#143F26] mt-1">
                     {visitMetrics.todayVisits ?? 0}
                   </div>
                   <div className="text-[10px] text-[#7A6E67] font-semibold mt-1">
@@ -4163,7 +4163,7 @@ export default function AdminPage() {
                       placeholder="Search customer, phone, branch, or code…"
                       value={visitSearch}
                       onChange={(e) => setVisitSearch(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full pl-9 pr-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#143F26]"
                     />
                     <Search className="w-4 h-4 text-[#8C7F78] absolute left-3 top-1/2 -translate-y-1/2" />
                   </div>
@@ -4172,7 +4172,7 @@ export default function AdminPage() {
                     <select
                       value={visitBranchFilter}
                       onChange={(e) => setVisitBranchFilter(e.target.value)}
-                      className="w-full px-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#143F26]"
                     >
                       <option value="all">All Outlet Branches</option>
                       {allBranches.map((b: any) => (
@@ -4187,7 +4187,7 @@ export default function AdminPage() {
                     <select
                       value={visitDateFilter}
                       onChange={(e) => setVisitDateFilter(e.target.value)}
-                      className="w-full px-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#143F26]"
                     >
                       <option value="all">All Dates History</option>
                       <option value="today">Today Only (Since 00:00)</option>
@@ -4232,7 +4232,7 @@ export default function AdminPage() {
                             </td>
                             <td className="py-3.5 px-4">
                               <div className="flex items-center gap-1.5">
-                                <Store className="w-3.5 h-3.5 text-[#C0392B]" />
+                                <Store className="w-3.5 h-3.5 text-[#143F26]" />
                                 <span className="font-bold text-xs text-[#1E1815]">
                                   {v.branch?.name}
                                 </span>
@@ -4242,7 +4242,7 @@ export default function AdminPage() {
                               </div>
                             </td>
                             <td className="py-3.5 px-4">
-                              <span className="px-2.5 py-1 rounded-lg bg-[#FAF7F4] border border-[#EAE3DC] font-mono font-bold text-[11px] text-[#C0392B]">
+                              <span className="px-2.5 py-1 rounded-lg bg-[#FAF7F4] border border-[#EAE3DC] font-mono font-bold text-[11px] text-[#143F26]">
                                 {v.couponCode}
                               </span>
                               {v.note && (
@@ -4311,11 +4311,11 @@ export default function AdminPage() {
                 {/* 1. Branch Selector Top Bar */}
                 <div className="bg-white border border-[#EAE3DC] rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#801313] to-[#550B0B] text-white flex items-center justify-center font-bold shadow-md shadow-[#801313]/20 shrink-0">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#0E331E] to-[#0A2617] text-white flex items-center justify-center font-bold shadow-md shadow-[#0E331E]/20 shrink-0">
                       <CreditCard className="w-6 h-6" />
                     </div>
                     <div>
-                      <div className="text-[11px] font-black tracking-widest text-[#801313] uppercase flex items-center gap-1.5">
+                      <div className="text-[11px] font-black tracking-widest text-[#0E331E] uppercase flex items-center gap-1.5">
                         <Store className="w-3.5 h-3.5" />
                         <span>
                           {selectedAdminBranch
@@ -4331,7 +4331,7 @@ export default function AdminPage() {
 
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                     <div className="flex items-center gap-2 bg-[#FAF7F4] border border-[#EAE3DC] p-2 rounded-2xl">
-                      <Building2 className="w-4 h-4 text-[#801313] shrink-0 ml-1" />
+                      <Building2 className="w-4 h-4 text-[#0E331E] shrink-0 ml-1" />
                       <span className="text-xs font-bold text-[#7A6E67] uppercase shrink-0">Till Outlet:</span>
                       <select
                         value={outletBranchId || (allBranches[0]?.id || "")}
@@ -4354,7 +4354,7 @@ export default function AdminPage() {
                       <Link
                         href={`/outlet?code=${encodeURIComponent(selectedAdminBranch.code || selectedAdminBranch.id)}`}
                         target="_blank"
-                        className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#801313] hover:bg-[#680F0F] text-white text-xs font-black shadow-sm transition-all cursor-pointer shrink-0"
+                        className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white text-xs font-black shadow-sm transition-all cursor-pointer shrink-0"
                         title={`Open ${selectedAdminBranch.name} in Dedicated POS Screen`}
                       >
                         <Store className="w-3.5 h-3.5" />
@@ -4371,7 +4371,7 @@ export default function AdminPage() {
                         setOutletMobileInput("");
                         setOutletQrInput("");
                       }}
-                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:text-[#801313] hover:border-[#801313]/40 shadow-2xs transition-colors cursor-pointer"
+                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:text-[#0E331E] hover:border-[#0E331E]/40 shadow-2xs transition-colors cursor-pointer"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
                       <span>Switch Customer</span>
@@ -4393,12 +4393,12 @@ export default function AdminPage() {
                         setOutletSearchErr("");
                       }}
                       className={`p-4.5 rounded-2xl border text-left flex items-center gap-3.5 transition-all cursor-pointer ${outletSearchTab === "phone"
-                          ? "bg-[#FAF7F4] border-[#801313] shadow-xs ring-1 ring-[#801313]"
+                          ? "bg-[#FAF7F4] border-[#0E331E] shadow-xs ring-1 ring-[#0E331E]"
                           : "bg-white border-[#EAE3DC] hover:border-[#B5AAA2] hover:bg-[#FAF7F4]/50"
                         }`}
                     >
                       <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${outletSearchTab === "phone" ? "bg-[#801313]/10 text-[#801313]" : "bg-[#FAF7F4] text-[#7A6E67]"
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${outletSearchTab === "phone" ? "bg-[#0E331E]/10 text-[#0E331E]" : "bg-[#FAF7F4] text-[#7A6E67]"
                           }`}
                       >
                         <Phone className="w-5 h-5" />
@@ -4417,12 +4417,12 @@ export default function AdminPage() {
                         setTimeout(() => outletQrInputRef.current?.focus(), 50);
                       }}
                       className={`p-4.5 rounded-2xl border text-left flex items-center gap-3.5 transition-all cursor-pointer ${outletSearchTab === "qr"
-                          ? "bg-[#FAF7F4] border-[#801313] shadow-xs ring-1 ring-[#801313]"
+                          ? "bg-[#FAF7F4] border-[#0E331E] shadow-xs ring-1 ring-[#0E331E]"
                           : "bg-white border-[#EAE3DC] hover:border-[#B5AAA2] hover:bg-[#FAF7F4]/50"
                         }`}
                     >
                       <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${outletSearchTab === "qr" ? "bg-[#801313]/10 text-[#801313]" : "bg-[#FAF7F4] text-[#7A6E67]"
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${outletSearchTab === "qr" ? "bg-[#0E331E]/10 text-[#0E331E]" : "bg-[#FAF7F4] text-[#7A6E67]"
                           }`}
                       >
                         <Scan className="w-5 h-5" />
@@ -4456,13 +4456,13 @@ export default function AdminPage() {
                           onChange={(e) => setOutletMobileInput(e.target.value.replace(/[^\d\s]/g, ""))}
                           autoFocus
                           required
-                          className="flex-1 px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                          className="flex-1 px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs"
                         />
 
                         <button
                           type="submit"
                           disabled={!outletMobileInput.trim() || outletSearchBusy}
-                          className="py-3.5 px-7 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
+                          className="py-3.5 px-7 rounded-xl bg-[#092015] hover:bg-[#092015] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
                         >
                           {outletSearchBusy ? (
                             <>
@@ -4499,14 +4499,14 @@ export default function AdminPage() {
                               }
                             }}
                             autoFocus
-                            className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                            className="w-full px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs"
                           />
                         </div>
 
                         <button
                           type="submit"
                           disabled={!outletQrInput.trim() || outletSearchBusy}
-                          className="py-3.5 px-7 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
+                          className="py-3.5 px-7 rounded-xl bg-[#092015] hover:bg-[#092015] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
                         >
                           {outletSearchBusy ? "FINDING…" : "LOOKUP QR"}
                         </button>
@@ -4519,7 +4519,7 @@ export default function AdminPage() {
                           }}
                           className="py-3.5 px-4 rounded-xl bg-[#FAF7F4] hover:bg-[#EAE3DC] border border-[#EAE3DC] text-[#1E1815] font-bold text-xs flex items-center justify-center gap-2 shrink-0 transition-colors cursor-pointer"
                         >
-                          <Camera className="w-4 h-4 text-[#801313]" />
+                          <Camera className="w-4 h-4 text-[#0E331E]" />
                           <span>{isOutletCameraActive ? "Stop Camera" : "Camera Scan"}</span>
                         </button>
                       </form>
@@ -4558,8 +4558,8 @@ export default function AdminPage() {
                   <div className="bg-[#FAF5F0] rounded-2xl p-4.5 sm:p-5 border border-[#EFE8E0] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-3.5">
                       {/* Circular Avatar Icon */}
-                      <div className="w-12 h-12 sm:w-13 sm:h-13 rounded-full border-2 border-[#801313] flex items-center justify-center text-[#801313] shrink-0 bg-white shadow-2xs">
-                        <User className="w-6 h-6 sm:w-7 sm:h-7 stroke-[1.8] text-[#801313]" />
+                      <div className="w-12 h-12 sm:w-13 sm:h-13 rounded-full border-2 border-[#0E331E] flex items-center justify-center text-[#0E331E] shrink-0 bg-white shadow-2xs">
+                        <User className="w-6 h-6 sm:w-7 sm:h-7 stroke-[1.8] text-[#0E331E]" />
                       </div>
                       <div>
                         <h2 className="font-serif font-black text-xl sm:text-2xl text-[#1E1815] leading-tight">
@@ -4605,12 +4605,12 @@ export default function AdminPage() {
                         setOutletBillErr("");
                       }}
                       className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${outletActionMode === "points"
-                          ? "bg-[#FAF7F4] border-[#801313] shadow-sm ring-2 ring-[#801313]/20"
-                          : "bg-white border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4]/40"
+                          ? "bg-[#FAF7F4] border-[#0E331E] shadow-sm ring-2 ring-[#0E331E]/20"
+                          : "bg-white border-[#EAE3DC] hover:border-[#0E331E]/50 hover:bg-[#FAF7F4]/40"
                         }`}
                     >
-                      <div className="text-[#801313] mb-3">
-                        <RibbonIcon className="w-7 h-7 text-[#801313]" />
+                      <div className="text-[#0E331E] mb-3">
+                        <RibbonIcon className="w-7 h-7 text-[#0E331E]" />
                       </div>
                       <div>
                         <h3 className="font-bold text-sm sm:text-base text-[#1E1815] leading-snug">
@@ -4621,7 +4621,7 @@ export default function AdminPage() {
                         </p>
                       </div>
                       {outletActionMode === "points" && (
-                        <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#801313]" />
+                        <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#0E331E]" />
                       )}
                     </button>
 
@@ -4633,12 +4633,12 @@ export default function AdminPage() {
                         setOutletBillErr("");
                       }}
                       className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${outletActionMode === "redeem_points"
-                          ? "bg-[#FAF7F4] border-[#801313] shadow-sm ring-2 ring-[#801313]/20"
-                          : "bg-white border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4]/40"
+                          ? "bg-[#FAF7F4] border-[#0E331E] shadow-sm ring-2 ring-[#0E331E]/20"
+                          : "bg-white border-[#EAE3DC] hover:border-[#0E331E]/50 hover:bg-[#FAF7F4]/40"
                         }`}
                     >
-                      <div className="text-[#801313] mb-3">
-                        <Coins className="w-7 h-7 text-[#801313]" />
+                      <div className="text-[#0E331E] mb-3">
+                        <Coins className="w-7 h-7 text-[#0E331E]" />
                       </div>
                       <div>
                         <h3 className="font-bold text-sm sm:text-base text-[#1E1815] leading-snug">
@@ -4649,7 +4649,7 @@ export default function AdminPage() {
                         </p>
                       </div>
                       {outletActionMode === "redeem_points" && (
-                        <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#801313]" />
+                        <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#0E331E]" />
                       )}
                     </button>
 
@@ -4662,14 +4662,14 @@ export default function AdminPage() {
                         setOutletRewardSuccessReceipt(null);
                       }}
                       className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${outletActionMode === "reward"
-                          ? "bg-[#FAF7F4] border-[#801313] shadow-sm ring-2 ring-[#801313]/20"
-                          : "bg-white border-[#EAE3DC] hover:border-[#801313]/50 hover:bg-[#FAF7F4]/40"
+                          ? "bg-[#FAF7F4] border-[#0E331E] shadow-sm ring-2 ring-[#0E331E]/20"
+                          : "bg-white border-[#EAE3DC] hover:border-[#0E331E]/50 hover:bg-[#FAF7F4]/40"
                         }`}
                     >
-                      <div className="flex items-center justify-between mb-3 text-[#801313]">
-                        <Gift className="w-7 h-7 text-[#801313] stroke-[1.8]" />
+                      <div className="flex items-center justify-between mb-3 text-[#0E331E]">
+                        <Gift className="w-7 h-7 text-[#0E331E] stroke-[1.8]" />
                         {outletAvailableRewards.length > 0 && (
-                          <span className="px-2 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-[9px] font-black uppercase">
+                          <span className="px-2 py-0.5 rounded-full bg-[#0E331E]/10 text-[#0E331E] text-[9px] font-black uppercase">
                             {outletAvailableRewards.length} AVAILABLE
                           </span>
                         )}
@@ -4683,7 +4683,7 @@ export default function AdminPage() {
                         </p>
                       </div>
                       {outletActionMode === "reward" && (
-                        <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#801313]" />
+                        <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#0E331E]" />
                       )}
                     </button>
                   </div>
@@ -4713,7 +4713,7 @@ export default function AdminPage() {
                                   value={outletInvoiceNumber}
                                   onChange={(e) => setOutletInvoiceNumber(e.target.value.toUpperCase())}
                                   required
-                                  className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                                  className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs"
                                 />
                               </div>
 
@@ -4730,7 +4730,7 @@ export default function AdminPage() {
                                   value={outletBillAmount}
                                   onChange={(e) => setOutletBillAmount(e.target.value)}
                                   required
-                                  className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                                  className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs"
                                 />
                               </div>
                             </div>
@@ -4761,7 +4761,7 @@ export default function AdminPage() {
 
                                 <div className="pt-2 border-t border-[#EAE3DC] flex justify-between items-center">
                                   <span className="font-bold text-[#1E1815]">Customer New Total Balance:</span>
-                                  <span className="font-black font-mono text-base text-[#801313]">
+                                  <span className="font-black font-mono text-base text-[#0E331E]">
                                     {outletCustomer.pointsBalance + outletEstimatedPointsToEarn} pts
                                   </span>
                                 </div>
@@ -4789,7 +4789,7 @@ export default function AdminPage() {
                               <button
                                 type="submit"
                                 disabled={outletSubmittingBill || !outletInvoiceNumber.trim() || !outletBillAmount.trim()}
-                                className="flex-1 py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider sm:tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 text-center"
+                                className="flex-1 py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-[#092015] hover:bg-[#092015] text-white font-black text-xs uppercase tracking-wider sm:tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 text-center"
                               >
                                 {outletSubmittingBill ? (
                                   <>
@@ -4851,7 +4851,7 @@ export default function AdminPage() {
 
                             <div className="flex justify-between pt-2 border-t border-[#EAE3DC]">
                               <span className="text-[#7A6E67]">Customer New Balance:</span>
-                              <span className="font-black text-sm text-[#801313] font-mono">{outletSuccessReceipt.customer?.pointsBalance} pts</span>
+                              <span className="font-black text-sm text-[#0E331E] font-mono">{outletSuccessReceipt.customer?.pointsBalance} pts</span>
                             </div>
                           </div>
 
@@ -4862,7 +4862,7 @@ export default function AdminPage() {
                               setOutletMobileInput("");
                               setOutletQrInput("");
                             }}
-                            className="w-full max-w-sm mx-auto py-3.5 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+                            className="w-full max-w-sm mx-auto py-3.5 px-6 rounded-xl bg-[#092015] hover:bg-[#092015] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
                           >
                             NEXT CUSTOMER
                           </button>
@@ -4882,11 +4882,11 @@ export default function AdminPage() {
                               <div>
                                 <h4 className="font-extrabold text-sm sm:text-base text-[#1E1815] leading-tight">Redeem Points for Direct Cash Discount</h4>
                                 <p className="text-xs text-[#7A6E67] font-medium mt-0.5">
-                                  Customer currently has <strong className="text-[#801313] font-bold">{outletCustomer.pointsBalance} points</strong> available.
+                                  Customer currently has <strong className="text-[#0E331E] font-bold">{outletCustomer.pointsBalance} points</strong> available.
                                 </p>
                               </div>
                             </div>
-                            <span className="self-start sm:self-auto px-3 py-1 rounded-lg bg-[#E5A93C]/20 text-[#801313] text-xs font-black shrink-0">
+                            <span className="self-start sm:self-auto px-3 py-1 rounded-lg bg-[#E5A93C]/20 text-[#0E331E] text-xs font-black shrink-0">
                               {outletLoyaltyRules.pointsRequiredForRedemption} pts = {outletLoyaltyRules.currency} {outletLoyaltyRules.currencyValuePerRedemptionPoints} off
                             </span>
                           </div>
@@ -4911,8 +4911,8 @@ export default function AdminPage() {
                                           setOutletCustomRedeem("");
                                         }}
                                         className={`px-3.5 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${isSelected
-                                            ? "bg-[#801313] text-white border-[#801313] shadow-xs ring-2 ring-[#801313]/20"
-                                            : "bg-white text-[#1E1815] border-[#EAE3DC] hover:border-[#801313]"
+                                            ? "bg-[#0E331E] text-white border-[#0E331E] shadow-xs ring-2 ring-[#0E331E]/20"
+                                            : "bg-white text-[#1E1815] border-[#EAE3DC] hover:border-[#0E331E]"
                                           }`}
                                       >
                                         {pts} pts (-{outletLoyaltyRules.currency} {offVal})
@@ -4937,7 +4937,7 @@ export default function AdminPage() {
                                         }}
                                         className={`px-4 py-2.5 rounded-xl text-xs font-black border transition-all cursor-pointer ${isMaxSelected
                                             ? "bg-emerald-700 text-white border-emerald-700 shadow-xs ring-2 ring-emerald-700/20"
-                                            : "bg-white text-[#801313] border-[#EAE3DC] hover:border-[#801313]"
+                                            : "bg-white text-[#0E331E] border-[#EAE3DC] hover:border-[#0E331E]"
                                           }`}
                                       >
                                         Redeem Max ({maxPts} pts = -{outletLoyaltyRules.currency} {maxOff})
@@ -4979,7 +4979,7 @@ export default function AdminPage() {
                                         setOutletPointsToRedeem(num);
                                       }
                                     }}
-                                    className="w-full sm:w-48 px-3.5 py-2.5 bg-white border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                                    className="w-full sm:w-48 px-3.5 py-2.5 bg-white border border-[#EAE3DC] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                                   />
                                   {outletPointsToRedeem > 0 && (
                                     <span className="text-xs font-bold text-emerald-800 shrink-0">
@@ -5002,7 +5002,7 @@ export default function AdminPage() {
                                     value={outletInvoiceNumber}
                                     onChange={(e) => setOutletInvoiceNumber(e.target.value.toUpperCase())}
                                     required
-                                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs"
                                   />
                                 </div>
 
@@ -5019,7 +5019,7 @@ export default function AdminPage() {
                                     value={outletBillAmount}
                                     onChange={(e) => setOutletBillAmount(e.target.value)}
                                     required
-                                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#801313] shadow-2xs"
+                                    className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs"
                                   />
                                 </div>
                               </div>
@@ -5046,7 +5046,7 @@ export default function AdminPage() {
 
                                   <div className="pt-2 border-t border-[#EAE3DC] flex justify-between items-center">
                                     <span className="font-black text-sm text-[#1E1815]">Net Payable by Customer:</span>
-                                    <span className="font-black text-base text-[#801313] font-mono">
+                                    <span className="font-black text-base text-[#0E331E] font-mono">
                                       {outletLoyaltyRules.currency} {outletNetPayable.toFixed(2)}
                                     </span>
                                   </div>
@@ -5063,7 +5063,7 @@ export default function AdminPage() {
                               <button
                                 type="submit"
                                 disabled={outletSubmittingBill || !outletInvoiceNumber.trim() || !outletBillAmount.trim() || outletPointsToRedeem <= 0}
-                                className="w-full py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider sm:tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 text-center"
+                                className="w-full py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-[#092015] hover:bg-[#092015] text-white font-black text-xs uppercase tracking-wider sm:tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 text-center"
                               >
                                 {outletSubmittingBill ? (
                                   <>
@@ -5084,7 +5084,7 @@ export default function AdminPage() {
                                 Points Threshold Not Reached
                               </div>
                               <p className="text-xs text-[#7A6E67]">
-                                Customer currently has <strong className="text-[#801313]">{outletCustomer.pointsBalance} points</strong>. A minimum of <strong className="text-[#1E1815]">{outletLoyaltyRules.pointsRequiredForRedemption} points</strong> is required to unlock direct bill cash discount redemption.
+                                Customer currently has <strong className="text-[#0E331E]">{outletCustomer.pointsBalance} points</strong>. A minimum of <strong className="text-[#1E1815]">{outletLoyaltyRules.pointsRequiredForRedemption} points</strong> is required to unlock direct bill cash discount redemption.
                               </p>
                             </div>
                           )}
@@ -5134,7 +5134,7 @@ export default function AdminPage() {
 
                             <div className="flex justify-between pt-2 border-t border-[#EAE3DC]">
                               <span className="text-[#7A6E67]">Customer New Balance:</span>
-                              <span className="font-black text-sm text-[#801313] font-mono">{outletSuccessReceipt.customer?.pointsBalance} pts</span>
+                              <span className="font-black text-sm text-[#0E331E] font-mono">{outletSuccessReceipt.customer?.pointsBalance} pts</span>
                             </div>
                           </div>
 
@@ -5145,7 +5145,7 @@ export default function AdminPage() {
                               setOutletMobileInput("");
                               setOutletQrInput("");
                             }}
-                            className="w-full max-w-sm mx-auto py-3.5 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+                            className="w-full max-w-sm mx-auto py-3.5 px-6 rounded-xl bg-[#092015] hover:bg-[#092015] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
                           >
                             NEXT CUSTOMER
                           </button>
@@ -5160,8 +5160,8 @@ export default function AdminPage() {
                   {outletActionMode === "reward" && (
                     <div className="pt-2 animate-in fade-in duration-200 space-y-4 sm:space-y-5">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
-                        <div className="text-xs font-black tracking-wider uppercase text-[#801313] flex items-center gap-2">
-                          <Gift className="w-4 h-4 text-[#801313] shrink-0" />
+                        <div className="text-xs font-black tracking-wider uppercase text-[#0E331E] flex items-center gap-2">
+                          <Gift className="w-4 h-4 text-[#0E331E] shrink-0" />
                           <span>UNLOCKED VISIT OFFERS &amp; MEMBER GIFTS</span>
                         </div>
                         <span className="text-xs font-bold text-[#7A6E67]">
@@ -5203,7 +5203,7 @@ export default function AdminPage() {
                             return (
                               <div
                                 key={reward.id}
-                                className="p-4 sm:p-4.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex flex-col justify-between gap-3 shadow-2xs hover:border-[#801313]/40 transition-colors"
+                                className="p-4 sm:p-4.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex flex-col justify-between gap-3 shadow-2xs hover:border-[#0E331E]/40 transition-colors"
                               >
                                 <div className="flex items-start justify-between gap-2">
                                   <div className="min-w-0">
@@ -5215,7 +5215,7 @@ export default function AdminPage() {
                                         {reward.description}
                                       </p>
                                     )}
-                                    <div className="text-[11px] text-[#801313] font-bold mt-1">
+                                    <div className="text-[11px] text-[#0E331E] font-bold mt-1">
                                       {reward.isPercent
                                         ? `${reward.value}% Discount Offer`
                                         : reward.value > 0
@@ -5237,7 +5237,7 @@ export default function AdminPage() {
                                     type="button"
                                     disabled={isBusy}
                                     onClick={() => handleAdminRedeemReward(reward.id)}
-                                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-wider shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+                                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#092015] hover:bg-[#092015] text-white font-black text-xs uppercase tracking-wider shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
                                   >
                                     {isBusy ? (
                                       <>
@@ -5288,10 +5288,10 @@ export default function AdminPage() {
                             title="Click to view detailed receipt breakdown"
                           >
                             <div className="min-w-0">
-                              <div className="font-bold text-[#1E1815] group-hover:text-[#801313] transition-colors flex items-center gap-1.5 flex-wrap">
+                              <div className="font-bold text-[#1E1815] group-hover:text-[#0E331E] transition-colors flex items-center gap-1.5 flex-wrap">
                                 <span>{t.branchName || "Branch Visit"}</span>
                                 <span className="font-mono text-[11px] text-[#7A6E67]">#{t.invoiceNumber}</span>
-                                <span className="text-[10px] text-[#A0938C] font-normal group-hover:text-[#801313]">›</span>
+                                <span className="text-[10px] text-[#A0938C] font-normal group-hover:text-[#0E331E]">›</span>
                               </div>
                               <div className="text-[10px] text-[#7A6E67] mt-0.5 flex items-center gap-1.5">
                                 <Clock className="w-3 h-3 text-[#A0938C]" />
@@ -5310,7 +5310,7 @@ export default function AdminPage() {
                                 <div className="text-[11px] font-bold text-red-700 font-mono mt-1 flex items-center gap-1 flex-wrap">
                                   <span>Discount: -{outletLoyaltyRules.currency} {Number(t.discountGiven).toFixed(2)}</span>
                                   {t.redeemedRewards && t.redeemedRewards.length > 0 && (
-                                    <span className="text-[#801313] font-sans text-[10px]">({t.redeemedRewards.join(", ")})</span>
+                                    <span className="text-[#0E331E] font-sans text-[10px]">({t.redeemedRewards.join(", ")})</span>
                                   )}
                                 </div>
                               )}
@@ -5397,8 +5397,8 @@ export default function AdminPage() {
                       )}
 
                       <div className="flex justify-between items-center text-[#1E1815] pt-1.5 border-t border-[#EAE3DC]">
-                        <span className="font-black text-xs text-[#801313]">Customer Paid (Net):</span>
-                        <span className="font-black text-sm text-[#801313] font-mono">
+                        <span className="font-black text-xs text-[#0E331E]">Customer Paid (Net):</span>
+                        <span className="font-black text-sm text-[#0E331E] font-mono">
                           {outletLoyaltyRules.currency} {Number(
                             adminSelectedReceipt.amountPaid ??
                             Math.max(0, Number(adminSelectedReceipt.amount || 0) - Number(adminSelectedReceipt.discountGiven || 0))
@@ -5428,7 +5428,7 @@ export default function AdminPage() {
 
                     <button
                       onClick={() => setAdminSelectedReceipt(null)}
-                      className="w-full py-3 px-6 rounded-xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+                      className="w-full py-3 px-6 rounded-xl bg-[#092015] hover:bg-[#092015] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
                     >
                       CLOSE RECEIPT
                     </button>
@@ -5448,7 +5448,7 @@ export default function AdminPage() {
                 <div
                   className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between ${settingsMsg.type === "ok"
                     ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                    : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                    : "bg-[#143F26]/10 text-[#143F26] border border-[#143F26]/30"
                     }`}
                 >
                   <div className="flex items-center gap-2">
@@ -5467,7 +5467,7 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => setSettingsCategory("general")}
                   className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${settingsCategory === "general"
-                    ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
+                    ? "bg-[#143F26] text-white shadow-md shadow-[#143F26]/20"
                     : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
                 >
@@ -5478,7 +5478,7 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => setSettingsCategory("loyalty")}
                   className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${settingsCategory === "loyalty"
-                    ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
+                    ? "bg-[#143F26] text-white shadow-md shadow-[#143F26]/20"
                     : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
                 >
@@ -5489,7 +5489,7 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => setSettingsCategory("security")}
                   className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${settingsCategory === "security"
-                    ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
+                    ? "bg-[#143F26] text-white shadow-md shadow-[#143F26]/20"
                     : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
                 >
@@ -5500,7 +5500,7 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => setSettingsCategory("password")}
                   className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${settingsCategory === "password"
-                    ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
+                    ? "bg-[#143F26] text-white shadow-md shadow-[#143F26]/20"
                     : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
                 >
@@ -5515,7 +5515,7 @@ export default function AdminPage() {
                     loadEmailLogs();
                   }}
                   className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${settingsCategory === "email"
-                    ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
+                    ? "bg-[#143F26] text-white shadow-md shadow-[#143F26]/20"
                     : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
                     }`}
                 >
@@ -5531,7 +5531,7 @@ export default function AdminPage() {
                 <div className="bg-white border border-[#EAE3DC] rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-sm space-y-4 sm:space-y-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EAE3DC] pb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
+                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#143F26] to-[#0A2617] flex items-center justify-center font-bold text-white shadow-md shadow-[#143F26]/30 shrink-0">
                         <KeyRound className="w-5 h-5" />
                       </div>
                       <div>
@@ -5552,7 +5552,7 @@ export default function AdminPage() {
                     <div
                       className={`p-4 rounded-2xl text-xs font-bold flex items-center justify-between ${pinMsg.type === "ok"
                         ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                        : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                        : "bg-[#143F26]/10 text-[#143F26] border border-[#143F26]/30"
                         }`}
                     >
                       <div className="flex items-center gap-2">
@@ -5578,12 +5578,12 @@ export default function AdminPage() {
                           value={pinForm.currentPin}
                           onChange={(e) => setPinForm({ ...pinForm, currentPin: e.target.value })}
                           placeholder={showCurrPin ? "Enter current password" : "••••••••"}
-                          className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-medium text-sm focus:outline-none focus:border-[#C0392B]"
+                          className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-medium text-sm focus:outline-none focus:border-[#143F26]"
                         />
                         <button
                           type="button"
                           onClick={() => setShowCurrPin(!showCurrPin)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8C7F78] hover:text-[#C0392B] transition-colors rounded-lg focus:outline-none cursor-pointer"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8C7F78] hover:text-[#143F26] transition-colors rounded-lg focus:outline-none cursor-pointer"
                           title={showCurrPin ? "Hide Current Password" : "Show Current Password"}
                           aria-label={showCurrPin ? "Hide Current Password" : "Show Current Password"}
                         >
@@ -5606,12 +5606,12 @@ export default function AdminPage() {
                             value={pinForm.newPin}
                             onChange={(e) => setPinForm({ ...pinForm, newPin: e.target.value })}
                             placeholder={showNewPin ? "Enter new password" : "Min 4 characters"}
-                            className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-medium text-sm focus:outline-none focus:border-[#C0392B]"
+                            className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-medium text-sm focus:outline-none focus:border-[#143F26]"
                           />
                           <button
                             type="button"
                             onClick={() => setShowNewPin(!showNewPin)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8C7F78] hover:text-[#C0392B] transition-colors rounded-lg focus:outline-none cursor-pointer"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8C7F78] hover:text-[#143F26] transition-colors rounded-lg focus:outline-none cursor-pointer"
                             title={showNewPin ? "Hide New Password" : "Show New Password"}
                             aria-label={showNewPin ? "Hide New Password" : "Show New Password"}
                           >
@@ -5633,12 +5633,12 @@ export default function AdminPage() {
                             value={pinForm.confirmPin}
                             onChange={(e) => setPinForm({ ...pinForm, confirmPin: e.target.value })}
                             placeholder={showConfirmPin ? "Confirm password" : "Re-enter password"}
-                            className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-medium text-sm focus:outline-none focus:border-[#C0392B]"
+                            className="w-full pl-4 pr-11 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-medium text-sm focus:outline-none focus:border-[#143F26]"
                           />
                           <button
                             type="button"
                             onClick={() => setShowConfirmPin(!showConfirmPin)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8C7F78] hover:text-[#C0392B] transition-colors rounded-lg focus:outline-none cursor-pointer"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8C7F78] hover:text-[#143F26] transition-colors rounded-lg focus:outline-none cursor-pointer"
                             title={showConfirmPin ? "Hide Confirm Password" : "Show Confirm Password"}
                             aria-label={showConfirmPin ? "Hide Confirm Password" : "Show Confirm Password"}
                           >
@@ -5662,7 +5662,7 @@ export default function AdminPage() {
                       <button
                         type="submit"
                         disabled={pinSaving}
-                        className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer disabled:opacity-50"
+                        className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#143F26] to-[#0A2617] hover:from-[#143F26] text-white font-bold text-xs shadow-md shadow-[#143F26]/20 transition-all cursor-pointer disabled:opacity-50"
                       >
                         <Save className="w-4 h-4" />
                         <span>{pinSaving ? "Updating PIN…" : "Update Security PIN"}</span>
@@ -5679,7 +5679,7 @@ export default function AdminPage() {
                 <div className="bg-white text-[#1E1815] rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-[#EAE3DC] shadow-sm relative overflow-hidden space-y-4 sm:space-y-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EAE3DC] pb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 sm:w-11 h-10 sm:h-11 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
+                      <div className="w-10 sm:w-11 h-10 sm:h-11 rounded-2xl bg-gradient-to-br from-[#143F26] to-[#0A2617] flex items-center justify-center font-bold text-white shadow-md shadow-[#143F26]/30 shrink-0">
                         <Calculator className="w-5 h-5" />
                       </div>
                       <div>
@@ -5730,7 +5730,7 @@ export default function AdminPage() {
                               onChange={(e) =>
                                 setSettingsForm({ ...settingsForm, spend_aed_for_points: e.target.value })
                               }
-                              className="w-full px-3 py-2.5 bg-white border border-[#DCD3CB] rounded-xl text-[#1E1815] font-black text-sm focus:outline-none focus:border-[#C0392B]"
+                              className="w-full px-3 py-2.5 bg-white border border-[#DCD3CB] rounded-xl text-[#1E1815] font-black text-sm focus:outline-none focus:border-[#143F26]"
                             />
                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8C7F78]">
                               {cur}
@@ -5751,7 +5751,7 @@ export default function AdminPage() {
                               onChange={(e) =>
                                 setSettingsForm({ ...settingsForm, points_earned_per_spend: e.target.value })
                               }
-                              className="w-full px-3 py-2.5 bg-white border border-[#DCD3CB] rounded-xl text-[#1E1815] font-black text-sm focus:outline-none focus:border-[#C0392B]"
+                              className="w-full px-3 py-2.5 bg-white border border-[#DCD3CB] rounded-xl text-[#1E1815] font-black text-sm focus:outline-none focus:border-[#143F26]"
                             />
                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8C7F78]">
                               pts
@@ -5814,7 +5814,7 @@ export default function AdminPage() {
                               onChange={(e) =>
                                 setSettingsForm({ ...settingsForm, points_required_for_redemption: e.target.value })
                               }
-                              className="w-full px-3 py-2.5 bg-white border border-[#DCD3CB] rounded-xl text-[#1E1815] font-black text-sm focus:outline-none focus:border-[#C0392B]"
+                              className="w-full px-3 py-2.5 bg-white border border-[#DCD3CB] rounded-xl text-[#1E1815] font-black text-sm focus:outline-none focus:border-[#143F26]"
                             />
                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8C7F78]">
                               pts
@@ -5835,7 +5835,7 @@ export default function AdminPage() {
                               onChange={(e) =>
                                 setSettingsForm({ ...settingsForm, currency_value_per_redemption_points: e.target.value })
                               }
-                              className="w-full px-3 py-2.5 bg-white border border-[#DCD3CB] rounded-xl text-[#1E1815] font-black text-sm focus:outline-none focus:border-[#C0392B]"
+                              className="w-full px-3 py-2.5 bg-white border border-[#DCD3CB] rounded-xl text-[#1E1815] font-black text-sm focus:outline-none focus:border-[#143F26]"
                             />
                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8C7F78]">
                               {cur}
@@ -5878,7 +5878,7 @@ export default function AdminPage() {
                   {/* ========================================================= */}
                   <div className="bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl p-4 sm:p-5">
                     <div className="flex items-center gap-2 mb-4">
-                      <Zap className="w-4 h-4 text-[#C0392B]" />
+                      <Zap className="w-4 h-4 text-[#143F26]" />
                       <h4 className="font-extrabold text-xs uppercase tracking-wider text-[#1E1815]">
                         Live Calculator Simulator &amp; Scenario Tester
                       </h4>
@@ -5896,7 +5896,7 @@ export default function AdminPage() {
                               type="number"
                               value={simBillAmount}
                               onChange={(e) => setSimBillAmount(e.target.value)}
-                              className="w-full px-3 py-2 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-bold text-sm focus:outline-none focus:border-[#C0392B]"
+                              className="w-full px-3 py-2 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-bold text-sm focus:outline-none focus:border-[#143F26]"
                             />
                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8C7F78]">
                               {cur}
@@ -5923,7 +5923,7 @@ export default function AdminPage() {
                               type="number"
                               value={simPointsBalance}
                               onChange={(e) => setSimPointsBalance(e.target.value)}
-                              className="w-full px-3 py-2 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-bold text-sm focus:outline-none focus:border-[#C0392B]"
+                              className="w-full px-3 py-2 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-bold text-sm focus:outline-none focus:border-[#143F26]"
                             />
                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8C7F78]">
                               pts
@@ -5951,7 +5951,7 @@ export default function AdminPage() {
                 <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-[#EAE3DC] shadow-sm space-y-4 sm:space-y-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-[#EAE3DC] pb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 sm:w-11 h-10 sm:h-11 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] flex items-center justify-center font-bold text-white shadow-md shadow-[#C0392B]/30 shrink-0">
+                      <div className="w-10 sm:w-11 h-10 sm:h-11 rounded-2xl bg-gradient-to-br from-[#143F26] to-[#0A2617] flex items-center justify-center font-bold text-white shadow-md shadow-[#143F26]/30 shrink-0">
                         <Gift className="w-5 h-5" />
                       </div>
                       <div>
@@ -5970,7 +5970,7 @@ export default function AdminPage() {
                     <button
                       type="button"
                       onClick={openCreateVisitReward}
-                      className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer shrink-0"
+                      className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#143F26] to-[#0A2617] hover:from-[#143F26] text-white font-bold text-xs shadow-md shadow-[#143F26]/20 transition-all cursor-pointer shrink-0"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Add Visit Milestone</span>
@@ -5981,7 +5981,7 @@ export default function AdminPage() {
                     <div
                       className={`p-3.5 rounded-2xl text-xs font-bold flex items-center justify-between ${visitRewardMsg.type === "ok"
                           ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                          : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                          : "bg-[#143F26]/10 text-[#143F26] border border-[#143F26]/30"
                         }`}
                     >
                       <div className="flex items-center gap-2">
@@ -6013,7 +6013,7 @@ export default function AdminPage() {
                           <div>
                             <div className="flex items-center justify-between mb-3">
                               <div className="flex items-center gap-2">
-                                <span className="px-3 py-1 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] text-white font-black text-xs tracking-wider shadow-xs flex items-center gap-1.5">
+                                <span className="px-3 py-1 rounded-xl bg-gradient-to-r from-[#143F26] to-[#0A2617] text-white font-black text-xs tracking-wider shadow-xs flex items-center gap-1.5">
                                   <Sparkles className="w-3.5 h-3.5" />
                                   <span>{reward.threshold} VISITS</span>
                                 </span>
@@ -6034,7 +6034,7 @@ export default function AdminPage() {
                                 <button
                                   type="button"
                                   onClick={() => openDeleteVisitReward(reward)}
-                                  className="p-1.5 rounded-lg text-[#C0392B] hover:bg-[#C0392B]/10 transition-colors cursor-pointer"
+                                  className="p-1.5 rounded-lg text-[#143F26] hover:bg-[#143F26]/10 transition-colors cursor-pointer"
                                   title="Delete Milestone"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
@@ -6092,7 +6092,7 @@ export default function AdminPage() {
                     </div>
                   ) : (
                     <div className="text-center py-10 bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl p-6">
-                      <Gift className="w-10 h-10 text-[#C0392B]/40 mx-auto mb-2" />
+                      <Gift className="w-10 h-10 text-[#143F26]/40 mx-auto mb-2" />
                       <h4 className="font-bold text-sm text-[#1E1815]">No Visit Milestone Rules Configured</h4>
                       <p className="text-xs text-[#7A6E67] max-w-md mx-auto mt-1 mb-4">
                         Create visit milestones (e.g. 5 visits = Free Drink, 10 visits = Free Dessert) so diners automatically unlock rewards upon dining!
@@ -6100,7 +6100,7 @@ export default function AdminPage() {
                       <button
                         type="button"
                         onClick={openCreateVisitReward}
-                        className="w-full sm:w-auto px-4 py-2 bg-[#C0392B] text-white font-bold text-xs rounded-xl shadow-md cursor-pointer hover:bg-[#A83226]"
+                        className="w-full sm:w-auto px-4 py-2 bg-[#143F26] text-white font-bold text-xs rounded-xl shadow-md cursor-pointer hover:bg-[#143F26]"
                       >
                         Create First Milestone Reward
                       </button>
@@ -6149,7 +6149,7 @@ export default function AdminPage() {
                       <button
                         type="button"
                         onClick={openCreateBirthdayReward}
-                        className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer shrink-0"
+                        className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#143F26] to-[#0A2617] hover:from-[#143F26] text-white font-bold text-xs shadow-md shadow-[#143F26]/20 transition-all cursor-pointer shrink-0"
                       >
                         <Plus className="w-4 h-4" />
                         <span>Add Birthday Gift</span>
@@ -6162,7 +6162,7 @@ export default function AdminPage() {
                       className={`p-3.5 rounded-2xl text-xs font-bold flex items-center justify-between ${
                         birthdayRewardMsg.type === "ok"
                           ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                          : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                          : "bg-[#143F26]/10 text-[#143F26] border border-[#143F26]/30"
                       }`}
                     >
                       <div className="flex items-center gap-2">
@@ -6215,7 +6215,7 @@ export default function AdminPage() {
                                 <button
                                   type="button"
                                   onClick={() => openDeleteBirthdayReward(reward)}
-                                  className="p-1.5 rounded-lg text-[#C0392B] hover:bg-[#C0392B]/10 transition-colors cursor-pointer"
+                                  className="p-1.5 rounded-lg text-[#143F26] hover:bg-[#143F26]/10 transition-colors cursor-pointer"
                                   title="Delete Birthday Gift"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
@@ -6421,7 +6421,7 @@ export default function AdminPage() {
                         onClick={() => setEmailSubTab("compose")}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                           emailSubTab === "compose"
-                            ? "bg-[#801313] text-white shadow-2xs"
+                            ? "bg-[#0E331E] text-white shadow-2xs"
                             : "text-[#7A6E67] hover:text-[#1E1815]"
                         }`}
                       >
@@ -6435,7 +6435,7 @@ export default function AdminPage() {
                         }}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                           emailSubTab === "templates"
-                            ? "bg-[#801313] text-white shadow-2xs"
+                            ? "bg-[#0E331E] text-white shadow-2xs"
                             : "text-[#7A6E67] hover:text-[#1E1815]"
                         }`}
                       >
@@ -6447,7 +6447,7 @@ export default function AdminPage() {
                         onClick={() => setEmailSubTab("smtp")}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                           emailSubTab === "smtp"
-                            ? "bg-[#801313] text-white shadow-2xs"
+                            ? "bg-[#0E331E] text-white shadow-2xs"
                             : "text-[#7A6E67] hover:text-[#1E1815]"
                         }`}
                       >
@@ -6461,7 +6461,7 @@ export default function AdminPage() {
                         }}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                           emailSubTab === "logs"
-                            ? "bg-[#801313] text-white shadow-2xs"
+                            ? "bg-[#0E331E] text-white shadow-2xs"
                             : "text-[#7A6E67] hover:text-[#1E1815]"
                         }`}
                       >
@@ -6478,7 +6478,7 @@ export default function AdminPage() {
                           className={`p-3.5 rounded-2xl text-xs font-bold flex items-center justify-between ${
                             campaignMsg.type === "ok"
                               ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                              : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                              : "bg-[#143F26]/10 text-[#143F26] border border-[#143F26]/30"
                           }`}
                         >
                           <div className="flex items-center gap-2">
@@ -6513,7 +6513,7 @@ export default function AdminPage() {
                               onClick={() => setCampaignForm({ ...campaignForm, targetAudience: aud.id as any })}
                               className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                                 campaignForm.targetAudience === aud.id
-                                  ? "border-[#801313] bg-[#801313]/5 ring-1 ring-[#801313]"
+                                  ? "border-[#0E331E] bg-[#0E331E]/5 ring-1 ring-[#0E331E]"
                                   : "border-[#EAE3DC] bg-[#FAF7F4] hover:bg-white"
                               }`}
                             >
@@ -6535,7 +6535,7 @@ export default function AdminPage() {
                             value={campaignForm.recipientEmail}
                             onChange={(e) => setCampaignForm({ ...campaignForm, recipientEmail: e.target.value })}
                             placeholder="customer@example.com"
-                            className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-sm font-medium text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                            className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-sm font-medium text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                           />
                         </div>
                       )}
@@ -6563,12 +6563,12 @@ export default function AdminPage() {
                                     content: tpl.content,
                                   });
                                 }}
-                                className="px-3 py-1.5 rounded-lg bg-white border border-[#DCD3CB] hover:border-[#801313] hover:text-[#801313] text-xs font-bold text-[#1E1815] transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                                className="px-3 py-1.5 rounded-lg bg-white border border-[#DCD3CB] hover:border-[#0E331E] hover:text-[#0E331E] text-xs font-bold text-[#1E1815] transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
                               >
                                 {tpl.category === "BIRTHDAY" ? (
                                   <Cake className="w-3.5 h-3.5 text-[#EC4899]" />
                                 ) : tpl.category === "OFFERS" ? (
-                                  <Tag className="w-3.5 h-3.5 text-[#801313]" />
+                                  <Tag className="w-3.5 h-3.5 text-[#0E331E]" />
                                 ) : (
                                   <FileText className="w-3.5 h-3.5 text-blue-600" />
                                 )}
@@ -6592,8 +6592,8 @@ export default function AdminPage() {
                           required
                           value={campaignForm.subject}
                           onChange={(e) => setCampaignForm({ ...campaignForm, subject: e.target.value })}
-                          placeholder="e.g. Exclusive Weekend Treat: 20% Off Your Next Meal at Bombay Chowpatty!"
-                          className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-sm font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                          placeholder="e.g. Exclusive Weekend Treat: 20% Off Your Next Meal at Levante!"
+                          className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-sm font-bold text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                         />
                       </div>
 
@@ -6605,13 +6605,13 @@ export default function AdminPage() {
                           </label>
                           <div className="flex items-center gap-1.5 text-[10px] font-mono text-[#7A6E67] flex-wrap">
                             <span>Tags:</span>
-                            <code className="bg-[#FAF7F4] px-1.5 py-0.5 rounded border border-[#EAE3DC] text-[#801313]">
+                            <code className="bg-[#FAF7F4] px-1.5 py-0.5 rounded border border-[#EAE3DC] text-[#0E331E]">
                               {"{customer_name}"}
                             </code>
-                            <code className="bg-[#FAF7F4] px-1.5 py-0.5 rounded border border-[#EAE3DC] text-[#801313]">
+                            <code className="bg-[#FAF7F4] px-1.5 py-0.5 rounded border border-[#EAE3DC] text-[#0E331E]">
                               {"{points_balance}"}
                             </code>
-                            <code className="bg-[#FAF7F4] px-1.5 py-0.5 rounded border border-[#EAE3DC] text-[#801313]">
+                            <code className="bg-[#FAF7F4] px-1.5 py-0.5 rounded border border-[#EAE3DC] text-[#0E331E]">
                               {"{reward_name}"}
                             </code>
                           </div>
@@ -6622,7 +6622,7 @@ export default function AdminPage() {
                           value={campaignForm.content}
                           onChange={(e) => setCampaignForm({ ...campaignForm, content: e.target.value })}
                           placeholder="Write your email message in HTML or plain text..."
-                          className="w-full px-4 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-mono text-[#1E1815] focus:outline-none focus:border-[#801313] leading-relaxed"
+                          className="w-full px-4 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-mono text-[#1E1815] focus:outline-none focus:border-[#0E331E] leading-relaxed"
                         />
                       </div>
 
@@ -6638,7 +6638,7 @@ export default function AdminPage() {
                             )
                           }
                           disabled={!campaignForm.content}
-                          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#DCD3CB] hover:border-[#801313] text-[#1E1815] hover:text-[#801313] font-bold text-xs transition-all cursor-pointer disabled:opacity-40 shadow-2xs"
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#DCD3CB] hover:border-[#0E331E] text-[#1E1815] hover:text-[#0E331E] font-bold text-xs transition-all cursor-pointer disabled:opacity-40 shadow-2xs"
                         >
                           <Eye className="w-4 h-4" />
                           <span>Live Output Preview</span>
@@ -6647,7 +6647,7 @@ export default function AdminPage() {
                         <button
                           type="submit"
                           disabled={campaignSending || !campaignForm.subject || !campaignForm.content}
-                          className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#801313] to-[#591313] hover:from-[#6A0F0F] text-white font-bold text-xs shadow-md shadow-[#801313]/20 transition-all cursor-pointer disabled:opacity-50"
+                          className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#0E331E] to-[#0E331E] hover:from-[#0A2617] text-white font-bold text-xs shadow-md shadow-[#0E331E]/20 transition-all cursor-pointer disabled:opacity-50"
                         >
                           <Send className="w-4 h-4" />
                           <span>{campaignSending ? "Broadcasting Emails..." : "Send Email Campaign"}</span>
@@ -6663,7 +6663,7 @@ export default function AdminPage() {
                         <div>
                           <h4 className="font-extrabold text-sm sm:text-base text-[#1E1815] flex items-center gap-2">
                             <span>Email Templates &amp; Automated Triggers</span>
-                            <span className="px-2 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-[10px] font-black uppercase">
+                            <span className="px-2 py-0.5 rounded-full bg-[#0E331E]/10 text-[#0E331E] text-[10px] font-black uppercase">
                               {emailTemplates.length} Available
                             </span>
                           </h4>
@@ -6685,7 +6685,7 @@ export default function AdminPage() {
                             setTemplateMsg(null);
                             setShowCreateTemplateModal(true);
                           }}
-                          className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs shadow-md shadow-[#801313]/20 transition-all cursor-pointer shrink-0"
+                          className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-bold text-xs shadow-md shadow-[#0E331E]/20 transition-all cursor-pointer shrink-0"
                         >
                           <Plus className="w-4 h-4" />
                           <span>+ Create Email Template</span>
@@ -6697,7 +6697,7 @@ export default function AdminPage() {
                           className={`p-3.5 rounded-2xl text-xs font-bold flex items-center justify-between ${
                             templateMsg.type === "ok"
                               ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                              : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                              : "bg-[#143F26]/10 text-[#143F26] border border-[#143F26]/30"
                           }`}
                         >
                           <div className="flex items-center gap-2">
@@ -6717,7 +6717,7 @@ export default function AdminPage() {
                       {/* Templates Grid */}
                       {loadingEmailTemplates ? (
                         <div className="py-12 text-center text-xs text-[#7A6E67]">
-                          <div className="w-6 h-6 border-2 border-[#801313] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                          <div className="w-6 h-6 border-2 border-[#0E331E] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                           <span>Loading Email Templates Library...</span>
                         </div>
                       ) : emailTemplates.length > 0 ? (
@@ -6733,7 +6733,7 @@ export default function AdminPage() {
                                 className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col justify-between relative bg-white ${
                                   isDefault
                                     ? "border-amber-400 shadow-sm ring-1 ring-amber-400/30"
-                                    : "border-[#EAE3DC] hover:border-[#801313]/40 shadow-2xs hover:shadow-xs"
+                                    : "border-[#EAE3DC] hover:border-[#0E331E]/40 shadow-2xs hover:shadow-xs"
                                 }`}
                               >
                                 <div>
@@ -6744,7 +6744,7 @@ export default function AdminPage() {
                                         isBirthday
                                           ? "bg-[#EC4899]/10 text-[#BE185D] border border-[#EC4899]/20"
                                           : isOffer
-                                          ? "bg-[#801313]/10 text-[#801313] border border-[#801313]/20"
+                                          ? "bg-[#0E331E]/10 text-[#0E331E] border border-[#0E331E]/20"
                                           : "bg-blue-50 text-blue-700 border border-blue-200"
                                       }`}
                                     >
@@ -6787,10 +6787,10 @@ export default function AdminPage() {
                                     <button
                                       type="button"
                                       onClick={() => openEmailPreview(tpl.name, tpl.subject, tpl.content, tpl.category)}
-                                      className="flex-1 py-1.5 px-2.5 rounded-xl bg-white border border-[#DCD3CB] hover:border-[#801313] hover:text-[#801313] text-[#1E1815] font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1"
+                                      className="flex-1 py-1.5 px-2.5 rounded-xl bg-white border border-[#DCD3CB] hover:border-[#0E331E] hover:text-[#0E331E] text-[#1E1815] font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1"
                                       title="Live Preview Email Output"
                                     >
-                                      <Eye className="w-3.5 h-3.5 text-[#801313]" />
+                                      <Eye className="w-3.5 h-3.5 text-[#0E331E]" />
                                       <span>Live Preview</span>
                                     </button>
 
@@ -6811,7 +6811,7 @@ export default function AdminPage() {
                                       className="p-1.5 rounded-xl bg-[#FAF7F4] hover:bg-[#EAE3DC] text-[#1E1815] border border-[#EAE3DC] transition-colors cursor-pointer"
                                       title="Edit Template"
                                     >
-                                      <Edit2 className="w-3.5 h-3.5 text-[#801313]" />
+                                      <Edit2 className="w-3.5 h-3.5 text-[#0E331E]" />
                                     </button>
 
                                     <button
@@ -6841,7 +6841,7 @@ export default function AdminPage() {
                         </div>
                       ) : (
                         <div className="text-center py-10 bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl p-6">
-                          <FileText className="w-10 h-10 text-[#801313]/40 mx-auto mb-2" />
+                          <FileText className="w-10 h-10 text-[#0E331E]/40 mx-auto mb-2" />
                           <h4 className="font-bold text-sm text-[#1E1815]">No Email Templates Found</h4>
                           <p className="text-xs text-[#7A6E67] max-w-md mx-auto mt-1 mb-4">
                             Create custom templates for Birthday perks and promotional campaigns so emails can be dispatched instantly.
@@ -6860,7 +6860,7 @@ export default function AdminPage() {
                             className={`p-3.5 rounded-2xl text-xs font-bold flex items-center justify-between ${
                               smtpMsg.type === "ok"
                                 ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
-                                : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                                : "bg-[#143F26]/10 text-[#143F26] border border-[#143F26]/30"
                             }`}
                           >
                             <div className="flex items-center gap-2">
@@ -6888,7 +6888,7 @@ export default function AdminPage() {
                               value={smtpForm.host}
                               onChange={(e) => setSmtpForm({ ...smtpForm, host: e.target.value })}
                               placeholder="e.g. smtp.gmail.com or smtp.sendgrid.net"
-                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                             />
                           </div>
 
@@ -6902,7 +6902,7 @@ export default function AdminPage() {
                               value={smtpForm.port}
                               onChange={(e) => setSmtpForm({ ...smtpForm, port: e.target.value })}
                               placeholder="587"
-                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                             />
                           </div>
                         </div>
@@ -6917,8 +6917,8 @@ export default function AdminPage() {
                               required
                               value={smtpForm.user}
                               onChange={(e) => setSmtpForm({ ...smtpForm, user: e.target.value })}
-                              placeholder="e.g. notifications@bombaychowpatty.com"
-                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-medium text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                              placeholder="e.g. notifications@artoflevante.ae"
+                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-medium text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                             />
                           </div>
 
@@ -6931,7 +6931,7 @@ export default function AdminPage() {
                               value={smtpForm.pass}
                               onChange={(e) => setSmtpForm({ ...smtpForm, pass: e.target.value })}
                               placeholder="••••••••••••"
-                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-medium text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-medium text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                             />
                           </div>
                         </div>
@@ -6945,8 +6945,8 @@ export default function AdminPage() {
                               type="text"
                               value={smtpForm.fromName}
                               onChange={(e) => setSmtpForm({ ...smtpForm, fromName: e.target.value })}
-                              placeholder="Bombay Chowpatty Loyalty Club"
-                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-medium text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                              placeholder="Levante Rewards"
+                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-medium text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                             />
                           </div>
 
@@ -6958,8 +6958,8 @@ export default function AdminPage() {
                               type="email"
                               value={smtpForm.fromEmail}
                               onChange={(e) => setSmtpForm({ ...smtpForm, fromEmail: e.target.value })}
-                              placeholder="loyalty@bombaychowpatty.com"
-                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-medium text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                              placeholder="loyalty@artoflevante.ae"
+                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-medium text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                             />
                           </div>
                         </div>
@@ -6970,7 +6970,7 @@ export default function AdminPage() {
                             id="smtpSecure"
                             checked={smtpForm.secure}
                             onChange={(e) => setSmtpForm({ ...smtpForm, secure: e.target.checked })}
-                            className="w-4 h-4 rounded text-[#801313] focus:ring-[#801313]"
+                            className="w-4 h-4 rounded text-[#0E331E] focus:ring-[#0E331E]"
                           />
                           <label htmlFor="smtpSecure" className="text-xs font-bold text-[#1E1815] cursor-pointer">
                             Enable SSL / TLS Encryption (Port 465)
@@ -6981,7 +6981,7 @@ export default function AdminPage() {
                           <button
                             type="submit"
                             disabled={smtpSaving}
-                            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs shadow-md transition-all cursor-pointer disabled:opacity-50"
+                            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-bold text-xs shadow-md transition-all cursor-pointer disabled:opacity-50"
                           >
                             <Save className="w-4 h-4" />
                             <span>{smtpSaving ? "Saving Config..." : "Save SMTP Settings"}</span>
@@ -7011,7 +7011,7 @@ export default function AdminPage() {
                               value={smtpTestRecipient}
                               onChange={(e) => setSmtpTestRecipient(e.target.value)}
                               placeholder="your-email@example.com"
-                              className="w-full px-3 py-2 bg-white border border-[#DCD3CB] rounded-xl text-xs font-medium text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                              className="w-full px-3 py-2 bg-white border border-[#DCD3CB] rounded-xl text-xs font-medium text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                             />
                           </div>
 
@@ -7097,19 +7097,19 @@ export default function AdminPage() {
                     <h3 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
                       {settingsCategory === "general" && (
                         <>
-                          <Sliders className="w-5 h-5 text-[#C0392B]" />
+                          <Sliders className="w-5 h-5 text-[#143F26]" />
                           <span>General App &amp; Brand Parameters</span>
                         </>
                       )}
                       {settingsCategory === "loyalty" && (
                         <>
-                          <Coins className="w-5 h-5 text-[#C0392B]" />
+                          <Coins className="w-5 h-5 text-[#143F26]" />
                           <span>Additional Loyalty Rules &amp; Policies</span>
                         </>
                       )}
                       {settingsCategory === "security" && (
                         <>
-                          <ShieldCheck className="w-5 h-5 text-[#C0392B]" />
+                          <ShieldCheck className="w-5 h-5 text-[#143F26]" />
                           <span>Security &amp; Anti-Fraud Thresholds</span>
                         </>
                       )}
@@ -7139,7 +7139,7 @@ export default function AdminPage() {
                             onChange={(e) =>
                               setSettingsForm({ ...settingsForm, [item.key]: e.target.value })
                             }
-                            className="w-full px-3.5 py-2.5 text-xs bg-white border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B]"
+                            className="w-full px-3.5 py-2.5 text-xs bg-white border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#143F26]"
                           />
                         </div>
                       </div>
@@ -7153,7 +7153,7 @@ export default function AdminPage() {
                     <button
                       type="submit"
                       disabled={settingsSaving}
-                      className="w-full sm:w-auto justify-center flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer disabled:opacity-50"
+                      className="w-full sm:w-auto justify-center flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#143F26] to-[#0A2617] hover:from-[#143F26] text-white font-bold text-xs shadow-md shadow-[#143F26]/20 transition-all cursor-pointer disabled:opacity-50"
                     >
                       <Save className="w-4 h-4" />
                       <span>{settingsSaving ? "Saving Config…" : "Save Settings"}</span>
@@ -7191,7 +7191,7 @@ export default function AdminPage() {
                   <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-2xs">
                     <div className="flex items-center justify-between text-[#7A6E67] text-xs font-bold uppercase tracking-wider">
                       <span>Total Audit Records</span>
-                      <ShieldCheck className="w-4 h-4 text-[#801313]" />
+                      <ShieldCheck className="w-4 h-4 text-[#0E331E]" />
                     </div>
                     <div className="text-2xl font-black text-[#1E1815] mt-1.5">
                       {audit?.total ?? rawLogs.length}
@@ -7205,9 +7205,9 @@ export default function AdminPage() {
                   <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 shadow-2xs">
                     <div className="flex items-center justify-between text-[#7A6E67] text-xs font-bold uppercase tracking-wider">
                       <span>Fraud &amp; Duplicates Blocked</span>
-                      <AlertTriangle className="w-4 h-4 text-[#C0392B]" />
+                      <AlertTriangle className="w-4 h-4 text-[#143F26]" />
                     </div>
-                    <div className="text-2xl font-black text-[#C0392B] mt-1.5">
+                    <div className="text-2xl font-black text-[#143F26] mt-1.5">
                       {audit?.duplicatesBlocked ?? 0}
                     </div>
                     <div className="text-[11px] font-semibold text-[#7A6E67] mt-0.5">
@@ -7235,9 +7235,9 @@ export default function AdminPage() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <ShieldCheck className="w-5 h-5 text-[#801313] shrink-0" />
+                        <ShieldCheck className="w-5 h-5 text-[#0E331E] shrink-0" />
                         <h2 className="font-extrabold text-base text-[#1E1815]">Security Audit Log</h2>
-                        <span className="px-2.5 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-xs font-bold">
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#0E331E]/10 text-[#0E331E] text-xs font-bold">
                           {filteredLogs.length} Events Loaded
                         </span>
                       </div>
@@ -7253,7 +7253,7 @@ export default function AdminPage() {
                         disabled={loadingAudit}
                         className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#DCD3CB] bg-[#FAF7F4] hover:bg-white text-xs font-bold text-[#1E1815] transition-all cursor-pointer shadow-2xs disabled:opacity-50"
                       >
-                        <RefreshCw className={`w-3.5 h-3.5 ${loadingAudit ? "animate-spin text-[#C0392B]" : ""}`} />
+                        <RefreshCw className={`w-3.5 h-3.5 ${loadingAudit ? "animate-spin text-[#143F26]" : ""}`} />
                         <span>Refresh Logs</span>
                       </button>
                     </div>
@@ -7269,7 +7269,7 @@ export default function AdminPage() {
                         placeholder="Search logs by staff name, username, action, reason, entity…"
                         value={auditSearch}
                         onChange={(e) => setAuditSearch(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#C0392B]"
+                        className="w-full pl-9 pr-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#143F26]"
                       />
                     </div>
 
@@ -7278,7 +7278,7 @@ export default function AdminPage() {
                       <select
                         value={auditActionFilter}
                         onChange={(e) => setAuditActionFilter(e.target.value)}
-                        className="w-full px-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#C0392B] cursor-pointer"
+                        className="w-full px-3 py-2.5 text-xs bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#143F26] cursor-pointer"
                       >
                         <option value="all">🔍 All Audit Action Categories</option>
                         <option value="login">🔐 Sign-In &amp; Logins (admin, customer, staff)</option>
@@ -7334,7 +7334,7 @@ export default function AdminPage() {
                           l.action?.includes("pause");
 
                         // Dynamic badge styles and label
-                        let badgeClass = "bg-[#801313]/10 text-[#801313] border-[#801313]/20";
+                        let badgeClass = "bg-[#0E331E]/10 text-[#0E331E] border-[#0E331E]/20";
                         let badgeIcon = null;
 
                         if (isAdminLogin) {
@@ -7353,7 +7353,7 @@ export default function AdminPage() {
                           badgeClass = "bg-amber-100 text-amber-900 border-amber-300";
                           badgeIcon = <Key className="w-3 h-3" />;
                         } else if (isDanger) {
-                          badgeClass = "bg-[#C0392B]/10 text-[#C0392B] border-[#C0392B]/20";
+                          badgeClass = "bg-[#143F26]/10 text-[#143F26] border-[#143F26]/20";
                         } else if (isSuccess) {
                           badgeClass = "bg-[#1E7A4D]/10 text-[#1E7A4D] border-[#1E7A4D]/20";
                         } else if (isWarning) {
@@ -7478,7 +7478,7 @@ export default function AdminPage() {
                               {/* Reason note */}
                               {l.reason && (
                                 <div className={`text-[11px] font-semibold flex items-center gap-1.5 ${
-                                  isDanger ? "text-[#C0392B]" : isCustomerEvent ? "text-emerald-800" : "text-[#4A3F39]"
+                                  isDanger ? "text-[#143F26]" : isCustomerEvent ? "text-emerald-800" : "text-[#4A3F39]"
                                 }`}>
                                   <CheckCircle2 className="w-3.5 h-3.5 shrink-0 opacity-70" />
                                   <span>{l.reason}</span>
@@ -7526,7 +7526,7 @@ export default function AdminPage() {
                       })
                     ) : (
                       <div className="text-center py-12 bg-[#FAF7F4] rounded-2xl border border-[#EAE3DC] p-6 mt-3">
-                        <ShieldCheck className="w-10 h-10 text-[#801313]/30 mx-auto mb-2" />
+                        <ShieldCheck className="w-10 h-10 text-[#0E331E]/30 mx-auto mb-2" />
                         <h4 className="font-extrabold text-sm text-[#1E1815]">No Audit Events Found</h4>
                         <p className="text-xs text-[#7A6E67] max-w-md mx-auto mt-1 mb-4">
                           {auditSearch || auditActionFilter !== "all"
@@ -7565,7 +7565,7 @@ export default function AdminPage() {
             {/* Fixed Header */}
             <div className="flex items-center justify-between px-6 py-4.5 border-b border-[#EAE3DC] bg-[#FAF7F4] shrink-0">
               <h3 className="font-extrabold text-base sm:text-lg text-[#1E1815] flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-[#C0392B]" />
+                <Building2 className="w-5 h-5 text-[#143F26]" />
                 Add New Outlet Branch
               </h3>
               <button
@@ -7582,7 +7582,7 @@ export default function AdminPage() {
               <div className="p-6 overflow-y-auto overflow-x-hidden space-y-4 flex-1 custom-scrollbar">
                 {branchMsg && (
                   <div
-                    className={`p-3 rounded-xl text-xs font-semibold ${branchMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#C0392B]/10 text-[#C0392B]"
+                    className={`p-3 rounded-xl text-xs font-semibold ${branchMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#143F26]/10 text-[#143F26]"
                       }`}
                   >
                     {branchMsg.text}
@@ -7607,7 +7607,7 @@ export default function AdminPage() {
                           dailyCode: branchForm.dailyCode || generateRandomCouponCode(newCode || "1015"),
                         });
                       }}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                     />
                   </div>
                   <div>
@@ -7618,7 +7618,7 @@ export default function AdminPage() {
                       placeholder="e.g. Dubai, Abu Dhabi"
                       value={branchForm.city}
                       onChange={(e) => setBranchForm({ ...branchForm, city: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                     />
                   </div>
                 </div>
@@ -7633,7 +7633,7 @@ export default function AdminPage() {
                     placeholder="e.g. Dubai Marina Mall"
                     value={branchForm.name}
                     onChange={(e) => setBranchForm({ ...branchForm, name: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                   />
                 </div>
 
@@ -7647,7 +7647,7 @@ export default function AdminPage() {
                     dir="rtl"
                     value={branchForm.nameAr}
                     onChange={(e) => setBranchForm({ ...branchForm, nameAr: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                   />
                 </div>
 
@@ -7655,7 +7655,7 @@ export default function AdminPage() {
                 <div className="p-4 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Ticket className="w-4 h-4 text-[#C0392B]" />
+                      <Ticket className="w-4 h-4 text-[#143F26]" />
                       <span className="font-extrabold text-xs text-[#1E1815]">
                         Visit Coupon Passcode & Expiry Settings
                       </span>
@@ -7677,7 +7677,7 @@ export default function AdminPage() {
                           placeholder="e.g. 1015-7K9A"
                           value={branchForm.dailyCode}
                           onChange={(e) => setBranchForm({ ...branchForm, dailyCode: e.target.value.toUpperCase() })}
-                          className="w-full px-3.5 py-2 text-xs bg-white border border-[#E0D7CF] rounded-xl font-mono font-black text-[#C0392B] tracking-wider focus:outline-none focus:border-[#C0392B]"
+                          className="w-full px-3.5 py-2 text-xs bg-white border border-[#E0D7CF] rounded-xl font-mono font-black text-[#143F26] tracking-wider focus:outline-none focus:border-[#143F26]"
                         />
                       </div>
                       <button
@@ -7687,9 +7687,9 @@ export default function AdminPage() {
                           setBranchForm({ ...branchForm, dailyCode: fresh });
                         }}
                         title="Generate Fresh Coupon Code"
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#EAE3DC] bg-white hover:bg-[#FAF0E6] text-xs font-bold text-[#4A3F39] hover:text-[#C0392B] transition-colors cursor-pointer shrink-0 shadow-2xs"
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#EAE3DC] bg-white hover:bg-[#FAF0E6] text-xs font-bold text-[#4A3F39] hover:text-[#143F26] transition-colors cursor-pointer shrink-0 shadow-2xs"
                       >
-                        <RotateCw className="w-3.5 h-3.5 text-[#C0392B]" />
+                        <RotateCw className="w-3.5 h-3.5 text-[#143F26]" />
                         <span>Generate</span>
                       </button>
                     </div>
@@ -7711,7 +7711,7 @@ export default function AdminPage() {
                       type="datetime-local"
                       value={branchForm.dailyCodeExpiresAt}
                       onChange={(e) => setBranchForm({ ...branchForm, dailyCodeExpiresAt: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-white border border-[#E0D7CF] rounded-xl font-mono text-[#1E1815] font-bold focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2 text-xs bg-white border border-[#E0D7CF] rounded-xl font-mono text-[#1E1815] font-bold focus:outline-none focus:border-[#143F26]"
                     />
 
                     {/* Quick Preset Buttons */}
@@ -7723,7 +7723,7 @@ export default function AdminPage() {
                           const future = new Date(Date.now() + 12 * 60 * 60 * 1000);
                           setBranchForm({ ...branchForm, dailyCodeExpiresAt: toDatetimeLocal(future) });
                         }}
-                        className="px-2 py-1 rounded-lg bg-white border border-[#EAE3DC] hover:border-[#C0392B] hover:text-[#C0392B] text-[10px] font-bold text-[#4A3F39] transition-colors cursor-pointer"
+                        className="px-2 py-1 rounded-lg bg-white border border-[#EAE3DC] hover:border-[#143F26] hover:text-[#143F26] text-[10px] font-bold text-[#4A3F39] transition-colors cursor-pointer"
                       >
                         +12 Hours
                       </button>
@@ -7733,7 +7733,7 @@ export default function AdminPage() {
                           const future = new Date(Date.now() + 24 * 60 * 60 * 1000);
                           setBranchForm({ ...branchForm, dailyCodeExpiresAt: toDatetimeLocal(future) });
                         }}
-                        className="px-2 py-1 rounded-lg bg-white border border-[#C0392B]/30 hover:border-[#C0392B] text-[10px] font-bold text-[#C0392B] transition-colors cursor-pointer"
+                        className="px-2 py-1 rounded-lg bg-white border border-[#143F26]/30 hover:border-[#143F26] text-[10px] font-bold text-[#143F26] transition-colors cursor-pointer"
                       >
                         +24 Hours (Standard)
                       </button>
@@ -7743,7 +7743,7 @@ export default function AdminPage() {
                           const future = new Date(Date.now() + 48 * 60 * 60 * 1000);
                           setBranchForm({ ...branchForm, dailyCodeExpiresAt: toDatetimeLocal(future) });
                         }}
-                        className="px-2 py-1 rounded-lg bg-white border border-[#EAE3DC] hover:border-[#C0392B] hover:text-[#C0392B] text-[10px] font-bold text-[#4A3F39] transition-colors cursor-pointer"
+                        className="px-2 py-1 rounded-lg bg-white border border-[#EAE3DC] hover:border-[#143F26] hover:text-[#143F26] text-[10px] font-bold text-[#4A3F39] transition-colors cursor-pointer"
                       >
                         +48 Hours
                       </button>
@@ -7753,7 +7753,7 @@ export default function AdminPage() {
                           const future = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
                           setBranchForm({ ...branchForm, dailyCodeExpiresAt: toDatetimeLocal(future) });
                         }}
-                        className="px-2 py-1 rounded-lg bg-white border border-[#EAE3DC] hover:border-[#C0392B] hover:text-[#C0392B] text-[10px] font-bold text-[#4A3F39] transition-colors cursor-pointer"
+                        className="px-2 py-1 rounded-lg bg-white border border-[#EAE3DC] hover:border-[#143F26] hover:text-[#143F26] text-[10px] font-bold text-[#4A3F39] transition-colors cursor-pointer"
                       >
                         +7 Days
                       </button>
@@ -7764,7 +7764,7 @@ export default function AdminPage() {
                           endOfDay.setHours(23, 59, 0, 0);
                           setBranchForm({ ...branchForm, dailyCodeExpiresAt: toDatetimeLocal(endOfDay) });
                         }}
-                        className="px-2 py-1 rounded-lg bg-white border border-[#EAE3DC] hover:border-[#C0392B] hover:text-[#C0392B] text-[10px] font-bold text-[#4A3F39] transition-colors cursor-pointer"
+                        className="px-2 py-1 rounded-lg bg-white border border-[#EAE3DC] hover:border-[#143F26] hover:text-[#143F26] text-[10px] font-bold text-[#4A3F39] transition-colors cursor-pointer"
                       >
                         End of Today
                       </button>
@@ -7776,7 +7776,7 @@ export default function AdminPage() {
                       <CheckCircle2 className="w-3.5 h-3.5 text-[#1E7A4D] shrink-0" />
                       <span>Auto-refreshes when expired</span>
                     </div>
-                    <span className="text-[#C0392B] font-bold text-[10px]">
+                    <span className="text-[#143F26] font-bold text-[10px]">
                       🚫 1-Time Use Per Customer
                     </span>
                   </div>
@@ -7785,7 +7785,7 @@ export default function AdminPage() {
                 <div>
                   <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1 flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
-                      <Globe className="w-3.5 h-3.5 text-[#801313]" />
+                      <Globe className="w-3.5 h-3.5 text-[#0E331E]" />
                       CRM Dashboard Link (URL)
                     </span>
                     <span className="text-[10px] font-normal text-[#7A6E67] lowercase">(optional)</span>
@@ -7793,10 +7793,10 @@ export default function AdminPage() {
                   <div className="relative">
                     <input
                       type="url"
-                      placeholder="https://crm.bombaychowpatty.com/branch/..."
+                      placeholder="https://crm.artoflevante.ae/branch/..."
                       value={branchForm.crmUrl}
                       onChange={(e) => setBranchForm({ ...branchForm, crmUrl: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#143F26]"
                     />
                   </div>
                   <p className="text-[10px] text-[#7A6E67] mt-1">
@@ -7811,7 +7811,7 @@ export default function AdminPage() {
                     placeholder="e.g. Level 1, Near Food Court"
                     value={branchForm.address}
                     onChange={(e) => setBranchForm({ ...branchForm, address: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                   />
                 </div>
 
@@ -7823,7 +7823,7 @@ export default function AdminPage() {
                       placeholder="+971 4 123 4567"
                       value={branchForm.phone}
                       onChange={(e) => setBranchForm({ ...branchForm, phone: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                     />
                   </div>
                   <div>
@@ -7835,7 +7835,7 @@ export default function AdminPage() {
                       placeholder="10:00 AM – 11:00 PM"
                       value={branchForm.hours}
                       onChange={(e) => setBranchForm({ ...branchForm, hours: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                     />
                   </div>
                 </div>
@@ -7846,7 +7846,7 @@ export default function AdminPage() {
                     id="bActive"
                     checked={branchForm.isActive}
                     onChange={(e) => setBranchForm({ ...branchForm, isActive: e.target.checked })}
-                    className="w-4 h-4 rounded text-[#C0392B] focus:ring-[#C0392B]"
+                    className="w-4 h-4 rounded text-[#143F26] focus:ring-[#143F26]"
                   />
                   <label htmlFor="bActive" className="text-xs font-bold text-[#1E1815] cursor-pointer">
                     Activate Outlet Immediately for POS Tills & Customer Cards
@@ -7866,7 +7866,7 @@ export default function AdminPage() {
                 <button
                   type="submit"
                   disabled={busy}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#143F26] to-[#0A2617] hover:from-[#143F26] text-white font-bold text-xs shadow-md shadow-[#143F26]/20 disabled:opacity-50 cursor-pointer"
                 >
                   {busy ? "Creating…" : "Save & Register Branch"}
                 </button>
@@ -7885,7 +7885,7 @@ export default function AdminPage() {
             {/* Fixed Header */}
             <div className="flex items-center justify-between px-6 py-4.5 border-b border-[#EAE3DC] bg-[#FAF7F4] shrink-0">
               <h3 className="font-extrabold text-base sm:text-lg text-[#1E1815] flex items-center gap-2">
-                <Edit2 className="w-5 h-5 text-[#C0392B]" />
+                <Edit2 className="w-5 h-5 text-[#143F26]" />
                 Edit Branch Details
               </h3>
               <button
@@ -7902,7 +7902,7 @@ export default function AdminPage() {
               <div className="p-6 overflow-y-auto overflow-x-hidden space-y-4 flex-1 custom-scrollbar">
                 {branchMsg && (
                   <div
-                    className={`p-3 rounded-xl text-xs font-semibold ${branchMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#C0392B]/10 text-[#C0392B]"
+                    className={`p-3 rounded-xl text-xs font-semibold ${branchMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#143F26]/10 text-[#143F26]"
                       }`}
                   >
                     {branchMsg.text}
@@ -7919,7 +7919,7 @@ export default function AdminPage() {
                       required
                       value={branchForm.code}
                       onChange={(e) => setBranchForm({ ...branchForm, code: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                     />
                   </div>
                   <div>
@@ -7929,7 +7929,7 @@ export default function AdminPage() {
                       required
                       value={branchForm.city}
                       onChange={(e) => setBranchForm({ ...branchForm, city: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                     />
                   </div>
                 </div>
@@ -7943,7 +7943,7 @@ export default function AdminPage() {
                     required
                     value={branchForm.name}
                     onChange={(e) => setBranchForm({ ...branchForm, name: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                   />
                 </div>
 
@@ -7956,7 +7956,7 @@ export default function AdminPage() {
                     dir="rtl"
                     value={branchForm.nameAr}
                     onChange={(e) => setBranchForm({ ...branchForm, nameAr: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                   />
                 </div>
 
@@ -7964,7 +7964,7 @@ export default function AdminPage() {
                 <div className="p-4 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Ticket className="w-4 h-4 text-[#C0392B]" />
+                      <Ticket className="w-4 h-4 text-[#143F26]" />
                       <span className="font-extrabold text-xs text-[#1E1815]">
                         Active Visit Coupon Passcode & Expiry Settings
                       </span>
@@ -7986,7 +7986,7 @@ export default function AdminPage() {
                           placeholder="e.g. 1015-7K9A"
                           value={branchForm.dailyCode}
                           onChange={(e) => setBranchForm({ ...branchForm, dailyCode: e.target.value.toUpperCase() })}
-                          className="w-full px-3.5 py-2 text-xs bg-white border border-[#E0D7CF] rounded-xl font-mono font-black text-[#C0392B] tracking-wider focus:outline-none focus:border-[#C0392B]"
+                          className="w-full px-3.5 py-2 text-xs bg-white border border-[#E0D7CF] rounded-xl font-mono font-black text-[#143F26] tracking-wider focus:outline-none focus:border-[#143F26]"
                         />
                       </div>
                       <button
@@ -7996,9 +7996,9 @@ export default function AdminPage() {
                           setBranchForm({ ...branchForm, dailyCode: fresh });
                         }}
                         title="Regenerate Coupon Code"
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#EAE3DC] bg-white hover:bg-[#FAF0E6] text-xs font-bold text-[#4A3F39] hover:text-[#C0392B] transition-colors cursor-pointer shrink-0 shadow-2xs"
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#EAE3DC] bg-white hover:bg-[#FAF0E6] text-xs font-bold text-[#4A3F39] hover:text-[#143F26] transition-colors cursor-pointer shrink-0 shadow-2xs"
                       >
-                        <RotateCw className="w-3.5 h-3.5 text-[#C0392B]" />
+                        <RotateCw className="w-3.5 h-3.5 text-[#143F26]" />
                         <span>Rotate Now</span>
                       </button>
                     </div>
@@ -8020,7 +8020,7 @@ export default function AdminPage() {
                       type="datetime-local"
                       value={branchForm.dailyCodeExpiresAt}
                       onChange={(e) => setBranchForm({ ...branchForm, dailyCodeExpiresAt: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-white border border-[#E0D7CF] rounded-xl font-mono text-[#1E1815] font-bold focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2 text-xs bg-white border border-[#E0D7CF] rounded-xl font-mono text-[#1E1815] font-bold focus:outline-none focus:border-[#143F26]"
                     />
 
                     {/* Quick Preset Buttons */}
@@ -8032,7 +8032,7 @@ export default function AdminPage() {
                           const future = new Date(Date.now() + 12 * 60 * 60 * 1000);
                           setBranchForm({ ...branchForm, dailyCodeExpiresAt: toDatetimeLocal(future) });
                         }}
-                        className="px-2 py-1 rounded-lg bg-white border border-[#EAE3DC] hover:border-[#C0392B] hover:text-[#C0392B] text-[10px] font-bold text-[#4A3F39] transition-colors cursor-pointer"
+                        className="px-2 py-1 rounded-lg bg-white border border-[#EAE3DC] hover:border-[#143F26] hover:text-[#143F26] text-[10px] font-bold text-[#4A3F39] transition-colors cursor-pointer"
                       >
                         +12 Hours
                       </button>
@@ -8042,7 +8042,7 @@ export default function AdminPage() {
                           const future = new Date(Date.now() + 24 * 60 * 60 * 1000);
                           setBranchForm({ ...branchForm, dailyCodeExpiresAt: toDatetimeLocal(future) });
                         }}
-                        className="px-2 py-1 rounded-lg bg-white border border-[#C0392B]/30 hover:border-[#C0392B] text-[10px] font-bold text-[#C0392B] transition-colors cursor-pointer"
+                        className="px-2 py-1 rounded-lg bg-white border border-[#143F26]/30 hover:border-[#143F26] text-[10px] font-bold text-[#143F26] transition-colors cursor-pointer"
                       >
                         +24 Hours (Standard)
                       </button>
@@ -8052,7 +8052,7 @@ export default function AdminPage() {
                           const future = new Date(Date.now() + 48 * 60 * 60 * 1000);
                           setBranchForm({ ...branchForm, dailyCodeExpiresAt: toDatetimeLocal(future) });
                         }}
-                        className="px-2 py-1 rounded-lg bg-white border border-[#EAE3DC] hover:border-[#C0392B] hover:text-[#C0392B] text-[10px] font-bold text-[#4A3F39] transition-colors cursor-pointer"
+                        className="px-2 py-1 rounded-lg bg-white border border-[#EAE3DC] hover:border-[#143F26] hover:text-[#143F26] text-[10px] font-bold text-[#4A3F39] transition-colors cursor-pointer"
                       >
                         +48 Hours
                       </button>
@@ -8062,7 +8062,7 @@ export default function AdminPage() {
                           const future = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
                           setBranchForm({ ...branchForm, dailyCodeExpiresAt: toDatetimeLocal(future) });
                         }}
-                        className="px-2 py-1 rounded-lg bg-white border border-[#EAE3DC] hover:border-[#C0392B] hover:text-[#C0392B] text-[10px] font-bold text-[#4A3F39] transition-colors cursor-pointer"
+                        className="px-2 py-1 rounded-lg bg-white border border-[#EAE3DC] hover:border-[#143F26] hover:text-[#143F26] text-[10px] font-bold text-[#4A3F39] transition-colors cursor-pointer"
                       >
                         +7 Days
                       </button>
@@ -8073,7 +8073,7 @@ export default function AdminPage() {
                           endOfDay.setHours(23, 59, 0, 0);
                           setBranchForm({ ...branchForm, dailyCodeExpiresAt: toDatetimeLocal(endOfDay) });
                         }}
-                        className="px-2 py-1 rounded-lg bg-white border border-[#EAE3DC] hover:border-[#C0392B] hover:text-[#C0392B] text-[10px] font-bold text-[#4A3F39] transition-colors cursor-pointer"
+                        className="px-2 py-1 rounded-lg bg-white border border-[#EAE3DC] hover:border-[#143F26] hover:text-[#143F26] text-[10px] font-bold text-[#4A3F39] transition-colors cursor-pointer"
                       >
                         End of Today
                       </button>
@@ -8085,7 +8085,7 @@ export default function AdminPage() {
                       <CheckCircle2 className="w-3.5 h-3.5 text-[#1E7A4D] shrink-0" />
                       <span>Auto-refreshes when expired</span>
                     </div>
-                    <span className="text-[#C0392B] font-bold text-[10px]">
+                    <span className="text-[#143F26] font-bold text-[10px]">
                       🚫 1-Time Use Per Customer
                     </span>
                   </div>
@@ -8094,7 +8094,7 @@ export default function AdminPage() {
                 <div>
                   <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1 flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
-                      <Globe className="w-3.5 h-3.5 text-[#801313]" />
+                      <Globe className="w-3.5 h-3.5 text-[#0E331E]" />
                       CRM Dashboard Link (URL)
                     </span>
                     <span className="text-[10px] font-normal text-[#7A6E67] lowercase">(optional)</span>
@@ -8102,10 +8102,10 @@ export default function AdminPage() {
                   <div className="relative">
                     <input
                       type="url"
-                      placeholder="https://crm.bombaychowpatty.com/branch/..."
+                      placeholder="https://crm.artoflevante.ae/branch/..."
                       value={branchForm.crmUrl}
                       onChange={(e) => setBranchForm({ ...branchForm, crmUrl: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] placeholder-[#8C7F78] focus:outline-none focus:border-[#143F26]"
                     />
                   </div>
                   <p className="text-[10px] text-[#7A6E67] mt-1">
@@ -8119,7 +8119,7 @@ export default function AdminPage() {
                     type="text"
                     value={branchForm.address}
                     onChange={(e) => setBranchForm({ ...branchForm, address: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                   />
                 </div>
 
@@ -8130,7 +8130,7 @@ export default function AdminPage() {
                       type="text"
                       value={branchForm.phone}
                       onChange={(e) => setBranchForm({ ...branchForm, phone: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                     />
                   </div>
                   <div>
@@ -8141,7 +8141,7 @@ export default function AdminPage() {
                       type="text"
                       value={branchForm.hours}
                       onChange={(e) => setBranchForm({ ...branchForm, hours: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                     />
                   </div>
                 </div>
@@ -8152,7 +8152,7 @@ export default function AdminPage() {
                     id="bActiveEdit"
                     checked={branchForm.isActive}
                     onChange={(e) => setBranchForm({ ...branchForm, isActive: e.target.checked })}
-                    className="w-4 h-4 rounded text-[#C0392B] focus:ring-[#C0392B]"
+                    className="w-4 h-4 rounded text-[#143F26] focus:ring-[#143F26]"
                   />
                   <label htmlFor="bActiveEdit" className="text-xs font-bold text-[#1E1815] cursor-pointer">
                     Outlet Is Active & Available for Operations
@@ -8172,7 +8172,7 @@ export default function AdminPage() {
                 <button
                   type="submit"
                   disabled={busy}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#143F26] to-[#0A2617] hover:from-[#143F26] text-white font-bold text-xs shadow-md shadow-[#143F26]/20 disabled:opacity-50 cursor-pointer"
                 >
                   {busy ? "Updating…" : "Update Branch"}
                 </button>
@@ -8188,7 +8188,7 @@ export default function AdminPage() {
       {showDeleteBranchModal && branchToDelete && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl">
-            <div className="w-12 h-12 rounded-2xl bg-[#C0392B]/10 text-[#C0392B] flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#143F26]/10 text-[#143F26] flex items-center justify-center mb-4">
               <AlertTriangle className="w-6 h-6" />
             </div>
 
@@ -8216,7 +8216,7 @@ export default function AdminPage() {
                 type="button"
                 onClick={handleDeleteBranch}
                 disabled={busy}
-                className="px-5 py-2 rounded-xl bg-[#C0392B] hover:bg-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-[#143F26] hover:bg-[#143F26] text-white font-bold text-xs shadow-md shadow-[#143F26]/20 disabled:opacity-50 cursor-pointer"
               >
                 {busy ? "Processing…" : "Confirm Delete"}
               </button>
@@ -8232,7 +8232,7 @@ export default function AdminPage() {
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Top decorative gradient bar */}
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#801313] via-[#D4AF37] to-[#801313]" />
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#0E331E] via-[#D4AF37] to-[#0E331E]" />
 
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 border border-amber-500/20 flex items-center justify-center shadow-xs">
@@ -8262,7 +8262,7 @@ export default function AdminPage() {
             {comingSoonBranch && (
               <div className="p-3 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] mb-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-[#801313] text-white flex items-center justify-center font-black text-xs shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-[#0E331E] text-white flex items-center justify-center font-black text-xs shrink-0">
                     <Store className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
@@ -8270,7 +8270,7 @@ export default function AdminPage() {
                       {comingSoonBranch.name}
                     </div>
                     <div className="text-[10px] text-[#7A6E67]">
-                      Outlet Code: <span className="font-mono font-bold text-[#801313]">{comingSoonBranch.code || comingSoonBranch.id}</span> • {comingSoonBranch.city || "Dubai"}
+                      Outlet Code: <span className="font-mono font-bold text-[#0E331E]">{comingSoonBranch.code || comingSoonBranch.id}</span> • {comingSoonBranch.city || "Dubai"}
                     </div>
                   </div>
                 </div>
@@ -8290,7 +8290,7 @@ export default function AdminPage() {
                     const targetBranch = branchesData?.branches?.find((b: any) => b.id === comingSoonBranch.id || b.code === comingSoonBranch.code) || comingSoonBranch;
                     openEditBranch(targetBranch);
                   }}
-                  className="w-full sm:flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#801313] to-[#590D0D] hover:from-[#6B1010] text-white font-bold text-xs shadow-md shadow-[#801313]/20 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  className="w-full sm:flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#0E331E] to-[#0E331E] hover:from-[#0E331E] text-white font-bold text-xs shadow-md shadow-[#0E331E]/20 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
                   <span>Configure CRM Link</span>
@@ -8319,7 +8319,7 @@ export default function AdminPage() {
           <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-xl w-full shadow-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between mb-4 shrink-0">
               <h3 className="font-extrabold text-lg text-[#1E1815] flex items-center gap-2">
-                <Tag className="w-5 h-5 text-[#801313]" />
+                <Tag className="w-5 h-5 text-[#0E331E]" />
                 Launch Promotional Campaign
               </h3>
               <button
@@ -8334,7 +8334,7 @@ export default function AdminPage() {
             {offerMsg && (
               <div
                 className={`p-3 rounded-xl text-xs font-semibold mb-4 shrink-0 ${
-                  offerMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#C0392B]/10 text-[#C0392B]"
+                  offerMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#143F26]/10 text-[#143F26]"
                 }`}
               >
                 {offerMsg.text}
@@ -8352,7 +8352,7 @@ export default function AdminPage() {
                   placeholder="e.g. Weekend Family Feast 20% Off"
                   value={newOffer.name}
                   onChange={(e) => setNewOffer({ ...newOffer, name: e.target.value })}
-                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                 />
               </div>
 
@@ -8365,7 +8365,7 @@ export default function AdminPage() {
                   placeholder="e.g. Valid on dine-in bills over AED 100 on Saturdays and Sundays across selected branches."
                   value={newOffer.description}
                   onChange={(e) => setNewOffer({ ...newOffer, description: e.target.value })}
-                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                 />
               </div>
 
@@ -8381,7 +8381,7 @@ export default function AdminPage() {
                     placeholder="e.g. 20"
                     value={newOffer.value}
                     onChange={(e) => setNewOffer({ ...newOffer, value: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                   />
                 </div>
                 <div>
@@ -8391,7 +8391,7 @@ export default function AdminPage() {
                   <select
                     value={newOffer.isPercent ? "pct" : "flat"}
                     onChange={(e) => setNewOffer({ ...newOffer, isPercent: e.target.value === "pct" })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                   >
                     <option value="pct">Percentage (% Off)</option>
                     <option value="flat">Flat Amount (AED Off)</option>
@@ -8403,12 +8403,12 @@ export default function AdminPage() {
               <div className="p-4 bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <ImageIcon className="w-4 h-4 text-[#801313]" />
+                    <ImageIcon className="w-4 h-4 text-[#0E331E]" />
                     <label className="text-xs font-black text-[#1E1815] uppercase tracking-wide">
                       Promotional Hero Banner Image
                     </label>
                   </div>
-                  <span className="text-[10px] font-bold text-[#801313] bg-[#801313]/10 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-bold text-[#0E331E] bg-[#0E331E]/10 px-2 py-0.5 rounded-full">
                     WebP Auto-Optimized
                   </span>
                 </div>
@@ -8445,16 +8445,16 @@ export default function AdminPage() {
                   <div>
                     <label
                       htmlFor="offer-img-upload"
-                      className="flex flex-col items-center justify-center border-2 border-dashed border-[#DCD3CB] hover:border-[#801313] bg-white rounded-2xl p-4 sm:p-5 text-center cursor-pointer transition-colors group"
+                      className="flex flex-col items-center justify-center border-2 border-dashed border-[#DCD3CB] hover:border-[#0E331E] bg-white rounded-2xl p-4 sm:p-5 text-center cursor-pointer transition-colors group"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-[#FAF7F4] group-hover:bg-[#801313]/10 text-[#7A6E67] group-hover:text-[#801313] flex items-center justify-center transition-colors mb-2">
+                      <div className="w-10 h-10 rounded-xl bg-[#FAF7F4] group-hover:bg-[#0E331E]/10 text-[#7A6E67] group-hover:text-[#0E331E] flex items-center justify-center transition-colors mb-2">
                         {compressingOfferImg ? (
-                          <div className="w-5 h-5 border-2 border-[#801313]/30 border-t-[#801313] rounded-full animate-spin" />
+                          <div className="w-5 h-5 border-2 border-[#0E331E]/30 border-t-[#0E331E] rounded-full animate-spin" />
                         ) : (
                           <Upload className="w-5 h-5" />
                         )}
                       </div>
-                      <div className="text-xs font-extrabold text-[#1E1815] group-hover:text-[#801313]">
+                      <div className="text-xs font-extrabold text-[#1E1815] group-hover:text-[#0E331E]">
                         {compressingOfferImg ? "Optimizing & Compressing to WebP…" : "Click or drag to upload promotional banner"}
                       </div>
                       <p className="text-[10px] text-[#7A6E67] mt-1">
@@ -8480,7 +8480,7 @@ export default function AdminPage() {
                     📐 Recommended Dimensions: 1080 × 540 px (2:1 aspect ratio)
                   </div>
                   <div className="text-[10px] text-[#8C7F78]">
-                    This banner will appear in the customer app hero slider. If no image is uploaded, Bombay Chowpatty standard artwork will display.
+                    This banner will appear in the customer app hero slider. If no image is uploaded, Levante standard artwork will display.
                   </div>
                 </div>
               </div>
@@ -8507,7 +8507,7 @@ export default function AdminPage() {
                       onClick={() => setNewOffer({ ...newOffer, branchIds: [] })}
                       className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
                         newOffer.branchIds.length === 0
-                          ? "bg-[#801313] text-white border-[#801313] shadow-2xs"
+                          ? "bg-[#0E331E] text-white border-[#0E331E] shadow-2xs"
                           : "bg-white text-[#7A6E67] border-[#EAE3DC] hover:text-[#1E1815]"
                       }`}
                     >
@@ -8546,7 +8546,7 @@ export default function AdminPage() {
                         key={b.id}
                         className={`flex items-center gap-2 p-2 rounded-lg text-xs cursor-pointer border transition-all ${
                           isSelected
-                            ? "bg-[#801313]/5 border-[#801313] text-[#801313] font-bold shadow-2xs"
+                            ? "bg-[#0E331E]/5 border-[#0E331E] text-[#0E331E] font-bold shadow-2xs"
                             : "bg-[#FAF7F4]/50 border-transparent text-[#4A3F39] hover:bg-[#FAF7F4] hover:border-[#EAE3DC]"
                         }`}
                       >
@@ -8566,7 +8566,7 @@ export default function AdminPage() {
                               });
                             }
                           }}
-                          className="w-3.5 h-3.5 text-[#801313] rounded border-[#DCD3CB] focus:ring-[#801313] cursor-pointer"
+                          className="w-3.5 h-3.5 text-[#0E331E] rounded border-[#DCD3CB] focus:ring-[#0E331E] cursor-pointer"
                         />
                         <span className="truncate flex-1 font-medium">{b.name}</span>
                         <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#FAF7F4] text-[#7A6E67] font-mono shrink-0">
@@ -8587,7 +8587,7 @@ export default function AdminPage() {
                     type="date"
                     value={newOffer.startsAt}
                     onChange={(e) => setNewOffer({ ...newOffer, startsAt: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                   />
                 </div>
                 <div>
@@ -8598,13 +8598,13 @@ export default function AdminPage() {
                     type="date"
                     value={newOffer.endsAt}
                     onChange={(e) => setNewOffer({ ...newOffer, endsAt: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                   />
                 </div>
               </div>
 
               {/* Automated Member Email Announcement Notice */}
-              <div className="p-3 rounded-2xl bg-[#FAF3E6] border border-[#C68A1E]/30 flex items-center gap-2.5 text-xs text-[#801313]">
+              <div className="p-3 rounded-2xl bg-[#FAF3E6] border border-[#C68A1E]/30 flex items-center gap-2.5 text-xs text-[#0E331E]">
                 <Mail className="w-4 h-4 text-[#C68A1E] shrink-0" />
                 <span className="text-[11px] leading-snug">
                   <strong>Automated Email Broadcast:</strong> A personalized announcement email with this offer&apos;s title, discount badge, image, and validity will automatically be sent to all registered loyalty members upon publishing.
@@ -8622,7 +8622,7 @@ export default function AdminPage() {
                 <button
                   type="submit"
                   disabled={busy}
-                  className="px-5 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs shadow-md shadow-[#801313]/20 disabled:opacity-50 cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-bold text-xs shadow-md shadow-[#0E331E]/20 disabled:opacity-50 cursor-pointer"
                 >
                   {busy ? "Publishing…" : "Publish & Broadcast Offer"}
                 </button>
@@ -8640,7 +8640,7 @@ export default function AdminPage() {
           <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-extrabold text-lg text-[#1E1815] flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-[#C0392B]" />
+                <UserPlus className="w-5 h-5 text-[#143F26]" />
                 Add New Staff Member
               </h3>
               <button
@@ -8653,7 +8653,7 @@ export default function AdminPage() {
 
             {staffMsg && (
               <div
-                className={`p-3 rounded-xl text-xs font-semibold mb-4 ${staffMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#C0392B]/10 text-[#C0392B]"
+                className={`p-3 rounded-xl text-xs font-semibold mb-4 ${staffMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#143F26]/10 text-[#143F26]"
                   }`}
               >
                 {staffMsg.text}
@@ -8671,7 +8671,7 @@ export default function AdminPage() {
                   placeholder="e.g. Tariq Al Nuaimi"
                   value={staffForm.name}
                   onChange={(e) => setStaffForm({ ...staffForm, name: e.target.value })}
-                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                 />
               </div>
 
@@ -8686,7 +8686,7 @@ export default function AdminPage() {
                     placeholder="e.g. tariq_pos1"
                     value={staffForm.username}
                     onChange={(e) => setStaffForm({ ...staffForm, username: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                   />
                 </div>
                 <div>
@@ -8701,12 +8701,12 @@ export default function AdminPage() {
                       placeholder={showStaffPin ? "Enter password" : "Min 4 characters"}
                       value={staffForm.pin}
                       onChange={(e) => setStaffForm({ ...staffForm, pin: e.target.value })}
-                      className="w-full pl-3 pr-8 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-medium text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full pl-3 pr-8 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-medium text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowStaffPin(!showStaffPin)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-[#8C7F78] hover:text-[#C0392B] transition-colors rounded focus:outline-none cursor-pointer"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-[#8C7F78] hover:text-[#143F26] transition-colors rounded focus:outline-none cursor-pointer"
                       title={showStaffPin ? "Hide Password" : "Show Password"}
                     >
                       {showStaffPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -8723,7 +8723,7 @@ export default function AdminPage() {
                   <select
                     value={staffForm.role}
                     onChange={(e) => setStaffForm({ ...staffForm, role: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                   >
                     <option value="CASHIER">Cashier (POS Till)</option>
                     <option value="BRANCH_MANAGER">Branch Manager</option>
@@ -8738,7 +8738,7 @@ export default function AdminPage() {
                   <select
                     value={staffForm.branchId}
                     onChange={(e) => setStaffForm({ ...staffForm, branchId: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                   >
                     <option value="">🏢 Corporate / All Outlets</option>
                     {allBranches.map((b: any) => (
@@ -8756,7 +8756,7 @@ export default function AdminPage() {
                   id="sActive"
                   checked={staffForm.isActive}
                   onChange={(e) => setStaffForm({ ...staffForm, isActive: e.target.checked })}
-                  className="w-4 h-4 rounded text-[#C0392B] focus:ring-[#C0392B]"
+                  className="w-4 h-4 rounded text-[#143F26] focus:ring-[#143F26]"
                 />
                 <label htmlFor="sActive" className="text-xs font-bold text-[#1E1815] cursor-pointer">
                   Account is Active & Allowed to Sign In to POS / Admin
@@ -8774,7 +8774,7 @@ export default function AdminPage() {
                 <button
                   type="submit"
                   disabled={busy}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#143F26] to-[#0A2617] hover:from-[#143F26] text-white font-bold text-xs shadow-md shadow-[#143F26]/20 disabled:opacity-50 cursor-pointer"
                 >
                   {busy ? "Creating…" : "Create Staff Account"}
                 </button>
@@ -8792,7 +8792,7 @@ export default function AdminPage() {
           <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-extrabold text-lg text-[#1E1815] flex items-center gap-2">
-                <Edit2 className="w-5 h-5 text-[#C0392B]" />
+                <Edit2 className="w-5 h-5 text-[#143F26]" />
                 Edit Staff Member & Reset PIN
               </h3>
               <button
@@ -8805,7 +8805,7 @@ export default function AdminPage() {
 
             {staffMsg && (
               <div
-                className={`p-3 rounded-xl text-xs font-semibold mb-4 ${staffMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#C0392B]/10 text-[#C0392B]"
+                className={`p-3 rounded-xl text-xs font-semibold mb-4 ${staffMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#143F26]/10 text-[#143F26]"
                   }`}
               >
                 {staffMsg.text}
@@ -8822,7 +8822,7 @@ export default function AdminPage() {
                   required
                   value={staffForm.name}
                   onChange={(e) => setStaffForm({ ...staffForm, name: e.target.value })}
-                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                 />
               </div>
 
@@ -8836,7 +8836,7 @@ export default function AdminPage() {
                     required
                     value={staffForm.username}
                     onChange={(e) => setStaffForm({ ...staffForm, username: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                   />
                 </div>
                 <div>
@@ -8850,12 +8850,12 @@ export default function AdminPage() {
                       placeholder={showEditStaffPin ? "Enter new password" : "Leave blank to keep current"}
                       value={staffForm.pin}
                       onChange={(e) => setStaffForm({ ...staffForm, pin: e.target.value })}
-                      className="w-full pl-3 pr-8 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-medium text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full pl-3 pr-8 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-medium text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowEditStaffPin(!showEditStaffPin)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-[#8C7F78] hover:text-[#C0392B] transition-colors rounded focus:outline-none cursor-pointer"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-[#8C7F78] hover:text-[#143F26] transition-colors rounded focus:outline-none cursor-pointer"
                       title={showEditStaffPin ? "Hide Password" : "Show Password"}
                     >
                       {showEditStaffPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -8872,7 +8872,7 @@ export default function AdminPage() {
                   <select
                     value={staffForm.role}
                     onChange={(e) => setStaffForm({ ...staffForm, role: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                   >
                     <option value="CASHIER">Cashier (POS Till)</option>
                     <option value="BRANCH_MANAGER">Branch Manager</option>
@@ -8887,7 +8887,7 @@ export default function AdminPage() {
                   <select
                     value={staffForm.branchId}
                     onChange={(e) => setStaffForm({ ...staffForm, branchId: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                   >
                     <option value="">🏢 Corporate / All Outlets</option>
                     {allBranches.map((b: any) => (
@@ -8905,7 +8905,7 @@ export default function AdminPage() {
                   id="sActiveEdit"
                   checked={staffForm.isActive}
                   onChange={(e) => setStaffForm({ ...staffForm, isActive: e.target.checked })}
-                  className="w-4 h-4 rounded text-[#C0392B] focus:ring-[#C0392B]"
+                  className="w-4 h-4 rounded text-[#143F26] focus:ring-[#143F26]"
                 />
                 <label htmlFor="sActiveEdit" className="text-xs font-bold text-[#1E1815] cursor-pointer">
                   Account is Active & Allowed to Sign In
@@ -8923,7 +8923,7 @@ export default function AdminPage() {
                 <button
                   type="submit"
                   disabled={busy}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#143F26] to-[#0A2617] hover:from-[#143F26] text-white font-bold text-xs shadow-md shadow-[#143F26]/20 disabled:opacity-50 cursor-pointer"
                 >
                   {busy ? "Updating…" : "Update Staff Account"}
                 </button>
@@ -8939,7 +8939,7 @@ export default function AdminPage() {
       {showDeleteStaffModal && staffToDelete && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl">
-            <div className="w-12 h-12 rounded-2xl bg-[#C0392B]/10 text-[#C0392B] flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#143F26]/10 text-[#143F26] flex items-center justify-center mb-4">
               <AlertTriangle className="w-6 h-6" />
             </div>
 
@@ -8967,7 +8967,7 @@ export default function AdminPage() {
                 type="button"
                 onClick={handleDeleteStaff}
                 disabled={busy}
-                className="px-5 py-2 rounded-xl bg-[#C0392B] hover:bg-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-[#143F26] hover:bg-[#143F26] text-white font-bold text-xs shadow-md shadow-[#143F26]/20 disabled:opacity-50 cursor-pointer"
               >
                 {busy ? "Processing…" : "Confirm Delete"}
               </button>
@@ -8984,7 +8984,7 @@ export default function AdminPage() {
           <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-extrabold text-lg text-[#1E1815] flex items-center gap-2">
-                <Gift className="w-5 h-5 text-[#C0392B]" />
+                <Gift className="w-5 h-5 text-[#143F26]" />
                 {editingVisitRewardId ? "Edit Visit Milestone Reward" : "Add New Visit Milestone Reward"}
               </h3>
               <button
@@ -9010,7 +9010,7 @@ export default function AdminPage() {
                       value={visitRewardForm.threshold}
                       onChange={(e) => setVisitRewardForm({ ...visitRewardForm, threshold: e.target.value })}
                       placeholder="e.g. 5, 10, 20"
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8C7F78]">
                       Visits
@@ -9031,7 +9031,7 @@ export default function AdminPage() {
                       value={visitRewardForm.validDays}
                       onChange={(e) => setVisitRewardForm({ ...visitRewardForm, validDays: e.target.value })}
                       placeholder="e.g. 30"
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8C7F78]">
                       Days
@@ -9050,7 +9050,7 @@ export default function AdminPage() {
                   placeholder="e.g. Free Signature Coffee / Beverage or Free Chef Dessert"
                   value={visitRewardForm.name}
                   onChange={(e) => setVisitRewardForm({ ...visitRewardForm, name: e.target.value })}
-                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-bold focus:outline-none focus:border-[#C0392B]"
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-bold focus:outline-none focus:border-[#143F26]"
                 />
               </div>
 
@@ -9064,7 +9064,7 @@ export default function AdminPage() {
                   placeholder="مثال: مشروب مجاني مميز / حلوى مجانية"
                   value={visitRewardForm.nameAr}
                   onChange={(e) => setVisitRewardForm({ ...visitRewardForm, nameAr: e.target.value })}
-                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                 />
               </div>
 
@@ -9077,7 +9077,7 @@ export default function AdminPage() {
                   placeholder="e.g. Enjoy any complimentary signature beverage on your 5th dining visit!"
                   value={visitRewardForm.description}
                   onChange={(e) => setVisitRewardForm({ ...visitRewardForm, description: e.target.value })}
-                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#C0392B]"
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#143F26]"
                 />
               </div>
 
@@ -9087,7 +9087,7 @@ export default function AdminPage() {
                   id="vrActive"
                   checked={visitRewardForm.isActive}
                   onChange={(e) => setVisitRewardForm({ ...visitRewardForm, isActive: e.target.checked })}
-                  className="w-4 h-4 rounded text-[#C0392B] focus:ring-[#C0392B]"
+                  className="w-4 h-4 rounded text-[#143F26] focus:ring-[#143F26]"
                 />
                 <label htmlFor="vrActive" className="text-xs font-bold text-[#1E1815] cursor-pointer">
                   Milestone Rule is Active & Automatically Issued upon reaching visits
@@ -9105,7 +9105,7 @@ export default function AdminPage() {
                 <button
                   type="submit"
                   disabled={visitRewardSaving}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#143F26] to-[#0A2617] hover:from-[#143F26] text-white font-bold text-xs shadow-md shadow-[#143F26]/20 disabled:opacity-50 cursor-pointer"
                 >
                   {visitRewardSaving ? "Saving…" : editingVisitRewardId ? "Update Milestone" : "Save Milestone"}
                 </button>
@@ -9121,7 +9121,7 @@ export default function AdminPage() {
       {showDeleteVisitRewardModal && visitRewardToDelete && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl">
-            <div className="w-12 h-12 rounded-2xl bg-[#C0392B]/10 text-[#C0392B] flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#143F26]/10 text-[#143F26] flex items-center justify-center mb-4">
               <AlertTriangle className="w-6 h-6" />
             </div>
 
@@ -9147,7 +9147,7 @@ export default function AdminPage() {
                 type="button"
                 onClick={handleDeleteVisitReward}
                 disabled={busy}
-                className="px-5 py-2 rounded-xl bg-[#C0392B] hover:bg-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-[#143F26] hover:bg-[#143F26] text-white font-bold text-xs shadow-md shadow-[#143F26]/20 disabled:opacity-50 cursor-pointer"
               >
                 {busy ? "Deleting…" : "Confirm Delete"}
               </button>
@@ -9314,7 +9314,7 @@ export default function AdminPage() {
       {showDeleteBirthdayRewardModal && birthdayRewardToDelete && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl">
-            <div className="w-12 h-12 rounded-2xl bg-[#C0392B]/10 text-[#C0392B] flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#143F26]/10 text-[#143F26] flex items-center justify-center mb-4">
               <AlertTriangle className="w-6 h-6" />
             </div>
 
@@ -9340,7 +9340,7 @@ export default function AdminPage() {
                 type="button"
                 onClick={handleDeleteBirthdayReward}
                 disabled={busy}
-                className="px-5 py-2 rounded-xl bg-[#C0392B] hover:bg-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-[#143F26] hover:bg-[#143F26] text-white font-bold text-xs shadow-md shadow-[#143F26]/20 disabled:opacity-50 cursor-pointer"
               >
                 {busy ? "Deleting…" : "Confirm Delete"}
               </button>
@@ -9369,7 +9369,7 @@ export default function AdminPage() {
               </button>
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-4 pr-10">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#C0392B] to-[#96291D] text-white flex items-center justify-center font-black text-xl shadow-lg shrink-0">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#143F26] to-[#0A2617] text-white flex items-center justify-center font-black text-xl shadow-lg shrink-0">
                   {selectedCustomerData?.name ? selectedCustomerData.name.slice(0, 2).toUpperCase() : "MB"}
                 </div>
                 <div className="min-w-0">
@@ -9378,7 +9378,7 @@ export default function AdminPage() {
                       {selectedCustomerData?.name || "Customer Profile"}
                     </h2>
                     {selectedCustomerData?.isBlocked ? (
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#C0392B] text-white text-[10px] font-black uppercase tracking-wider">
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#143F26] text-white text-[10px] font-black uppercase tracking-wider">
                         Account Blocked
                       </span>
                     ) : (
@@ -9468,7 +9468,7 @@ export default function AdminPage() {
                 type="button"
                 onClick={() => setCustomerDetailTab("overview")}
                 className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${customerDetailTab === "overview"
-                    ? "border-[#C0392B] text-[#C0392B]"
+                    ? "border-[#143F26] text-[#143F26]"
                     : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
                   }`}
               >
@@ -9478,7 +9478,7 @@ export default function AdminPage() {
                 type="button"
                 onClick={() => setCustomerDetailTab("transactions")}
                 className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${customerDetailTab === "transactions"
-                    ? "border-[#C0392B] text-[#C0392B]"
+                    ? "border-[#143F26] text-[#143F26]"
                     : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
                   }`}
               >
@@ -9488,7 +9488,7 @@ export default function AdminPage() {
                 type="button"
                 onClick={() => setCustomerDetailTab("rewards")}
                 className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${customerDetailTab === "rewards"
-                    ? "border-[#C0392B] text-[#C0392B]"
+                    ? "border-[#143F26] text-[#143F26]"
                     : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
                   }`}
               >
@@ -9498,7 +9498,7 @@ export default function AdminPage() {
                 type="button"
                 onClick={() => setCustomerDetailTab("visits")}
                 className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${customerDetailTab === "visits"
-                    ? "border-[#C0392B] text-[#C0392B]"
+                    ? "border-[#143F26] text-[#143F26]"
                     : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
                   }`}
               >
@@ -9508,7 +9508,7 @@ export default function AdminPage() {
                 type="button"
                 onClick={() => setCustomerDetailTab("ledger")}
                 className={`py-2.5 px-3 border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${customerDetailTab === "ledger"
-                    ? "border-[#C0392B] text-[#C0392B]"
+                    ? "border-[#143F26] text-[#143F26]"
                     : "border-transparent text-[#7A6E67] hover:text-[#1E1815]"
                   }`}
               >
@@ -9520,7 +9520,7 @@ export default function AdminPage() {
             <div className="p-5 sm:p-6 overflow-y-auto flex-1 custom-scrollbar">
               {loadingCustomerDetail ? (
                 <div className="flex flex-col items-center justify-center py-16 text-[#7A6E67] gap-3">
-                  <RefreshCw className="w-7 h-7 animate-spin text-[#C0392B]" />
+                  <RefreshCw className="w-7 h-7 animate-spin text-[#143F26]" />
                   <p className="text-xs font-bold">Loading member profile and loyalty history…</p>
                 </div>
               ) : !selectedCustomerData ? (
@@ -9552,7 +9552,7 @@ export default function AdminPage() {
                       {/* Personal Info Box */}
                       <div className="p-4 bg-[#FAF7F4] rounded-2xl border border-[#EAE3DC]">
                         <h4 className="text-xs font-black text-[#1E1815] uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                          <Users className="w-3.5 h-3.5 text-[#C0392B]" /> Personal Information
+                          <Users className="w-3.5 h-3.5 text-[#143F26]" /> Personal Information
                         </h4>
                         <div className="space-y-2.5 text-xs">
                           <div className="flex justify-between py-1 border-b border-[#EAE3DC]/60">
@@ -9592,12 +9592,12 @@ export default function AdminPage() {
                       <div className="space-y-4">
                         <div className="p-4 bg-[#FAF7F4] rounded-2xl border border-[#EAE3DC]">
                           <h4 className="text-xs font-black text-[#1E1815] uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                            <ShieldCheck className="w-3.5 h-3.5 text-[#C0392B]" /> Loyalty Status & Security
+                            <ShieldCheck className="w-3.5 h-3.5 text-[#143F26]" /> Loyalty Status & Security
                           </h4>
                           <div className="space-y-2.5 text-xs">
                             <div className="flex justify-between py-1 border-b border-[#EAE3DC]/60">
                               <span className="text-[#7A6E67]">Account Status</span>
-                              <span className={`font-bold ${selectedCustomerData.isBlocked ? "text-[#C0392B]" : "text-emerald-700"}`}>
+                              <span className={`font-bold ${selectedCustomerData.isBlocked ? "text-[#143F26]" : "text-emerald-700"}`}>
                                 {selectedCustomerData.isBlocked ? "Blocked / Suspended" : "Active & Verified"}
                               </span>
                             </div>
@@ -9615,7 +9615,7 @@ export default function AdminPage() {
                             </div>
                             <div className="flex justify-between py-1">
                               <span className="text-[#7A6E67]">Cashback Redemption Value</span>
-                              <span className="font-black text-[#C0392B]">
+                              <span className="font-black text-[#143F26]">
                                 {formatMoney(cur, selectedCustomerData.pointsCashValue || 0)}
                               </span>
                             </div>
@@ -9637,7 +9637,7 @@ export default function AdminPage() {
                             onClick={() => toggleCustomerBlock(selectedCustomerData.id, !selectedCustomerData.isBlocked)}
                             className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ${selectedCustomerData.isBlocked
                                 ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                                : "bg-[#C0392B]/10 hover:bg-[#C0392B]/20 text-[#C0392B]"
+                                : "bg-[#143F26]/10 hover:bg-[#143F26]/20 text-[#143F26]"
                               }`}
                           >
                             {selectedCustomerData.isBlocked ? (
@@ -9703,7 +9703,7 @@ export default function AdminPage() {
                         </table>
                       ) : (
                         <div className="text-center py-10 text-xs text-[#7A6E67]">
-                          <Receipt className="w-8 h-8 text-[#C0392B]/40 mx-auto mb-2" />
+                          <Receipt className="w-8 h-8 text-[#143F26]/40 mx-auto mb-2" />
                           No purchase transactions recorded yet for this customer.
                         </div>
                       )}
@@ -9741,7 +9741,7 @@ export default function AdminPage() {
                               <div className="pt-2 border-t border-[#EAE3DC]/60 flex items-center justify-between text-[10px] text-[#7A6E67]">
                                 <span>
                                   Value:{" "}
-                                  <strong className="text-[#C0392B]">
+                                  <strong className="text-[#143F26]">
                                     {r.isPercent ? `${r.value}% OFF` : formatMoney(cur, r.value)}
                                   </strong>
                                 </span>
@@ -9754,7 +9754,7 @@ export default function AdminPage() {
                         </div>
                       ) : (
                         <div className="text-center py-10 text-xs text-[#7A6E67]">
-                          <Gift className="w-8 h-8 text-[#C0392B]/40 mx-auto mb-2" />
+                          <Gift className="w-8 h-8 text-[#143F26]/40 mx-auto mb-2" />
                           No vouchers or milestone rewards issued to this member yet.
                         </div>
                       )}
@@ -9782,7 +9782,7 @@ export default function AdminPage() {
                                   {new Date(v.createdAt).toLocaleString()}
                                 </td>
                                 <td className="py-2.5 px-3 text-[#7A6E67]">{v.branch?.name || "All Branches"}</td>
-                                <td className="py-2.5 px-3 font-mono text-[#C0392B] font-bold">
+                                <td className="py-2.5 px-3 font-mono text-[#143F26] font-bold">
                                   {v.couponCode || "DIRECT_QR"}
                                 </td>
                                 <td className="py-2.5 px-3 text-[#7A6E67] capitalize">
@@ -9797,7 +9797,7 @@ export default function AdminPage() {
                         </table>
                       ) : (
                         <div className="text-center py-10 text-xs text-[#7A6E67]">
-                          <MapPin className="w-8 h-8 text-[#C0392B]/40 mx-auto mb-2" />
+                          <MapPin className="w-8 h-8 text-[#143F26]/40 mx-auto mb-2" />
                           No dine-in check-in visits registered yet for this member.
                         </div>
                       )}
@@ -9828,7 +9828,7 @@ export default function AdminPage() {
                                   {l.branch?.name || "—"}
                                 </td>
                                 <td
-                                  className={`py-2.5 px-3 font-black ${l.delta >= 0 ? "text-emerald-700" : "text-[#C0392B]"
+                                  className={`py-2.5 px-3 font-black ${l.delta >= 0 ? "text-emerald-700" : "text-[#143F26]"
                                     }`}
                                 >
                                   {l.delta >= 0 ? `+${l.delta}` : l.delta} pts
@@ -9845,7 +9845,7 @@ export default function AdminPage() {
                         </table>
                       ) : (
                         <div className="text-center py-10 text-xs text-[#7A6E67]">
-                          <TrendingUp className="w-8 h-8 text-[#C0392B]/40 mx-auto mb-2" />
+                          <TrendingUp className="w-8 h-8 text-[#143F26]/40 mx-auto mb-2" />
                           No points ledger events recorded yet.
                         </div>
                       )}
@@ -9884,7 +9884,7 @@ export default function AdminPage() {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4.5 border-b border-[#EAE3DC] bg-[#FAF7F4] shrink-0">
               <h3 className="font-extrabold text-base sm:text-lg text-[#1E1815] flex items-center gap-2">
-                <Tag className="w-5 h-5 text-[#801313]" />
+                <Tag className="w-5 h-5 text-[#0E331E]" />
                 Edit Promotional Campaign Offer
               </h3>
               <button
@@ -9902,7 +9902,7 @@ export default function AdminPage() {
                 {offerMsg && (
                   <div
                     className={`p-3 rounded-xl text-xs font-semibold ${
-                      offerMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#C0392B]/10 text-[#C0392B]"
+                      offerMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#143F26]/10 text-[#143F26]"
                     }`}
                   >
                     {offerMsg.text}
@@ -9919,7 +9919,7 @@ export default function AdminPage() {
                     placeholder="e.g. Weekend Biryani Feast - 20% Off"
                     value={editOfferForm.name}
                     onChange={(e) => setEditOfferForm({ ...editOfferForm, name: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                   />
                 </div>
 
@@ -9932,7 +9932,7 @@ export default function AdminPage() {
                     placeholder="Offer details and terms shown to customers..."
                     value={editOfferForm.description}
                     onChange={(e) => setEditOfferForm({ ...editOfferForm, description: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                   />
                 </div>
 
@@ -9940,7 +9940,7 @@ export default function AdminPage() {
                 <div className="p-4 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-3">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-extrabold text-[#1E1815] flex items-center gap-1.5 uppercase">
-                      <ImageIcon className="w-4 h-4 text-[#801313]" />
+                      <ImageIcon className="w-4 h-4 text-[#0E331E]" />
                       <span>Promotional Banner Image</span>
                     </label>
                     <span className="text-[10px] font-bold text-[#7A6E67] bg-white px-2 py-0.5 rounded-full border border-[#EAE3DC]">
@@ -9982,8 +9982,8 @@ export default function AdminPage() {
                       </div>
                     </div>
                   ) : (
-                    <label className="border-2 border-dashed border-[#DCD3CB] hover:border-[#801313] bg-white hover:bg-[#FAF3E6]/30 p-4 rounded-xl flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-colors text-center">
-                      <Upload className="w-6 h-6 text-[#801313]" />
+                    <label className="border-2 border-dashed border-[#DCD3CB] hover:border-[#0E331E] bg-white hover:bg-[#FAF3E6]/30 p-4 rounded-xl flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-colors text-center">
+                      <Upload className="w-6 h-6 text-[#0E331E]" />
                       <div className="text-xs font-bold text-[#1E1815]">
                         {compressingEditOfferImg ? "Optimizing & Converting to WebP…" : "Click or Drag to Upload Offer Image"}
                       </div>
@@ -10023,7 +10023,7 @@ export default function AdminPage() {
                       placeholder="e.g. 20"
                       value={editOfferForm.value}
                       onChange={(e) => setEditOfferForm({ ...editOfferForm, value: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                     />
                   </div>
                   <div>
@@ -10036,7 +10036,7 @@ export default function AdminPage() {
                         onClick={() => setEditOfferForm({ ...editOfferForm, isPercent: true })}
                         className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
                           editOfferForm.isPercent
-                            ? "bg-[#801313] text-white border-[#801313]"
+                            ? "bg-[#0E331E] text-white border-[#0E331E]"
                             : "bg-[#FAF7F4] text-[#4A3F39] border-[#EAE3DC]"
                         }`}
                       >
@@ -10047,7 +10047,7 @@ export default function AdminPage() {
                         onClick={() => setEditOfferForm({ ...editOfferForm, isPercent: false })}
                         className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
                           !editOfferForm.isPercent
-                            ? "bg-[#801313] text-white border-[#801313]"
+                            ? "bg-[#0E331E] text-white border-[#0E331E]"
                             : "bg-[#FAF7F4] text-[#4A3F39] border-[#EAE3DC]"
                         }`}
                       >
@@ -10077,7 +10077,7 @@ export default function AdminPage() {
                         onClick={() => setEditOfferForm({ ...editOfferForm, branchIds: [] })}
                         className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
                           editOfferForm.branchIds.length === 0
-                            ? "bg-[#801313] text-white border-[#801313] shadow-2xs"
+                            ? "bg-[#0E331E] text-white border-[#0E331E] shadow-2xs"
                             : "bg-white text-[#7A6E67] border-[#EAE3DC] hover:text-[#1E1815]"
                         }`}
                       >
@@ -10106,7 +10106,7 @@ export default function AdminPage() {
                           key={b.id}
                           className={`flex items-center gap-2 p-2 rounded-lg text-xs cursor-pointer border transition-all ${
                             isSelected
-                              ? "bg-[#801313]/5 border-[#801313] text-[#801313] font-bold shadow-2xs"
+                              ? "bg-[#0E331E]/5 border-[#0E331E] text-[#0E331E] font-bold shadow-2xs"
                               : "bg-[#FAF7F4]/50 border-transparent text-[#4A3F39] hover:bg-[#FAF7F4] hover:border-[#EAE3DC]"
                           }`}
                         >
@@ -10126,7 +10126,7 @@ export default function AdminPage() {
                                 });
                               }
                             }}
-                            className="w-3.5 h-3.5 text-[#801313] rounded border-[#DCD3CB] focus:ring-[#801313] cursor-pointer"
+                            className="w-3.5 h-3.5 text-[#0E331E] rounded border-[#DCD3CB] focus:ring-[#0E331E] cursor-pointer"
                           />
                           <span className="truncate flex-1 font-medium">{b.name}</span>
                           <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#FAF7F4] text-[#7A6E67] font-mono shrink-0">
@@ -10147,7 +10147,7 @@ export default function AdminPage() {
                       type="datetime-local"
                       value={editOfferForm.startsAt}
                       onChange={(e) => setEditOfferForm({ ...editOfferForm, startsAt: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                     />
                   </div>
                   <div>
@@ -10158,7 +10158,7 @@ export default function AdminPage() {
                       type="datetime-local"
                       value={editOfferForm.endsAt}
                       onChange={(e) => setEditOfferForm({ ...editOfferForm, endsAt: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                     />
                   </div>
                 </div>
@@ -10169,7 +10169,7 @@ export default function AdminPage() {
                     id="editOfferActive"
                     checked={editOfferForm.isActive}
                     onChange={(e) => setEditOfferForm({ ...editOfferForm, isActive: e.target.checked })}
-                    className="w-4 h-4 rounded text-[#801313] focus:ring-[#801313]"
+                    className="w-4 h-4 rounded text-[#0E331E] focus:ring-[#0E331E]"
                   />
                   <label htmlFor="editOfferActive" className="text-xs font-bold text-[#1E1815] cursor-pointer">
                     Offer is Active &amp; Displayed on Customer Loyalty Portal
@@ -10188,7 +10188,7 @@ export default function AdminPage() {
                 <button
                   type="submit"
                   disabled={busy}
-                  className="px-5 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs shadow-md shadow-[#801313]/20 disabled:opacity-50 cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-bold text-xs shadow-md shadow-[#0E331E]/20 disabled:opacity-50 cursor-pointer"
                 >
                   {busy ? "Saving Changes…" : "Update Promotional Offer"}
                 </button>
@@ -10206,7 +10206,7 @@ export default function AdminPage() {
           <div className="bg-white border border-[#EAE3DC] rounded-3xl max-w-xl w-full shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between px-6 py-4.5 border-b border-[#EAE3DC] bg-[#FAF7F4] shrink-0">
               <h3 className="font-extrabold text-base sm:text-lg text-[#1E1815] flex items-center gap-2">
-                <FileText className="w-5 h-5 text-[#801313]" />
+                <FileText className="w-5 h-5 text-[#0E331E]" />
                 Create New Email Template
               </h3>
               <button
@@ -10223,7 +10223,7 @@ export default function AdminPage() {
                 {templateMsg && (
                   <div
                     className={`p-3 rounded-xl text-xs font-semibold ${
-                      templateMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#C0392B]/10 text-[#C0392B]"
+                      templateMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#143F26]/10 text-[#143F26]"
                     }`}
                   >
                     {templateMsg.text}
@@ -10241,7 +10241,7 @@ export default function AdminPage() {
                       placeholder="e.g. VIP Birthday Greeting"
                       value={templateForm.name}
                       onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                     />
                   </div>
                   <div>
@@ -10251,7 +10251,7 @@ export default function AdminPage() {
                     <select
                       value={templateForm.category}
                       onChange={(e) => setTemplateForm({ ...templateForm, category: e.target.value as any })}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                     >
                       <option value="BIRTHDAY">🎂 Birthday Gift &amp; Greetings</option>
                       <option value="OFFERS">🏷️ Promotional Offers &amp; Discounts</option>
@@ -10270,7 +10270,7 @@ export default function AdminPage() {
                     placeholder="e.g. 🎂 Happy Birthday {customer_name}! A Royal Treat Awaits"
                     value={templateForm.subject}
                     onChange={(e) => setTemplateForm({ ...templateForm, subject: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                   />
                 </div>
 
@@ -10286,7 +10286,7 @@ export default function AdminPage() {
                           key={tag}
                           type="button"
                           onClick={() => setTemplateForm({ ...templateForm, content: templateForm.content + " " + tag })}
-                          className="bg-[#FAF7F4] hover:bg-[#801313]/10 hover:text-[#801313] px-1.5 py-0.5 rounded border border-[#EAE3DC] transition-colors cursor-pointer"
+                          className="bg-[#FAF7F4] hover:bg-[#0E331E]/10 hover:text-[#0E331E] px-1.5 py-0.5 rounded border border-[#EAE3DC] transition-colors cursor-pointer"
                         >
                           {tag}
                         </button>
@@ -10299,7 +10299,7 @@ export default function AdminPage() {
                     placeholder="Write your email HTML structure..."
                     value={templateForm.content}
                     onChange={(e) => setTemplateForm({ ...templateForm, content: e.target.value })}
-                    className="w-full px-3 py-2.5 text-xs font-mono bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313] leading-relaxed"
+                    className="w-full px-3 py-2.5 text-xs font-mono bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E] leading-relaxed"
                   />
                 </div>
 
@@ -10309,7 +10309,7 @@ export default function AdminPage() {
                     id="createTplDefault"
                     checked={templateForm.isDefault}
                     onChange={(e) => setTemplateForm({ ...templateForm, isDefault: e.target.checked })}
-                    className="w-4 h-4 rounded text-[#801313] focus:ring-[#801313]"
+                    className="w-4 h-4 rounded text-[#0E331E] focus:ring-[#0E331E]"
                   />
                   <label htmlFor="createTplDefault" className="text-xs font-bold text-[#1E1815] cursor-pointer">
                     Set as active default template for this category
@@ -10329,9 +10329,9 @@ export default function AdminPage() {
                     )
                   }
                   disabled={!templateForm.content}
-                  className="px-3 py-2 rounded-xl bg-white border border-[#DCD3CB] hover:border-[#801313] hover:text-[#801313] text-[#1E1815] font-bold text-xs transition-all cursor-pointer disabled:opacity-40 flex items-center gap-1.5"
+                  className="px-3 py-2 rounded-xl bg-white border border-[#DCD3CB] hover:border-[#0E331E] hover:text-[#0E331E] text-[#1E1815] font-bold text-xs transition-all cursor-pointer disabled:opacity-40 flex items-center gap-1.5"
                 >
-                  <Eye className="w-3.5 h-3.5 text-[#801313]" />
+                  <Eye className="w-3.5 h-3.5 text-[#0E331E]" />
                   <span>Preview Output</span>
                 </button>
 
@@ -10346,7 +10346,7 @@ export default function AdminPage() {
                   <button
                     type="submit"
                     disabled={templateSaving}
-                    className="px-5 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs shadow-md shadow-[#801313]/20 disabled:opacity-50 cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-bold text-xs shadow-md shadow-[#0E331E]/20 disabled:opacity-50 cursor-pointer"
                   >
                     {templateSaving ? "Saving…" : "Save Template"}
                   </button>
@@ -10365,7 +10365,7 @@ export default function AdminPage() {
           <div className="bg-white border border-[#EAE3DC] rounded-3xl max-w-xl w-full shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between px-6 py-4.5 border-b border-[#EAE3DC] bg-[#FAF7F4] shrink-0">
               <h3 className="font-extrabold text-base sm:text-lg text-[#1E1815] flex items-center gap-2">
-                <Edit2 className="w-5 h-5 text-[#801313]" />
+                <Edit2 className="w-5 h-5 text-[#0E331E]" />
                 Edit Email Template
               </h3>
               <button
@@ -10382,7 +10382,7 @@ export default function AdminPage() {
                 {templateMsg && (
                   <div
                     className={`p-3 rounded-xl text-xs font-semibold ${
-                      templateMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#C0392B]/10 text-[#C0392B]"
+                      templateMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#143F26]/10 text-[#143F26]"
                     }`}
                   >
                     {templateMsg.text}
@@ -10399,7 +10399,7 @@ export default function AdminPage() {
                       required
                       value={templateForm.name}
                       onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                     />
                   </div>
                   <div>
@@ -10409,7 +10409,7 @@ export default function AdminPage() {
                     <select
                       value={templateForm.category}
                       onChange={(e) => setTemplateForm({ ...templateForm, category: e.target.value as any })}
-                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                     >
                       <option value="BIRTHDAY">🎂 Birthday Gift &amp; Greetings</option>
                       <option value="OFFERS">🏷️ Promotional Offers &amp; Discounts</option>
@@ -10427,7 +10427,7 @@ export default function AdminPage() {
                     required
                     value={templateForm.subject}
                     onChange={(e) => setTemplateForm({ ...templateForm, subject: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                   />
                 </div>
 
@@ -10443,7 +10443,7 @@ export default function AdminPage() {
                           key={tag}
                           type="button"
                           onClick={() => setTemplateForm({ ...templateForm, content: templateForm.content + " " + tag })}
-                          className="bg-[#FAF7F4] hover:bg-[#801313]/10 hover:text-[#801313] px-1.5 py-0.5 rounded border border-[#EAE3DC] transition-colors cursor-pointer"
+                          className="bg-[#FAF7F4] hover:bg-[#0E331E]/10 hover:text-[#0E331E] px-1.5 py-0.5 rounded border border-[#EAE3DC] transition-colors cursor-pointer"
                         >
                           {tag}
                         </button>
@@ -10455,7 +10455,7 @@ export default function AdminPage() {
                     rows={9}
                     value={templateForm.content}
                     onChange={(e) => setTemplateForm({ ...templateForm, content: e.target.value })}
-                    className="w-full px-3 py-2.5 text-xs font-mono bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313] leading-relaxed"
+                    className="w-full px-3 py-2.5 text-xs font-mono bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E] leading-relaxed"
                   />
                 </div>
 
@@ -10465,7 +10465,7 @@ export default function AdminPage() {
                     id="editTplDefault"
                     checked={templateForm.isDefault}
                     onChange={(e) => setTemplateForm({ ...templateForm, isDefault: e.target.checked })}
-                    className="w-4 h-4 rounded text-[#801313] focus:ring-[#801313]"
+                    className="w-4 h-4 rounded text-[#0E331E] focus:ring-[#0E331E]"
                   />
                   <label htmlFor="editTplDefault" className="text-xs font-bold text-[#1E1815] cursor-pointer">
                     Set as active default template for this category
@@ -10485,9 +10485,9 @@ export default function AdminPage() {
                     )
                   }
                   disabled={!templateForm.content}
-                  className="px-3 py-2 rounded-xl bg-white border border-[#DCD3CB] hover:border-[#801313] hover:text-[#801313] text-[#1E1815] font-bold text-xs transition-all cursor-pointer disabled:opacity-40 flex items-center gap-1.5"
+                  className="px-3 py-2 rounded-xl bg-white border border-[#DCD3CB] hover:border-[#0E331E] hover:text-[#0E331E] text-[#1E1815] font-bold text-xs transition-all cursor-pointer disabled:opacity-40 flex items-center gap-1.5"
                 >
-                  <Eye className="w-3.5 h-3.5 text-[#801313]" />
+                  <Eye className="w-3.5 h-3.5 text-[#0E331E]" />
                   <span>Preview Output</span>
                 </button>
 
@@ -10502,7 +10502,7 @@ export default function AdminPage() {
                   <button
                     type="submit"
                     disabled={templateSaving}
-                    className="px-5 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs shadow-md shadow-[#801313]/20 disabled:opacity-50 cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-bold text-xs shadow-md shadow-[#0E331E]/20 disabled:opacity-50 cursor-pointer"
                   >
                     {templateSaving ? "Updating…" : "Update Template"}
                   </button>
@@ -10522,14 +10522,14 @@ export default function AdminPage() {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#EAE3DC] bg-white shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#801313]/10 text-[#801313] flex items-center justify-center font-bold">
+                <div className="w-9 h-9 rounded-xl bg-[#0E331E]/10 text-[#0E331E] flex items-center justify-center font-bold">
                   <Eye className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
                     <span>Live Rendered Email Preview</span>
                     {previewEmailData.category && (
-                      <span className="px-2 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-[10px] font-black uppercase">
+                      <span className="px-2 py-0.5 rounded-full bg-[#0E331E]/10 text-[#0E331E] text-[10px] font-black uppercase">
                         {previewEmailData.category}
                       </span>
                     )}
@@ -10548,7 +10548,7 @@ export default function AdminPage() {
                     onClick={() => setPreviewDeviceMode("desktop")}
                     className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
                       previewDeviceMode === "desktop"
-                        ? "bg-[#801313] text-white shadow-2xs"
+                        ? "bg-[#0E331E] text-white shadow-2xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
                     }`}
                   >
@@ -10560,7 +10560,7 @@ export default function AdminPage() {
                     onClick={() => setPreviewDeviceMode("mobile")}
                     className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
                       previewDeviceMode === "mobile"
-                        ? "bg-[#801313] text-white shadow-2xs"
+                        ? "bg-[#0E331E] text-white shadow-2xs"
                         : "text-[#7A6E67] hover:text-[#1E1815]"
                     }`}
                   >
@@ -10586,7 +10586,7 @@ export default function AdminPage() {
                 <div className="flex items-start justify-between gap-3 border-b border-[#EAE3DC] pb-2.5">
                   <div className="space-y-1">
                     <div className="font-extrabold text-sm text-[#1E1815] flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-[#801313]" />
+                      <Mail className="w-4 h-4 text-[#0E331E]" />
                       <span>
                         {previewEmailData.subject
                           .replace(/{customer_name}/g, "Sara Al Nuaimi")
@@ -10604,7 +10604,7 @@ export default function AdminPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-[#7A6E67]">
                   <div>
                     <span className="font-bold text-[#1E1815]">From: </span>
-                    <span>Bombay Chowpatty Loyalty Club &lt;loyalty@bombaychowpatty.ae&gt;</span>
+                    <span>Levante Rewards &lt;loyalty@artoflevante.ae&gt;</span>
                   </div>
                   <div>
                     <span className="font-bold text-[#1E1815]">To: </span>
@@ -10621,11 +10621,11 @@ export default function AdminPage() {
                   }`}
                 >
                   {/* Luxury Brand Header in Email */}
-                  <div className="bg-gradient-to-r from-[#801313] to-[#591313] p-5 text-center text-white">
+                  <div className="bg-gradient-to-r from-[#0E331E] to-[#0E331E] p-5 text-center text-white">
                     <div className="font-serif font-black text-xl tracking-wider">
-                      BOMBAY CHOWPATTY
+                      LEVANTE
                     </div>
-                    <div className="text-[10px] uppercase tracking-widest text-[#FEF7C5] font-semibold mt-0.5">
+                    <div className="text-[10px] uppercase tracking-widest text-[#F5EFE0] font-semibold mt-0.5">
                       Loyalty &amp; Dining Club
                     </div>
                   </div>
@@ -10647,10 +10647,10 @@ export default function AdminPage() {
                   {/* Email Footer */}
                   <div className="bg-[#FAF7F4] p-4 text-center border-t border-[#EAE3DC] text-[10px] text-[#7A6E67] space-y-1">
                     <div className="font-semibold text-[#1E1815]">
-                      Bombay Chowpatty UAE • 14 Mall &amp; City Outlets
+                      Levante UAE • 14 Mall &amp; City Outlets
                     </div>
                     <div>
-                      You received this message as a valued member of the Bombay Chowpatty Loyalty Club.
+                      You received this message as a valued member of the Levante Rewards.
                     </div>
                   </div>
                 </div>
@@ -10665,7 +10665,7 @@ export default function AdminPage() {
               <button
                 type="button"
                 onClick={() => setShowEmailPreviewModal(false)}
-                className="px-5 py-2 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs shadow-md transition-colors cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-bold text-xs shadow-md transition-colors cursor-pointer"
               >
                 Close Preview
               </button>
@@ -10710,7 +10710,7 @@ export default function AdminPage() {
                 />
               ) : (
                 <div className="w-56 h-56 flex items-center justify-center">
-                  <div className="w-8 h-8 border-3 border-[#801313]/20 border-t-[#801313] rounded-full animate-spin" />
+                  <div className="w-8 h-8 border-3 border-[#0E331E]/20 border-t-[#0E331E] rounded-full animate-spin" />
                 </div>
               )}
             </div>
@@ -10718,17 +10718,17 @@ export default function AdminPage() {
             {/* Subtext & URL Display */}
             <div className="my-3 space-y-1">
               <div className="text-xs font-semibold text-[#7A6E67]">
-                Scan to join Bombay Chowpatty Loyalty
+                Scan to join Levante Rewards
               </div>
-              <div className="text-[11px] font-mono text-[#801313] break-all px-2 font-bold select-all bg-white/70 py-1.5 rounded-lg border border-[#EAE3DC]/60">
-                {portalUrl || "https://bombaychowpatty.ae"}
+              <div className="text-[11px] font-mono text-[#0E331E] break-all px-2 font-bold select-all bg-white/70 py-1.5 rounded-lg border border-[#EAE3DC]/60">
+                {portalUrl || "https://artoflevante.ae"}
               </div>
             </div>
 
             {/* Share Link Button */}
             <button
               onClick={handleSharePortalLink}
-              className="w-full mt-3 py-3.5 px-6 rounded-2xl bg-[#681421] hover:bg-[#520F1A] text-white font-black text-sm uppercase tracking-wider shadow-lg shadow-[#681421]/20 flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] cursor-pointer"
+              className="w-full mt-3 py-3.5 px-6 rounded-2xl bg-[#092015] hover:bg-[#092015] text-white font-black text-sm uppercase tracking-wider shadow-lg shadow-[#092015]/20 flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] cursor-pointer"
             >
               <Share2 className="w-4 h-4" />
               <span>{copiedPortalLink ? "Link Copied to Clipboard!" : "SHARE LINK"}</span>

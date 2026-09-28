@@ -122,7 +122,7 @@ export function AdminNotificationBell() {
       case "POINTS_EARNED":
         return <Coins className="w-4 h-4 text-[#C68A1E]" />;
       case "POINTS_REDEEMED":
-        return <Gift className="w-4 h-4 text-[#C0392B]" />;
+        return <Gift className="w-4 h-4 text-[#143F26]" />;
       case "VISIT_CHECKIN":
         return <MapPin className="w-4 h-4 text-[#8B5CF6]" />;
       case "BIRTHDAY_GIFT":
@@ -132,7 +132,7 @@ export function AdminNotificationBell() {
       case "STAFF_LOGIN":
         return <ShieldCheck className="w-4 h-4 text-[#4A3F39]" />;
       default:
-        return <Bell className="w-4 h-4 text-[#801313]" />;
+        return <Bell className="w-4 h-4 text-[#0E331E]" />;
     }
   };
 
@@ -160,13 +160,13 @@ export function AdminNotificationBell() {
       <button
         type="button"
         onClick={handleToggle}
-        className="relative p-2 rounded-xl border border-[#DCD3CB] bg-white hover:bg-[#FAF7F4] text-[#4A3F39] hover:text-[#801313] transition-all cursor-pointer shadow-2xs flex items-center justify-center"
+        className="relative p-2 rounded-xl border border-[#DCD3CB] bg-white hover:bg-[#FAF7F4] text-[#4A3F39] hover:text-[#0E331E] transition-all cursor-pointer shadow-2xs flex items-center justify-center"
         title="Admin Notifications"
         aria-label="Notifications"
       >
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 bg-gradient-to-r from-[#C0392B] to-[#96291D] text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-md animate-pulse">
+          <span className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 bg-gradient-to-r from-[#143F26] to-[#0A2617] text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-md animate-pulse">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
@@ -178,7 +178,7 @@ export function AdminNotificationBell() {
           {/* Header */}
           <div className="p-4 bg-gradient-to-r from-[#FAF7F4] to-[#F5EFE9] border-b border-[#EAE3DC] flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-[#801313]/10 text-[#801313] flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-xl bg-[#0E331E]/10 text-[#0E331E] flex items-center justify-center font-bold">
                 <Bell className="w-4 h-4" />
               </div>
               <div>
@@ -217,7 +217,7 @@ export function AdminNotificationBell() {
               <button
                 onClick={() => setFilter("unread")}
                 className={`px-3 py-1 rounded-lg font-bold transition-colors cursor-pointer shrink-0 ${
-                  filter === "unread" ? "bg-[#801313] text-white shadow-xs" : "bg-[#FAF7F4] text-[#7A6E67] hover:text-[#1E1815]"
+                  filter === "unread" ? "bg-[#0E331E] text-white shadow-xs" : "bg-[#FAF7F4] text-[#7A6E67] hover:text-[#1E1815]"
                 }`}
               >
                 Unread ({unreadCount})
@@ -225,14 +225,14 @@ export function AdminNotificationBell() {
               <button
                 onClick={() => setFilter("all")}
                 className={`px-3 py-1 rounded-lg font-bold transition-colors cursor-pointer shrink-0 ${
-                  filter === "all" ? "bg-[#801313] text-white shadow-xs" : "bg-[#FAF7F4] text-[#7A6E67] hover:text-[#1E1815]"
+                  filter === "all" ? "bg-[#0E331E] text-white shadow-xs" : "bg-[#FAF7F4] text-[#7A6E67] hover:text-[#1E1815]"
                 }`}
               >
                 All ({notifications.length})
               </button>
             </div>
             {unreadCount > 0 && (
-              <span className="text-[10px] font-bold text-[#C0392B]">
+              <span className="text-[10px] font-bold text-[#143F26]">
                 {unreadCount} pending
               </span>
             )}
@@ -258,7 +258,7 @@ export function AdminNotificationBell() {
                         {item.title}
                       </h4>
                       {!item.isRead && (
-                        <span className="w-2 h-2 rounded-full bg-[#C0392B] shrink-0" />
+                        <span className="w-2 h-2 rounded-full bg-[#143F26] shrink-0" />
                       )}
                     </div>
                     <p className="text-xs text-[#5C504A] mt-0.5 leading-relaxed break-words">
@@ -296,7 +296,7 @@ export function AdminNotificationBell() {
               <button
                 type="button"
                 onClick={handleClearRead}
-                className="text-[11px] font-bold text-[#7A6E67] hover:text-[#C0392B] flex items-center gap-1 p-1 rounded-md transition-colors cursor-pointer"
+                className="text-[11px] font-bold text-[#7A6E67] hover:text-[#143F26] flex items-center gap-1 p-1 rounded-md transition-colors cursor-pointer"
                 title="Clear only read notifications"
               >
                 <Trash2 className="w-3 h-3" />
@@ -305,7 +305,7 @@ export function AdminNotificationBell() {
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="text-[11px] font-bold text-[#7A6E67] hover:text-[#C0392B] flex items-center gap-1 p-1 rounded-md transition-colors cursor-pointer"
+                className="text-[11px] font-bold text-[#7A6E67] hover:text-[#143F26] flex items-center gap-1 p-1 rounded-md transition-colors cursor-pointer"
                 title="Clear all notifications"
               >
                 <span>Clear all</span>
@@ -314,7 +314,7 @@ export function AdminNotificationBell() {
             <button
               type="button"
               onClick={fetchNotifications}
-              className="text-[11px] font-bold text-[#4A3F39] hover:text-[#801313] flex items-center gap-1 p-1 rounded-md transition-colors cursor-pointer"
+              className="text-[11px] font-bold text-[#4A3F39] hover:text-[#0E331E] flex items-center gap-1 p-1 rounded-md transition-colors cursor-pointer"
             >
               <RefreshCw className="w-3 h-3" />
               <span>Refresh</span>
