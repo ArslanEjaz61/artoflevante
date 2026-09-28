@@ -83,10 +83,12 @@ export async function pointsToCurrency(points: number | string): Promise<number>
 }
 
 export interface EligibleRewardCriteria {
+  customerId?: string;
   pointsBalance: number;
   visitCount: number;
   alreadyHeldRewardIds?: string[];
   currentlyAvailableVisitRewardThresholds?: number[];
+  totalRedeemedVisitRewardsCountByThreshold?: Record<number, number>;
 }
 
 /**
@@ -95,10 +97,12 @@ export interface EligibleRewardCriteria {
  * a random one is selected for the customer.
  */
 export async function newlyEligibleRewards({
+  customerId,
   pointsBalance,
   visitCount,
   alreadyHeldRewardIds = [],
   currentlyAvailableVisitRewardThresholds = [],
+  totalRedeemedVisitRewardsCountByThreshold = {},
 }: EligibleRewardCriteria) {
   const allRewards = await prisma.reward.findMany({
     where: { isActive: true, type: { in: ["POINTS", "VISITS"] } },
@@ -122,17 +126,37 @@ export async function newlyEligibleRewards({
     thresholdGroups[vr.threshold].push(vr);
   }
 
+  // If customerId is provided, query all customer rewards to calculate exact issued count
+  let customerRewardsInDb: any[] = [];
+  if (customerId) {
+    customerRewardsInDb = await prisma.customerReward.findMany({
+      where: { customerId, reward: { type: "VISITS" } },
+      include: { reward: true },
+    });
+  }
+
   for (const [threshStr, group] of Object.entries(thresholdGroups)) {
     const thresh = Number(threshStr);
     if (thresh <= 0) continue;
 
-    // Do not issue another visit reward if customer already holds an available unredeemed one for this threshold
-    if (currentlyAvailableVisitRewardThresholds.includes(thresh)) {
+    // Check if customer already holds an available unredeemed reward for this threshold
+    const hasAvailable = customerId
+      ? customerRewardsInDb.some((cr) => cr.status === "AVAILABLE" && cr.reward.threshold === thresh)
+      : currentlyAvailableVisitRewardThresholds.includes(thresh);
+
+    if (hasAvailable) {
       continue;
     }
 
-    // Check if total visit count qualifies for this milestone
-    if (visitCount > 0 && visitCount % thresh === 0) {
+    // Count how many rewards customer has already earned (redeemed + available) for this threshold
+    const totalAlreadyEarned = customerId
+      ? customerRewardsInDb.filter((cr) => cr.reward.threshold === thresh).length
+      : (totalRedeemedVisitRewardsCountByThreshold[thresh] || 0);
+
+    const requiredVisitsForNext = (totalAlreadyEarned + 1) * thresh;
+
+    // Check if total visit count qualifies for the next milestone in this cycle
+    if (visitCount >= requiredVisitsForNext) {
       // Filter out rewards the user already has held (if any)
       const candidates = group.filter((r) => !alreadyHeldRewardIds.includes(r.id));
       const pool = candidates.length > 0 ? candidates : group;
