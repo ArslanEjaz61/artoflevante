@@ -96,6 +96,46 @@ export async function GET() {
     }
   }
 
+  // Auto-check and issue Birthday Gift Reward if birthday is approaching
+  if (customer.birthday) {
+    const today = new Date();
+    const bday = new Date(customer.birthday);
+    const thisYear = today.getFullYear();
+    const isBirthdayMonth = today.getMonth() === bday.getMonth();
+
+    // Check if customer already received a birthday reward this year
+    const existingBirthdayReward = await prisma.customerReward.findFirst({
+      where: {
+        customerId,
+        reward: { type: "BIRTHDAY" },
+      },
+      orderBy: { issuedAt: "desc" },
+    });
+
+    const alreadyReceivedThisYear = existingBirthdayReward
+      ? new Date(existingBirthdayReward.issuedAt).getFullYear() === thisYear
+      : false;
+
+    if (isBirthdayMonth && !alreadyReceivedThisYear) {
+      const activeBirthdayReward = await prisma.reward.findFirst({
+        where: { type: "BIRTHDAY", isActive: true },
+      });
+
+      if (activeBirthdayReward) {
+        await prisma.customerReward.create({
+          data: {
+            customerId,
+            rewardId: activeBirthdayReward.id,
+            status: "AVAILABLE",
+            expiresAt: activeBirthdayReward.validDays
+              ? new Date(Date.now() + activeBirthdayReward.validDays * 86400_000)
+              : new Date(Date.now() + 30 * 86400_000),
+          },
+        });
+      }
+    }
+  }
+
   const rewards = await prisma.customerReward.findMany({
     where: { customerId },
     include: { reward: true },

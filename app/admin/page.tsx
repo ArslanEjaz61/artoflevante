@@ -75,11 +75,18 @@ import {
   User,
   PartyPopper,
   Globe,
+  Cake,
+  MailCheck,
+  Send,
+  Server,
+  AtSign,
+  MessageSquare,
 } from "lucide-react";
 import QRCode from "qrcode";
 import jsQR from "jsqr";
 import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/mobile";
 import { CountryCodePicker } from "@/components/CountryCodePicker";
+import { AdminNotificationBell } from "@/components/AdminNotificationBell";
 
 function StampIcon({ className = "w-7 h-7" }: { className?: string }) {
   return (
@@ -675,7 +682,7 @@ export default function AdminPage() {
     currency_value_per_redemption_points: "5",
     currency: "AED",
   });
-  const [settingsCategory, setSettingsCategory] = useState<"general" | "loyalty" | "security" | "password">("general");
+  const [settingsCategory, setSettingsCategory] = useState<"general" | "loyalty" | "security" | "password" | "email">("general");
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsMsg, setSettingsMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
@@ -809,6 +816,64 @@ export default function AdminPage() {
   });
   const [visitRewardSaving, setVisitRewardSaving] = useState(false);
   const [visitRewardMsg, setVisitRewardMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  // Birthday Gift & Special Treats Engine state
+  const [birthdayRewardsList, setBirthdayRewardsList] = useState<any[]>([]);
+  const [upcomingCelebrants, setUpcomingCelebrants] = useState<any[]>([]);
+  const [totalCelebrantsCount, setTotalCelebrantsCount] = useState(0);
+  const [showBirthdayRewardModal, setShowBirthdayRewardModal] = useState(false);
+  const [showDeleteBirthdayRewardModal, setShowDeleteBirthdayRewardModal] = useState(false);
+  const [birthdayRewardToDelete, setBirthdayRewardToDelete] = useState<any>(null);
+  const [editingBirthdayRewardId, setEditingBirthdayRewardId] = useState<string | null>(null);
+  const [birthdayRewardForm, setBirthdayRewardForm] = useState<{
+    name: string;
+    nameAr: string;
+    description: string;
+    descriptionAr: string;
+    value: number | string;
+    isPercent: boolean;
+    validDays: number | string;
+    isActive: boolean;
+  }>({
+    name: "",
+    nameAr: "",
+    description: "",
+    descriptionAr: "",
+    value: 20,
+    isPercent: true,
+    validDays: 30,
+    isActive: true,
+  });
+  const [birthdayRewardSaving, setBirthdayRewardSaving] = useState(false);
+  const [birthdayRewardMsg, setBirthdayRewardMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [dispatchingBirthdayId, setDispatchingBirthdayId] = useState<string | null>(null);
+
+  // Email Marketing & SMTP Hub State
+  const [emailSubTab, setEmailSubTab] = useState<"compose" | "smtp" | "logs">("compose");
+  const [smtpForm, setSmtpForm] = useState({
+    host: "",
+    port: "587",
+    secure: false,
+    user: "",
+    pass: "",
+    fromEmail: "",
+    fromName: "Bombay Chowpatty Loyalty Club",
+  });
+  const [smtpTestRecipient, setSmtpTestRecipient] = useState("");
+  const [smtpTesting, setSmtpTesting] = useState(false);
+  const [smtpSaving, setSmtpSaving] = useState(false);
+  const [smtpMsg, setSmtpMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [campaignForm, setCampaignForm] = useState({
+    targetAudience: "all" as "all" | "active" | "birthdays" | "single",
+    recipientEmail: "",
+    subject: "",
+    content: "",
+  });
+  const [campaignSending, setCampaignSending] = useState(false);
+  const [campaignMsg, setCampaignMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [emailLogs, setEmailLogs] = useState<any[]>([]);
+  const [emailStats, setEmailStats] = useState({ totalSent: 0, totalFailed: 0, totalCount: 0 });
+  const [loadingEmailLogs, setLoadingEmailLogs] = useState(false);
 
   // Customer Details Modal State
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
@@ -945,6 +1010,51 @@ export default function AdminPage() {
     } catch { }
   }, []);
 
+  const loadBirthdayRewards = useCallback(async () => {
+    try {
+      const r = await fetch("/api/admin/birthday-rewards");
+      const d = await r.json();
+      if (r.ok) {
+        if (d.rewards) setBirthdayRewardsList(d.rewards);
+        if (d.upcomingCelebrants) setUpcomingCelebrants(d.upcomingCelebrants);
+        if (d.totalCelebrantsCount !== undefined) setTotalCelebrantsCount(d.totalCelebrantsCount);
+      }
+    } catch { }
+  }, []);
+
+  const loadEmailSettings = useCallback(async () => {
+    try {
+      const r = await fetch("/api/admin/email/settings");
+      const d = await r.json();
+      if (r.ok && d.settings) {
+        setSmtpForm({
+          host: d.settings.host || "",
+          port: String(d.settings.port || 587),
+          secure: d.settings.secure || false,
+          user: d.settings.user || "",
+          pass: d.settings.pass || "",
+          fromEmail: d.settings.fromEmail || "",
+          fromName: d.settings.fromName || "Bombay Chowpatty Loyalty Club",
+        });
+      }
+    } catch { }
+  }, []);
+
+  const loadEmailLogs = useCallback(async () => {
+    setLoadingEmailLogs(true);
+    try {
+      const r = await fetch("/api/admin/email/send?limit=40");
+      const d = await r.json();
+      if (r.ok) {
+        if (d.logs) setEmailLogs(d.logs);
+        if (d.stats) setEmailStats(d.stats);
+      }
+    } catch { }
+    finally {
+      setLoadingEmailLogs(false);
+    }
+  }, []);
+
   const loadStaff = useCallback(async () => {
     try {
       const r = await fetch("/api/admin/staff");
@@ -983,6 +1093,9 @@ export default function AdminPage() {
     if (tab === "settings") {
       loadSettings();
       loadVisitRewards();
+      loadBirthdayRewards();
+      loadEmailSettings();
+      loadEmailLogs();
     }
     if (tab === "staff") {
       loadStaff();
@@ -992,7 +1105,7 @@ export default function AdminPage() {
       loadVisits();
       loadBranches();
     }
-  }, [tab, loadCustomers, loadAudit, loadOffers, loadBranches, loadSettings, loadVisitRewards, loadStaff, loadVisits]);
+  }, [tab, loadCustomers, loadAudit, loadOffers, loadBranches, loadSettings, loadVisitRewards, loadBirthdayRewards, loadEmailSettings, loadEmailLogs, loadStaff, loadVisits]);
 
   // Branch Coupon Generator Helper
   function generateRandomCouponCode(prefix: string) {
@@ -1288,6 +1401,243 @@ export default function AdminPage() {
     setVisitRewardToDelete(item);
     setVisitRewardMsg(null);
     setShowDeleteVisitRewardModal(true);
+  }
+
+  // Birthday Gift Reward Handlers
+  async function handleSaveBirthdayReward(e: React.FormEvent) {
+    e.preventDefault();
+    setBirthdayRewardSaving(true);
+    setBirthdayRewardMsg(null);
+    try {
+      const method = editingBirthdayRewardId ? "PATCH" : "POST";
+      const payload = editingBirthdayRewardId
+        ? { id: editingBirthdayRewardId, ...birthdayRewardForm }
+        : birthdayRewardForm;
+
+      const r = await fetch("/api/admin/birthday-rewards", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Failed to save birthday reward.");
+
+      setBirthdayRewardMsg({ type: "ok", text: d.message || "Birthday gift rule saved successfully!" });
+      setShowBirthdayRewardModal(false);
+      setEditingBirthdayRewardId(null);
+      setBirthdayRewardForm({
+        name: "",
+        nameAr: "",
+        description: "",
+        descriptionAr: "",
+        value: 20,
+        isPercent: true,
+        validDays: 30,
+        isActive: true,
+      });
+      loadBirthdayRewards();
+      loadOverview();
+    } catch (err2: any) {
+      setBirthdayRewardMsg({ type: "err", text: String(err2.message || err2) });
+    } finally {
+      setBirthdayRewardSaving(false);
+    }
+  }
+
+  async function handleToggleBirthdayReward(reward: any) {
+    try {
+      const r = await fetch("/api/admin/birthday-rewards", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: reward.id,
+          isActive: !reward.isActive,
+        }),
+      });
+      if (r.ok) {
+        loadBirthdayRewards();
+      }
+    } catch { }
+  }
+
+  async function handleDeleteBirthdayReward() {
+    if (!birthdayRewardToDelete) return;
+    setBusy(true);
+    setBirthdayRewardMsg(null);
+    try {
+      const r = await fetch(`/api/admin/birthday-rewards?id=${birthdayRewardToDelete.id}`, {
+        method: "DELETE",
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Failed to delete birthday reward.");
+      setBirthdayRewardMsg({ type: "ok", text: d.message || "Birthday reward rule removed." });
+      setShowDeleteBirthdayRewardModal(false);
+      setBirthdayRewardToDelete(null);
+      loadBirthdayRewards();
+      loadOverview();
+    } catch (err2: any) {
+      setBirthdayRewardMsg({ type: "err", text: String(err2.message || err2) });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function openCreateBirthdayReward() {
+    setEditingBirthdayRewardId(null);
+    setBirthdayRewardForm({
+      name: "",
+      nameAr: "",
+      description: "",
+      descriptionAr: "",
+      value: 20,
+      isPercent: true,
+      validDays: 30,
+      isActive: true,
+    });
+    setBirthdayRewardMsg(null);
+    setShowBirthdayRewardModal(true);
+  }
+
+  function openEditBirthdayReward(item: any) {
+    setEditingBirthdayRewardId(item.id);
+    setBirthdayRewardForm({
+      name: item.name || "",
+      nameAr: item.nameAr || "",
+      description: item.description || "",
+      descriptionAr: item.descriptionAr || "",
+      value: item.value || 0,
+      isPercent: item.isPercent !== undefined ? item.isPercent : true,
+      validDays: item.validDays || 30,
+      isActive: item.isActive !== undefined ? item.isActive : true,
+    });
+    setBirthdayRewardMsg(null);
+    setShowBirthdayRewardModal(true);
+  }
+
+  function openDeleteBirthdayReward(item: any) {
+    setBirthdayRewardToDelete(item);
+    setBirthdayRewardMsg(null);
+    setShowDeleteBirthdayRewardModal(true);
+  }
+
+  async function handleGrantBirthdayTreat(customerId: string, rewardId?: string) {
+    setDispatchingBirthdayId(customerId);
+    setBirthdayRewardMsg(null);
+    try {
+      const r = await fetch("/api/admin/birthday-rewards", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "grant",
+          customerId,
+          rewardId,
+        }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Failed to dispatch birthday gift.");
+      setBirthdayRewardMsg({ type: "ok", text: d.message || "Birthday gift issued successfully!" });
+      loadBirthdayRewards();
+      loadOverview();
+    } catch (err2: any) {
+      setBirthdayRewardMsg({ type: "err", text: String(err2.message || err2) });
+    } finally {
+      setDispatchingBirthdayId(null);
+    }
+  }
+
+  async function handleDispatchAllBirthdayTreats() {
+    setDispatchingBirthdayId("ALL");
+    setBirthdayRewardMsg(null);
+    try {
+      const r = await fetch("/api/admin/birthday-rewards", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "grant",
+          customerId: "ALL_UPCOMING",
+        }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Failed to dispatch birthday gifts.");
+      setBirthdayRewardMsg({ type: "ok", text: d.message || "All upcoming birthday treats issued!" });
+      loadBirthdayRewards();
+      loadOverview();
+    } catch (err2: any) {
+      setBirthdayRewardMsg({ type: "err", text: String(err2.message || err2) });
+    } finally {
+      setDispatchingBirthdayId(null);
+    }
+  }
+
+  // Email SMTP & Campaign Handlers
+  async function handleSaveSmtpSettings(e: React.FormEvent) {
+    e.preventDefault();
+    setSmtpSaving(true);
+    setSmtpMsg(null);
+    try {
+      const r = await fetch("/api/admin/email/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(smtpForm),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Failed to save SMTP settings.");
+      setSmtpMsg({ type: "ok", text: d.message || "SMTP configuration saved live!" });
+      loadEmailSettings();
+    } catch (err2: any) {
+      setSmtpMsg({ type: "err", text: String(err2.message || err2) });
+    } finally {
+      setSmtpSaving(false);
+    }
+  }
+
+  async function handleTestSmtpConnection(e: React.FormEvent) {
+    e.preventDefault();
+    if (!smtpTestRecipient) {
+      setSmtpMsg({ type: "err", text: "Please enter a test recipient email address." });
+      return;
+    }
+    setSmtpTesting(true);
+    setSmtpMsg(null);
+    try {
+      const r = await fetch("/api/admin/email/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "test",
+          testRecipient: smtpTestRecipient,
+          ...smtpForm,
+        }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "SMTP test connection failed.");
+      setSmtpMsg({ type: "ok", text: d.message || `Test email successfully sent to ${smtpTestRecipient}!` });
+    } catch (err2: any) {
+      setSmtpMsg({ type: "err", text: String(err2.message || err2) });
+    } finally {
+      setSmtpTesting(false);
+    }
+  }
+
+  async function handleSendCampaignEmail(e: React.FormEvent) {
+    e.preventDefault();
+    setCampaignSending(true);
+    setCampaignMsg(null);
+    try {
+      const r = await fetch("/api/admin/email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(campaignForm),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Failed to send email broadcast.");
+      setCampaignMsg({ type: "ok", text: d.message || "Email broadcast dispatched successfully!" });
+      loadEmailLogs();
+    } catch (err2: any) {
+      setCampaignMsg({ type: "err", text: String(err2.message || err2) });
+    } finally {
+      setCampaignSending(false);
+    }
   }
 
   // Staff CRUD Handlers
@@ -1885,6 +2235,8 @@ export default function AdminPage() {
               <span className="hidden sm:inline">Customer Portal</span>
             </Link>
 
+            <AdminNotificationBell />
+
             <button
               onClick={() => {
                 loadOverview();
@@ -1892,7 +2244,13 @@ export default function AdminPage() {
                 if (tab === "audit") loadAudit();
                 if (tab === "offers") loadOffers();
                 if (tab === "branches") loadBranches();
-                if (tab === "settings") loadSettings();
+                if (tab === "settings") {
+                  loadSettings();
+                  loadVisitRewards();
+                  loadBirthdayRewards();
+                  loadEmailSettings();
+                  loadEmailLogs();
+                }
               }}
               disabled={refreshing}
               className="flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-xl border border-[#DCD3CB] bg-white hover:bg-[#FAF7F4] text-xs font-bold text-[#4A3F39] shadow-sm transition-all cursor-pointer disabled:opacity-50"
@@ -4754,6 +5112,21 @@ export default function AdminPage() {
                   <KeyRound className="w-4 h-4 shrink-0" />
                   <span>Admin PIN &amp; Password</span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSettingsCategory("email");
+                    loadEmailSettings();
+                    loadEmailLogs();
+                  }}
+                  className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${settingsCategory === "email"
+                    ? "bg-[#C0392B] text-white shadow-md shadow-[#C0392B]/20"
+                    : "bg-white border border-[#EAE3DC] text-[#4A3F39] hover:bg-[#FAF7F4]"
+                    }`}
+                >
+                  <Mail className="w-4 h-4 shrink-0" />
+                  <span>Email &amp; SMTP Config</span>
+                </button>
               </div>
 
               {/* ========================================================= */}
@@ -5341,8 +5714,765 @@ export default function AdminPage() {
                 </div>
               )}
 
+              {/* ========================================================= */}
+              {/* BIRTHDAY GIFT & SPECIAL TREATS ENGINE                    */}
+              {/* (Customer ki birthday anay par gift / perks automated)     */}
+              {/* ========================================================= */}
+              {settingsCategory === "loyalty" && (
+                <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-[#EAE3DC] shadow-sm space-y-4 sm:space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-[#EAE3DC] pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 sm:w-11 h-10 sm:h-11 rounded-2xl bg-gradient-to-br from-[#EC4899] to-[#BE185D] flex items-center justify-center font-bold text-white shadow-md shadow-[#EC4899]/30 shrink-0">
+                        <Cake className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-black tracking-tight text-[#1E1815] flex items-center gap-2 flex-wrap">
+                          <span>Birthday Gift &amp; Special Treats Engine</span>
+                          <span className="px-2.5 py-0.5 rounded-full bg-[#EC4899]/10 text-[#BE185D] border border-[#EC4899]/20 text-[10px] font-black uppercase tracking-wider">
+                            {birthdayRewardsList.length} Gift Rules Configured
+                          </span>
+                        </h3>
+                        <p className="text-xs text-[#7A6E67] mt-0.5">
+                          Automated Birthday Perk: Customers whose birthday is approaching receive a special gift voucher, bonus points, or free treat!
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {upcomingCelebrants.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={handleDispatchAllBirthdayTreats}
+                          disabled={dispatchingBirthdayId === "ALL"}
+                          className="w-full sm:w-auto justify-center flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-[#EC4899] to-[#BE185D] hover:from-[#DB2777] text-white font-bold text-xs shadow-md shadow-[#EC4899]/20 transition-all cursor-pointer shrink-0 disabled:opacity-50"
+                        >
+                          <PartyPopper className="w-4 h-4" />
+                          <span>{dispatchingBirthdayId === "ALL" ? "Dispatching..." : `Auto-Send to ${upcomingCelebrants.length} Celebrants`}</span>
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={openCreateBirthdayReward}
+                        className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#C0392B] to-[#96291D] hover:from-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 transition-all cursor-pointer shrink-0"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add Birthday Gift</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {birthdayRewardMsg && (
+                    <div
+                      className={`p-3.5 rounded-2xl text-xs font-bold flex items-center justify-between ${
+                        birthdayRewardMsg.type === "ok"
+                          ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
+                          : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {birthdayRewardMsg.type === "ok" ? (
+                          <Check className="w-4 h-4 shrink-0" />
+                        ) : (
+                          <AlertCircle className="w-4 h-4 shrink-0" />
+                        )}
+                        <span>{birthdayRewardMsg.text}</span>
+                      </div>
+                      <button onClick={() => setBirthdayRewardMsg(null)}>
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Birthday Gift Rules Grid */}
+                  {birthdayRewardsList.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                      {birthdayRewardsList.map((reward, index) => (
+                        <div
+                          key={reward.id}
+                          className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col justify-between relative overflow-hidden ${
+                            reward.isActive
+                              ? "bg-gradient-to-br from-[#FFF5F8] to-[#FAF7F4] border-[#FBCFE8] shadow-2xs hover:shadow-md"
+                              : "bg-[#F5F2EF]/60 border-[#E5DDD6] opacity-70"
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <span className="px-3 py-1 rounded-xl bg-gradient-to-r from-[#EC4899] to-[#BE185D] text-white font-black text-xs tracking-wider shadow-xs flex items-center gap-1.5">
+                                  <Cake className="w-3.5 h-3.5" />
+                                  <span>{reward.isPercent ? `${reward.value}% OFF` : reward.value > 0 ? `${reward.value} AED / PTS` : "FREE TREAT"}</span>
+                                </span>
+                                <span className="text-[10px] font-bold text-[#BE185D] uppercase tracking-wider">
+                                  Gift #{index + 1}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => openEditBirthdayReward(reward)}
+                                  className="p-1.5 rounded-lg text-[#7A6E67] hover:text-[#1E1815] hover:bg-white transition-colors cursor-pointer"
+                                  title="Edit Birthday Gift"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => openDeleteBirthdayReward(reward)}
+                                  className="p-1.5 rounded-lg text-[#C0392B] hover:bg-[#C0392B]/10 transition-colors cursor-pointer"
+                                  title="Delete Birthday Gift"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+
+                            <h4 className="font-extrabold text-sm text-[#1E1815] mb-1">
+                              {reward.name}
+                            </h4>
+                            {reward.nameAr && (
+                              <div className="text-xs text-[#7A6E67] font-semibold mb-2" dir="rtl">
+                                {reward.nameAr}
+                              </div>
+                            )}
+                            <p className="text-xs text-[#7A6E67] leading-relaxed mb-4">
+                              {reward.description || "Special birthday treat voucher unlocked during birthday month."}
+                            </p>
+                          </div>
+
+                          <div className="pt-3 border-t border-[#EAE3DC] space-y-2">
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="text-[#7A6E67] flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-[#C68A1E]" />
+                                <span>Valid for {reward.validDays || 30} days</span>
+                              </span>
+                              <span className="font-mono font-bold text-[#BE185D]">
+                                {reward.claimCount || 0} Celebrated
+                              </span>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-1">
+                              <span className="text-[10px] text-[#8C7F78] uppercase font-bold tracking-wider">
+                                Status
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleToggleBirthdayReward(reward)}
+                                className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black cursor-pointer transition-colors ${
+                                  reward.isActive
+                                    ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20 hover:bg-[#1E7A4D]/20"
+                                    : "bg-[#7A6E67]/10 text-[#7A6E67] border border-[#7A6E67]/20 hover:bg-[#7A6E67]/20"
+                                }`}
+                              >
+                                <span
+                                  className={`w-1.5 h-1.5 rounded-full ${
+                                    reward.isActive ? "bg-[#1E7A4D]" : "bg-[#7A6E67]"
+                                  }`}
+                                />
+                                <span>{reward.isActive ? "ACTIVE" : "PAUSED"}</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl p-6">
+                      <Cake className="w-10 h-10 text-[#EC4899]/40 mx-auto mb-2" />
+                      <h4 className="font-bold text-sm text-[#1E1815]">No Birthday Gift Rules Active</h4>
+                      <p className="text-xs text-[#7A6E67] max-w-md mx-auto mt-1 mb-4">
+                        Set up a birthday treat (e.g. Free Royal Falooda, +100 Birthday Points, or 20% Discount Voucher) so diners celebrate their special day with you!
+                      </p>
+                      <button
+                        type="button"
+                        onClick={openCreateBirthdayReward}
+                        className="w-full sm:w-auto px-4 py-2 bg-[#EC4899] hover:bg-[#DB2777] text-white font-bold text-xs rounded-xl shadow-md cursor-pointer"
+                      >
+                        Create Birthday Gift Rule
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Upcoming Birthday Celebrants Sub-Panel */}
+                  <div className="pt-4 border-t border-[#EAE3DC]">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <PartyPopper className="w-4 h-4 text-[#EC4899]" />
+                        <h4 className="font-extrabold text-sm text-[#1E1815]">
+                          Upcoming Birthday Celebrants (Next 45 Days)
+                        </h4>
+                      </div>
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#FAF7F4] border border-[#EAE3DC] text-[11px] font-bold text-[#7A6E67]">
+                        {upcomingCelebrants.length} Member{upcomingCelebrants.length === 1 ? "" : "s"}
+                      </span>
+                    </div>
+
+                    {upcomingCelebrants.length > 0 ? (
+                      <div className="overflow-x-auto rounded-xl border border-[#EAE3DC]">
+                        <table className="w-full text-left text-xs">
+                          <thead className="bg-[#FAF7F4] border-b border-[#EAE3DC] text-[10px] font-black uppercase tracking-wider text-[#7A6E67]">
+                            <tr>
+                              <th className="py-2.5 px-3">Member</th>
+                              <th className="py-2.5 px-3">Birthday</th>
+                              <th className="py-2.5 px-3">Days Left</th>
+                              <th className="py-2.5 px-3">Gift Status</th>
+                              <th className="py-2.5 px-3 text-right">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-[#EAE3DC]">
+                            {upcomingCelebrants.map((c) => (
+                              <tr key={c.id} className="hover:bg-[#FAF7F4]/60 transition-colors">
+                                <td className="py-2.5 px-3">
+                                  <div className="font-bold text-[#1E1815]">{c.name}</div>
+                                  <div className="text-[10px] text-[#7A6E67]">{c.mobile}</div>
+                                </td>
+                                <td className="py-2.5 px-3 font-semibold text-[#4A3F39]">
+                                  {c.birthday ? new Date(c.birthday).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "—"}
+                                </td>
+                                <td className="py-2.5 px-3">
+                                  {c.daysUntilBirthday === 0 ? (
+                                    <span className="px-2 py-0.5 rounded-full bg-[#EC4899] text-white text-[10px] font-black animate-pulse">
+                                      TODAY! 🎉
+                                    </span>
+                                  ) : c.daysUntilBirthday !== null && c.daysUntilBirthday <= 7 ? (
+                                    <span className="px-2 py-0.5 rounded-full bg-[#EC4899]/10 text-[#BE185D] text-[10px] font-black">
+                                      In {c.daysUntilBirthday} day{c.daysUntilBirthday > 1 ? "s" : ""}
+                                    </span>
+                                  ) : (
+                                    <span className="text-[#7A6E67] font-medium">
+                                      In {c.daysUntilBirthday} days
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="py-2.5 px-3">
+                                  {c.alreadyReceivedThisYear ? (
+                                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#1E7A4D]">
+                                      <CheckCircle2 className="w-3.5 h-3.5" />
+                                      <span>Treat Issued</span>
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#C68A1E]">
+                                      <Clock className="w-3.5 h-3.5" />
+                                      <span>Ready to Send</span>
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="py-2.5 px-3 text-right">
+                                  {!c.alreadyReceivedThisYear ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleGrantBirthdayTreat(c.id)}
+                                      disabled={dispatchingBirthdayId === c.id}
+                                      className="px-3 py-1.5 rounded-lg bg-[#EC4899] hover:bg-[#BE185D] text-white font-bold text-[11px] shadow-2xs transition-all cursor-pointer disabled:opacity-50 inline-flex items-center gap-1"
+                                    >
+                                      <Gift className="w-3 h-3" />
+                                      <span>{dispatchingBirthdayId === c.id ? "Sending..." : "Send Gift"}</span>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleGrantBirthdayTreat(c.id)}
+                                      disabled={dispatchingBirthdayId === c.id}
+                                      className="px-2.5 py-1 rounded-lg border border-[#DCD3CB] text-[#7A6E67] hover:text-[#1E1815] text-[10px] font-bold transition-all cursor-pointer"
+                                      title="Re-send Treat Voucher"
+                                    >
+                                      Re-send
+                                    </button>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-[#7A6E67] italic bg-[#FAF7F4] p-3 rounded-xl border border-[#EAE3DC]">
+                        No registered members with birthdays recorded in the upcoming 45 days.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* ========================================================= */}
+              {/* TAB CONTENT: EMAIL MARKETING & SMTP CONFIG HUB            */}
+              {/* ========================================================= */}
+              {settingsCategory === "email" && (
+                <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-7 border border-[#EAE3DC] shadow-sm space-y-4 sm:space-y-6">
+                  {/* Email Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EAE3DC] pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#0EA5E9] to-[#0284C7] flex items-center justify-center font-bold text-white shadow-md shadow-[#0EA5E9]/30 shrink-0">
+                        <Mail className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-black tracking-tight text-[#1E1815] flex items-center gap-2 flex-wrap">
+                          <span>Email Marketing &amp; SMTP Sender Hub</span>
+                          <span className="px-2.5 py-0.5 rounded-full bg-[#0EA5E9]/10 text-[#0284C7] border border-[#0EA5E9]/20 text-[10px] font-black uppercase tracking-wider">
+                            Direct Delivery
+                          </span>
+                        </h3>
+                        <p className="text-xs text-[#7A6E67] mt-0.5">
+                          Configure your SMTP email server and send direct announcements, promotion vouchers, or birthday greetings to customers.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Email Sub-Tabs */}
+                    <div className="flex items-center bg-[#FAF7F4] p-1 rounded-xl border border-[#EAE3DC] gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setEmailSubTab("compose")}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          emailSubTab === "compose"
+                            ? "bg-[#801313] text-white shadow-2xs"
+                            : "text-[#7A6E67] hover:text-[#1E1815]"
+                        }`}
+                      >
+                        Compose Email
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEmailSubTab("smtp")}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          emailSubTab === "smtp"
+                            ? "bg-[#801313] text-white shadow-2xs"
+                            : "text-[#7A6E67] hover:text-[#1E1815]"
+                        }`}
+                      >
+                        SMTP Config
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEmailSubTab("logs");
+                          loadEmailLogs();
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          emailSubTab === "logs"
+                            ? "bg-[#801313] text-white shadow-2xs"
+                            : "text-[#7A6E67] hover:text-[#1E1815]"
+                        }`}
+                      >
+                        Sent History ({emailStats.totalCount})
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Sub-tab 1: Compose & Broadcast Email */}
+                  {emailSubTab === "compose" && (
+                    <form onSubmit={handleSendCampaignEmail} className="space-y-4 max-w-3xl">
+                      {campaignMsg && (
+                        <div
+                          className={`p-3.5 rounded-2xl text-xs font-bold flex items-center justify-between ${
+                            campaignMsg.type === "ok"
+                              ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
+                              : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            {campaignMsg.type === "ok" ? (
+                              <Check className="w-4 h-4 shrink-0" />
+                            ) : (
+                              <AlertCircle className="w-4 h-4 shrink-0" />
+                            )}
+                            <span>{campaignMsg.text}</span>
+                          </div>
+                          <button onClick={() => setCampaignMsg(null)}>
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Audience Selector */}
+                      <div>
+                        <label className="block text-xs font-bold text-[#1E1815] uppercase tracking-wider mb-1.5">
+                          Target Recipient Audience *
+                        </label>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                          {[
+                            { id: "all", label: "All Customers", desc: "All members with email" },
+                            { id: "active", label: "Active Diners", desc: "Visited in last 45 days" },
+                            { id: "birthdays", label: "Birthday Month", desc: "Birthdays this month" },
+                            { id: "single", label: "Specific Email", desc: "Custom single address" },
+                          ].map((aud) => (
+                            <button
+                              key={aud.id}
+                              type="button"
+                              onClick={() => setCampaignForm({ ...campaignForm, targetAudience: aud.id as any })}
+                              className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                                campaignForm.targetAudience === aud.id
+                                  ? "border-[#801313] bg-[#801313]/5 ring-1 ring-[#801313]"
+                                  : "border-[#EAE3DC] bg-[#FAF7F4] hover:bg-white"
+                              }`}
+                            >
+                              <div className="font-extrabold text-xs text-[#1E1815]">{aud.label}</div>
+                              <div className="text-[10px] text-[#7A6E67] mt-0.5">{aud.desc}</div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {campaignForm.targetAudience === "single" && (
+                        <div>
+                          <label className="block text-xs font-bold text-[#1E1815] uppercase tracking-wider mb-1.5">
+                            Recipient Email Address *
+                          </label>
+                          <input
+                            type="email"
+                            required
+                            value={campaignForm.recipientEmail}
+                            onChange={(e) => setCampaignForm({ ...campaignForm, recipientEmail: e.target.value })}
+                            placeholder="customer@example.com"
+                            className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-sm font-medium text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                          />
+                        </div>
+                      )}
+
+                      {/* Subject */}
+                      <div>
+                        <label className="block text-xs font-bold text-[#1E1815] uppercase tracking-wider mb-1.5">
+                          Email Subject Line *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={campaignForm.subject}
+                          onChange={(e) => setCampaignForm({ ...campaignForm, subject: e.target.value })}
+                          placeholder="e.g. Exclusive Weekend Treat: 20% Off Your Next Meal at Bombay Chowpatty!"
+                          className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-sm font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                        />
+                      </div>
+
+                      {/* Template Presets Quick Fill */}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#7A6E67]">
+                          Template Presets:
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCampaignForm({
+                              ...campaignForm,
+                              subject: "🎂 Happy Birthday {customer_name}! A Special Treat Awaits You at Bombay Chowpatty",
+                              content: `<h2 style="color: #801313; margin-top: 0;">Happy Birthday, {customer_name}! 🎂</h2>
+<p>We are delighted to celebrate your special day with you! To make your birthday even sweeter, we have added a special birthday voucher to your Loyalty Club wallet.</p>
+<div style="background: #FAF3E6; border: 1px dashed #C68A1E; border-radius: 12px; padding: 16px; margin: 16px 0; text-align: center;">
+  <p style="font-weight: bold; color: #9E690B; font-size: 14px; margin: 0;">SPECIAL BIRTHDAY GIFT</p>
+  <p style="font-size: 18px; font-weight: 900; color: #801313; margin: 6px 0;">Complimentary Royal Dessert + 20% Off</p>
+  <p style="font-size: 12px; color: #7A6E67; margin: 0;">Valid for 30 days at any of our 14 UAE branches.</p>
+</div>
+<p>Your Current Loyalty Balance: <strong>{points_balance} Points</strong></p>
+<p>Show your digital loyalty card or phone number at checkout to redeem!</p>`,
+                            })
+                          }
+                          className="px-2.5 py-1 rounded-lg bg-[#FAF7F4] border border-[#DCD3CB] hover:bg-[#FAF3E6] text-[11px] font-bold text-[#BE185D] cursor-pointer"
+                        >
+                          Birthday Wishes
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCampaignForm({
+                              ...campaignForm,
+                              subject: "🔥 Double Points Weekend at Bombay Chowpatty!",
+                              content: `<h2 style="color: #801313; margin-top: 0;">Exclusive Member Perk for {customer_name} 🌟</h2>
+<p>This weekend, enjoy <strong>DOUBLE LOYALTY POINTS (2x)</strong> on every order placed across all our outlets in Dubai, Sharjah, and Ajman!</p>
+<p>Earn points faster and redeem them for delicious cash discounts and free menu favorites.</p>
+<div style="background: #EAF5EE; border: 1px solid #C8E6D3; border-radius: 10px; padding: 14px; margin: 16px 0;">
+  <p style="margin: 0; color: #1E7A4D; font-weight: bold; font-size: 13px;">Your Current Points: {points_balance} Points</p>
+</div>
+<p>We look forward to serving you this weekend!</p>`,
+                            })
+                          }
+                          className="px-2.5 py-1 rounded-lg bg-[#FAF7F4] border border-[#DCD3CB] hover:bg-[#FAF3E6] text-[11px] font-bold text-[#801313] cursor-pointer"
+                        >
+                          Weekend Promo
+                        </button>
+                      </div>
+
+                      {/* Content Body */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-xs font-bold text-[#1E1815] uppercase tracking-wider">
+                            Email HTML Message Body *
+                          </label>
+                          <div className="flex items-center gap-1.5 text-[10px] font-mono text-[#7A6E67]">
+                            <span>Tags:</span>
+                            <code className="bg-[#FAF7F4] px-1.5 py-0.5 rounded border border-[#EAE3DC] text-[#801313]">
+                              {"{customer_name}"}
+                            </code>
+                            <code className="bg-[#FAF7F4] px-1.5 py-0.5 rounded border border-[#EAE3DC] text-[#801313]">
+                              {"{points_balance}"}
+                            </code>
+                          </div>
+                        </div>
+                        <textarea
+                          required
+                          rows={8}
+                          value={campaignForm.content}
+                          onChange={(e) => setCampaignForm({ ...campaignForm, content: e.target.value })}
+                          placeholder="Write your email message in HTML or plain text..."
+                          className="w-full px-4 py-3 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-mono text-[#1E1815] focus:outline-none focus:border-[#801313] leading-relaxed"
+                        />
+                      </div>
+
+                      {/* Send Button */}
+                      <div className="pt-2 flex justify-end">
+                        <button
+                          type="submit"
+                          disabled={campaignSending || !campaignForm.subject || !campaignForm.content}
+                          className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#801313] to-[#591313] hover:from-[#6A0F0F] text-white font-bold text-xs shadow-md shadow-[#801313]/20 transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          <Send className="w-4 h-4" />
+                          <span>{campaignSending ? "Broadcasting Emails..." : "Send Email Campaign"}</span>
+                        </button>
+                      </div>
+                    </form>
+                  )}
+
+                  {/* Sub-tab 2: SMTP Configuration */}
+                  {emailSubTab === "smtp" && (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      <form onSubmit={handleSaveSmtpSettings} className="lg:col-span-2 space-y-4">
+                        {smtpMsg && (
+                          <div
+                            className={`p-3.5 rounded-2xl text-xs font-bold flex items-center justify-between ${
+                              smtpMsg.type === "ok"
+                                ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
+                                : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              {smtpMsg.type === "ok" ? (
+                                <Check className="w-4 h-4 shrink-0" />
+                              ) : (
+                                <AlertCircle className="w-4 h-4 shrink-0" />
+                              )}
+                              <span>{smtpMsg.text}</span>
+                            </div>
+                            <button onClick={() => setSmtpMsg(null)}>
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <div className="sm:col-span-2">
+                            <label className="block text-xs font-bold text-[#1E1815] uppercase tracking-wider mb-1.5">
+                              SMTP Host Server *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={smtpForm.host}
+                              onChange={(e) => setSmtpForm({ ...smtpForm, host: e.target.value })}
+                              placeholder="e.g. smtp.gmail.com or smtp.sendgrid.net"
+                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-[#1E1815] uppercase tracking-wider mb-1.5">
+                              Port *
+                            </label>
+                            <input
+                              type="number"
+                              required
+                              value={smtpForm.port}
+                              onChange={(e) => setSmtpForm({ ...smtpForm, port: e.target.value })}
+                              placeholder="587"
+                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-bold text-[#1E1815] uppercase tracking-wider mb-1.5">
+                              SMTP Username / Email *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={smtpForm.user}
+                              onChange={(e) => setSmtpForm({ ...smtpForm, user: e.target.value })}
+                              placeholder="e.g. notifications@bombaychowpatty.com"
+                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-medium text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-[#1E1815] uppercase tracking-wider mb-1.5">
+                              SMTP Password / App Key *
+                            </label>
+                            <input
+                              type="password"
+                              value={smtpForm.pass}
+                              onChange={(e) => setSmtpForm({ ...smtpForm, pass: e.target.value })}
+                              placeholder="••••••••••••"
+                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-medium text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-bold text-[#1E1815] uppercase tracking-wider mb-1.5">
+                              Sender Display Name
+                            </label>
+                            <input
+                              type="text"
+                              value={smtpForm.fromName}
+                              onChange={(e) => setSmtpForm({ ...smtpForm, fromName: e.target.value })}
+                              placeholder="Bombay Chowpatty Loyalty Club"
+                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-medium text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-[#1E1815] uppercase tracking-wider mb-1.5">
+                              From Email Address
+                            </label>
+                            <input
+                              type="email"
+                              value={smtpForm.fromEmail}
+                              onChange={(e) => setSmtpForm({ ...smtpForm, fromEmail: e.target.value })}
+                              placeholder="loyalty@bombaychowpatty.com"
+                              className="w-full px-4 py-2.5 bg-[#FAF7F4] border border-[#DCD3CB] rounded-xl text-xs font-medium text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-1">
+                          <input
+                            type="checkbox"
+                            id="smtpSecure"
+                            checked={smtpForm.secure}
+                            onChange={(e) => setSmtpForm({ ...smtpForm, secure: e.target.checked })}
+                            className="w-4 h-4 rounded text-[#801313] focus:ring-[#801313]"
+                          />
+                          <label htmlFor="smtpSecure" className="text-xs font-bold text-[#1E1815] cursor-pointer">
+                            Enable SSL / TLS Encryption (Port 465)
+                          </label>
+                        </div>
+
+                        <div className="pt-2 flex justify-end">
+                          <button
+                            type="submit"
+                            disabled={smtpSaving}
+                            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs shadow-md transition-all cursor-pointer disabled:opacity-50"
+                          >
+                            <Save className="w-4 h-4" />
+                            <span>{smtpSaving ? "Saving Config..." : "Save SMTP Settings"}</span>
+                          </button>
+                        </div>
+                      </form>
+
+                      {/* Right: Live Connection Tester */}
+                      <div className="p-5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex flex-col justify-between space-y-4">
+                        <div>
+                          <div className="flex items-center gap-2 text-[#1E1815] font-extrabold text-sm mb-1">
+                            <Server className="w-4 h-4 text-[#0EA5E9]" />
+                            <span>Live SMTP Tester</span>
+                          </div>
+                          <p className="text-xs text-[#7A6E67] leading-relaxed">
+                            Send a real-time verification email to verify your SMTP host, port, and credentials.
+                          </p>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-[11px] font-bold text-[#7A6E67] uppercase mb-1">
+                              Test Recipient Email:
+                            </label>
+                            <input
+                              type="email"
+                              value={smtpTestRecipient}
+                              onChange={(e) => setSmtpTestRecipient(e.target.value)}
+                              placeholder="your-email@example.com"
+                              className="w-full px-3 py-2 bg-white border border-[#DCD3CB] rounded-xl text-xs font-medium text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                            />
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={handleTestSmtpConnection}
+                            disabled={smtpTesting || !smtpTestRecipient}
+                            className="w-full py-2 px-4 rounded-xl bg-gradient-to-r from-[#0EA5E9] to-[#0284C7] hover:from-[#0284C7] text-white font-bold text-xs shadow-md shadow-[#0EA5E9]/20 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+                          >
+                            <MailCheck className="w-4 h-4" />
+                            <span>{smtpTesting ? "Sending Test Email..." : "Send Test Email"}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Sub-tab 3: Sent Email History Logs */}
+                  {emailSubTab === "logs" && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="p-3 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl">
+                          <div className="text-[10px] font-bold text-[#7A6E67] uppercase">Total Dispatched</div>
+                          <div className="text-lg font-black text-[#1E1815]">{emailStats.totalCount}</div>
+                        </div>
+                        <div className="p-3 bg-[#EAF5EE] border border-[#C8E6D3] rounded-xl">
+                          <div className="text-[10px] font-bold text-[#1E7A4D] uppercase">Successful Sent</div>
+                          <div className="text-lg font-black text-[#1E7A4D]">{emailStats.totalSent}</div>
+                        </div>
+                        <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
+                          <div className="text-[10px] font-bold text-red-800 uppercase">Failed</div>
+                          <div className="text-lg font-black text-red-800">{emailStats.totalFailed}</div>
+                        </div>
+                      </div>
+
+                      {loadingEmailLogs ? (
+                        <div className="text-center py-8 text-xs text-[#7A6E67]">Loading email history...</div>
+                      ) : emailLogs.length > 0 ? (
+                        <div className="overflow-x-auto rounded-xl border border-[#EAE3DC]">
+                          <table className="w-full text-left text-xs">
+                            <thead className="bg-[#FAF7F4] border-b border-[#EAE3DC] text-[10px] font-black uppercase tracking-wider text-[#7A6E67]">
+                              <tr>
+                                <th className="py-2.5 px-3">Recipient</th>
+                                <th className="py-2.5 px-3">Subject</th>
+                                <th className="py-2.5 px-3">Status</th>
+                                <th className="py-2.5 px-3">Date</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#EAE3DC]">
+                              {emailLogs.map((log) => (
+                                <tr key={log.id} className="hover:bg-[#FAF7F4]/60">
+                                  <td className="py-2.5 px-3 font-bold text-[#1E1815]">{log.recipient}</td>
+                                  <td className="py-2.5 px-3 text-[#5C504A] max-w-xs truncate">{log.subject}</td>
+                                  <td className="py-2.5 px-3">
+                                    <span
+                                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                        log.status === "SENT"
+                                          ? "bg-[#1E7A4D]/10 text-[#1E7A4D]"
+                                          : "bg-red-100 text-red-700"
+                                      }`}
+                                    >
+                                      {log.status}
+                                    </span>
+                                  </td>
+                                  <td className="py-2.5 px-3 text-[#7A6E67]">{new Date(log.createdAt).toLocaleString()}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <p className="text-center py-8 text-xs text-[#7A6E67]">No email logs recorded yet.</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* General / Category Settings Form */}
-              {settingsCategory !== "password" && (
+              {settingsCategory !== "password" && settingsCategory !== "email" && (
                 <form onSubmit={handleSaveSettings} className="bg-white border border-[#EAE3DC] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#EAE3DC] pb-3">
                     <h3 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
@@ -7303,6 +8433,199 @@ export default function AdminPage() {
               <button
                 type="button"
                 onClick={handleDeleteVisitReward}
+                disabled={busy}
+                className="px-5 py-2 rounded-xl bg-[#C0392B] hover:bg-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
+              >
+                {busy ? "Deleting…" : "Confirm Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: CREATE / EDIT BIRTHDAY GIFT REWARD                      */}
+      {/* ============================================================== */}
+      {showBirthdayRewardModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-extrabold text-lg text-[#1E1815] flex items-center gap-2">
+                <Cake className="w-5 h-5 text-[#EC4899]" />
+                {editingBirthdayRewardId ? "Edit Birthday Gift Rule" : "Add New Birthday Gift Rule"}
+              </h3>
+              <button
+                onClick={() => setShowBirthdayRewardModal(false)}
+                className="p-1 rounded-lg text-[#7A6E67] hover:bg-[#FAF7F4]"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveBirthdayReward} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                    Gift Value / Discount *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      required
+                      min={0}
+                      step={0.5}
+                      value={birthdayRewardForm.value}
+                      onChange={(e) => setBirthdayRewardForm({ ...birthdayRewardForm, value: e.target.value })}
+                      placeholder="e.g. 20"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#EC4899]"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8C7F78]">
+                      {birthdayRewardForm.isPercent ? "%" : "AED"}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                    Validity Duration *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      required
+                      min={1}
+                      max={365}
+                      value={birthdayRewardForm.validDays}
+                      onChange={(e) => setBirthdayRewardForm({ ...birthdayRewardForm, validDays: e.target.value })}
+                      placeholder="e.g. 30"
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#EC4899]"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#8C7F78]">
+                      Days
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-0.5">
+                <input
+                  type="checkbox"
+                  id="bIsPercent"
+                  checked={birthdayRewardForm.isPercent}
+                  onChange={(e) => setBirthdayRewardForm({ ...birthdayRewardForm, isPercent: e.target.checked })}
+                  className="w-4 h-4 rounded text-[#EC4899] focus:ring-[#EC4899]"
+                />
+                <label htmlFor="bIsPercent" className="text-xs font-bold text-[#1E1815] cursor-pointer">
+                  Is Percentage Bill Discount (e.g. 20% off whole bill)
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                  Birthday Gift Title (English) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Birthday Special: Free Royal Falooda & 20% Off"
+                  value={birthdayRewardForm.name}
+                  onChange={(e) => setBirthdayRewardForm({ ...birthdayRewardForm, name: e.target.value })}
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-bold focus:outline-none focus:border-[#EC4899]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                  Birthday Gift Title (Arabic - Optional)
+                </label>
+                <input
+                  type="text"
+                  dir="rtl"
+                  placeholder="مثال: عرض عيد الميلاد الخاص: حلوى ملكية مجانية"
+                  value={birthdayRewardForm.nameAr}
+                  onChange={(e) => setBirthdayRewardForm({ ...birthdayRewardForm, nameAr: e.target.value })}
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#EC4899]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                  Description / Redemption Instructions
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Enjoy a complimentary dessert and discount during your birthday month at any branch."
+                  value={birthdayRewardForm.description}
+                  onChange={(e) => setBirthdayRewardForm({ ...birthdayRewardForm, description: e.target.value })}
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#EC4899]"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="bActive"
+                  checked={birthdayRewardForm.isActive}
+                  onChange={(e) => setBirthdayRewardForm({ ...birthdayRewardForm, isActive: e.target.checked })}
+                  className="w-4 h-4 rounded text-[#EC4899] focus:ring-[#EC4899]"
+                />
+                <label htmlFor="bActive" className="text-xs font-bold text-[#1E1815] cursor-pointer">
+                  Activate Rule (Available for instant & automated dispatch)
+                </label>
+              </div>
+
+              <div className="pt-3 border-t border-[#EAE3DC] flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowBirthdayRewardModal(false)}
+                  className="px-4 py-2 rounded-xl border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:bg-[#FAF7F4]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={birthdayRewardSaving}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#EC4899] to-[#BE185D] hover:from-[#DB2777] text-white font-bold text-xs shadow-md shadow-[#EC4899]/20 disabled:opacity-50 cursor-pointer"
+                >
+                  {birthdayRewardSaving ? "Saving…" : editingBirthdayRewardId ? "Update Birthday Rule" : "Create Birthday Rule"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: DELETE BIRTHDAY GIFT REWARD                             */}
+      {/* ============================================================== */}
+      {showDeleteBirthdayRewardModal && birthdayRewardToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl">
+            <div className="w-12 h-12 rounded-2xl bg-[#C0392B]/10 text-[#C0392B] flex items-center justify-center mb-4">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+
+            <h3 className="font-black text-lg text-[#1E1815] mb-1">
+              Delete Birthday Gift: {birthdayRewardToDelete.name}?
+            </h3>
+            <p className="text-xs text-[#7A6E67] leading-relaxed mb-4">
+              Are you sure you want to remove the <strong className="text-[#1E1815]">{birthdayRewardToDelete.name}</strong> birthday perk? Customers who have already received their vouchers will keep them until expiry.
+            </p>
+
+            <div className="pt-3 border-t border-[#EAE3DC] flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteBirthdayRewardModal(false);
+                  setBirthdayRewardToDelete(null);
+                }}
+                className="px-4 py-2 rounded-xl border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:bg-[#FAF7F4]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteBirthdayReward}
                 disabled={busy}
                 className="px-5 py-2 rounded-xl bg-[#C0392B] hover:bg-[#A83226] text-white font-bold text-xs shadow-md shadow-[#C0392B]/20 disabled:opacity-50 cursor-pointer"
               >

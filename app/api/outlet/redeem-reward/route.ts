@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { createNotification } from "@/lib/notifications";
 import { cookies } from "next/headers";
 
 const OUTLET_COOKIE = "outlet_branch_code";
@@ -126,6 +127,20 @@ export async function POST(req: NextRequest) {
         customerReward: updatedReward,
         pointsBalance: updatedPointsBalance,
       };
+    });
+
+    // Send Admin Notification for Reward Handover / Redemption
+    await createNotification({
+      type: "POINTS_REDEEMED",
+      title: `Voucher Redeemed: ${customer.name || "Customer"}`,
+      message: `${customer.name || "Customer"} successfully redeemed voucher "${custReward.reward.name}" at ${branch.name}.`,
+      metadata: {
+        customerId: customer.id,
+        rewardName: custReward.reward.name,
+        rewardType: custReward.reward.type,
+        branchName: branch.name,
+        newPointsBalance: result.pointsBalance,
+      },
     });
 
     // Fetch updated remaining available rewards

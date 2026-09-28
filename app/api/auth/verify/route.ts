@@ -4,6 +4,7 @@ import { normalizeMobile, DEFAULT_COUNTRY } from "@/lib/mobile";
 import { verifySecret } from "@/lib/crypto";
 import { setCustomerSession } from "@/lib/session";
 import { getNumber, getSetting, pointsToCurrency } from "@/lib/loyalty";
+import { createNotification } from "@/lib/notifications";
 
 export async function POST(req: NextRequest) {
   let body: any;
@@ -66,7 +67,7 @@ export async function POST(req: NextRequest) {
     }
     await setCustomerSession(customer.id);
 
-    // Record Customer Sign-In Audit Log
+    // Record Customer Sign-In Audit Log & Admin Notification
     try {
       const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "127.0.0.1";
       const userAgent = req.headers.get("user-agent")?.slice(0, 150) || "Mobile Web Portal";
@@ -85,6 +86,18 @@ export async function POST(req: NextRequest) {
             ip,
             userAgent,
           },
+        },
+      });
+
+      await createNotification({
+        type: "CUSTOMER_LOGIN",
+        title: `Customer Sign In: ${customer.name || "Member"}`,
+        message: `${customer.name || "Customer"} (${customer.mobile}) just logged into the Loyalty Club with ${customer.pointsBalance} pts balance.`,
+        metadata: {
+          customerId: customer.id,
+          mobile: customer.mobile,
+          name: customer.name,
+          pointsBalance: customer.pointsBalance,
         },
       });
     } catch (auditErr) {
@@ -118,6 +131,18 @@ export async function POST(req: NextRequest) {
             homeBranch: alreadyThere.homeBranch?.name || "Not assigned",
             ip,
           },
+        },
+      });
+
+      await createNotification({
+        type: "CUSTOMER_LOGIN",
+        title: `Customer Sign In: ${alreadyThere.name || "Member"}`,
+        message: `${alreadyThere.name || "Customer"} (${alreadyThere.mobile}) signed in with ${alreadyThere.pointsBalance} pts balance.`,
+        metadata: {
+          customerId: alreadyThere.id,
+          mobile: alreadyThere.mobile,
+          name: alreadyThere.name,
+          pointsBalance: alreadyThere.pointsBalance,
         },
       });
     } catch (auditErr) {
@@ -212,6 +237,20 @@ export async function POST(req: NextRequest) {
     return created;
   });
 
+  // Trigger Admin Notification for New Member Registration
+  await createNotification({
+    type: "CUSTOMER_REGISTER",
+    title: `New Customer Registered! 🎉`,
+    message: `${customer.name} (${customer.mobile}) joined Loyalty Club. Awarded +${welcomeBonusPoints} welcome points.`,
+    metadata: {
+      customerId: customer.id,
+      name: customer.name,
+      mobile: customer.mobile,
+      email: customer.email,
+      pointsBalance: customer.pointsBalance,
+    },
+  });
+
   await setCustomerSession(customer.id);
 
   return NextResponse.json({
@@ -226,3 +265,4 @@ export async function POST(req: NextRequest) {
     },
   });
 }
+

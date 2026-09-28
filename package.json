@@ -14,11 +14,13 @@
   },
   "dependencies": {
     "@prisma/client": "^6.1.0",
+    "@types/nodemailer": "^8.0.2",
     "clsx": "^2.1.1",
     "jose": "^6.2.12",
     "jsqr": "^1.4.0",
     "lucide-react": "^1.44.0",
     "next": "16.3.4",
+    "nodemailer": "^10.0.12",
     "qrcode": "^1.5.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",

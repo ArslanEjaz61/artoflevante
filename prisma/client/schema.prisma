@@ -26,6 +26,7 @@ model Branch {
   phone     String?
   hours     String?
   city      String?
+  crmUrl    String? // CRM dashboard link
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 
@@ -321,5 +322,35 @@ model CustomerVisit {
 
   @@index([customerId, createdAt])
   @@index([branchId, createdAt])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------- admin notifications
+
+model AdminNotification {
+  id        String   @id @default(cuid())
+  type      String // "CUSTOMER_REGISTER" | "CUSTOMER_LOGIN" | "POINTS_EARNED" | "POINTS_REDEEMED" | "VISIT_CHECKIN" | "BIRTHDAY_GIFT" | "STAFF_LOGIN"
+  title     String
+  message   String
+  metadata  Json?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([isRead, createdAt])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------- email logs
+
+model EmailLog {
+  id        String   @id @default(cuid())
+  recipient String
+  subject   String
+  body      String   @db.Text
+  status    String   @default("SENT") // "SENT" | "FAILED"
+  error     String?
+  sentBy    String?
+  createdAt DateTime @default(now())
+
   @@index([createdAt])
 }

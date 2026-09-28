@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getCustomerId, getStaffSession } from "@/lib/session";
 import { getOrRotateBranchDailyCode } from "@/lib/visits";
 import { getNumber, getSetting, pointsForAmount, newlyEligibleRewards } from "@/lib/loyalty";
+import { createNotification } from "@/lib/notifications";
 
 export async function POST(req: NextRequest) {
   // Can be checked in by customer directly or by staff cashier
@@ -221,6 +222,21 @@ export async function POST(req: NextRequest) {
       });
 
       return { trx, visit, customer: updatedCustomer };
+    });
+
+    // Send Admin Notification for Visit Check-in
+    await createNotification({
+      type: "VISIT_CHECKIN",
+      title: `Visit Check-In: ${customer.name || "Customer"}`,
+      message: `${customer.name || "Customer"} checked in at ${matchedBranch.name} (Code: ${matchingEntry.dailyCode}, Bill: AED ${numAmount.toFixed(2)}, Earned: +${pointsEarned} pts).`,
+      metadata: {
+        customerId: customer.id,
+        branchName: matchedBranch.name,
+        couponCode: matchingEntry.dailyCode,
+        invoiceNumber: cleanInvoice,
+        pointsEarned,
+        amount: numAmount,
+      },
     });
 
     // 7. Check for milestone rewards newly unlocked by this visit / points balance

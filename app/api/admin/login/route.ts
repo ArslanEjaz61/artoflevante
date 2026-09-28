@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifySecret } from "@/lib/crypto";
 import { setStaffSession } from "@/lib/session";
+import { createNotification } from "@/lib/notifications";
 
 export async function POST(req: NextRequest) {
   let body: any;
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
   await prisma.staff.update({ where: { id: staff.id }, data: { lastLogin: new Date() } });
   await setStaffSession(staff);
 
-  // Record Admin Sign-In Audit Log
+  // Record Admin Sign-In Audit Log & Notification
   try {
     const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "127.0.0.1";
     const userAgent = req.headers.get("user-agent")?.slice(0, 150) || "Browser Session";
@@ -55,6 +56,18 @@ export async function POST(req: NextRequest) {
           ip,
           userAgent,
         },
+      },
+    });
+
+    await createNotification({
+      type: "STAFF_LOGIN",
+      title: `Staff Login: ${staff.name} (${staff.role})`,
+      message: `@${staff.username} signed in to Admin Portal (${staff.branch?.name || "Corporate HQ"}).`,
+      metadata: {
+        staffId: staff.id,
+        username: staff.username,
+        name: staff.name,
+        role: staff.role,
       },
     });
   } catch (auditErr) {

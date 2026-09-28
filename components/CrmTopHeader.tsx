@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Users, Store, LayoutDashboard, RefreshCw } from "lucide-react";
+import { AdminNotificationBell } from "@/components/AdminNotificationBell";
 
 interface CrmTopHeaderProps {
   activeTab?: "customer" | "outlet" | "master";
@@ -64,6 +65,8 @@ export function CrmTopHeader({ activeTab, onRefresh }: CrmTopHeaderProps) {
 
         {/* Right Actions */}
         <div className="flex items-center gap-2 shrink-0">
+          <AdminNotificationBell />
+
           <button
             type="button"
             onClick={handleRefresh}

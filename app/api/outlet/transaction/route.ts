@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { pointsForAmount, newlyEligibleRewards, getNumber, getSettings } from "@/lib/loyalty";
 import { normalizeCode } from "@/lib/crypto";
+import { createNotification } from "@/lib/notifications";
 import { cookies } from "next/headers";
 
 const OUTLET_COOKIE = "outlet_branch_code";
@@ -271,6 +272,44 @@ export async function POST(req: NextRequest) {
 
       return { trx, customer: updatedCustomer };
     });
+
+    // Send Admin Notification for Points Earned
+    if (pointsEarned > 0) {
+      await createNotification({
+        type: "POINTS_EARNED",
+        title: `+${pointsEarned} Points Earned by ${customer.name || "Customer"}`,
+        message: `${customer.name} earned +${pointsEarned} pts on bill of ${currency} ${value.toFixed(2)} (Invoice #${cleanInvoice}) at ${branch.name}.`,
+        metadata: {
+          customerId: customer.id,
+          transactionId: result.trx.id,
+          branchName: branch.name,
+          invoiceNumber: cleanInvoice,
+          pointsEarned,
+          amount: value,
+          newBalance: result.customer.pointsBalance,
+        },
+      });
+    }
+
+    // Send Admin Notification for Points/Reward Redeemed
+    if (totalPointsSpent > 0 || totalDiscountGiven > 0) {
+      const redeemedDesc = redeeming?.reward?.name
+        ? `Voucher: ${redeeming.reward.name}`
+        : `${pointsToRedeem} Points (${currency} ${directPointsDiscount.toFixed(2)})`;
+      await createNotification({
+        type: "POINTS_REDEEMED",
+        title: `Reward / Points Redeemed: ${customer.name || "Customer"}`,
+        message: `${customer.name} redeemed ${redeemedDesc} for ${currency} ${totalDiscountGiven.toFixed(2)} discount at ${branch.name}.`,
+        metadata: {
+          customerId: customer.id,
+          transactionId: result.trx.id,
+          branchName: branch.name,
+          discountGiven: totalDiscountGiven,
+          pointsSpent: totalPointsSpent,
+          newBalance: result.customer.pointsBalance,
+        },
+      });
+    }
 
     // Check newly unlocked rewards
     const held = await prisma.customerReward.findMany({

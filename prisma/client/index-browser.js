@@ -291,6 +291,27 @@ exports.Prisma.CustomerVisitScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.AdminNotificationScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  title: 'title',
+  message: 'message',
+  metadata: 'metadata',
+  isRead: 'isRead',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.EmailLogScalarFieldEnum = {
+  id: 'id',
+  recipient: 'recipient',
+  subject: 'subject',
+  body: 'body',
+  status: 'status',
+  error: 'error',
+  sentBy: 'sentBy',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -352,7 +373,9 @@ exports.Prisma.ModelName = {
   OfferBranch: 'OfferBranch',
   AuditLog: 'AuditLog',
   Setting: 'Setting',
-  CustomerVisit: 'CustomerVisit'
+  CustomerVisit: 'CustomerVisit',
+  AdminNotification: 'AdminNotification',
+  EmailLog: 'EmailLog'
 };
 
 /**
