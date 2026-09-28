@@ -170,17 +170,15 @@ export async function POST(req: NextRequest) {
 
   // 1. Action: "grant" (Issue Birthday Treat to specific customer or all upcoming)
   if (action === "grant") {
-    const activeBirthdayReward = rewardId
-      ? await prisma.reward.findUnique({ where: { id: rewardId } })
-      : await prisma.reward.findFirst({ where: { type: "BIRTHDAY", isActive: true } });
+    const allActiveBirthdayRewards = await prisma.reward.findMany({
+      where: { type: "BIRTHDAY", isActive: true },
+    });
 
-    if (!activeBirthdayReward) {
+    if (allActiveBirthdayRewards.length === 0 && !rewardId) {
       return NextResponse.json({ error: "No active Birthday Reward rule found. Please create or enable one first." }, { status: 400 });
     }
 
-    const expiryDate = activeBirthdayReward.validDays
-      ? new Date(Date.now() + activeBirthdayReward.validDays * 86400_000)
-      : new Date(Date.now() + 30 * 86400_000);
+    const explicitReward = rewardId ? await prisma.reward.findUnique({ where: { id: rewardId } }) : null;
 
     // Target customers: single customerId or "all_upcoming"
     let targetCustomers: any[] = [];
@@ -216,6 +214,16 @@ export async function POST(req: NextRequest) {
 
     let grantedCount = 0;
     for (const cust of targetCustomers) {
+      // Randomly pick from active birthday gift rules if multiple exist, or use explicit selection
+      const activeBirthdayReward = explicitReward ||
+        allActiveBirthdayRewards[Math.floor(Math.random() * allActiveBirthdayRewards.length)];
+
+      if (!activeBirthdayReward) continue;
+
+      const expiryDate = activeBirthdayReward.validDays
+        ? new Date(Date.now() + activeBirthdayReward.validDays * 86400_000)
+        : new Date(Date.now() + 30 * 86400_000);
+
       await prisma.customerReward.create({
         data: {
           customerId: cust.id,
@@ -279,9 +287,8 @@ export async function POST(req: NextRequest) {
     await createNotification({
       type: "BIRTHDAY_GIFT",
       title: `Birthday Treats Dispatched! 🎂`,
-      message: `Issued "${activeBirthdayReward.name}" to ${grantedCount} birthday celebrant${grantedCount === 1 ? "" : "s"}.`,
+      message: `Issued birthday gifts to ${grantedCount} birthday celebrant${grantedCount === 1 ? "" : "s"}.`,
       metadata: {
-        rewardName: activeBirthdayReward.name,
         grantedCount,
       },
     });

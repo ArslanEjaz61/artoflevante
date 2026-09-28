@@ -86,24 +86,114 @@ export interface EligibleRewardCriteria {
   pointsBalance: number;
   visitCount: number;
   alreadyHeldRewardIds?: string[];
+  currentlyAvailableVisitRewardThresholds?: number[];
 }
 
 /**
  * Which rewards this customer has just become eligible for.
+ * If multiple rewards exist for the same visit milestone threshold,
+ * a random one is selected for the customer.
  */
 export async function newlyEligibleRewards({
   pointsBalance,
   visitCount,
   alreadyHeldRewardIds = [],
+  currentlyAvailableVisitRewardThresholds = [],
 }: EligibleRewardCriteria) {
-  const rewards = await prisma.reward.findMany({
+  const allRewards = await prisma.reward.findMany({
     where: { isActive: true, type: { in: ["POINTS", "VISITS"] } },
   });
 
-  return rewards.filter((r) => {
-    if (alreadyHeldRewardIds.includes(r.id)) return false;
-    if (r.type === "POINTS") return pointsBalance >= r.threshold;
-    if (r.type === "VISITS") return visitCount > 0 && visitCount % r.threshold === 0;
-    return false;
-  });
+  const unlocked: typeof allRewards = [];
+
+  // 1. Points rewards (if balance threshold met and not already held)
+  const pointsRewards = allRewards.filter(
+    (r) => r.type === "POINTS" && !alreadyHeldRewardIds.includes(r.id) && pointsBalance >= r.threshold
+  );
+  unlocked.push(...pointsRewards);
+
+  // 2. Visits rewards: group by threshold and select randomly if multiple exist
+  const visitRewards = allRewards.filter((r) => r.type === "VISITS");
+  const thresholdGroups: Record<number, typeof allRewards> = {};
+  for (const vr of visitRewards) {
+    if (!thresholdGroups[vr.threshold]) {
+      thresholdGroups[vr.threshold] = [];
+    }
+    thresholdGroups[vr.threshold].push(vr);
+  }
+
+  for (const [threshStr, group] of Object.entries(thresholdGroups)) {
+    const thresh = Number(threshStr);
+    if (thresh <= 0) continue;
+
+    // Do not issue another visit reward if customer already holds an available unredeemed one for this threshold
+    if (currentlyAvailableVisitRewardThresholds.includes(thresh)) {
+      continue;
+    }
+
+    // Check if total visit count qualifies for this milestone
+    if (visitCount > 0 && visitCount % thresh === 0) {
+      // Filter out rewards the user already has held (if any)
+      const candidates = group.filter((r) => !alreadyHeldRewardIds.includes(r.id));
+      const pool = candidates.length > 0 ? candidates : group;
+
+      // Pick ONE reward randomly from the pool
+      const randomReward = pool[Math.floor(Math.random() * pool.length)];
+      if (randomReward && !unlocked.some((u) => u.id === randomReward.id)) {
+        unlocked.push(randomReward);
+      }
+    }
+  }
+
+  return unlocked;
 }
+
+/**
+ * Calculates current cycle visit progress.
+ * When a milestone reward is redeemed, the counter resets for the next cycle.
+ */
+export function calculateVisitMilestoneProgress({
+  totalVisits,
+  milestoneThreshold,
+  hasAvailableMilestoneReward,
+  redeemedMilestonesCount,
+}: {
+  totalVisits: number;
+  milestoneThreshold: number;
+  hasAvailableMilestoneReward: boolean;
+  redeemedMilestonesCount: number;
+}) {
+  const threshold = Math.max(1, milestoneThreshold || 5);
+  const total = Math.max(0, totalVisits || 0);
+  const redeemed = Math.max(0, redeemedMilestonesCount || 0);
+
+  if (hasAvailableMilestoneReward) {
+    return {
+      threshold,
+      visitsInCycle: threshold,
+      visitsNeeded: 0,
+      progressPercent: 100,
+      isUnlocked: true,
+      cycleNumber: redeemed + 1,
+    };
+  }
+
+  // Calculate visits into current cycle after accounting for all redeemed milestones
+  const visitsAfterRedeemed = Math.max(0, total - redeemed * threshold);
+  const visitsInCycle = visitsAfterRedeemed % threshold;
+  const isUnlocked = visitsAfterRedeemed > 0 && visitsInCycle === 0 && total >= (redeemed + 1) * threshold;
+
+  const currentCount = isUnlocked ? threshold : visitsInCycle;
+  const needed = isUnlocked ? 0 : threshold - currentCount;
+  const progressPercent = isUnlocked ? 100 : Math.min(100, Math.round((currentCount / threshold) * 100));
+
+  return {
+    threshold,
+    visitsInCycle: currentCount,
+    visitsNeeded: needed,
+    progressPercent,
+    isUnlocked,
+    cycleNumber: redeemed + 1,
+  };
+}
+

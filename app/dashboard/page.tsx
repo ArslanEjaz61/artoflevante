@@ -26,6 +26,10 @@ import {
   History,
   Menu,
   Clock,
+  PartyPopper,
+  Calendar,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import QRCode from "qrcode";
 import { usePwaInstall } from "@/lib/usePwaInstall";
@@ -67,6 +71,7 @@ export default function CustomerDashboardPage() {
   const [profileBusy, setProfileBusy] = useState(false);
   const [profileMsg, setProfileMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
+  const [historyTab, setHistoryTab] = useState<"bills" | "rewards">("bills");
 
   // Customer Portal QR Modal State
   const [showPortalQrModal, setShowPortalQrModal] = useState(false);
@@ -328,9 +333,21 @@ export default function CustomerDashboardPage() {
     );
   }
 
-  const { customer, qr, rewards, transactions, offers, nextTargets, currency, loyaltyRules, redemptionStatus } = data;
+  const {
+    customer,
+    qr,
+    rewards,
+    transactions,
+    offers,
+    nextTargets,
+    currency,
+    loyaltyRules,
+    redemptionStatus,
+    birthdayStatus,
+    milestoneProgress,
+  } = data;
   const availableRewards = rewards?.filter((r: any) => r.status === "AVAILABLE") || [];
-  const usedRewards = rewards?.filter((r: any) => r.status !== "AVAILABLE") || [];
+  const usedRewards = rewards?.filter((r: any) => r.status === "REDEEMED" || r.status === "EXPIRED") || [];
 
   // Filter transactions by selected date range
   const filteredTransactions = (transactions || []).filter((t: any) => {
@@ -354,22 +371,21 @@ export default function CustomerDashboardPage() {
     return true;
   });
 
-  // Milestone calculation from backend data
+  // Milestone calculation from backend data & milestoneProgress helper
   const visitTarget = nextTargets?.find((t: any) => t.kind === "visits");
   const currentVisits = customer?.visitCount || 0;
-  const milestoneThreshold = visitTarget?.threshold || 5;
-  const isMilestoneCompleted = (currentVisits > 0 && currentVisits % milestoneThreshold === 0) || currentVisits >= milestoneThreshold;
-  const visitsIntoCycle = currentVisits % milestoneThreshold;
-  const visitsNeeded = visitTarget?.need !== undefined ? visitTarget.need : (isMilestoneCompleted ? 0 : milestoneThreshold - visitsIntoCycle);
+  const milestoneThreshold = milestoneProgress?.threshold || visitTarget?.threshold || 5;
+  const visitsIntoCycle = milestoneProgress?.visitsInCycle ?? (currentVisits % milestoneThreshold);
+  const visitsNeeded = milestoneProgress?.visitsNeeded ?? Math.max(0, milestoneThreshold - visitsIntoCycle);
   const progressPercent =
-    visitTarget?.progressPercent ??
-    (isMilestoneCompleted ? 100 : Math.min(100, Math.round((visitsIntoCycle / milestoneThreshold) * 100)));
+    milestoneProgress?.progressPercent ??
+    (visitsNeeded <= 0 ? 100 : Math.min(100, Math.round((visitsIntoCycle / milestoneThreshold) * 100)));
 
   // Detect unlocked surprise / visit milestone reward
-  const unlockedSurpriseReward = availableRewards.find(
-    (r: any) => r.type === "VISITS" || r.threshold === milestoneThreshold || r.name?.toLowerCase().includes("free") || r.name?.toLowerCase().includes("item") || r.name?.toLowerCase().includes("visit")
-  );
-  const isSurpriseUnlocked = isMilestoneCompleted || !!unlockedSurpriseReward || visitsNeeded <= 0;
+  const unlockedSurpriseReward =
+    milestoneProgress?.unlockedReward ||
+    availableRewards.find((r: any) => r.type === "VISITS" || r.name?.toLowerCase().includes("visit"));
+  const isSurpriseUnlocked = milestoneProgress?.isUnlocked ?? !!unlockedSurpriseReward;
 
   // Dynamic Free Voucher Title / Discount calculation
   const primaryVoucher = availableRewards[0];
@@ -505,70 +521,6 @@ export default function CustomerDashboardPage() {
       </div>
 
       {/* ============================================================== */}
-      {/* 5. DINE-IN CHECK-IN CARD (Temporarily Hidden as requested)      */}
-      {/* ============================================================== */}
-      {/* 
-      <div className="bg-white rounded-3xl p-5 border border-[#EAE3DC] shadow-xs mb-4">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[#801313]/10 text-[#801313] flex items-center justify-center">
-              <MapPin className="w-3.5 h-3.5" />
-            </div>
-            <div>
-              <div className="text-[9px] font-extrabold tracking-widest text-[#7A6E67] uppercase">
-                DINE-IN CHECK-IN
-              </div>
-              <div className="font-bold text-xs text-[#1E1815]">
-                Enter branch 24h coupon to record bill
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {visitMsg && (
-          <div
-            className={`p-3 rounded-xl text-xs font-semibold mb-3 ${
-              visitMsg.type === "ok"
-                ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                : "bg-red-50 text-red-800 border border-red-200"
-            }`}
-          >
-            <div className="flex items-center justify-between font-bold">
-              <span>{visitMsg.text}</span>
-              <button onClick={() => setVisitMsg(null)}>
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-            {visitMsg.details?.transaction && (
-              <div className="text-[11px] pt-1 mt-1 border-t border-emerald-200 flex justify-between">
-                <span>Inv #{visitMsg.details.transaction.invoiceNumber}</span>
-                <span className="font-black">+{visitMsg.details.transaction.pointsEarned} pts</span>
-              </div>
-            )}
-          </div>
-        )}
-
-        <form onSubmit={handleCheckCoupon} className="flex gap-2">
-          <input
-            type="text"
-            placeholder="e.g. 1015-7K9A"
-            value={visitCodeInput}
-            onChange={(e) => setVisitCodeInput(e.target.value.toUpperCase())}
-            className="flex-1 px-3 py-2.5 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-mono text-xs font-bold text-[#1E1815] uppercase focus:outline-none focus:border-[#801313]"
-            required
-          />
-          <button
-            type="submit"
-            disabled={checkingCode || !visitCodeInput.trim()}
-            className="px-5 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6E1111] text-white font-bold text-xs shadow-xs disabled:opacity-50 cursor-pointer shrink-0 transition-colors"
-          >
-            {checkingCode ? "Checking…" : "Verify"}
-          </button>
-        </form>
-      </div>
-      */}
-
-      {/* ============================================================== */}
       {/* 6. MEMBERSHIP QR CARD                                          */}
       {/* ============================================================== */}
       <div className="bg-white rounded-3xl p-5 sm:p-7 shadow-sm text-center mb-4">
@@ -605,11 +557,80 @@ export default function CustomerDashboardPage() {
       </div>
 
       {/* ============================================================== */}
-      {/* 7. FREE VOUCHERS / REWARDS & SPECIAL OFFER CARDS               */}
+      {/* 7. BIRTHDAY SURPRISE & FREE VOUCHERS CARDS                     */}
       {/* ============================================================== */}
       <div className="space-y-2.5 mb-4">
+        {/* Case A: Birthday Surprise Gift Countdown (Locked Mystery State) */}
+        {birthdayStatus?.status === "COUNTDOWN_LOCKED" && (
+          <div className="rounded-2xl p-4 bg-gradient-to-r from-[#FFF9EE] via-[#FFF3DD] to-[#FFE8C2] border-2 border-[#E5A93C] shadow-sm relative overflow-hidden">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0 pr-1">
+                <div className="w-10 h-10 rounded-2xl bg-[#CC8820] text-white flex items-center justify-center shadow-md shadow-[#CC8820]/30 shrink-0">
+                  <Gift className="w-5 h-5 animate-pulse" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[9px] font-black uppercase tracking-wider text-[#8A5600] bg-[#FFD88A] px-2 py-0.5 rounded-md">
+                      🎂 Birthday Mystery Gift
+                    </span>
+                    <span className="text-[9px] font-extrabold text-[#A06000] flex items-center gap-1">
+                      <Lock className="w-2.5 h-2.5" /> Locked
+                    </span>
+                  </div>
+                  <div className="font-bold text-xs sm:text-sm text-[#1E1815] truncate mt-0.5">
+                    Unlocks in {birthdayStatus.daysUntilBirthday} {birthdayStatus.daysUntilBirthday === 1 ? "day" : "days"}!
+                  </div>
+                  <div className="text-[10px] text-[#7A6E67] leading-tight mt-0.5">
+                    Your special birthday surprise gift will reveal &amp; unlock automatically on your birthday!
+                  </div>
+                </div>
+              </div>
+              <div className="text-center shrink-0 bg-white/95 px-2.5 py-1.5 rounded-xl border border-[#E5A93C]/50 shadow-xs">
+                <div className="text-[16px] sm:text-[18px] font-black text-[#CC8820] font-mono leading-none">
+                  {birthdayStatus.daysUntilBirthday}
+                </div>
+                <div className="text-[7px] sm:text-[8px] font-black uppercase text-[#8A5600] tracking-wider mt-0.5">
+                  Days Left
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Case B: Birthday Treat Unlocked (Available State) */}
+        {birthdayStatus?.status === "AVAILABLE" && (
+          <div className="rounded-2xl p-4 bg-gradient-to-br from-[#FFF5F5] to-[#FBF0EE] border-2 border-[#801313] shadow-md relative overflow-hidden">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0 pr-1">
+                <div className="w-10 h-10 rounded-2xl bg-[#801313] text-white flex items-center justify-center shadow-md shadow-[#801313]/25 shrink-0">
+                  <PartyPopper className="w-5 h-5 text-[#FEF7C5]" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[9px] font-black uppercase tracking-wider text-[#801313] bg-[#801313]/10 px-2 py-0.5 rounded-md">
+                      🎉 Happy Birthday Treat!
+                    </span>
+                    <span className="text-[9px] font-black text-emerald-700 flex items-center gap-1">
+                      <Unlock className="w-2.5 h-2.5" /> Unlocked
+                    </span>
+                  </div>
+                  <div className="font-extrabold text-xs sm:text-sm text-[#801313] truncate mt-0.5">
+                    {birthdayStatus.reward?.name || "Special Birthday Gift"}
+                  </div>
+                  <div className="text-[10px] text-[#5C504A] leading-tight mt-0.5">
+                    {birthdayStatus.reward?.description || "Show at any branch counter to claim your birthday surprise!"}
+                  </div>
+                </div>
+              </div>
+              <span className="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
+                READY
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Available Vouchers List */}
-        {availableRewards.length > 0 ? (
+        {availableRewards.length > 0 &&
           availableRewards.map((reward: any) => {
             const discText = reward.isPercent
               ? `${reward.value}% OFF`
@@ -638,30 +659,9 @@ export default function CustomerDashboardPage() {
                 </span>
               </div>
             );
-          })
-        ) : usedRewards.length > 0 ? (
-          /* Show Most Recent Used / Redeemed Voucher */
-          <div className="bg-white rounded-2xl p-4 border border-[#EAE3DC] shadow-xs flex items-center justify-between opacity-85">
-            <div className="flex items-center gap-3 min-w-0 pr-2">
-              <div className="w-9 h-9 rounded-xl bg-stone-100 text-stone-500 flex items-center justify-center shrink-0 border border-stone-200">
-                <CheckCircle2 className="w-5 h-5 text-stone-600" />
-              </div>
-              <div className="min-w-0">
-                <div className="font-bold text-xs sm:text-sm text-stone-700 truncate line-through">
-                  {usedRewards[0].name}
-                </div>
-                <div className="text-[10px] text-stone-500">
-                  Redeemed &amp; applied at checkout
-                </div>
-              </div>
-            </div>
-            <span className="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider bg-stone-100 text-stone-600 border border-stone-300 shrink-0">
-              USED
-            </span>
-          </div>
-        ) : null}
+          })}
 
-        {/* Special Offer / Surprise Reward Card */}
+        {/* Special Offer / Visit Milestone Surprise Card */}
         <div
           className={`rounded-2xl p-4 border shadow-xs flex items-center justify-between gap-3 transition-all ${
             isSurpriseUnlocked
@@ -685,7 +685,7 @@ export default function CustomerDashboardPage() {
               </div>
               <div className="font-bold text-xs sm:text-sm text-[#1E1815] truncate">
                 {isSurpriseUnlocked
-                  ? (unlockedSurpriseReward?.name || visitTarget?.name || offers?.[0]?.name || "Free Item on 5th Visit")
+                  ? (unlockedSurpriseReward?.name || `Free Gift on ${milestoneThreshold}th Visit`)
                   : (offers?.[0]?.name || "A delicious surprise is coming soon")}
               </div>
               <div className="text-[10px] text-[#7A6E67] mt-0.5">
@@ -717,8 +717,15 @@ export default function CustomerDashboardPage() {
               {customer.homeBranch?.name || "Dubai Festival City"}
             </div>
           </div>
-          <div className="font-black text-sm text-[#801313]">
-            {currentVisits} visits
+          <div className="text-right">
+            <div className="font-black text-sm text-[#801313]">
+              {visitsIntoCycle} of {milestoneThreshold} visits
+            </div>
+            {milestoneProgress?.cycleNumber && milestoneProgress.cycleNumber > 1 && (
+              <div className="text-[9px] font-bold text-[#7A6E67] uppercase">
+                Cycle #{milestoneProgress.cycleNumber}
+              </div>
+            )}
           </div>
         </div>
 
@@ -727,8 +734,9 @@ export default function CustomerDashboardPage() {
           {Array.from({ length: Math.min(milestoneThreshold, 7) }, (_, idx) => {
             const stepNum = idx + 1;
             const isMilestone = stepNum === Math.min(milestoneThreshold, 7);
-            const isCompleted =
-              visitsIntoCycle >= stepNum || (currentVisits >= milestoneThreshold && visitsIntoCycle === 0);
+            const isCompleted = isSurpriseUnlocked
+              ? true
+              : visitsIntoCycle >= stepNum;
 
             if (isMilestone) {
               return (
@@ -778,162 +786,261 @@ export default function CustomerDashboardPage() {
         </div>
 
         <div className="text-[11px] text-[#7A6E67]">
-          {visitsNeeded > 0
+          {isSurpriseUnlocked
+            ? "Congratulations! Surprise milestone reward is unlocked and ready to redeem!"
+            : visitsNeeded > 0
             ? `${visitsNeeded} more visit(s) to unlock your next gift.`
-            : "Congratulations! Milestone reward unlocked on your next visit."}
+            : "Milestone goal reached!"}
         </div>
       </div>
 
       {/* ============================================================== */}
-      {/* 8.5 DATE RANGE FILTER PILL BAR                                 */}
+      {/* 8.5 HISTORY SWITCH TABS (Bills & Receipts vs Claimed Rewards)  */}
       {/* ============================================================== */}
-      <div className="bg-white rounded-2xl p-1 sm:p-1.5 border border-[#EAE3DC] shadow-2xs mb-4 flex items-center justify-between gap-1">
+      <div className="flex bg-[#EAE3DC] p-1 rounded-2xl mb-3 gap-1">
         <button
           type="button"
-          onClick={() => setDateFilter("all")}
-          className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
-            dateFilter === "all"
-              ? "bg-[#970709] text-white shadow-xs font-black"
-              : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
+          onClick={() => setHistoryTab("bills")}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+            historyTab === "bills"
+              ? "bg-white text-[#801313] shadow-xs font-black"
+              : "text-[#7A6E67] hover:text-[#1E1815]"
           }`}
         >
-          All Time
+          <Receipt className="w-3.5 h-3.5" />
+          <span>Bills &amp; Points ({filteredTransactions.length})</span>
         </button>
         <button
           type="button"
-          onClick={() => setDateFilter("today")}
-          className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
-            dateFilter === "today"
-              ? "bg-[#970709] text-white shadow-xs font-black"
-              : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
+          onClick={() => setHistoryTab("rewards")}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+            historyTab === "rewards"
+              ? "bg-white text-[#801313] shadow-xs font-black"
+              : "text-[#7A6E67] hover:text-[#1E1815]"
           }`}
         >
-          Today
-        </button>
-        <button
-          type="button"
-          onClick={() => setDateFilter("7days")}
-          className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
-            dateFilter === "7days"
-              ? "bg-[#970709] text-white shadow-xs font-black"
-              : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
-          }`}
-        >
-          Last 7 Days
-        </button>
-        <button
-          type="button"
-          onClick={() => setDateFilter("30days")}
-          className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
-            dateFilter === "30days"
-              ? "bg-[#970709] text-white shadow-xs font-black"
-              : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
-          }`}
-        >
-          Last 30 Days
+          <Gift className="w-3.5 h-3.5" />
+          <span>Claimed Perks ({usedRewards.length})</span>
         </button>
       </div>
 
       {/* ============================================================== */}
-      {/* 9. RECENT VISITS & RECEIPTS HISTORY (Backend Data)             */}
+      {/* 8.6 DATE RANGE FILTER PILL BAR (When Bills Tab is selected)    */}
+      {/* ============================================================== */}
+      {historyTab === "bills" && (
+        <div className="bg-white rounded-2xl p-1 sm:p-1.5 border border-[#EAE3DC] shadow-2xs mb-4 flex items-center justify-between gap-1">
+          <button
+            type="button"
+            onClick={() => setDateFilter("all")}
+            className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
+              dateFilter === "all"
+                ? "bg-[#970709] text-white shadow-xs font-black"
+                : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
+            }`}
+          >
+            All Time
+          </button>
+          <button
+            type="button"
+            onClick={() => setDateFilter("today")}
+            className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
+              dateFilter === "today"
+                ? "bg-[#970709] text-white shadow-xs font-black"
+                : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
+            }`}
+          >
+            Today
+          </button>
+          <button
+            type="button"
+            onClick={() => setDateFilter("7days")}
+            className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
+              dateFilter === "7days"
+                ? "bg-[#970709] text-white shadow-xs font-black"
+                : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
+            }`}
+          >
+            Last 7 Days
+          </button>
+          <button
+            type="button"
+            onClick={() => setDateFilter("30days")}
+            className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
+              dateFilter === "30days"
+                ? "bg-[#970709] text-white shadow-xs font-black"
+                : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
+            }`}
+          >
+            Last 30 Days
+          </button>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* 9. HISTORY SECTION (Bills vs Claimed Perks)                     */}
       {/* ============================================================== */}
       <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-xs border border-[#EAE3DC] mb-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[#801313]/10 text-[#801313] flex items-center justify-center">
-              <History className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="font-bold text-sm text-[#1E1815]">
-                Recent Visits &amp; Receipts
-              </h3>
-              {dateFilter !== "all" && (
-                <div className="text-[10px] font-bold text-[#801313]">
-                  Showing: {dateFilter === "today" ? "Today" : dateFilter === "7days" ? "Past 7 Days" : "Past 30 Days"}
+        {historyTab === "bills" ? (
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-[#801313]/10 text-[#801313] flex items-center justify-center">
+                  <History className="w-4 h-4" />
                 </div>
-              )}
-            </div>
-          </div>
-          <span className="text-[10px] font-bold text-[#7A6E67] uppercase tracking-wider bg-[#FAF7F4] px-2 py-0.5 rounded-lg border border-[#EAE3DC]">
-            {filteredTransactions.length} {filteredTransactions.length === 1 ? "Record" : "Records"}
-          </span>
-        </div>
-
-        {filteredTransactions && filteredTransactions.length > 0 ? (
-          <div className="divide-y divide-[#EFE8E1]">
-            {filteredTransactions.map((t: any) => (
-              <div
-                key={t.id}
-                onClick={() => setSelectedReceipt(t)}
-                className="py-3 px-2.5 -mx-2 rounded-xl hover:bg-[#FAF7F4] active:bg-[#F2ECE5] transition-all flex items-center justify-between first:pt-2 last:pb-2 gap-3 cursor-pointer group"
-                role="button"
-                tabIndex={0}
-                title="Click to view full receipt breakdown"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="font-bold text-xs sm:text-sm text-[#1E1815] group-hover:text-[#801313] transition-colors truncate flex items-center gap-1.5">
-                    <span>{t.branch || customer.homeBranch?.name || "Branch Visit"}</span>
-                    <span className="text-[10px] text-[#A0938C] font-normal group-hover:text-[#801313]">›</span>
-                  </div>
-                  <div className="text-[10px] text-[#7A6E67] flex items-center gap-1.5 mt-0.5 flex-wrap">
-                    {t.invoiceNumber && (
-                      <>
-                        <span className="font-mono font-bold text-[#1E1815]">#{t.invoiceNumber}</span>
-                        <span>•</span>
-                      </>
-                    )}
-                    <span>{formatRelativeTime(t.createdAt)}</span>
-                    <span>•</span>
-                    <span>{new Date(t.createdAt).toLocaleDateString()}</span>
-                  </div>
-                  {t.discountGiven > 0 && (
-                    <div className="text-[10px] text-[#801313] font-bold mt-0.5">
-                      Discount: -{currency} {Number(t.discountGiven).toFixed(2)}
-                      {t.redeemedRewards?.length > 0 && ` (${t.redeemedRewards.join(", ")})`}
-                    </div>
-                  )}
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="font-black text-xs sm:text-sm text-[#1E1815]">
-                    {currency} {Number(t.amount || 0).toFixed(2)}
-                  </div>
-                  {t.pointsEarned > 0 && (
-                    <div className="text-[10px] font-extrabold text-emerald-700">
-                      +{t.pointsEarned} pts
-                    </div>
-                  )}
-                  {t.pointsRedeemed > 0 && (
-                    <div className="text-[10px] font-extrabold text-red-700">
-                      -{t.pointsRedeemed} pts redeemed
+                <div>
+                  <h3 className="font-bold text-sm text-[#1E1815]">
+                    Recent Visits &amp; Receipts
+                  </h3>
+                  {dateFilter !== "all" && (
+                    <div className="text-[10px] font-bold text-[#801313]">
+                      Showing: {dateFilter === "today" ? "Today" : dateFilter === "7days" ? "Past 7 Days" : "Past 30 Days"}
                     </div>
                   )}
                 </div>
               </div>
-            ))}
-          </div>
+              <span className="text-[10px] font-bold text-[#7A6E67] uppercase tracking-wider bg-[#FAF7F4] px-2 py-0.5 rounded-lg border border-[#EAE3DC]">
+                {filteredTransactions.length} {filteredTransactions.length === 1 ? "Record" : "Records"}
+              </span>
+            </div>
+
+            {filteredTransactions && filteredTransactions.length > 0 ? (
+              <div className="divide-y divide-[#EFE8E1]">
+                {filteredTransactions.map((t: any) => (
+                  <div
+                    key={t.id}
+                    onClick={() => setSelectedReceipt(t)}
+                    className="py-3 px-2.5 -mx-2 rounded-xl hover:bg-[#FAF7F4] active:bg-[#F2ECE5] transition-all flex items-center justify-between first:pt-2 last:pb-2 gap-3 cursor-pointer group"
+                    role="button"
+                    tabIndex={0}
+                    title="Click to view full receipt breakdown"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="font-bold text-xs sm:text-sm text-[#1E1815] group-hover:text-[#801313] transition-colors truncate flex items-center gap-1.5">
+                        <span>{t.branch || customer.homeBranch?.name || "Branch Visit"}</span>
+                        <span className="text-[10px] text-[#A0938C] font-normal group-hover:text-[#801313]">›</span>
+                      </div>
+                      <div className="text-[10px] text-[#7A6E67] flex items-center gap-1.5 mt-0.5 flex-wrap">
+                        {t.invoiceNumber && (
+                          <>
+                            <span className="font-mono font-bold text-[#1E1815]">#{t.invoiceNumber}</span>
+                            <span>•</span>
+                          </>
+                        )}
+                        <span>{formatRelativeTime(t.createdAt)}</span>
+                        <span>•</span>
+                        <span>{new Date(t.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      {t.discountGiven > 0 && (
+                        <div className="text-[10px] text-[#801313] font-bold mt-0.5">
+                          Discount: -{currency} {Number(t.discountGiven).toFixed(2)}
+                          {t.redeemedRewards?.length > 0 && ` (${t.redeemedRewards.join(", ")})`}
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="font-black text-xs sm:text-sm text-[#1E1815]">
+                        {currency} {Number(t.amount || 0).toFixed(2)}
+                      </div>
+                      {t.pointsEarned > 0 && (
+                        <div className="text-[10px] font-extrabold text-emerald-700">
+                          +{t.pointsEarned} pts
+                        </div>
+                      )}
+                      {t.pointsRedeemed > 0 && (
+                        <div className="text-[10px] font-extrabold text-red-700">
+                          -{t.pointsRedeemed} pts redeemed
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-6 text-xs text-[#7A6E67]">
+                <Receipt className="w-7 h-7 text-[#801313]/30 mx-auto mb-1.5" />
+                <p className="font-semibold">
+                  {dateFilter === "all"
+                    ? "No previous visits recorded yet."
+                    : `No visits or receipts recorded for ${dateFilter === "today" ? "today" : dateFilter === "7days" ? "the last 7 days" : "the last 30 days"}.`}
+                </p>
+                {dateFilter !== "all" && (
+                  <button
+                    type="button"
+                    onClick={() => setDateFilter("all")}
+                    className="mt-2 text-[11px] font-bold text-[#801313] hover:underline cursor-pointer"
+                  >
+                    Show All Time History ({transactions?.length || 0} Records)
+                  </button>
+                )}
+                {dateFilter === "all" && (
+                  <p className="text-[10px] text-[#A0938C] mt-0.5">
+                    Points earned and redeemed on your dine-in bills will appear here automatically.
+                  </p>
+                )}
+              </div>
+            )}
+          </>
         ) : (
-          <div className="text-center py-6 text-xs text-[#7A6E67]">
-            <Receipt className="w-7 h-7 text-[#801313]/30 mx-auto mb-1.5" />
-            <p className="font-semibold">
-              {dateFilter === "all"
-                ? "No previous visits recorded yet."
-                : `No visits or receipts recorded for ${dateFilter === "today" ? "today" : dateFilter === "7days" ? "the last 7 days" : "the last 30 days"}.`}
-            </p>
-            {dateFilter !== "all" && (
-              <button
-                type="button"
-                onClick={() => setDateFilter("all")}
-                className="mt-2 text-[11px] font-bold text-[#801313] hover:underline cursor-pointer"
-              >
-                Show All Time History ({transactions?.length || 0} Records)
-              </button>
+          /* Claimed Perks & Rewards History Tab */
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-800 flex items-center justify-center">
+                  <Gift className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-[#1E1815]">
+                    Claimed Perks &amp; Rewards
+                  </h3>
+                  <div className="text-[10px] text-[#7A6E67]">
+                    Vouchers, milestone perks &amp; gifts redeemed
+                  </div>
+                </div>
+              </div>
+              <span className="text-[10px] font-bold text-[#7A6E67] uppercase tracking-wider bg-[#FAF7F4] px-2 py-0.5 rounded-lg border border-[#EAE3DC]">
+                {usedRewards.length} {usedRewards.length === 1 ? "Perk" : "Perks"}
+              </span>
+            </div>
+
+            {usedRewards && usedRewards.length > 0 ? (
+              <div className="divide-y divide-[#EFE8E1]">
+                {usedRewards.map((cr: any) => (
+                  <div key={cr.id} className="py-3 px-2 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                      <div className="w-8 h-8 rounded-xl bg-stone-100 text-stone-600 flex items-center justify-center shrink-0 border border-stone-200">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-bold text-xs sm:text-sm text-stone-800 truncate">
+                          {cr.name}
+                        </div>
+                        <div className="text-[10px] text-[#7A6E67] flex items-center gap-1.5 mt-0.5 flex-wrap">
+                          <span>Redeemed {cr.redeemedAt ? formatRelativeTime(cr.redeemedAt) : "Recently"}</span>
+                          {cr.redeemedBranch && (
+                            <>
+                              <span>•</span>
+                              <span className="font-medium text-[#1E1815]">{cr.redeemedBranch}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-stone-100 text-stone-600 border border-stone-300 shrink-0">
+                      REDEEMED ✓
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-6 text-xs text-[#7A6E67]">
+                <Gift className="w-7 h-7 text-[#801313]/30 mx-auto mb-1.5" />
+                <p className="font-semibold">No claimed perks yet.</p>
+                <p className="text-[10px] text-[#A0938C] mt-0.5">
+                  When you redeem milestone treats, birthday gifts, or vouchers at checkout, they will appear here in your permanent rewards history.
+                </p>
+              </div>
             )}
-            {dateFilter === "all" && (
-              <p className="text-[10px] text-[#A0938C] mt-0.5">
-                Points earned and redeemed on your dine-in bills will appear here automatically.
-              </p>
-            )}
-          </div>
+          </>
         )}
       </div>
 
