@@ -357,3 +357,18 @@ model EmailLog {
   @@index([createdAt])
 }
 
+// ---------------------------------------------------------------- email templates
+
+model EmailTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  category    String   @default("GENERAL") // "BIRTHDAY" | "OFFERS" | "GENERAL"
+  subject     String
+  content     String   @db.Text
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+}
+

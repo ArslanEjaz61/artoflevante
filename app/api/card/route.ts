@@ -328,19 +328,19 @@ export async function GET() {
     take: 20,
   });
 
-  const offers = offerRows
-    .filter((o) => o.branches.length === 0 || o.branches.some((b) => b.branchId === customer.homeBranchId))
-    .map((o) => ({
-      id: o.id,
-      name: o.name,
-      description: o.description,
-      imageUrl: o.imageUrl,
-      bannerText: o.bannerText,
-      value: Number(o.discountValue),
-      isPercent: o.isPercent,
-      endsAt: o.endsAt,
-      everywhere: o.branches.length === 0,
-    }));
+  // Return all active offers to every customer regardless of branch assignment
+  const offers = offerRows.map((o) => ({
+    id: o.id,
+    name: o.name,
+    description: o.description,
+    imageUrl: o.imageUrl,
+    bannerText: o.bannerText,
+    value: Number(o.discountValue),
+    isPercent: o.isPercent,
+    endsAt: o.endsAt,
+    everywhere: o.branches.length === 0,
+    branchCount: o.branches.length,
+  }));
 
   // Dynamic nextTargets list (Points Redemption + Visit Milestones)
   const dynamicPointsTarget = {

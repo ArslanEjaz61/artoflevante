@@ -79,6 +79,7 @@ export default function CustomerDashboardPage() {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [showOffersModal, setShowOffersModal] = useState(false);
   const [popupOffer, setPopupOffer] = useState<any | null>(null);
+  const [unreadOffersCount, setUnreadOffersCount] = useState(0);
 
   // Filter offers that have a custom promotional banner image
   const bannerOffers: any[] = (data?.offers || []).filter((o: any) => o.imageUrl);
@@ -91,6 +92,21 @@ export default function CustomerDashboardPage() {
     }, 4500);
     return () => clearInterval(timer);
   }, [bannerOffers.length]);
+
+  // Track unread/unseen offers count for the bell badge
+  useEffect(() => {
+    if (!data?.offers || data.offers.length === 0) {
+      setUnreadOffersCount(0);
+      return;
+    }
+    if (typeof window === "undefined") return;
+
+    // Count how many active offers have not been seen
+    const unread = data.offers.filter((o: any) => {
+      return !localStorage.getItem(`bc_seen_offer_${o.id}`);
+    }).length;
+    setUnreadOffersCount(unread);
+  }, [data?.offers]);
 
   // Trigger New Offer Popup Announcement for unread/unseen active promotions
   useEffect(() => {
@@ -115,6 +131,18 @@ export default function CustomerDashboardPage() {
       localStorage.setItem(`bc_seen_offer_${offerId}`, "1");
     }
     setPopupOffer(null);
+    setUnreadOffersCount((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleOpenOffersModal = () => {
+    setShowOffersModal(true);
+    // Mark all active offers as seen when customer opens the notifications/deals sheet
+    if (typeof window !== "undefined" && data?.offers) {
+      data.offers.forEach((o: any) => {
+        localStorage.setItem(`bc_seen_offer_${o.id}`, "1");
+      });
+      setUnreadOffersCount(0);
+    }
   };
 
   // Customer Portal QR Modal State
@@ -482,15 +510,15 @@ export default function CustomerDashboardPage() {
         <div className="flex items-center gap-2 shrink-0">
           {/* Active Deals / Notifications Bell */}
           <button
-            onClick={() => setShowOffersModal(true)}
+            onClick={handleOpenOffersModal}
             className="w-10 h-10 rounded-2xl bg-[#EFE9E2] hover:bg-[#E5DDD4] text-[#801313] flex items-center justify-center transition-all shadow-xs cursor-pointer active:scale-95 relative"
             title="Special Offers & Deals"
             aria-label="View Deals"
           >
             <Bell className="w-5 h-5 text-[#801313]" />
-            {data?.offers && data.offers.length > 0 && (
+            {unreadOffersCount > 0 && (
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#801313] text-white rounded-full text-[10px] font-black flex items-center justify-center border-2 border-[#FAF7F4] animate-pulse">
-                {data.offers.length}
+                {unreadOffersCount}
               </span>
             )}
           </button>
@@ -1705,38 +1733,53 @@ export default function CustomerDashboardPage() {
               </button>
             </div>
 
-            <div className="p-4 sm:p-5 overflow-y-auto space-y-3.5 custom-scrollbar flex-1">
+            <div className="p-3.5 sm:p-4 overflow-y-auto space-y-2.5 custom-scrollbar flex-1">
               {data?.offers && data.offers.length > 0 ? (
                 data.offers.map((offer: any) => (
                   <div
                     key={offer.id}
-                    className="p-4 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-2.5 overflow-hidden shadow-2xs"
+                    className="p-3 rounded-2xl bg-[#FAF7F4] hover:bg-white border border-[#EAE3DC] hover:border-[#801313]/30 transition-all flex items-start gap-3 shadow-2xs relative overflow-hidden group"
                   >
-                    {offer.imageUrl && (
-                      <div className="-mx-4 -mt-4 mb-2 aspect-[2/1] overflow-hidden bg-[#1E1815]">
+                    {/* Left Side Thumbnail Image */}
+                    {offer.imageUrl ? (
+                      <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-xl overflow-hidden shrink-0 bg-[#1E1815] border border-[#EAE3DC] relative">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={offer.imageUrl}
                           alt={offer.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 select-none"
                         />
                       </div>
-                    )}
-                    <div className="flex items-center justify-between gap-2">
-                      <h4 className="font-display font-bold text-sm text-[#1E1815] leading-snug">{offer.name}</h4>
-                      <span className="shrink-0 px-2 py-0.5 rounded-lg bg-[#801313] text-white font-display font-extrabold text-xs">
-                        {offer.isPercent ? `${offer.value}% OFF` : `AED ${offer.value} OFF`}
-                      </span>
-                    </div>
-                    <p className="text-xs text-[#7A6E67] leading-relaxed">
-                      {offer.description || "Show your loyalty card or phone number at checkout to redeem this promotion."}
-                    </p>
-                    {offer.endsAt && (
-                      <div className="text-[10px] font-bold text-[#801313] flex items-center gap-1 pt-1 border-t border-[#EAE3DC]">
-                        <Clock className="w-3 h-3" />
-                        <span>Valid until {new Date(offer.endsAt).toLocaleDateString()}</span>
+                    ) : (
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-[#801313]/10 to-[#FAF3E6] border border-[#801313]/20 flex items-center justify-center text-[#801313] shrink-0">
+                        <Tag className="w-6 h-6" />
                       </div>
                     )}
+
+                    {/* Right Side Content (Title, Description, Off Badge, Validity) */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between self-stretch">
+                      <div>
+                        <div className="flex items-start justify-between gap-1.5">
+                          <h4 className="font-display font-bold text-xs sm:text-sm text-[#1E1815] leading-snug line-clamp-1 group-hover:text-[#801313] transition-colors">
+                            {offer.name}
+                          </h4>
+                          <span className="shrink-0 px-2 py-0.5 rounded-lg bg-[#801313] text-white font-display font-black text-[10px] sm:text-[11px] whitespace-nowrap shadow-2xs">
+                            {offer.isPercent ? `${offer.value}% OFF` : `AED ${offer.value} OFF`}
+                          </span>
+                        </div>
+
+                        <p className="text-[11px] text-[#7A6E67] leading-snug line-clamp-2 mt-1">
+                          {offer.description || "Show your loyalty card or phone number at checkout to redeem this promotion."}
+                        </p>
+                      </div>
+
+                      {offer.endsAt && (
+                        <div className="text-[10px] font-bold text-[#801313] flex items-center gap-1 mt-1.5 pt-1 border-t border-[#EAE3DC]/60">
+                          <Clock className="w-3 h-3 text-[#C68A1E] shrink-0" />
+                          <span>Valid until {new Date(offer.endsAt).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))
               ) : (

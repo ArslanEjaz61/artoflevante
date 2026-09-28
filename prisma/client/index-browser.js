@@ -314,6 +314,17 @@ exports.Prisma.EmailLogScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.EmailTemplateScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  category: 'category',
+  subject: 'subject',
+  content: 'content',
+  isDefault: 'isDefault',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -377,7 +388,8 @@ exports.Prisma.ModelName = {
   Setting: 'Setting',
   CustomerVisit: 'CustomerVisit',
   AdminNotification: 'AdminNotification',
-  EmailLog: 'EmailLog'
+  EmailLog: 'EmailLog',
+  EmailTemplate: 'EmailTemplate'
 };
 
 /**

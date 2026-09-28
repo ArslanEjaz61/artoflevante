@@ -138,12 +138,20 @@ export function AdminNotificationBell() {
     return d.toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
   };
 
+  const handleToggle = () => {
+    const nextState = !open;
+    setOpen(nextState);
+    if (nextState && unreadCount > 0) {
+      handleMarkAllRead();
+    }
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Bell Button */}
       <button
         type="button"
-        onClick={() => setOpen(!open)}
+        onClick={handleToggle}
         className="relative p-2 rounded-xl border border-[#DCD3CB] bg-white hover:bg-[#FAF7F4] text-[#4A3F39] hover:text-[#801313] transition-all cursor-pointer shadow-2xs flex items-center justify-center"
         title="Admin Notifications"
         aria-label="Notifications"

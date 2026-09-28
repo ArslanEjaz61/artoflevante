@@ -253,10 +253,29 @@ export async function POST(req: NextRequest) {
       // Send Email Greeting if customer has an email address
       if (cust.email && sendEmailNotification !== false) {
         try {
-          await sendEmail({
-            to: cust.email,
-            subject: `🎂 Happy Birthday ${cust.name}! A Special Gift from Bombay Chowpatty`,
-            html: `
+          const defaultBdayTpl = await prisma.emailTemplate.findFirst({
+            where: { category: "BIRTHDAY", isDefault: true },
+          });
+
+          let emailSubject = `🎂 Happy Birthday ${cust.name}! A Special Gift from Bombay Chowpatty`;
+          let emailHtml = "";
+
+          if (defaultBdayTpl) {
+            emailSubject = defaultBdayTpl.subject
+              .replace(/{customer_name}/g, cust.name || "Valued Member")
+              .replace(/{points_balance}/g, String(cust.pointsBalance || 0))
+              .replace(/{reward_name}/g, activeBirthdayReward.name || "Special Birthday Gift")
+              .replace(/{reward_description}/g, activeBirthdayReward.description || "")
+              .replace(/{expiry_date}/g, expiryDate.toLocaleDateString());
+
+            emailHtml = defaultBdayTpl.content
+              .replace(/{customer_name}/g, cust.name || "Valued Member")
+              .replace(/{points_balance}/g, String(cust.pointsBalance || 0))
+              .replace(/{reward_name}/g, activeBirthdayReward.name || "Special Birthday Gift")
+              .replace(/{reward_description}/g, activeBirthdayReward.description || "")
+              .replace(/{expiry_date}/g, expiryDate.toLocaleDateString());
+          } else {
+            emailHtml = `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #FAF7F4; padding: 24px; border-radius: 16px; border: 1px solid #EAE3DC;">
                 <div style="text-align: center; margin-bottom: 20px;">
                   <h1 style="color: #801313; margin: 0; font-size: 24px;">🎉 Happy Birthday, ${cust.name}! 🎂</h1>
@@ -273,7 +292,13 @@ export async function POST(req: NextRequest) {
                   <p style="font-size: 13px; color: #5C504A; margin-bottom: 0;">Show your digital QR card or phone number at any of our 14 UAE outlets to redeem your birthday treat!</p>
                 </div>
               </div>
-            `,
+            `;
+          }
+
+          await sendEmail({
+            to: cust.email,
+            subject: emailSubject,
+            html: emailHtml,
           });
         } catch (mailErr) {
           console.error("Birthday email send error:", mailErr);

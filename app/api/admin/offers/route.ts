@@ -160,13 +160,26 @@ export async function PATCH(req: NextRequest) {
 
   const offer = await prisma.offer.update({ where: { id: String(id) }, data: updateData });
 
+  if (Array.isArray(body.branchIds)) {
+    await prisma.offerBranch.deleteMany({ where: { offerId: String(id) } });
+    if (body.branchIds.length > 0) {
+      await prisma.offerBranch.createMany({
+        data: body.branchIds.map((branchId: string) => ({
+          offerId: String(id),
+          branchId: String(branchId),
+        })),
+        skipDuplicates: true,
+      });
+    }
+  }
+
   await prisma.auditLog.create({
     data: {
       staffId: session.id,
       action: "offer.update",
       entityType: "Offer",
       entityId: offer.id,
-      metadata: { name: offer.name, isActive: offer.isActive },
+      metadata: { name: offer.name, isActive: offer.isActive, hasImage: !!offer.imageUrl },
     },
   });
 

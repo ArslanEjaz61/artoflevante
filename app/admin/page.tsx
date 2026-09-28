@@ -83,6 +83,9 @@ import {
   MessageSquare,
   Upload,
   Image as ImageIcon,
+  FileText,
+  Palette,
+  Star,
 } from "lucide-react";
 import QRCode from "qrcode";
 import jsQR from "jsqr";
@@ -618,6 +621,34 @@ export default function AdminPage() {
   });
   const [compressingOfferImg, setCompressingOfferImg] = useState(false);
   const [compressedImgStats, setCompressedImgStats] = useState<string | null>(null);
+  const [showEditOfferModal, setShowEditOfferModal] = useState(false);
+  const [editOfferForm, setEditOfferForm] = useState<{
+    id: string;
+    name: string;
+    description: string;
+    value: string;
+    isPercent: boolean;
+    branchIds: string[];
+    startsAt: string;
+    endsAt: string;
+    imageUrl: string;
+    bannerText: string;
+    isActive: boolean;
+  }>({
+    id: "",
+    name: "",
+    description: "",
+    value: "",
+    isPercent: true,
+    branchIds: [],
+    startsAt: "",
+    endsAt: "",
+    imageUrl: "",
+    bannerText: "",
+    isActive: true,
+  });
+  const [compressingEditOfferImg, setCompressingEditOfferImg] = useState(false);
+  const [compressedEditImgStats, setCompressedEditImgStats] = useState<string | null>(null);
   const [offerMsg, setOfferMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   // Branches tab & CRUD
@@ -857,7 +888,7 @@ export default function AdminPage() {
   const [dispatchingBirthdayId, setDispatchingBirthdayId] = useState<string | null>(null);
 
   // Email Marketing & SMTP Hub State
-  const [emailSubTab, setEmailSubTab] = useState<"compose" | "smtp" | "logs">("compose");
+  const [emailSubTab, setEmailSubTab] = useState<"compose" | "templates" | "smtp" | "logs">("compose");
   const [smtpForm, setSmtpForm] = useState({
     host: "",
     port: "587",
@@ -882,6 +913,41 @@ export default function AdminPage() {
   const [emailLogs, setEmailLogs] = useState<any[]>([]);
   const [emailStats, setEmailStats] = useState({ totalSent: 0, totalFailed: 0, totalCount: 0 });
   const [loadingEmailLogs, setLoadingEmailLogs] = useState(false);
+
+  // Email Templates State
+  const [emailTemplates, setEmailTemplates] = useState<any[]>([]);
+  const [loadingEmailTemplates, setLoadingEmailTemplates] = useState(false);
+  const [defaultBdayTplId, setDefaultBdayTplId] = useState<string | null>(null);
+  const [defaultOffersTplId, setDefaultOffersTplId] = useState<string | null>(null);
+  const [showCreateTemplateModal, setShowCreateTemplateModal] = useState(false);
+  const [showEditTemplateModal, setShowEditTemplateModal] = useState(false);
+  const [showEmailPreviewModal, setShowEmailPreviewModal] = useState(false);
+  const [previewDeviceMode, setPreviewDeviceMode] = useState<"desktop" | "mobile">("desktop");
+  const [previewEmailData, setPreviewEmailData] = useState<{
+    subject: string;
+    content: string;
+    templateName?: string;
+    category?: string;
+  }>({
+    subject: "",
+    content: "",
+  });
+  const [templateForm, setTemplateForm] = useState<{
+    id?: string;
+    name: string;
+    category: "BIRTHDAY" | "OFFERS" | "GENERAL";
+    subject: string;
+    content: string;
+    isDefault: boolean;
+  }>({
+    name: "",
+    category: "GENERAL",
+    subject: "",
+    content: "",
+    isDefault: false,
+  });
+  const [templateSaving, setTemplateSaving] = useState(false);
+  const [templateMsg, setTemplateMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   // Customer Details Modal State
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
@@ -1063,6 +1129,22 @@ export default function AdminPage() {
     }
   }, []);
 
+  const loadEmailTemplates = useCallback(async () => {
+    setLoadingEmailTemplates(true);
+    try {
+      const r = await fetch("/api/admin/email/templates");
+      const d = await r.json();
+      if (r.ok && d.templates) {
+        setEmailTemplates(d.templates);
+        if (d.defaultBirthdayTemplateId) setDefaultBdayTplId(d.defaultBirthdayTemplateId);
+        if (d.defaultOffersTemplateId) setDefaultOffersTplId(d.defaultOffersTemplateId);
+      }
+    } catch { }
+    finally {
+      setLoadingEmailTemplates(false);
+    }
+  }, []);
+
   const loadStaff = useCallback(async () => {
     try {
       const r = await fetch("/api/admin/staff");
@@ -1104,6 +1186,7 @@ export default function AdminPage() {
       loadBirthdayRewards();
       loadEmailSettings();
       loadEmailLogs();
+      loadEmailTemplates();
     }
     if (tab === "staff") {
       loadStaff();
@@ -1113,7 +1196,7 @@ export default function AdminPage() {
       loadVisits();
       loadBranches();
     }
-  }, [tab, loadCustomers, loadAudit, loadOffers, loadBranches, loadSettings, loadVisitRewards, loadBirthdayRewards, loadEmailSettings, loadEmailLogs, loadStaff, loadVisits]);
+  }, [tab, loadCustomers, loadAudit, loadOffers, loadBranches, loadSettings, loadVisitRewards, loadBirthdayRewards, loadEmailSettings, loadEmailLogs, loadEmailTemplates, loadStaff, loadVisits]);
 
   // Branch Coupon Generator Helper
   function generateRandomCouponCode(prefix: string) {
@@ -1872,6 +1955,90 @@ export default function AdminPage() {
     }
   }
 
+  function handleEditOfferImageFile(file: File) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setOfferMsg({ type: "err", text: "Please select a valid image file (PNG, JPG, WebP)." });
+      return;
+    }
+    setCompressingEditOfferImg(true);
+    setCompressedEditImgStats(null);
+    const originalSizeKb = Math.round(file.size / 1024);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxWidth = 1200;
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const webpData = canvas.toDataURL("image/webp", 0.85);
+          const newSizeKb = Math.round((webpData.length * 3) / 4 / 1024);
+          setCompressedEditImgStats(`Original: ${originalSizeKb} KB ➔ Optimized WebP: ${newSizeKb} KB`);
+          setEditOfferForm((prev) => ({ ...prev, imageUrl: webpData }));
+        }
+        setCompressingEditOfferImg(false);
+      };
+      img.onerror = () => {
+        setCompressingEditOfferImg(false);
+        setOfferMsg({ type: "err", text: "Could not process selected image." });
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function openEditOffer(o: any) {
+    setEditOfferForm({
+      id: o.id,
+      name: o.name || "",
+      description: o.description || "",
+      value: String(o.value ?? ""),
+      isPercent: o.isPercent ?? true,
+      branchIds: (o.branches || []).map((b: any) => b.id || b.code),
+      startsAt: o.startsAt ? toDatetimeLocal(o.startsAt) : "",
+      endsAt: o.endsAt ? toDatetimeLocal(o.endsAt) : "",
+      imageUrl: o.imageUrl || "",
+      bannerText: o.bannerText || "",
+      isActive: o.isActive ?? true,
+    });
+    setCompressedEditImgStats(null);
+    setOfferMsg(null);
+    setShowEditOfferModal(true);
+  }
+
+  async function updateOffer(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editOfferForm.id) return;
+    setBusy(true);
+    setOfferMsg(null);
+    try {
+      const r = await fetch("/api/admin/offers", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editOfferForm),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Could not update offer.");
+      setOfferMsg({ type: "ok", text: "Offer details and banner updated successfully." });
+      setShowEditOfferModal(false);
+      loadOffers();
+    } catch (e2: any) {
+      setOfferMsg({ type: "err", text: String(e2.message || e2) });
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function toggleOffer(id: string, isActive: boolean) {
     try {
       const r = await fetch("/api/admin/offers", {
@@ -1894,6 +2061,104 @@ export default function AdminPage() {
         loadOffers();
       }
     } catch { }
+  }
+
+  // Email Templates Handlers
+  function openEmailPreview(title: string, subject: string, content: string, category?: string) {
+    setPreviewEmailData({
+      templateName: title,
+      subject,
+      content,
+      category,
+    });
+    setPreviewDeviceMode("desktop");
+    setShowEmailPreviewModal(true);
+  }
+
+  async function handleCreateEmailTemplate(e: React.FormEvent) {
+    e.preventDefault();
+    setTemplateSaving(true);
+    setTemplateMsg(null);
+    try {
+      const r = await fetch("/api/admin/email/templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(templateForm),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Failed to create email template.");
+      setTemplateMsg({ type: "ok", text: d.message || "Email template created successfully!" });
+      setShowCreateTemplateModal(false);
+      setTemplateForm({
+        name: "",
+        category: "GENERAL",
+        subject: "",
+        content: "",
+        isDefault: false,
+      });
+      loadEmailTemplates();
+    } catch (err2: any) {
+      setTemplateMsg({ type: "err", text: String(err2.message || err2) });
+    } finally {
+      setTemplateSaving(false);
+    }
+  }
+
+  async function handleUpdateEmailTemplate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!templateForm.id) return;
+    setTemplateSaving(true);
+    setTemplateMsg(null);
+    try {
+      const r = await fetch("/api/admin/email/templates", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(templateForm),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Failed to update email template.");
+      setTemplateMsg({ type: "ok", text: d.message || "Email template updated successfully!" });
+      setShowEditTemplateModal(false);
+      loadEmailTemplates();
+    } catch (err2: any) {
+      setTemplateMsg({ type: "err", text: String(err2.message || err2) });
+    } finally {
+      setTemplateSaving(false);
+    }
+  }
+
+  async function handleSetDefaultTemplate(id: string, category: string) {
+    try {
+      const r = await fetch("/api/admin/email/templates", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "set_default",
+          id,
+          category,
+        }),
+      });
+      const d = await r.json();
+      if (r.ok) {
+        setTemplateMsg({ type: "ok", text: d.message || "Default email template updated." });
+        loadEmailTemplates();
+      }
+    } catch { }
+  }
+
+  async function handleDeleteEmailTemplate(id: string) {
+    if (!confirm("Are you sure you want to delete this custom email template?")) return;
+    try {
+      const r = await fetch(`/api/admin/email/templates?id=${id}`, {
+        method: "DELETE",
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Failed to delete template.");
+      setTemplateMsg({ type: "ok", text: d.message || "Template removed successfully." });
+      loadEmailTemplates();
+    } catch (err2: any) {
+      setTemplateMsg({ type: "err", text: String(err2.message || err2) });
+    }
   }
 
   async function doLogin(e: React.FormEvent) {
@@ -3161,6 +3426,15 @@ export default function AdminPage() {
                             </span>
                             {offers?.canEdit && (
                               <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => openEditOffer(o)}
+                                  className="p-1.5 rounded-xl bg-[#FAF7F4] hover:bg-[#EAE3DC] text-[#1E1815] border border-[#EAE3DC] transition-colors cursor-pointer flex items-center gap-1 text-xs font-bold px-2.5"
+                                  title="Edit Promotional Campaign"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5 text-[#801313]" />
+                                  <span>Edit</span>
+                                </button>
                                 <button
                                   type="button"
                                   onClick={() => toggleOffer(o.id, !o.isActive)}
@@ -6138,7 +6412,7 @@ export default function AdminPage() {
                     </div>
 
                     {/* Email Sub-Tabs */}
-                    <div className="flex items-center bg-[#FAF7F4] p-1 rounded-xl border border-[#EAE3DC] gap-1">
+                    <div className="flex items-center bg-[#FAF7F4] p-1 rounded-xl border border-[#EAE3DC] gap-1 flex-wrap">
                       <button
                         type="button"
                         onClick={() => setEmailSubTab("compose")}
@@ -6149,6 +6423,21 @@ export default function AdminPage() {
                         }`}
                       >
                         Compose Email
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEmailSubTab("templates");
+                          loadEmailTemplates();
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                          emailSubTab === "templates"
+                            ? "bg-[#801313] text-white shadow-2xs"
+                            : "text-[#7A6E67] hover:text-[#1E1815]"
+                        }`}
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>Email Templates ({emailTemplates.length})</span>
                       </button>
                       <button
                         type="button"
@@ -6248,6 +6537,48 @@ export default function AdminPage() {
                         </div>
                       )}
 
+                      {/* Template Selector from Library */}
+                      {emailTemplates.length > 0 && (
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-xs font-bold text-[#1E1815] uppercase tracking-wider">
+                              Load From Template Library
+                            </label>
+                            <span className="text-[10px] text-[#7A6E67]">
+                              Click any template to auto-fill subject &amp; message
+                            </span>
+                          </div>
+                          <div className="flex flex-wrap gap-2 p-2 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl">
+                            {emailTemplates.map((tpl) => (
+                              <button
+                                key={tpl.id}
+                                type="button"
+                                onClick={() => {
+                                  setCampaignForm({
+                                    ...campaignForm,
+                                    subject: tpl.subject,
+                                    content: tpl.content,
+                                  });
+                                }}
+                                className="px-3 py-1.5 rounded-lg bg-white border border-[#DCD3CB] hover:border-[#801313] hover:text-[#801313] text-xs font-bold text-[#1E1815] transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                              >
+                                {tpl.category === "BIRTHDAY" ? (
+                                  <Cake className="w-3.5 h-3.5 text-[#EC4899]" />
+                                ) : tpl.category === "OFFERS" ? (
+                                  <Tag className="w-3.5 h-3.5 text-[#801313]" />
+                                ) : (
+                                  <FileText className="w-3.5 h-3.5 text-blue-600" />
+                                )}
+                                <span>{tpl.name}</span>
+                                {tpl.isDefault && (
+                                  <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {/* Subject */}
                       <div>
                         <label className="block text-xs font-bold text-[#1E1815] uppercase tracking-wider mb-1.5">
@@ -6263,66 +6594,22 @@ export default function AdminPage() {
                         />
                       </div>
 
-                      {/* Template Presets Quick Fill */}
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#7A6E67]">
-                          Template Presets:
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setCampaignForm({
-                              ...campaignForm,
-                              subject: "🎂 Happy Birthday {customer_name}! A Special Treat Awaits You at Bombay Chowpatty",
-                              content: `<h2 style="color: #801313; margin-top: 0;">Happy Birthday, {customer_name}! 🎂</h2>
-<p>We are delighted to celebrate your special day with you! To make your birthday even sweeter, we have added a special birthday voucher to your Loyalty Club wallet.</p>
-<div style="background: #FAF3E6; border: 1px dashed #C68A1E; border-radius: 12px; padding: 16px; margin: 16px 0; text-align: center;">
-  <p style="font-weight: bold; color: #9E690B; font-size: 14px; margin: 0;">SPECIAL BIRTHDAY GIFT</p>
-  <p style="font-size: 18px; font-weight: 900; color: #801313; margin: 6px 0;">Complimentary Royal Dessert + 20% Off</p>
-  <p style="font-size: 12px; color: #7A6E67; margin: 0;">Valid for 30 days at any of our 14 UAE branches.</p>
-</div>
-<p>Your Current Loyalty Balance: <strong>{points_balance} Points</strong></p>
-<p>Show your digital loyalty card or phone number at checkout to redeem!</p>`,
-                            })
-                          }
-                          className="px-2.5 py-1 rounded-lg bg-[#FAF7F4] border border-[#DCD3CB] hover:bg-[#FAF3E6] text-[11px] font-bold text-[#BE185D] cursor-pointer"
-                        >
-                          Birthday Wishes
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setCampaignForm({
-                              ...campaignForm,
-                              subject: "🔥 Double Points Weekend at Bombay Chowpatty!",
-                              content: `<h2 style="color: #801313; margin-top: 0;">Exclusive Member Perk for {customer_name} 🌟</h2>
-<p>This weekend, enjoy <strong>DOUBLE LOYALTY POINTS (2x)</strong> on every order placed across all our outlets in Dubai, Sharjah, and Ajman!</p>
-<p>Earn points faster and redeem them for delicious cash discounts and free menu favorites.</p>
-<div style="background: #EAF5EE; border: 1px solid #C8E6D3; border-radius: 10px; padding: 14px; margin: 16px 0;">
-  <p style="margin: 0; color: #1E7A4D; font-weight: bold; font-size: 13px;">Your Current Points: {points_balance} Points</p>
-</div>
-<p>We look forward to serving you this weekend!</p>`,
-                            })
-                          }
-                          className="px-2.5 py-1 rounded-lg bg-[#FAF7F4] border border-[#DCD3CB] hover:bg-[#FAF3E6] text-[11px] font-bold text-[#801313] cursor-pointer"
-                        >
-                          Weekend Promo
-                        </button>
-                      </div>
-
                       {/* Content Body */}
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
                           <label className="block text-xs font-bold text-[#1E1815] uppercase tracking-wider">
                             Email HTML Message Body *
                           </label>
-                          <div className="flex items-center gap-1.5 text-[10px] font-mono text-[#7A6E67]">
+                          <div className="flex items-center gap-1.5 text-[10px] font-mono text-[#7A6E67] flex-wrap">
                             <span>Tags:</span>
                             <code className="bg-[#FAF7F4] px-1.5 py-0.5 rounded border border-[#EAE3DC] text-[#801313]">
                               {"{customer_name}"}
                             </code>
                             <code className="bg-[#FAF7F4] px-1.5 py-0.5 rounded border border-[#EAE3DC] text-[#801313]">
                               {"{points_balance}"}
+                            </code>
+                            <code className="bg-[#FAF7F4] px-1.5 py-0.5 rounded border border-[#EAE3DC] text-[#801313]">
+                              {"{reward_name}"}
                             </code>
                           </div>
                         </div>
@@ -6336,8 +6623,24 @@ export default function AdminPage() {
                         />
                       </div>
 
-                      {/* Send Button */}
-                      <div className="pt-2 flex justify-end">
+                      {/* Action Buttons: Live Preview + Send Button */}
+                      <div className="pt-2 flex items-center justify-between gap-3">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openEmailPreview(
+                              "Campaign Draft Preview",
+                              campaignForm.subject || "No Subject Specified",
+                              campaignForm.content || "<p>No message body content written yet.</p>"
+                            )
+                          }
+                          disabled={!campaignForm.content}
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#DCD3CB] hover:border-[#801313] text-[#1E1815] hover:text-[#801313] font-bold text-xs transition-all cursor-pointer disabled:opacity-40 shadow-2xs"
+                        >
+                          <Eye className="w-4 h-4" />
+                          <span>Live Output Preview</span>
+                        </button>
+
                         <button
                           type="submit"
                           disabled={campaignSending || !campaignForm.subject || !campaignForm.content}
@@ -6348,6 +6651,201 @@ export default function AdminPage() {
                         </button>
                       </div>
                     </form>
+                  )}
+
+                  {/* Sub-tab: Templates Library */}
+                  {emailSubTab === "templates" && (
+                    <div className="space-y-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                          <h4 className="font-extrabold text-sm sm:text-base text-[#1E1815] flex items-center gap-2">
+                            <span>Email Templates &amp; Automated Triggers</span>
+                            <span className="px-2 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-[10px] font-black uppercase">
+                              {emailTemplates.length} Available
+                            </span>
+                          </h4>
+                          <p className="text-xs text-[#7A6E67] mt-0.5">
+                            Create reusable templates for Birthday wishes, Promotional campaigns, and announcements. Choose which template is active by default.
+                          </p>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTemplateForm({
+                              name: "",
+                              category: "GENERAL",
+                              subject: "",
+                              content: "",
+                              isDefault: false,
+                            });
+                            setTemplateMsg(null);
+                            setShowCreateTemplateModal(true);
+                          }}
+                          className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs shadow-md shadow-[#801313]/20 transition-all cursor-pointer shrink-0"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>+ Create Email Template</span>
+                        </button>
+                      </div>
+
+                      {templateMsg && (
+                        <div
+                          className={`p-3.5 rounded-2xl text-xs font-bold flex items-center justify-between ${
+                            templateMsg.type === "ok"
+                              ? "bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/30"
+                              : "bg-[#C0392B]/10 text-[#C0392B] border border-[#C0392B]/30"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            {templateMsg.type === "ok" ? (
+                              <Check className="w-4 h-4 shrink-0" />
+                            ) : (
+                              <AlertCircle className="w-4 h-4 shrink-0" />
+                            )}
+                            <span>{templateMsg.text}</span>
+                          </div>
+                          <button onClick={() => setTemplateMsg(null)}>
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Templates Grid */}
+                      {loadingEmailTemplates ? (
+                        <div className="py-12 text-center text-xs text-[#7A6E67]">
+                          <div className="w-6 h-6 border-2 border-[#801313] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                          <span>Loading Email Templates Library...</span>
+                        </div>
+                      ) : emailTemplates.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {emailTemplates.map((tpl) => {
+                            const isBirthday = tpl.category === "BIRTHDAY";
+                            const isOffer = tpl.category === "OFFERS";
+                            const isDefault = tpl.isDefault;
+
+                            return (
+                              <div
+                                key={tpl.id}
+                                className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col justify-between relative bg-white ${
+                                  isDefault
+                                    ? "border-amber-400 shadow-sm ring-1 ring-amber-400/30"
+                                    : "border-[#EAE3DC] hover:border-[#801313]/40 shadow-2xs hover:shadow-xs"
+                                }`}
+                              >
+                                <div>
+                                  {/* Top Header Badge */}
+                                  <div className="flex items-center justify-between mb-3 gap-2">
+                                    <span
+                                      className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 ${
+                                        isBirthday
+                                          ? "bg-[#EC4899]/10 text-[#BE185D] border border-[#EC4899]/20"
+                                          : isOffer
+                                          ? "bg-[#801313]/10 text-[#801313] border border-[#801313]/20"
+                                          : "bg-blue-50 text-blue-700 border border-blue-200"
+                                      }`}
+                                    >
+                                      {isBirthday ? (
+                                        <Cake className="w-3 h-3" />
+                                      ) : isOffer ? (
+                                        <Tag className="w-3 h-3" />
+                                      ) : (
+                                        <Mail className="w-3 h-3" />
+                                      )}
+                                      <span>{tpl.category}</span>
+                                    </span>
+
+                                    {isDefault && (
+                                      <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black flex items-center gap-1">
+                                        <Star className="w-3 h-3 fill-amber-500 text-amber-600" />
+                                        <span>ACTIVE DEFAULT</span>
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  <h4 className="font-extrabold text-sm text-[#1E1815] mb-1">
+                                    {tpl.name}
+                                  </h4>
+
+                                  <div className="text-xs text-[#7A6E67] font-semibold mb-2 line-clamp-1">
+                                    <span className="text-[#1E1815] font-bold">Subject: </span>
+                                    <span>{tpl.subject}</span>
+                                  </div>
+
+                                  {/* Preview box */}
+                                  <div className="bg-[#FAF7F4] rounded-xl p-3 border border-[#EAE3DC] text-[11px] text-[#7A6E67] line-clamp-3 mb-4 font-mono leading-relaxed select-none">
+                                    {tpl.content.replace(/<[^>]*>?/gm, " ").trim().slice(0, 140)}...
+                                  </div>
+                                </div>
+
+                                {/* Footer Actions */}
+                                <div className="pt-3 border-t border-[#EAE3DC] space-y-2">
+                                  <div className="flex items-center justify-between gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => openEmailPreview(tpl.name, tpl.subject, tpl.content, tpl.category)}
+                                      className="flex-1 py-1.5 px-2.5 rounded-xl bg-white border border-[#DCD3CB] hover:border-[#801313] hover:text-[#801313] text-[#1E1815] font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1"
+                                      title="Live Preview Email Output"
+                                    >
+                                      <Eye className="w-3.5 h-3.5 text-[#801313]" />
+                                      <span>Live Preview</span>
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setTemplateForm({
+                                          id: tpl.id,
+                                          name: tpl.name,
+                                          category: tpl.category,
+                                          subject: tpl.subject,
+                                          content: tpl.content,
+                                          isDefault: tpl.isDefault,
+                                        });
+                                        setTemplateMsg(null);
+                                        setShowEditTemplateModal(true);
+                                      }}
+                                      className="p-1.5 rounded-xl bg-[#FAF7F4] hover:bg-[#EAE3DC] text-[#1E1815] border border-[#EAE3DC] transition-colors cursor-pointer"
+                                      title="Edit Template"
+                                    >
+                                      <Edit2 className="w-3.5 h-3.5 text-[#801313]" />
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteEmailTemplate(tpl.id)}
+                                      className="p-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 transition-colors cursor-pointer"
+                                      title="Delete Template"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+
+                                  {!isDefault && (tpl.category === "BIRTHDAY" || tpl.category === "OFFERS") && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSetDefaultTemplate(tpl.id, tpl.category)}
+                                      className="w-full py-1.5 px-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-[11px] font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1"
+                                    >
+                                      <Star className="w-3 h-3 text-amber-600" />
+                                      <span>Set as Default {tpl.category === "BIRTHDAY" ? "Birthday" : "Offers"} Template</span>
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="text-center py-10 bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl p-6">
+                          <FileText className="w-10 h-10 text-[#801313]/40 mx-auto mb-2" />
+                          <h4 className="font-bold text-sm text-[#1E1815]">No Email Templates Found</h4>
+                          <p className="text-xs text-[#7A6E67] max-w-md mx-auto mt-1 mb-4">
+                            Create custom templates for Birthday perks and promotional campaigns so emails can be dispatched instantly.
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   )}
 
                   {/* Sub-tab 2: SMTP Configuration */}
@@ -9360,6 +9858,805 @@ export default function AdminPage() {
                 className="px-5 py-2 rounded-xl bg-[#1E1815] hover:bg-[#2A211C] text-white font-bold text-xs transition-colors cursor-pointer ml-auto"
               >
                 Close Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: EDIT PROMOTIONAL OFFER                                   */}
+      {/* ============================================================== */}
+      {showEditOfferModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-hidden">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl max-w-xl w-full shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4.5 border-b border-[#EAE3DC] bg-[#FAF7F4] shrink-0">
+              <h3 className="font-extrabold text-base sm:text-lg text-[#1E1815] flex items-center gap-2">
+                <Tag className="w-5 h-5 text-[#801313]" />
+                Edit Promotional Campaign Offer
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowEditOfferModal(false)}
+                className="p-1.5 rounded-xl text-[#7A6E67] hover:bg-white hover:text-[#1E1815] border border-transparent hover:border-[#EAE3DC] transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={updateOffer} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              <div className="p-6 overflow-y-auto space-y-4 flex-1 custom-scrollbar">
+                {offerMsg && (
+                  <div
+                    className={`p-3 rounded-xl text-xs font-semibold ${
+                      offerMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#C0392B]/10 text-[#C0392B]"
+                    }`}
+                  >
+                    {offerMsg.text}
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                    Campaign Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Weekend Biryani Feast - 20% Off"
+                    value={editOfferForm.name}
+                    onChange={(e) => setEditOfferForm({ ...editOfferForm, name: e.target.value })}
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                    Campaign Description
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder="Offer details and terms shown to customers..."
+                    value={editOfferForm.description}
+                    onChange={(e) => setEditOfferForm({ ...editOfferForm, description: e.target.value })}
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                  />
+                </div>
+
+                {/* Promotional Banner Image Upload with WebP Optimizer */}
+                <div className="p-4 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-extrabold text-[#1E1815] flex items-center gap-1.5 uppercase">
+                      <ImageIcon className="w-4 h-4 text-[#801313]" />
+                      <span>Promotional Banner Image</span>
+                    </label>
+                    <span className="text-[10px] font-bold text-[#7A6E67] bg-white px-2 py-0.5 rounded-full border border-[#EAE3DC]">
+                      1200 × 500 px Recommended (WebP)
+                    </span>
+                  </div>
+
+                  {editOfferForm.imageUrl ? (
+                    <div className="relative rounded-xl overflow-hidden border border-[#EAE3DC] bg-[#1E1815] group">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={editOfferForm.imageUrl}
+                        alt="Offer banner preview"
+                        className="w-full h-36 object-cover select-none"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <label className="px-3 py-1.5 rounded-xl bg-white text-[#1E1815] font-bold text-xs cursor-pointer hover:bg-[#FAF7F4] shadow-md">
+                          Replace Image
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleEditOfferImageFile(file);
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditOfferForm({ ...editOfferForm, imageUrl: "" });
+                            setCompressedEditImgStats(null);
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-red-600 text-white font-bold text-xs cursor-pointer hover:bg-red-700 shadow-md"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <label className="border-2 border-dashed border-[#DCD3CB] hover:border-[#801313] bg-white hover:bg-[#FAF3E6]/30 p-4 rounded-xl flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-colors text-center">
+                      <Upload className="w-6 h-6 text-[#801313]" />
+                      <div className="text-xs font-bold text-[#1E1815]">
+                        {compressingEditOfferImg ? "Optimizing & Converting to WebP…" : "Click or Drag to Upload Offer Image"}
+                      </div>
+                      <div className="text-[10px] text-[#7A6E67]">
+                        Auto-compressed into ultra-lightweight WebP for fast customer loading
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        disabled={compressingEditOfferImg}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleEditOfferImageFile(file);
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+
+                  {compressedEditImgStats && (
+                    <div className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-50 p-2 rounded-lg border border-emerald-200 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>{compressedEditImgStats}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                      Discount Value *
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      required
+                      placeholder="e.g. 20"
+                      value={editOfferForm.value}
+                      onChange={(e) => setEditOfferForm({ ...editOfferForm, value: e.target.value })}
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                      Discount Unit *
+                    </label>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setEditOfferForm({ ...editOfferForm, isPercent: true })}
+                        className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
+                          editOfferForm.isPercent
+                            ? "bg-[#801313] text-white border-[#801313]"
+                            : "bg-[#FAF7F4] text-[#4A3F39] border-[#EAE3DC]"
+                        }`}
+                      >
+                        % Percent
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditOfferForm({ ...editOfferForm, isPercent: false })}
+                        className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
+                          !editOfferForm.isPercent
+                            ? "bg-[#801313] text-white border-[#801313]"
+                            : "bg-[#FAF7F4] text-[#4A3F39] border-[#EAE3DC]"
+                        }`}
+                      >
+                        Fixed (AED)
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Multi-Branch Outlets Assignment */}
+                <div className="p-3.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-bold text-[#1E1815] block">
+                        Assigned Outlet Branches
+                      </span>
+                      <span className="text-[10px] text-[#7A6E67]">
+                        {editOfferForm.branchIds.length === 0
+                          ? "Universal / All 14 UAE Branches (Visible to every customer)"
+                          : `Selected for ${editOfferForm.branchIds.length} branches (Visible to all customers)`}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setEditOfferForm({ ...editOfferForm, branchIds: [] })}
+                        className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                          editOfferForm.branchIds.length === 0
+                            ? "bg-[#801313] text-white border-[#801313] shadow-2xs"
+                            : "bg-white text-[#7A6E67] border-[#EAE3DC] hover:text-[#1E1815]"
+                        }`}
+                      >
+                        All Outlets
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEditOfferForm({
+                            ...editOfferForm,
+                            branchIds: branchesList.map((b: any) => b.id),
+                          })
+                        }
+                        className="text-[10px] font-bold px-2.5 py-1 rounded-lg border border-[#EAE3DC] bg-white text-[#7A6E67] hover:text-[#1E1815] transition-all cursor-pointer"
+                      >
+                        Select All
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="max-h-40 overflow-y-auto p-2 bg-white border border-[#EAE3DC] rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-1.5 custom-scrollbar">
+                    {branchesList.map((b: any) => {
+                      const isSelected = editOfferForm.branchIds.includes(b.id);
+                      return (
+                        <label
+                          key={b.id}
+                          className={`flex items-center gap-2 p-2 rounded-lg text-xs cursor-pointer border transition-all ${
+                            isSelected
+                              ? "bg-[#801313]/5 border-[#801313] text-[#801313] font-bold shadow-2xs"
+                              : "bg-[#FAF7F4]/50 border-transparent text-[#4A3F39] hover:bg-[#FAF7F4] hover:border-[#EAE3DC]"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setEditOfferForm({
+                                  ...editOfferForm,
+                                  branchIds: [...editOfferForm.branchIds, b.id],
+                                });
+                              } else {
+                                setEditOfferForm({
+                                  ...editOfferForm,
+                                  branchIds: editOfferForm.branchIds.filter((id) => id !== b.id),
+                                });
+                              }
+                            }}
+                            className="w-3.5 h-3.5 text-[#801313] rounded border-[#DCD3CB] focus:ring-[#801313] cursor-pointer"
+                          />
+                          <span className="truncate flex-1 font-medium">{b.name}</span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#FAF7F4] text-[#7A6E67] font-mono shrink-0">
+                            #{b.code}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                      Start Date
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={editOfferForm.startsAt}
+                      onChange={(e) => setEditOfferForm({ ...editOfferForm, startsAt: e.target.value })}
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                      End Date
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={editOfferForm.endsAt}
+                      onChange={(e) => setEditOfferForm({ ...editOfferForm, endsAt: e.target.value })}
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="editOfferActive"
+                    checked={editOfferForm.isActive}
+                    onChange={(e) => setEditOfferForm({ ...editOfferForm, isActive: e.target.checked })}
+                    className="w-4 h-4 rounded text-[#801313] focus:ring-[#801313]"
+                  />
+                  <label htmlFor="editOfferActive" className="text-xs font-bold text-[#1E1815] cursor-pointer">
+                    Offer is Active &amp; Displayed on Customer Loyalty Portal
+                  </label>
+                </div>
+              </div>
+
+              <div className="p-4 px-6 border-t border-[#EAE3DC] bg-[#FAF7F4] flex items-center justify-end gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setShowEditOfferModal(false)}
+                  className="px-4 py-2 rounded-xl border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:bg-white cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className="px-5 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs shadow-md shadow-[#801313]/20 disabled:opacity-50 cursor-pointer"
+                >
+                  {busy ? "Saving Changes…" : "Update Promotional Offer"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: CREATE EMAIL TEMPLATE                                   */}
+      {/* ============================================================== */}
+      {showCreateTemplateModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-hidden">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl max-w-xl w-full shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between px-6 py-4.5 border-b border-[#EAE3DC] bg-[#FAF7F4] shrink-0">
+              <h3 className="font-extrabold text-base sm:text-lg text-[#1E1815] flex items-center gap-2">
+                <FileText className="w-5 h-5 text-[#801313]" />
+                Create New Email Template
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowCreateTemplateModal(false)}
+                className="p-1.5 rounded-xl text-[#7A6E67] hover:bg-white hover:text-[#1E1815] border border-transparent hover:border-[#EAE3DC] transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateEmailTemplate} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              <div className="p-6 overflow-y-auto space-y-4 flex-1 custom-scrollbar">
+                {templateMsg && (
+                  <div
+                    className={`p-3 rounded-xl text-xs font-semibold ${
+                      templateMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#C0392B]/10 text-[#C0392B]"
+                    }`}
+                  >
+                    {templateMsg.text}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                      Template Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. VIP Birthday Greeting"
+                      value={templateForm.name}
+                      onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                      Category *
+                    </label>
+                    <select
+                      value={templateForm.category}
+                      onChange={(e) => setTemplateForm({ ...templateForm, category: e.target.value as any })}
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    >
+                      <option value="BIRTHDAY">🎂 Birthday Gift &amp; Greetings</option>
+                      <option value="OFFERS">🏷️ Promotional Offers &amp; Discounts</option>
+                      <option value="GENERAL">📢 General Announcement</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                    Email Subject Line *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 🎂 Happy Birthday {customer_name}! A Royal Treat Awaits"
+                    value={templateForm.subject}
+                    onChange={(e) => setTemplateForm({ ...templateForm, subject: e.target.value })}
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
+                    <label className="text-xs font-bold text-[#7A6E67] uppercase">
+                      HTML Email Message Body *
+                    </label>
+                    <div className="flex items-center gap-1 text-[10px] font-mono text-[#7A6E67] flex-wrap">
+                      <span>Click to insert:</span>
+                      {["{customer_name}", "{points_balance}", "{reward_name}", "{reward_description}", "{expiry_date}"].map((tag) => (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => setTemplateForm({ ...templateForm, content: templateForm.content + " " + tag })}
+                          className="bg-[#FAF7F4] hover:bg-[#801313]/10 hover:text-[#801313] px-1.5 py-0.5 rounded border border-[#EAE3DC] transition-colors cursor-pointer"
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <textarea
+                    required
+                    rows={9}
+                    placeholder="Write your email HTML structure..."
+                    value={templateForm.content}
+                    onChange={(e) => setTemplateForm({ ...templateForm, content: e.target.value })}
+                    className="w-full px-3 py-2.5 text-xs font-mono bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313] leading-relaxed"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="createTplDefault"
+                    checked={templateForm.isDefault}
+                    onChange={(e) => setTemplateForm({ ...templateForm, isDefault: e.target.checked })}
+                    className="w-4 h-4 rounded text-[#801313] focus:ring-[#801313]"
+                  />
+                  <label htmlFor="createTplDefault" className="text-xs font-bold text-[#1E1815] cursor-pointer">
+                    Set as active default template for this category
+                  </label>
+                </div>
+              </div>
+
+              <div className="p-4 px-6 border-t border-[#EAE3DC] bg-[#FAF7F4] flex items-center justify-between shrink-0">
+                <button
+                  type="button"
+                  onClick={() =>
+                    openEmailPreview(
+                      templateForm.name || "Draft Template Preview",
+                      templateForm.subject || "No Subject Specified",
+                      templateForm.content || "<p>No content written.</p>",
+                      templateForm.category
+                    )
+                  }
+                  disabled={!templateForm.content}
+                  className="px-3 py-2 rounded-xl bg-white border border-[#DCD3CB] hover:border-[#801313] hover:text-[#801313] text-[#1E1815] font-bold text-xs transition-all cursor-pointer disabled:opacity-40 flex items-center gap-1.5"
+                >
+                  <Eye className="w-3.5 h-3.5 text-[#801313]" />
+                  <span>Preview Output</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateTemplateModal(false)}
+                    className="px-4 py-2 rounded-xl border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:bg-white cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={templateSaving}
+                    className="px-5 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs shadow-md shadow-[#801313]/20 disabled:opacity-50 cursor-pointer"
+                  >
+                    {templateSaving ? "Saving…" : "Save Template"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: EDIT EMAIL TEMPLATE                                     */}
+      {/* ============================================================== */}
+      {showEditTemplateModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-hidden">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl max-w-xl w-full shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between px-6 py-4.5 border-b border-[#EAE3DC] bg-[#FAF7F4] shrink-0">
+              <h3 className="font-extrabold text-base sm:text-lg text-[#1E1815] flex items-center gap-2">
+                <Edit2 className="w-5 h-5 text-[#801313]" />
+                Edit Email Template
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowEditTemplateModal(false)}
+                className="p-1.5 rounded-xl text-[#7A6E67] hover:bg-white hover:text-[#1E1815] border border-transparent hover:border-[#EAE3DC] transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateEmailTemplate} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              <div className="p-6 overflow-y-auto space-y-4 flex-1 custom-scrollbar">
+                {templateMsg && (
+                  <div
+                    className={`p-3 rounded-xl text-xs font-semibold ${
+                      templateMsg.type === "ok" ? "bg-[#1E7A4D]/10 text-[#1E7A4D]" : "bg-[#C0392B]/10 text-[#C0392B]"
+                    }`}
+                  >
+                    {templateMsg.text}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                      Template Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={templateForm.name}
+                      onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                      Category *
+                    </label>
+                    <select
+                      value={templateForm.category}
+                      onChange={(e) => setTemplateForm({ ...templateForm, category: e.target.value as any })}
+                      className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl font-bold text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                    >
+                      <option value="BIRTHDAY">🎂 Birthday Gift &amp; Greetings</option>
+                      <option value="OFFERS">🏷️ Promotional Offers &amp; Discounts</option>
+                      <option value="GENERAL">📢 General Announcement</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#7A6E67] uppercase mb-1">
+                    Email Subject Line *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={templateForm.subject}
+                    onChange={(e) => setTemplateForm({ ...templateForm, subject: e.target.value })}
+                    className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313]"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1.5 flex-wrap gap-1">
+                    <label className="text-xs font-bold text-[#7A6E67] uppercase">
+                      HTML Email Message Body *
+                    </label>
+                    <div className="flex items-center gap-1 text-[10px] font-mono text-[#7A6E67] flex-wrap">
+                      <span>Click to insert:</span>
+                      {["{customer_name}", "{points_balance}", "{reward_name}", "{reward_description}", "{expiry_date}"].map((tag) => (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => setTemplateForm({ ...templateForm, content: templateForm.content + " " + tag })}
+                          className="bg-[#FAF7F4] hover:bg-[#801313]/10 hover:text-[#801313] px-1.5 py-0.5 rounded border border-[#EAE3DC] transition-colors cursor-pointer"
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <textarea
+                    required
+                    rows={9}
+                    value={templateForm.content}
+                    onChange={(e) => setTemplateForm({ ...templateForm, content: e.target.value })}
+                    className="w-full px-3 py-2.5 text-xs font-mono bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#801313] leading-relaxed"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="editTplDefault"
+                    checked={templateForm.isDefault}
+                    onChange={(e) => setTemplateForm({ ...templateForm, isDefault: e.target.checked })}
+                    className="w-4 h-4 rounded text-[#801313] focus:ring-[#801313]"
+                  />
+                  <label htmlFor="editTplDefault" className="text-xs font-bold text-[#1E1815] cursor-pointer">
+                    Set as active default template for this category
+                  </label>
+                </div>
+              </div>
+
+              <div className="p-4 px-6 border-t border-[#EAE3DC] bg-[#FAF7F4] flex items-center justify-between shrink-0">
+                <button
+                  type="button"
+                  onClick={() =>
+                    openEmailPreview(
+                      templateForm.name || "Preview",
+                      templateForm.subject || "Subject",
+                      templateForm.content || "<p>Content</p>",
+                      templateForm.category
+                    )
+                  }
+                  disabled={!templateForm.content}
+                  className="px-3 py-2 rounded-xl bg-white border border-[#DCD3CB] hover:border-[#801313] hover:text-[#801313] text-[#1E1815] font-bold text-xs transition-all cursor-pointer disabled:opacity-40 flex items-center gap-1.5"
+                >
+                  <Eye className="w-3.5 h-3.5 text-[#801313]" />
+                  <span>Preview Output</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowEditTemplateModal(false)}
+                    className="px-4 py-2 rounded-xl border border-[#EAE3DC] text-xs font-bold text-[#7A6E67] hover:bg-white cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={templateSaving}
+                    className="px-5 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs shadow-md shadow-[#801313]/20 disabled:opacity-50 cursor-pointer"
+                  >
+                    {templateSaving ? "Updating…" : "Update Template"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: LIVE EMAIL OUTPUT PREVIEW MOCKUP                         */}
+      {/* ============================================================== */}
+      {showEmailPreviewModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-hidden">
+          <div className="bg-[#FAF7F4] border border-[#EAE3DC] rounded-3xl max-w-3xl w-full shadow-2xl flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#EAE3DC] bg-white shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#801313]/10 text-[#801313] flex items-center justify-center font-bold">
+                  <Eye className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
+                    <span>Live Rendered Email Preview</span>
+                    {previewEmailData.category && (
+                      <span className="px-2 py-0.5 rounded-full bg-[#801313]/10 text-[#801313] text-[10px] font-black uppercase">
+                        {previewEmailData.category}
+                      </span>
+                    )}
+                  </h3>
+                  <p className="text-[11px] text-[#7A6E67]">
+                    Simulated recipient view with sample member data tags interpolated
+                  </p>
+                </div>
+              </div>
+
+              {/* Device switcher */}
+              <div className="flex items-center gap-2">
+                <div className="flex items-center bg-[#FAF7F4] p-1 rounded-xl border border-[#EAE3DC]">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDeviceMode("desktop")}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                      previewDeviceMode === "desktop"
+                        ? "bg-[#801313] text-white shadow-2xs"
+                        : "text-[#7A6E67] hover:text-[#1E1815]"
+                    }`}
+                  >
+                    <Laptop className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Desktop</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDeviceMode("mobile")}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                      previewDeviceMode === "mobile"
+                        ? "bg-[#801313] text-white shadow-2xs"
+                        : "text-[#7A6E67] hover:text-[#1E1815]"
+                    }`}
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Mobile</span>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowEmailPreviewModal(false)}
+                  className="p-1.5 rounded-xl text-[#7A6E67] hover:bg-[#FAF7F4] hover:text-[#1E1815] border border-transparent hover:border-[#EAE3DC] transition-all cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Email Client Simulated Envelope */}
+            <div className="p-4 sm:p-6 overflow-y-auto flex-1 custom-scrollbar space-y-4">
+              {/* Client Header Info Box */}
+              <div className="bg-white rounded-2xl p-4 border border-[#EAE3DC] shadow-xs space-y-2 text-xs">
+                <div className="flex items-start justify-between gap-3 border-b border-[#EAE3DC] pb-2.5">
+                  <div className="space-y-1">
+                    <div className="font-extrabold text-sm text-[#1E1815] flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-[#801313]" />
+                      <span>
+                        {previewEmailData.subject
+                          .replace(/{customer_name}/g, "Sara Al Nuaimi")
+                          .replace(/{points_balance}/g, "250")
+                          .replace(/{reward_name}/g, "Complimentary Royal Dessert")
+                          .replace(/{offer_title}/g, "Double Points Weekend")}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-[#7A6E67] font-mono shrink-0">
+                    {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-[#7A6E67]">
+                  <div>
+                    <span className="font-bold text-[#1E1815]">From: </span>
+                    <span>Bombay Chowpatty Loyalty Club &lt;loyalty@bombaychowpatty.ae&gt;</span>
+                  </div>
+                  <div>
+                    <span className="font-bold text-[#1E1815]">To: </span>
+                    <span>Sara Al Nuaimi &lt;sara.alnuaimi@example.ae&gt;</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Rendered Email Content Box */}
+              <div className="flex justify-center">
+                <div
+                  className={`bg-white rounded-2xl border border-[#EAE3DC] shadow-sm transition-all overflow-hidden ${
+                    previewDeviceMode === "mobile" ? "max-w-sm w-full" : "w-full"
+                  }`}
+                >
+                  {/* Luxury Brand Header in Email */}
+                  <div className="bg-gradient-to-r from-[#801313] to-[#591313] p-5 text-center text-white">
+                    <div className="font-serif font-black text-xl tracking-wider">
+                      BOMBAY CHOWPATTY
+                    </div>
+                    <div className="text-[10px] uppercase tracking-widest text-[#FEF7C5] font-semibold mt-0.5">
+                      Loyalty &amp; Dining Club
+                    </div>
+                  </div>
+
+                  {/* Body Content */}
+                  <div
+                    className="p-6 text-xs text-[#2D2420] leading-relaxed prose max-w-none font-sans"
+                    dangerouslySetInnerHTML={{
+                      __html: previewEmailData.content
+                        .replace(/{customer_name}/g, "Sara Al Nuaimi")
+                        .replace(/{points_balance}/g, "250")
+                        .replace(/{reward_name}/g, "Complimentary Royal Dessert")
+                        .replace(/{reward_description}/g, "Special royal dessert treat valid across 14 UAE outlets.")
+                        .replace(/{expiry_date}/g, "30 Oct 2026")
+                        .replace(/{offer_title}/g, "Double Points Weekend Extravaganza"),
+                    }}
+                  />
+
+                  {/* Email Footer */}
+                  <div className="bg-[#FAF7F4] p-4 text-center border-t border-[#EAE3DC] text-[10px] text-[#7A6E67] space-y-1">
+                    <div className="font-semibold text-[#1E1815]">
+                      Bombay Chowpatty UAE • 14 Mall &amp; City Outlets
+                    </div>
+                    <div>
+                      You received this message as a valued member of the Bombay Chowpatty Loyalty Club.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-3.5 px-6 border-t border-[#EAE3DC] bg-white flex items-center justify-between shrink-0">
+              <span className="text-xs text-[#7A6E67]">
+                Tags previewed with simulated member: <strong className="text-[#1E1815]">Sara Al Nuaimi (250 pts)</strong>
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowEmailPreviewModal(false)}
+                className="px-5 py-2 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs shadow-md transition-colors cursor-pointer"
+              >
+                Close Preview
               </button>
             </div>
           </div>
