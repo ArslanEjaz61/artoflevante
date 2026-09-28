@@ -8,6 +8,8 @@ import {
   Gift,
   Tag,
   ChevronRight,
+  ChevronLeft,
+  Bell,
   RefreshCw,
   LogOut,
   Edit3,
@@ -72,6 +74,48 @@ export default function CustomerDashboardPage() {
   const [profileMsg, setProfileMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
   const [historyTab, setHistoryTab] = useState<"bills" | "rewards">("bills");
+
+  // Promotional Banner Slider & In-App Offer Notification States
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [showOffersModal, setShowOffersModal] = useState(false);
+  const [popupOffer, setPopupOffer] = useState<any | null>(null);
+
+  // Filter offers that have a custom promotional banner image
+  const bannerOffers: any[] = (data?.offers || []).filter((o: any) => o.imageUrl);
+
+  // Auto-advance banner slider every 4.5 seconds if multiple promotional banners exist
+  useEffect(() => {
+    if (bannerOffers.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentSlideIndex((prev) => (prev + 1) % bannerOffers.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [bannerOffers.length]);
+
+  // Trigger New Offer Popup Announcement for unread/unseen active promotions
+  useEffect(() => {
+    if (!data?.offers || data.offers.length === 0) return;
+    if (typeof window === "undefined") return;
+
+    // Find the first active offer not yet dismissed in localStorage
+    const unseenOffer = data.offers.find((o: any) => {
+      return !localStorage.getItem(`bc_seen_offer_${o.id}`);
+    });
+
+    if (unseenOffer) {
+      const timeout = setTimeout(() => {
+        setPopupOffer(unseenOffer);
+      }, 700);
+      return () => clearTimeout(timeout);
+    }
+  }, [data?.offers]);
+
+  const handleDismissPopupOffer = (offerId: string) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`bc_seen_offer_${offerId}`, "1");
+    }
+    setPopupOffer(null);
+  };
 
   // Customer Portal QR Modal State
   const [showPortalQrModal, setShowPortalQrModal] = useState(false);
@@ -434,29 +478,133 @@ export default function CustomerDashboardPage() {
           </div>
         </div>
 
-        {/* Hamburger Menu Button */}
-        <button
-          onClick={() => setShowSwitchModal(true)}
-          className="w-10 h-10 rounded-2xl bg-[#EFE9E2] hover:bg-[#E5DDD4] text-[#801313] flex items-center justify-center transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
-          title="Account Menu"
-          aria-label="Open Menu"
-        >
-          <Menu className="w-5 h-5 text-[#801313]" />
-        </button>
+        {/* Actions (Offers Notification Bell & Hamburger Menu) */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Active Deals / Notifications Bell */}
+          <button
+            onClick={() => setShowOffersModal(true)}
+            className="w-10 h-10 rounded-2xl bg-[#EFE9E2] hover:bg-[#E5DDD4] text-[#801313] flex items-center justify-center transition-all shadow-xs cursor-pointer active:scale-95 relative"
+            title="Special Offers & Deals"
+            aria-label="View Deals"
+          >
+            <Bell className="w-5 h-5 text-[#801313]" />
+            {data?.offers && data.offers.length > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#801313] text-white rounded-full text-[10px] font-black flex items-center justify-center border-2 border-[#FAF7F4] animate-pulse">
+                {data.offers.length}
+              </span>
+            )}
+          </button>
+
+          {/* Hamburger Menu Button */}
+          <button
+            onClick={() => setShowSwitchModal(true)}
+            className="w-10 h-10 rounded-2xl bg-[#EFE9E2] hover:bg-[#E5DDD4] text-[#801313] flex items-center justify-center transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
+            title="Account Menu"
+            aria-label="Open Menu"
+          >
+            <Menu className="w-5 h-5 text-[#801313]" />
+          </button>
+        </div>
       </header>
 
       {/* ============================================================== */}
-      {/* 2. CULINARY HERO BANNER CARD                                   */}
+      {/* 2. CULINARY HERO BANNER CARD (Fallback / Single / Carousel)   */}
       {/* ============================================================== */}
-      {/* The banner is the supplied artwork, used as-is. */}
-      <div className="rounded-3xl overflow-hidden shadow-md mb-3.5">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/banner-art.jpg"
-          alt="Double the flavour, double the delight — watch this space for our deals and discounts."
-          className="w-full h-auto block select-none"
-          draggable={false}
-        />
+      <div className="rounded-3xl overflow-hidden shadow-md mb-3.5 relative bg-[#1E1815]">
+        {bannerOffers.length === 0 ? (
+          /* Fallback: Default supplied artwork */
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src="/banner-art.jpg"
+            alt="Double the flavour, double the delight — watch this space for our deals and discounts."
+            className="w-full h-auto block select-none"
+            draggable={false}
+          />
+        ) : bannerOffers.length === 1 ? (
+          /* Single Active Promotional Banner */
+          <div
+            className="relative group cursor-pointer"
+            onClick={() => setPopupOffer(bannerOffers[0])}
+            title="Click to view promotional details"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={bannerOffers[0].imageUrl}
+              alt={bannerOffers[0].name}
+              className="w-full h-auto block select-none object-cover"
+              draggable={false}
+            />
+          </div>
+        ) : (
+          /* Multi-Offer Auto-Sliding Carousel */
+          <div className="relative overflow-hidden group">
+            <div
+              className="flex transition-transform duration-500 ease-out"
+              style={{ transform: `translateX(-${currentSlideIndex * 100}%)` }}
+            >
+              {bannerOffers.map((offer: any, idx: number) => (
+                <div
+                  key={offer.id || idx}
+                  className="w-full shrink-0 relative cursor-pointer"
+                  onClick={() => setPopupOffer(offer)}
+                  title="Click to view offer details"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={offer.imageUrl}
+                    alt={offer.name}
+                    className="w-full h-auto block select-none object-cover"
+                    draggable={false}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Prev / Next Arrows */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentSlideIndex((prev) => (prev === 0 ? bannerOffers.length - 1 : prev - 1));
+              }}
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs transition-all cursor-pointer opacity-70 hover:opacity-100 shadow-md"
+              aria-label="Previous Offer"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentSlideIndex((prev) => (prev + 1) % bannerOffers.length);
+              }}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs transition-all cursor-pointer opacity-70 hover:opacity-100 shadow-md"
+              aria-label="Next Offer"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+
+            {/* Dot Indicators */}
+            <div className="absolute bottom-2.5 left-0 right-0 flex items-center justify-center gap-1.5 z-10 pointer-events-none">
+              {bannerOffers.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentSlideIndex(idx);
+                  }}
+                  className={`transition-all rounded-full pointer-events-auto cursor-pointer ${
+                    currentSlideIndex === idx
+                      ? "w-6 h-1.5 bg-[#FEF7C5] shadow-xs"
+                      : "w-1.5 h-1.5 bg-white/50 hover:bg-white/80"
+                  }`}
+                  aria-label={`Slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ============================================================== */}
@@ -1439,6 +1587,179 @@ export default function CustomerDashboardPage() {
         onTriggerNative={triggerInstall}
         isNativeAvailable={isInstallable}
       />
+
+      {/* ============================================================== */}
+      {/* MODAL: NEW PROMOTIONAL OFFER POPUP ANNOUNCEMENT                */}
+      {/* ============================================================== */}
+      {popupOffer && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl max-w-sm w-full shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 relative">
+            {/* Top decorative gradient bar */}
+            <div className="h-2 bg-gradient-to-r from-[#801313] via-[#D4AF37] to-[#801313]" />
+
+            {/* Offer Banner Image if available */}
+            {popupOffer.imageUrl && (
+              <div className="relative aspect-[2/1] w-full overflow-hidden bg-[#1E1815]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={popupOffer.imageUrl}
+                  alt={popupOffer.name}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-[#801313] text-white font-display font-extrabold text-[11px] uppercase tracking-wider shadow-md">
+                  🔥 Special Deal
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleDismissPopupOffer(popupOffer.id)}
+                  className="absolute top-3 right-3 p-1 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors cursor-pointer"
+                  title="Close"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            <div className="p-5 text-center space-y-3">
+              {!popupOffer.imageUrl && (
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-[#801313]/10 text-[#801313] border border-[#801313]/20 flex items-center justify-center mx-auto shadow-sm">
+                    <Sparkles className="w-6 h-6 animate-pulse" />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDismissPopupOffer(popupOffer.id)}
+                    className="p-1 rounded-full hover:bg-[#FAF7F4] text-[#7A6E67] cursor-pointer"
+                    title="Close"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#801313]/10 text-[#801313] text-xs font-display font-bold uppercase tracking-wider mb-2">
+                  <Tag className="w-3.5 h-3.5" />
+                  <span>
+                    {popupOffer.isPercent ? `${popupOffer.value}% DISCOUNT` : `AED ${popupOffer.value} OFF`}
+                  </span>
+                </div>
+                <h3 className="font-display font-black text-xl text-[#1E1815] leading-tight">
+                  {popupOffer.name}
+                </h3>
+                <p className="text-xs text-[#7A6E67] mt-1.5 leading-relaxed font-body">
+                  {popupOffer.description || "Visit any Bombay Chowpatty outlet to enjoy this special deal on your next dine-in or takeaway order!"}
+                </p>
+              </div>
+
+              {popupOffer.endsAt && (
+                <div className="text-[11px] font-semibold text-[#801313] bg-[#FAF7F4] py-1.5 px-3 rounded-xl border border-[#EAE3DC] inline-block">
+                  ⏳ Valid until {new Date(popupOffer.endsAt).toLocaleDateString()}
+                </div>
+              )}
+
+              <div className="pt-2 space-y-2">
+                <button
+                  type="button"
+                  onClick={() => handleDismissPopupOffer(popupOffer.id)}
+                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#801313] to-[#590D0D] hover:from-[#6A0F0F] text-white font-display font-bold text-sm tracking-wide shadow-md shadow-[#801313]/30 transition-all cursor-pointer active:scale-98"
+                >
+                  Got it, Let&apos;s Dine! 🎉
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDismissPopupOffer(popupOffer.id)}
+                  className="w-full py-2 text-xs font-bold text-[#7A6E67] hover:text-[#1E1815] cursor-pointer"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: CUSTOMER ALL ACTIVE DEALS & PROMOTIONS SHEET            */}
+      {/* ============================================================== */}
+      {showOffersModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white border border-[#EAE3DC] rounded-3xl max-w-md w-full shadow-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#EAE3DC] bg-[#FAF7F4] shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-[#801313] text-white flex items-center justify-center shadow-xs">
+                  <Tag className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-display font-bold text-base text-[#1E1815]">Active Deals &amp; Offers</h3>
+                  <p className="text-[11px] text-[#7A6E67]">Exclusive promotions for Loyalty Club members</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowOffersModal(false)}
+                className="p-1.5 rounded-xl text-[#7A6E67] hover:bg-white hover:text-[#1E1815] border border-transparent hover:border-[#EAE3DC] transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 sm:p-5 overflow-y-auto space-y-3.5 custom-scrollbar flex-1">
+              {data?.offers && data.offers.length > 0 ? (
+                data.offers.map((offer: any) => (
+                  <div
+                    key={offer.id}
+                    className="p-4 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-2.5 overflow-hidden shadow-2xs"
+                  >
+                    {offer.imageUrl && (
+                      <div className="-mx-4 -mt-4 mb-2 aspect-[2/1] overflow-hidden bg-[#1E1815]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={offer.imageUrl}
+                          alt={offer.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between gap-2">
+                      <h4 className="font-display font-bold text-sm text-[#1E1815] leading-snug">{offer.name}</h4>
+                      <span className="shrink-0 px-2 py-0.5 rounded-lg bg-[#801313] text-white font-display font-extrabold text-xs">
+                        {offer.isPercent ? `${offer.value}% OFF` : `AED ${offer.value} OFF`}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#7A6E67] leading-relaxed">
+                      {offer.description || "Show your loyalty card or phone number at checkout to redeem this promotion."}
+                    </p>
+                    {offer.endsAt && (
+                      <div className="text-[10px] font-bold text-[#801313] flex items-center gap-1 pt-1 border-t border-[#EAE3DC]">
+                        <Clock className="w-3 h-3" />
+                        <span>Valid until {new Date(offer.endsAt).toLocaleDateString()}</span>
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-xs text-[#7A6E67]">
+                  <Sparkles className="w-8 h-8 text-[#801313]/30 mx-auto mb-2" />
+                  <p className="font-bold text-[#1E1815]">No Active Promotions at This Moment</p>
+                  <p className="text-[11px] mt-1">Watch this space for upcoming weekend deals and special discounts!</p>
+                </div>
+              )}
+            </div>
+
+            <div className="px-5 py-3.5 border-t border-[#EAE3DC] bg-[#FAF7F4] text-center shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowOffersModal(false)}
+                className="w-full py-2.5 rounded-xl bg-white border border-[#EAE3DC] hover:bg-[#FAF7F4] font-display font-bold text-xs text-[#1E1815] cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

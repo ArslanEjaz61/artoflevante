@@ -8,7 +8,8 @@ export type NotificationType =
   | "VISIT_CHECKIN"
   | "BIRTHDAY_GIFT"
   | "STAFF_LOGIN"
-  | "EMAIL_SENT";
+  | "EMAIL_SENT"
+  | "PROMOTION_CREATED";
 
 export interface CreateNotificationParams {
   type: NotificationType;

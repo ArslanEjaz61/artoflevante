@@ -32,7 +32,7 @@ export function AdminNotificationBell() {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<AdminNotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
-  const [filter, setFilter] = useState<"all" | "unread" | "points" | "logins" | "gifts">("all");
+  const [filter, setFilter] = useState<"all" | "unread">("unread");
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -102,9 +102,6 @@ export function AdminNotificationBell() {
 
   const filteredList = notifications.filter((n) => {
     if (filter === "unread") return !n.isRead;
-    if (filter === "points") return n.type === "POINTS_EARNED" || n.type === "POINTS_REDEEMED";
-    if (filter === "logins") return n.type === "CUSTOMER_LOGIN" || n.type === "CUSTOMER_REGISTER" || n.type === "STAFF_LOGIN";
-    if (filter === "gifts") return n.type === "BIRTHDAY_GIFT" || n.type === "EMAIL_SENT" || n.type === "VISIT_CHECKIN";
     return true;
   });
 
@@ -199,47 +196,30 @@ export function AdminNotificationBell() {
           </div>
 
           {/* Filter Pills */}
-          <div className="px-3 py-2 bg-white border-b border-[#EAE3DC] flex items-center gap-1.5 overflow-x-auto custom-scrollbar text-[11px]">
-            <button
-              onClick={() => setFilter("all")}
-              className={`px-2.5 py-1 rounded-lg font-bold transition-colors cursor-pointer shrink-0 ${
-                filter === "all" ? "bg-[#801313] text-white" : "bg-[#FAF7F4] text-[#7A6E67] hover:text-[#1E1815]"
-              }`}
-            >
-              All ({notifications.length})
-            </button>
-            <button
-              onClick={() => setFilter("unread")}
-              className={`px-2.5 py-1 rounded-lg font-bold transition-colors cursor-pointer shrink-0 ${
-                filter === "unread" ? "bg-[#801313] text-white" : "bg-[#FAF7F4] text-[#7A6E67] hover:text-[#1E1815]"
-              }`}
-            >
-              Unread ({unreadCount})
-            </button>
-            <button
-              onClick={() => setFilter("points")}
-              className={`px-2.5 py-1 rounded-lg font-bold transition-colors cursor-pointer shrink-0 ${
-                filter === "points" ? "bg-[#801313] text-white" : "bg-[#FAF7F4] text-[#7A6E67] hover:text-[#1E1815]"
-              }`}
-            >
-              Points
-            </button>
-            <button
-              onClick={() => setFilter("logins")}
-              className={`px-2.5 py-1 rounded-lg font-bold transition-colors cursor-pointer shrink-0 ${
-                filter === "logins" ? "bg-[#801313] text-white" : "bg-[#FAF7F4] text-[#7A6E67] hover:text-[#1E1815]"
-              }`}
-            >
-              Logins
-            </button>
-            <button
-              onClick={() => setFilter("gifts")}
-              className={`px-2.5 py-1 rounded-lg font-bold transition-colors cursor-pointer shrink-0 ${
-                filter === "gifts" ? "bg-[#801313] text-white" : "bg-[#FAF7F4] text-[#7A6E67] hover:text-[#1E1815]"
-              }`}
-            >
-              Gifts &amp; Visits
-            </button>
+          <div className="px-3 py-2 bg-white border-b border-[#EAE3DC] flex items-center justify-between text-[11px]">
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setFilter("unread")}
+                className={`px-3 py-1 rounded-lg font-bold transition-colors cursor-pointer shrink-0 ${
+                  filter === "unread" ? "bg-[#801313] text-white shadow-xs" : "bg-[#FAF7F4] text-[#7A6E67] hover:text-[#1E1815]"
+                }`}
+              >
+                Unread ({unreadCount})
+              </button>
+              <button
+                onClick={() => setFilter("all")}
+                className={`px-3 py-1 rounded-lg font-bold transition-colors cursor-pointer shrink-0 ${
+                  filter === "all" ? "bg-[#801313] text-white shadow-xs" : "bg-[#FAF7F4] text-[#7A6E67] hover:text-[#1E1815]"
+                }`}
+              >
+                All ({notifications.length})
+              </button>
+            </div>
+            {unreadCount > 0 && (
+              <span className="text-[10px] font-bold text-[#C0392B]">
+                {unreadCount} pending
+              </span>
+            )}
           </div>
 
           {/* List Content */}

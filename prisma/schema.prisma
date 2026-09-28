@@ -254,6 +254,8 @@ model Offer {
   nameAr        String?
   description   String?
   descriptionAr String?
+  imageUrl      String?   @db.Text
+  bannerText    String?
 
   discountValue Decimal   @default(0) @db.Decimal(12, 2)
   isPercent     Boolean   @default(true)

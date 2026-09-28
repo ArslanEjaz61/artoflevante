@@ -81,6 +81,8 @@ import {
   Server,
   AtSign,
   MessageSquare,
+  Upload,
+  Image as ImageIcon,
 } from "lucide-react";
 import QRCode from "qrcode";
 import jsQR from "jsqr";
@@ -601,6 +603,8 @@ export default function AdminPage() {
     branchIds: string[];
     startsAt: string;
     endsAt: string;
+    imageUrl: string;
+    bannerText: string;
   }>({
     name: "",
     description: "",
@@ -609,7 +613,11 @@ export default function AdminPage() {
     branchIds: [],
     startsAt: "",
     endsAt: "",
+    imageUrl: "",
+    bannerText: "",
   });
+  const [compressingOfferImg, setCompressingOfferImg] = useState(false);
+  const [compressedImgStats, setCompressedImgStats] = useState<string | null>(null);
   const [offerMsg, setOfferMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   // Branches tab & CRUD
@@ -1788,6 +1796,48 @@ export default function AdminPage() {
     setTimeout(() => setCopiedCode(null), 2500);
   }
 
+  function handleOfferImageFile(file: File) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setOfferMsg({ type: "err", text: "Please select a valid image file (PNG, JPG, WebP)." });
+      return;
+    }
+    setCompressingOfferImg(true);
+    setCompressedImgStats(null);
+    const originalSizeKb = Math.round(file.size / 1024);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxWidth = 1200;
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const webpData = canvas.toDataURL("image/webp", 0.85);
+          const newSizeKb = Math.round((webpData.length * 3) / 4 / 1024);
+          setCompressedImgStats(`Original: ${originalSizeKb} KB ➔ Optimized WebP: ${newSizeKb} KB`);
+          setNewOffer((prev) => ({ ...prev, imageUrl: webpData }));
+        }
+        setCompressingOfferImg(false);
+      };
+      img.onerror = () => {
+        setCompressingOfferImg(false);
+        setOfferMsg({ type: "err", text: "Could not process selected image." });
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
   async function createOffer(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -1801,7 +1851,18 @@ export default function AdminPage() {
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Could not create offer.");
       setOfferMsg({ type: "ok", text: "Campaign offer created successfully." });
-      setNewOffer({ name: "", description: "", value: "", isPercent: true, branchIds: [], startsAt: "", endsAt: "" });
+      setNewOffer({
+        name: "",
+        description: "",
+        value: "",
+        isPercent: true,
+        branchIds: [],
+        startsAt: "",
+        endsAt: "",
+        imageUrl: "",
+        bannerText: "",
+      });
+      setCompressedImgStats(null);
       setShowCreateOfferModal(false);
       loadOffers();
     } catch (e2: any) {
@@ -1819,6 +1880,19 @@ export default function AdminPage() {
         body: JSON.stringify({ id, isActive }),
       });
       if (r.ok) loadOffers();
+    } catch { }
+  }
+
+  async function deleteOffer(id: string) {
+    if (!confirm("Are you sure you want to permanently delete this campaign?")) return;
+    try {
+      const r = await fetch(`/api/admin/offers?id=${id}`, {
+        method: "DELETE",
+      });
+      if (r.ok) {
+        setOfferMsg({ type: "ok", text: "Campaign deleted successfully." });
+        loadOffers();
+      }
     } catch { }
   }
 
@@ -2214,7 +2288,18 @@ export default function AdminPage() {
             {tab === "offers" && (
               <button
                 onClick={() => {
-                  setNewOffer({ name: "", description: "", value: "", isPercent: true, branchIds: [], startsAt: "", endsAt: "" });
+                  setNewOffer({
+                    name: "",
+                    description: "",
+                    value: "",
+                    isPercent: true,
+                    branchIds: [],
+                    startsAt: "",
+                    endsAt: "",
+                    imageUrl: "",
+                    bannerText: "",
+                  });
+                  setCompressedImgStats(null);
                   setOfferMsg(null);
                   setShowCreateOfferModal(true);
                 }}
@@ -2914,7 +2999,10 @@ export default function AdminPage() {
                               branchIds: [],
                               startsAt: "",
                               endsAt: "",
+                              imageUrl: "",
+                              bannerText: "",
                             });
+                            setCompressedImgStats(null);
                             setShowCreateOfferModal(true);
                           }}
                           className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white text-xs font-black shadow-sm transition-all cursor-pointer"
@@ -2983,6 +3071,23 @@ export default function AdminPage() {
                         >
                           <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#801313]/10 to-transparent rounded-bl-full pointer-events-none" />
                           <div>
+                            {/* Card Hero Banner (if uploaded) */}
+                            {o.imageUrl && (
+                              <div className="mb-4 -mx-5 -mt-5 h-36 overflow-hidden relative border-b border-[#EAE3DC] bg-[#1E1815]">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={o.imageUrl}
+                                  alt={o.name}
+                                  className="w-full h-full object-cover select-none"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                                <span className="absolute bottom-2 left-3 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-xs text-[10px] font-bold text-white uppercase tracking-wider flex items-center gap-1">
+                                  <ImageIcon className="w-3 h-3 text-amber-400" />
+                                  <span>Customer Banner Active</span>
+                                </span>
+                              </div>
+                            )}
+
                             {/* Card Header: Status & Value */}
                             <div className="flex items-center justify-between mb-3">
                               <span
@@ -3050,22 +3155,32 @@ export default function AdminPage() {
                           </div>
 
                           {/* Footer Actions */}
-                          <div className="mt-5 pt-4 border-t border-[#EFE8E1] flex items-center justify-between">
+                          <div className="mt-5 pt-4 border-t border-[#EFE8E1] flex items-center justify-between gap-2">
                             <span className="text-[10px] text-[#7A6E67] font-medium">
                               Created {new Date(o.createdAt).toLocaleDateString()}
                             </span>
                             {offers?.canEdit && (
-                              <button
-                                type="button"
-                                onClick={() => toggleOffer(o.id, !o.isActive)}
-                                className={`px-3 py-1.5 rounded-xl font-black text-xs transition-all cursor-pointer shadow-2xs ${
-                                  o.isActive
-                                    ? "bg-red-50 hover:bg-red-100 text-red-700 border border-red-200"
-                                    : "bg-green-50 hover:bg-green-100 text-green-700 border border-green-200"
-                                }`}
-                              >
-                                {o.isActive ? "Pause Offer" : "Activate Offer"}
-                              </button>
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleOffer(o.id, !o.isActive)}
+                                  className={`px-3 py-1.5 rounded-xl font-black text-xs transition-all cursor-pointer shadow-2xs ${
+                                    o.isActive
+                                      ? "bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200"
+                                      : "bg-green-50 hover:bg-green-100 text-green-700 border border-green-200"
+                                  }`}
+                                >
+                                  {o.isActive ? "Pause Offer" : "Activate Offer"}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => deleteOffer(o.id)}
+                                  className="p-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 transition-colors cursor-pointer"
+                                  title="Delete Promotional Campaign"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -3110,7 +3225,10 @@ export default function AdminPage() {
                                 branchIds: [],
                                 startsAt: "",
                                 endsAt: "",
+                                imageUrl: "",
+                                bannerText: "",
                               });
+                              setCompressedImgStats(null);
                               setShowCreateOfferModal(true);
                             }}
                             className="px-4 py-2 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white text-xs font-black cursor-pointer shadow-sm"
@@ -7777,6 +7895,92 @@ export default function AdminPage() {
                     <option value="pct">Percentage (% Off)</option>
                     <option value="flat">Flat Amount (AED Off)</option>
                   </select>
+                </div>
+              </div>
+
+              {/* ===================== PROMOTIONAL BANNER IMAGE UPLOAD ===================== */}
+              <div className="p-4 bg-[#FAF7F4] border border-[#EAE3DC] rounded-2xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-[#801313]" />
+                    <label className="text-xs font-black text-[#1E1815] uppercase tracking-wide">
+                      Promotional Hero Banner Image
+                    </label>
+                  </div>
+                  <span className="text-[10px] font-bold text-[#801313] bg-[#801313]/10 px-2 py-0.5 rounded-full">
+                    WebP Auto-Optimized
+                  </span>
+                </div>
+
+                {newOffer.imageUrl ? (
+                  <div className="space-y-2">
+                    <div className="relative rounded-2xl overflow-hidden border border-[#EAE3DC] aspect-[2/1] bg-black">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={newOffer.imageUrl}
+                        alt="Campaign Banner Preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewOffer({ ...newOffer, imageUrl: "" });
+                          setCompressedImgStats(null);
+                        }}
+                        className="absolute top-2.5 right-2.5 p-1.5 rounded-xl bg-black/70 hover:bg-red-600 text-white transition-colors cursor-pointer shadow-md"
+                        title="Remove Image"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                    {compressedImgStats && (
+                      <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#1E7A4D]">
+                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                        <span>{compressedImgStats}</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <label
+                      htmlFor="offer-img-upload"
+                      className="flex flex-col items-center justify-center border-2 border-dashed border-[#DCD3CB] hover:border-[#801313] bg-white rounded-2xl p-4 sm:p-5 text-center cursor-pointer transition-colors group"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-[#FAF7F4] group-hover:bg-[#801313]/10 text-[#7A6E67] group-hover:text-[#801313] flex items-center justify-center transition-colors mb-2">
+                        {compressingOfferImg ? (
+                          <div className="w-5 h-5 border-2 border-[#801313]/30 border-t-[#801313] rounded-full animate-spin" />
+                        ) : (
+                          <Upload className="w-5 h-5" />
+                        )}
+                      </div>
+                      <div className="text-xs font-extrabold text-[#1E1815] group-hover:text-[#801313]">
+                        {compressingOfferImg ? "Optimizing & Compressing to WebP…" : "Click or drag to upload promotional banner"}
+                      </div>
+                      <p className="text-[10px] text-[#7A6E67] mt-1">
+                        Supports PNG, JPG, WebP. Automatically resized & compressed for ultra-fast customer loading.
+                      </p>
+                    </label>
+                    <input
+                      id="offer-img-upload"
+                      type="file"
+                      accept="image/*"
+                      disabled={compressingOfferImg}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleOfferImageFile(file);
+                      }}
+                      className="hidden"
+                    />
+                  </div>
+                )}
+
+                <div className="text-[11px] text-[#7A6E67] bg-white/70 p-2.5 rounded-xl border border-[#EAE3DC] space-y-0.5">
+                  <div className="font-extrabold text-[#1E1815] text-[11px]">
+                    📐 Recommended Dimensions: 1080 × 540 px (2:1 aspect ratio)
+                  </div>
+                  <div className="text-[10px] text-[#8C7F78]">
+                    This banner will appear in the customer app hero slider. If no image is uploaded, Bombay Chowpatty standard artwork will display.
+                  </div>
                 </div>
               </div>
 

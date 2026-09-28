@@ -334,6 +334,8 @@ export async function GET() {
       id: o.id,
       name: o.name,
       description: o.description,
+      imageUrl: o.imageUrl,
+      bannerText: o.bannerText,
       value: Number(o.discountValue),
       isPercent: o.isPercent,
       endsAt: o.endsAt,

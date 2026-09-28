@@ -249,6 +249,8 @@ exports.Prisma.OfferScalarFieldEnum = {
   nameAr: 'nameAr',
   description: 'description',
   descriptionAr: 'descriptionAr',
+  imageUrl: 'imageUrl',
+  bannerText: 'bannerText',
   discountValue: 'discountValue',
   isPercent: 'isPercent',
   segment: 'segment',

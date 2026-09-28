@@ -13407,6 +13407,8 @@ export namespace Prisma {
     nameAr: string | null
     description: string | null
     descriptionAr: string | null
+    imageUrl: string | null
+    bannerText: string | null
     discountValue: Decimal | null
     isPercent: boolean | null
     segment: string | null
@@ -13422,6 +13424,8 @@ export namespace Prisma {
     nameAr: string | null
     description: string | null
     descriptionAr: string | null
+    imageUrl: string | null
+    bannerText: string | null
     discountValue: Decimal | null
     isPercent: boolean | null
     segment: string | null
@@ -13437,6 +13441,8 @@ export namespace Prisma {
     nameAr: number
     description: number
     descriptionAr: number
+    imageUrl: number
+    bannerText: number
     discountValue: number
     isPercent: number
     segment: number
@@ -13462,6 +13468,8 @@ export namespace Prisma {
     nameAr?: true
     description?: true
     descriptionAr?: true
+    imageUrl?: true
+    bannerText?: true
     discountValue?: true
     isPercent?: true
     segment?: true
@@ -13477,6 +13485,8 @@ export namespace Prisma {
     nameAr?: true
     description?: true
     descriptionAr?: true
+    imageUrl?: true
+    bannerText?: true
     discountValue?: true
     isPercent?: true
     segment?: true
@@ -13492,6 +13502,8 @@ export namespace Prisma {
     nameAr?: true
     description?: true
     descriptionAr?: true
+    imageUrl?: true
+    bannerText?: true
     discountValue?: true
     isPercent?: true
     segment?: true
@@ -13594,6 +13606,8 @@ export namespace Prisma {
     nameAr: string | null
     description: string | null
     descriptionAr: string | null
+    imageUrl: string | null
+    bannerText: string | null
     discountValue: Decimal
     isPercent: boolean
     segment: string | null
@@ -13628,6 +13642,8 @@ export namespace Prisma {
     nameAr?: boolean
     description?: boolean
     descriptionAr?: boolean
+    imageUrl?: boolean
+    bannerText?: boolean
     discountValue?: boolean
     isPercent?: boolean
     segment?: boolean
@@ -13645,6 +13661,8 @@ export namespace Prisma {
     nameAr?: boolean
     description?: boolean
     descriptionAr?: boolean
+    imageUrl?: boolean
+    bannerText?: boolean
     discountValue?: boolean
     isPercent?: boolean
     segment?: boolean
@@ -13660,6 +13678,8 @@ export namespace Prisma {
     nameAr?: boolean
     description?: boolean
     descriptionAr?: boolean
+    imageUrl?: boolean
+    bannerText?: boolean
     discountValue?: boolean
     isPercent?: boolean
     segment?: boolean
@@ -13675,6 +13695,8 @@ export namespace Prisma {
     nameAr?: boolean
     description?: boolean
     descriptionAr?: boolean
+    imageUrl?: boolean
+    bannerText?: boolean
     discountValue?: boolean
     isPercent?: boolean
     segment?: boolean
@@ -13684,7 +13706,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type OfferOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "nameAr" | "description" | "descriptionAr" | "discountValue" | "isPercent" | "segment" | "startsAt" | "endsAt" | "isActive" | "createdAt", ExtArgs["result"]["offer"]>
+  export type OfferOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "nameAr" | "description" | "descriptionAr" | "imageUrl" | "bannerText" | "discountValue" | "isPercent" | "segment" | "startsAt" | "endsAt" | "isActive" | "createdAt", ExtArgs["result"]["offer"]>
   export type OfferInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     branches?: boolean | Offer$branchesArgs<ExtArgs>
     _count?: boolean | OfferCountOutputTypeDefaultArgs<ExtArgs>
@@ -13703,6 +13725,8 @@ export namespace Prisma {
       nameAr: string | null
       description: string | null
       descriptionAr: string | null
+      imageUrl: string | null
+      bannerText: string | null
       discountValue: Prisma.Decimal
       isPercent: boolean
       segment: string | null
@@ -14139,6 +14163,8 @@ export namespace Prisma {
     readonly nameAr: FieldRef<"Offer", 'String'>
     readonly description: FieldRef<"Offer", 'String'>
     readonly descriptionAr: FieldRef<"Offer", 'String'>
+    readonly imageUrl: FieldRef<"Offer", 'String'>
+    readonly bannerText: FieldRef<"Offer", 'String'>
     readonly discountValue: FieldRef<"Offer", 'Decimal'>
     readonly isPercent: FieldRef<"Offer", 'Boolean'>
     readonly segment: FieldRef<"Offer", 'String'>
@@ -21043,6 +21069,8 @@ export namespace Prisma {
     nameAr: 'nameAr',
     description: 'description',
     descriptionAr: 'descriptionAr',
+    imageUrl: 'imageUrl',
+    bannerText: 'bannerText',
     discountValue: 'discountValue',
     isPercent: 'isPercent',
     segment: 'segment',
@@ -22125,6 +22153,8 @@ export namespace Prisma {
     nameAr?: StringNullableFilter<"Offer"> | string | null
     description?: StringNullableFilter<"Offer"> | string | null
     descriptionAr?: StringNullableFilter<"Offer"> | string | null
+    imageUrl?: StringNullableFilter<"Offer"> | string | null
+    bannerText?: StringNullableFilter<"Offer"> | string | null
     discountValue?: DecimalFilter<"Offer"> | Decimal | DecimalJsLike | number | string
     isPercent?: BoolFilter<"Offer"> | boolean
     segment?: StringNullableFilter<"Offer"> | string | null
@@ -22141,6 +22171,8 @@ export namespace Prisma {
     nameAr?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
     descriptionAr?: SortOrderInput | SortOrder
+    imageUrl?: SortOrderInput | SortOrder
+    bannerText?: SortOrderInput | SortOrder
     discountValue?: SortOrder
     isPercent?: SortOrder
     segment?: SortOrderInput | SortOrder
@@ -22160,6 +22192,8 @@ export namespace Prisma {
     nameAr?: StringNullableFilter<"Offer"> | string | null
     description?: StringNullableFilter<"Offer"> | string | null
     descriptionAr?: StringNullableFilter<"Offer"> | string | null
+    imageUrl?: StringNullableFilter<"Offer"> | string | null
+    bannerText?: StringNullableFilter<"Offer"> | string | null
     discountValue?: DecimalFilter<"Offer"> | Decimal | DecimalJsLike | number | string
     isPercent?: BoolFilter<"Offer"> | boolean
     segment?: StringNullableFilter<"Offer"> | string | null
@@ -22176,6 +22210,8 @@ export namespace Prisma {
     nameAr?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
     descriptionAr?: SortOrderInput | SortOrder
+    imageUrl?: SortOrderInput | SortOrder
+    bannerText?: SortOrderInput | SortOrder
     discountValue?: SortOrder
     isPercent?: SortOrder
     segment?: SortOrderInput | SortOrder
@@ -22199,6 +22235,8 @@ export namespace Prisma {
     nameAr?: StringNullableWithAggregatesFilter<"Offer"> | string | null
     description?: StringNullableWithAggregatesFilter<"Offer"> | string | null
     descriptionAr?: StringNullableWithAggregatesFilter<"Offer"> | string | null
+    imageUrl?: StringNullableWithAggregatesFilter<"Offer"> | string | null
+    bannerText?: StringNullableWithAggregatesFilter<"Offer"> | string | null
     discountValue?: DecimalWithAggregatesFilter<"Offer"> | Decimal | DecimalJsLike | number | string
     isPercent?: BoolWithAggregatesFilter<"Offer"> | boolean
     segment?: StringNullableWithAggregatesFilter<"Offer"> | string | null
@@ -23477,6 +23515,8 @@ export namespace Prisma {
     nameAr?: string | null
     description?: string | null
     descriptionAr?: string | null
+    imageUrl?: string | null
+    bannerText?: string | null
     discountValue?: Decimal | DecimalJsLike | number | string
     isPercent?: boolean
     segment?: string | null
@@ -23493,6 +23533,8 @@ export namespace Prisma {
     nameAr?: string | null
     description?: string | null
     descriptionAr?: string | null
+    imageUrl?: string | null
+    bannerText?: string | null
     discountValue?: Decimal | DecimalJsLike | number | string
     isPercent?: boolean
     segment?: string | null
@@ -23509,6 +23551,8 @@ export namespace Prisma {
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerText?: NullableStringFieldUpdateOperationsInput | string | null
     discountValue?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPercent?: BoolFieldUpdateOperationsInput | boolean
     segment?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23525,6 +23569,8 @@ export namespace Prisma {
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerText?: NullableStringFieldUpdateOperationsInput | string | null
     discountValue?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPercent?: BoolFieldUpdateOperationsInput | boolean
     segment?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23541,6 +23587,8 @@ export namespace Prisma {
     nameAr?: string | null
     description?: string | null
     descriptionAr?: string | null
+    imageUrl?: string | null
+    bannerText?: string | null
     discountValue?: Decimal | DecimalJsLike | number | string
     isPercent?: boolean
     segment?: string | null
@@ -23556,6 +23604,8 @@ export namespace Prisma {
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerText?: NullableStringFieldUpdateOperationsInput | string | null
     discountValue?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPercent?: BoolFieldUpdateOperationsInput | boolean
     segment?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23571,6 +23621,8 @@ export namespace Prisma {
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerText?: NullableStringFieldUpdateOperationsInput | string | null
     discountValue?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPercent?: BoolFieldUpdateOperationsInput | boolean
     segment?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24769,6 +24821,8 @@ export namespace Prisma {
     nameAr?: SortOrder
     description?: SortOrder
     descriptionAr?: SortOrder
+    imageUrl?: SortOrder
+    bannerText?: SortOrder
     discountValue?: SortOrder
     isPercent?: SortOrder
     segment?: SortOrder
@@ -24788,6 +24842,8 @@ export namespace Prisma {
     nameAr?: SortOrder
     description?: SortOrder
     descriptionAr?: SortOrder
+    imageUrl?: SortOrder
+    bannerText?: SortOrder
     discountValue?: SortOrder
     isPercent?: SortOrder
     segment?: SortOrder
@@ -24803,6 +24859,8 @@ export namespace Prisma {
     nameAr?: SortOrder
     description?: SortOrder
     descriptionAr?: SortOrder
+    imageUrl?: SortOrder
+    bannerText?: SortOrder
     discountValue?: SortOrder
     isPercent?: SortOrder
     segment?: SortOrder
@@ -28218,6 +28276,8 @@ export namespace Prisma {
     nameAr?: string | null
     description?: string | null
     descriptionAr?: string | null
+    imageUrl?: string | null
+    bannerText?: string | null
     discountValue?: Decimal | DecimalJsLike | number | string
     isPercent?: boolean
     segment?: string | null
@@ -28233,6 +28293,8 @@ export namespace Prisma {
     nameAr?: string | null
     description?: string | null
     descriptionAr?: string | null
+    imageUrl?: string | null
+    bannerText?: string | null
     discountValue?: Decimal | DecimalJsLike | number | string
     isPercent?: boolean
     segment?: string | null
@@ -28311,6 +28373,8 @@ export namespace Prisma {
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerText?: NullableStringFieldUpdateOperationsInput | string | null
     discountValue?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPercent?: BoolFieldUpdateOperationsInput | boolean
     segment?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28326,6 +28390,8 @@ export namespace Prisma {
     nameAr?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionAr?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bannerText?: NullableStringFieldUpdateOperationsInput | string | null
     discountValue?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     isPercent?: BoolFieldUpdateOperationsInput | boolean
     segment?: NullableStringFieldUpdateOperationsInput | string | null
