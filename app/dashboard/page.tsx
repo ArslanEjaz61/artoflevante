@@ -954,9 +954,7 @@ export default function CustomerDashboardPage() {
           {Array.from({ length: Math.min(milestoneThreshold, 7) }, (_, idx) => {
             const stepNum = idx + 1;
             const isMilestone = stepNum === Math.min(milestoneThreshold, 7);
-            const isCompleted = isSurpriseUnlocked
-              ? true
-              : visitsIntoCycle >= stepNum;
+            const isCompleted = visitsIntoCycle >= stepNum;
 
             if (isMilestone) {
               return (
@@ -1006,7 +1004,7 @@ export default function CustomerDashboardPage() {
         </div>
 
         <div className="text-[11px] text-[#7A6E67]">
-          {isSurpriseUnlocked
+          {visitsIntoCycle >= milestoneThreshold
             ? "Congratulations! Surprise milestone reward is unlocked and ready to redeem!"
             : visitsNeeded > 0
             ? `${visitsNeeded} more visit(s) to unlock your next gift.`

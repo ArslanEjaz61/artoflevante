@@ -3,7 +3,7 @@ import QRCode from "qrcode";
 import { prisma } from "@/lib/db";
 import { getCustomerId } from "@/lib/session";
 import { randomCode, formatCode } from "@/lib/crypto";
-import { getNumber, getSettings, pointsToCurrency, newlyEligibleRewards } from "@/lib/loyalty";
+import { getNumber, getSettings, pointsToCurrency, newlyEligibleRewards, calculateVisitMilestoneProgress } from "@/lib/loyalty";
 
 export async function GET() {
   const customerId = await getCustomerId();
@@ -74,7 +74,7 @@ export async function GET() {
   });
 
   // -------------------------------------------------------------
-  // Visit Milestone Check & Auto-Issue (Randomized if multiple perks)
+  // Visit Milestone Check & Auto-Issue (Dynamic Thresholds & Active Unconsumed Visits)
   // -------------------------------------------------------------
   const existingVisitRewards = await prisma.customerReward.findMany({
     where: { customerId, reward: { type: "VISITS" } },
@@ -88,38 +88,50 @@ export async function GET() {
 
   const primaryThreshold = activeVisitRules[0]?.threshold || 5;
   const redeemedVisitList = existingVisitRewards.filter((cr) => cr.status === "REDEEMED");
-  const availableVisitList = existingVisitRewards.filter((cr) => cr.status === "AVAILABLE");
-  const totalRedeemedMilestones = redeemedVisitList.length;
+  let availableVisitList = existingVisitRewards.filter((cr) => cr.status === "AVAILABLE");
 
-  const requiredVisitsToUnlock = (totalRedeemedMilestones + 1) * primaryThreshold;
+  // Calculate visits already consumed by past redeemed rewards
+  const consumedVisits = redeemedVisitList.reduce((acc, cr) => {
+    return acc + (cr.reward.threshold > 0 ? cr.reward.threshold : primaryThreshold);
+  }, 0);
 
-  // Self-heal: If an AVAILABLE visit reward was falsely generated while visitCount < requiredVisitsToUnlock, remove it
-  if (availableVisitList.length > 0 && customer.visitCount < requiredVisitsToUnlock) {
+  // Active unconsumed visits earned by customer
+  const totalVisits = customer.visitCount || 0;
+  const activeVisits = Math.max(0, totalVisits - consumedVisits);
+  const earnedFromActiveVisits = Math.floor(activeVisits / primaryThreshold);
+
+  // 1. If threshold was increased (e.g. from 5 to 7) and customer had an unredeemed AVAILABLE reward
+  // that activeVisits can no longer support: remove the unearned available reward(s)
+  if (availableVisitList.length > 0 && availableVisitList.length > earnedFromActiveVisits) {
+    const surplusCount = availableVisitList.length - earnedFromActiveVisits;
+    const toDelete = availableVisitList.slice(0, surplusCount);
     await prisma.customerReward.deleteMany({
-      where: { id: { in: availableVisitList.map((r) => r.id) } },
+      where: { id: { in: toDelete.map((r) => r.id) } },
     });
-    availableVisitList.length = 0;
+    availableVisitList = availableVisitList.filter((r) => !toDelete.some((d) => d.id === r.id));
   }
 
-  // Auto-issue reward only when customer reaches or exceeds required visits for the current cycle
-  if (customer.visitCount >= requiredVisitsToUnlock && availableVisitList.length === 0 && activeVisitRules.length > 0) {
+  // 2. If threshold was decreased (e.g. from 7 to 5) or new milestone reached: auto-issue missing reward(s)
+  const missingRewardsCount = Math.max(0, earnedFromActiveVisits - availableVisitList.length);
+  if (missingRewardsCount > 0 && activeVisitRules.length > 0) {
     const matchingRules = activeVisitRules.filter((r) => r.threshold === primaryThreshold);
     const pool = matchingRules.length > 0 ? matchingRules : activeVisitRules;
-    const chosenReward = pool[Math.floor(Math.random() * pool.length)];
-
-    if (chosenReward) {
-      const cr = await prisma.customerReward.create({
-        data: {
-          customerId,
-          rewardId: chosenReward.id,
-          status: "AVAILABLE",
-          expiresAt: chosenReward.validDays
-            ? new Date(Date.now() + chosenReward.validDays * 86400_000)
-            : new Date(Date.now() + 30 * 86400_000),
-        },
-        include: { reward: true },
-      });
-      availableVisitList.push(cr);
+    for (let i = 0; i < missingRewardsCount; i++) {
+      const chosenReward = pool[Math.floor(Math.random() * pool.length)];
+      if (chosenReward) {
+        const cr = await prisma.customerReward.create({
+          data: {
+            customerId,
+            rewardId: chosenReward.id,
+            status: "AVAILABLE",
+            expiresAt: chosenReward.validDays
+              ? new Date(Date.now() + chosenReward.validDays * 86400_000)
+              : new Date(Date.now() + 30 * 86400_000),
+          },
+          include: { reward: true },
+        });
+        availableVisitList.push(cr);
+      }
     }
   }
 
@@ -273,27 +285,23 @@ export async function GET() {
     take: 50,
   });
 
-  const isRewardReady = availableVisitList.length > 0;
+  const computedProgress = calculateVisitMilestoneProgress({
+    activeVisits,
+    consumedVisits,
+    totalVisits: customer.visitCount,
+    milestoneThreshold: primaryThreshold,
+    hasAvailableMilestoneReward: availableVisitList.length > 0,
+    redeemedMilestonesCount: redeemedVisitList.length,
+  });
+
   const activeAvailableReward = availableVisitList[0] || null;
 
-  const visitsInCycle = isRewardReady
-    ? primaryThreshold
-    : Math.max(0, (customer.visitCount - totalRedeemedMilestones * primaryThreshold) % primaryThreshold);
-
-  const visitsNeeded = isRewardReady
-    ? 0
-    : Math.max(0, primaryThreshold - visitsInCycle);
-
-  const visitProgressPercent = isRewardReady
-    ? 100
-    : Math.min(100, Math.round((visitsInCycle / primaryThreshold) * 100));
-
   const milestoneProgress = {
-    threshold: primaryThreshold,
-    visitsInCycle,
-    visitsNeeded,
-    progressPercent: visitProgressPercent,
-    isUnlocked: isRewardReady,
+    threshold: computedProgress.threshold,
+    visitsInCycle: computedProgress.visitsInCycle,
+    visitsNeeded: computedProgress.visitsNeeded,
+    progressPercent: computedProgress.progressPercent,
+    isUnlocked: availableVisitList.length > 0,
     unlockedReward: activeAvailableReward
       ? {
           id: activeAvailableReward.id,
@@ -302,8 +310,8 @@ export async function GET() {
           value: Number(activeAvailableReward.reward.value),
         }
       : null,
-    redeemedCount: totalRedeemedMilestones,
-    cycleNumber: totalRedeemedMilestones + 1,
+    redeemedCount: redeemedVisitList.length,
+    cycleNumber: computedProgress.cycleNumber,
   };
 
   const transactions = await prisma.transaction.findMany({

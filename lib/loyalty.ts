@@ -173,51 +173,85 @@ export async function newlyEligibleRewards({
 }
 
 /**
- * Calculates current cycle visit progress.
- * When a milestone reward is redeemed, the counter resets for the next cycle.
+ * Calculates current cycle visit progress dynamically based on unconsumed active visits and active milestone threshold.
+ * When threshold changes or when visits exceed the threshold (e.g. 6 visits with 5-threshold),
+ * the surplus visits carry over into the next cycle without resetting.
  */
 export function calculateVisitMilestoneProgress({
+  activeVisits,
   totalVisits,
+  consumedVisits = 0,
   milestoneThreshold,
   hasAvailableMilestoneReward,
-  redeemedMilestonesCount,
+  redeemedMilestonesCount = 0,
 }: {
-  totalVisits: number;
+  activeVisits?: number;
+  totalVisits?: number;
+  consumedVisits?: number;
   milestoneThreshold: number;
   hasAvailableMilestoneReward: boolean;
-  redeemedMilestonesCount: number;
+  redeemedMilestonesCount?: number;
 }) {
   const threshold = Math.max(1, milestoneThreshold || 5);
-  const total = Math.max(0, totalVisits || 0);
+  // Calculate active visits (visits earned since last redeemed reward)
+  const currentActive =
+    activeVisits !== undefined
+      ? Math.max(0, activeVisits)
+      : Math.max(0, (totalVisits || 0) - (consumedVisits || 0));
+
   const redeemed = Math.max(0, redeemedMilestonesCount || 0);
 
+  // If customer holds an available reward and has exact milestone or more
   if (hasAvailableMilestoneReward) {
-    return {
-      threshold,
-      visitsInCycle: threshold,
-      visitsNeeded: 0,
-      progressPercent: 100,
-      isUnlocked: true,
-      cycleNumber: redeemed + 1,
-    };
+    if (currentActive <= threshold) {
+      // Exactly completed or on the milestone step (e.g. 5 of 5)
+      return {
+        threshold,
+        visitsInCycle: threshold,
+        visitsNeeded: 0,
+        progressPercent: 100,
+        isUnlocked: true,
+        cycleNumber: redeemed + 1,
+      };
+    } else {
+      // Active visits exceed threshold while reward is still pending redemption (e.g. 6 active visits with 5 threshold => 1 in cycle 2)
+      const surplus = currentActive - threshold;
+      const visitsInCycle = surplus % threshold;
+      const extraCycles = Math.floor(surplus / threshold);
+      const displayCount = visitsInCycle === 0 ? threshold : visitsInCycle;
+      const needed = visitsInCycle === 0 ? 0 : threshold - displayCount;
+      return {
+        threshold,
+        visitsInCycle: displayCount,
+        visitsNeeded: needed,
+        progressPercent:
+          displayCount === threshold
+            ? 100
+            : Math.min(100, Math.round((displayCount / threshold) * 100)),
+        isUnlocked: true,
+        cycleNumber: redeemed + 2 + extraCycles,
+      };
+    }
   }
 
-  // Calculate visits into current cycle after accounting for all redeemed milestones
-  const visitsAfterRedeemed = Math.max(0, total - redeemed * threshold);
-  const visitsInCycle = visitsAfterRedeemed % threshold;
-  const isUnlocked = visitsAfterRedeemed > 0 && visitsInCycle === 0 && total >= (redeemed + 1) * threshold;
-
-  const currentCount = isUnlocked ? threshold : visitsInCycle;
-  const needed = isUnlocked ? 0 : threshold - currentCount;
-  const progressPercent = isUnlocked ? 100 : Math.min(100, Math.round((currentCount / threshold) * 100));
+  // Normal progression towards milestone in current cycle
+  const visitsInCycle = currentActive % threshold;
+  const isMilestoneReached = currentActive > 0 && visitsInCycle === 0;
+  const displayCount = isMilestoneReached ? threshold : visitsInCycle;
+  const needed = isMilestoneReached ? 0 : threshold - displayCount;
+  const progressPercent = isMilestoneReached
+    ? 100
+    : Math.min(100, Math.round((displayCount / threshold) * 100));
 
   return {
     threshold,
-    visitsInCycle: currentCount,
+    visitsInCycle: displayCount,
     visitsNeeded: needed,
     progressPercent,
-    isUnlocked,
-    cycleNumber: redeemed + 1,
+    isUnlocked: isMilestoneReached,
+    cycleNumber: redeemed + 1 + Math.floor(currentActive / threshold),
   };
 }
+
+
 
