@@ -1933,7 +1933,10 @@ export default function AdminPage() {
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Could not create offer.");
-      setOfferMsg({ type: "ok", text: "Campaign offer created successfully." });
+      setOfferMsg({
+        type: "ok",
+        text: d.message || "Campaign offer created successfully and broadcast announcement email dispatched to all members!",
+      });
       setNewOffer({
         name: "",
         description: "",
@@ -8600,6 +8603,14 @@ export default function AdminPage() {
                 </div>
               </div>
 
+              {/* Automated Member Email Announcement Notice */}
+              <div className="p-3 rounded-2xl bg-[#FAF3E6] border border-[#C68A1E]/30 flex items-center gap-2.5 text-xs text-[#801313]">
+                <Mail className="w-4 h-4 text-[#C68A1E] shrink-0" />
+                <span className="text-[11px] leading-snug">
+                  <strong>Automated Email Broadcast:</strong> A personalized announcement email with this offer&apos;s title, discount badge, image, and validity will automatically be sent to all registered loyalty members upon publishing.
+                </span>
+              </div>
+
               <div className="pt-4 border-t border-[#EAE3DC] flex items-center justify-end gap-2 shrink-0">
                 <button
                   type="button"
@@ -8613,7 +8624,7 @@ export default function AdminPage() {
                   disabled={busy}
                   className="px-5 py-2.5 rounded-xl bg-[#801313] hover:bg-[#6A0F0F] text-white font-bold text-xs shadow-md shadow-[#801313]/20 disabled:opacity-50 cursor-pointer"
                 >
-                  {busy ? "Publishing…" : "Publish Campaign"}
+                  {busy ? "Publishing…" : "Publish & Broadcast Offer"}
                 </button>
               </div>
             </form>

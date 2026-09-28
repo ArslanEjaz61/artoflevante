@@ -100,6 +100,14 @@ export function AdminNotificationBell() {
     } catch {}
   };
 
+  const handleClearAll = async () => {
+    try {
+      await fetch("/api/admin/notifications?all=true", { method: "DELETE" });
+      setNotifications([]);
+      setUnreadCount(0);
+    } catch {}
+  };
+
   const filteredList = notifications.filter((n) => {
     if (filter === "unread") return !n.isRead;
     return true;
@@ -284,14 +292,25 @@ export function AdminNotificationBell() {
 
           {/* Footer */}
           <div className="p-2.5 bg-[#FAF7F4] border-t border-[#EAE3DC] flex items-center justify-between text-xs">
-            <button
-              type="button"
-              onClick={handleClearRead}
-              className="text-[11px] font-bold text-[#7A6E67] hover:text-[#C0392B] flex items-center gap-1 p-1 rounded-md transition-colors cursor-pointer"
-            >
-              <Trash2 className="w-3 h-3" />
-              <span>Clear read</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleClearRead}
+                className="text-[11px] font-bold text-[#7A6E67] hover:text-[#C0392B] flex items-center gap-1 p-1 rounded-md transition-colors cursor-pointer"
+                title="Clear only read notifications"
+              >
+                <Trash2 className="w-3 h-3" />
+                <span>Clear read</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleClearAll}
+                className="text-[11px] font-bold text-[#7A6E67] hover:text-[#C0392B] flex items-center gap-1 p-1 rounded-md transition-colors cursor-pointer"
+                title="Clear all notifications"
+              >
+                <span>Clear all</span>
+              </button>
+            </div>
             <button
               type="button"
               onClick={fetchNotifications}

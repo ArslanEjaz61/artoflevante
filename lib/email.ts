@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import nodemailer, { Transporter } from "nodemailer";
 import { prisma } from "./db";
 import { getSetting } from "./loyalty";
 import { createNotification } from "./notifications";
@@ -25,12 +25,17 @@ export async function getSmtpConfig(): Promise<SmtpConfig> {
   return { host, port, secure, user, pass, fromEmail, fromName };
 }
 
-export function createTransporter(config: SmtpConfig) {
+export function createTransporter(config: SmtpConfig, pooled: boolean = false) {
   if (!config.host || !config.user) {
     throw new Error("SMTP configuration is incomplete. Please configure Host and User in Settings.");
   }
 
   return nodemailer.createTransport({
+    pool: pooled,
+    maxConnections: pooled ? 5 : undefined,
+    maxMessages: pooled ? 100 : undefined,
+    rateDelta: pooled ? 1000 : undefined,
+    rateLimit: pooled ? 20 : undefined, // Safe 20 emails / sec rate limit per pool
     host: config.host,
     port: config.port,
     secure: config.secure || config.port === 465,
@@ -52,13 +57,15 @@ export interface SendMailOptions {
   sentBy?: string;
 }
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 /**
  * Sends a single email using the configured SMTP server and records the log
  */
 export async function sendEmail(options: SendMailOptions): Promise<{ ok: boolean; messageId?: string; error?: string }> {
   try {
     const config = await getSmtpConfig();
-    const transporter = createTransporter(config);
+    const transporter = createTransporter(config, false);
 
     const fromAddress = config.fromName
       ? `"${config.fromName}" <${config.fromEmail}>`
@@ -103,6 +110,169 @@ export async function sendEmail(options: SendMailOptions): Promise<{ ok: boolean
 
     return { ok: false, error: err.message || "Failed to send email." };
   }
+}
+
+export interface RecipientInfo {
+  id: string;
+  name: string | null;
+  email: string;
+  pointsBalance: number;
+}
+
+export interface QueueBroadcastOptions {
+  campaignName: string;
+  buildSubject: (cust: RecipientInfo) => string;
+  buildHtml: (cust: RecipientInfo) => string;
+  sentBy?: string;
+  batchSize?: number; // Number of customers to query per DB page (default: 50)
+  delayBetweenBatchesMs?: number; // Delay gap between batches to prevent spam-block (default: 300ms)
+  concurrencyPerBatch?: number; // Simultaneous SMTP connections per batch (default: 5)
+  whereClause?: any; // Additional Prisma Customer filter
+}
+
+/**
+ * High-Capacity Queue & Throttled Email Dispatcher
+ * Streams customers in paginated memory-safe chunks, utilizes pooled SMTP keep-alive sockets,
+ * limits concurrency, and inserts delay gaps between batches to safely deliver to large audiences.
+ */
+export async function queueEmailBroadcast(options: QueueBroadcastOptions) {
+  const batchSize = Math.max(10, Math.min(options.batchSize || 50, 200));
+  const delayBetweenBatches = options.delayBetweenBatchesMs ?? 300;
+  const concurrency = Math.max(1, Math.min(options.concurrencyPerBatch || 5, 10));
+
+  // Run in background without blocking caller
+  (async () => {
+    let pooledTransporter: Transporter | null = null;
+    let totalProcessed = 0;
+    let totalSent = 0;
+    let totalFailed = 0;
+
+    try {
+      const config = await getSmtpConfig();
+      if (!config.host || !config.user) {
+        console.warn("queueEmailBroadcast: SMTP is not configured. Broadcast aborted.");
+        return;
+      }
+
+      pooledTransporter = createTransporter(config, true);
+      const fromAddress = config.fromName ? `"${config.fromName}" <${config.fromEmail}>` : config.fromEmail;
+
+      const baseWhere = {
+        email: { not: null, contains: "@" },
+        isBlocked: false,
+        ...(options.whereClause || {}),
+      };
+
+      const totalRecipients = await prisma.customer.count({ where: baseWhere });
+      if (totalRecipients === 0) return;
+
+      console.log(`[EmailQueue] Starting broadcast for "${options.campaignName}" to ${totalRecipients} recipients.`);
+
+      let offset = 0;
+
+      while (true) {
+        const chunk = await prisma.customer.findMany({
+          where: baseWhere,
+          select: { id: true, name: true, email: true, pointsBalance: true },
+          skip: offset,
+          take: batchSize,
+          orderBy: { id: "asc" },
+        });
+
+        if (!chunk || chunk.length === 0) break;
+
+        const emailLogRecords: Array<{
+          recipient: string;
+          subject: string;
+          body: string;
+          status: string;
+          error?: string | null;
+          sentBy: string;
+        }> = [];
+
+        // Process this chunk with controlled concurrency
+        for (let i = 0; i < chunk.length; i += concurrency) {
+          const subBatch = chunk.slice(i, i + concurrency);
+
+          await Promise.all(
+            subBatch.map(async (cust) => {
+              if (!cust.email) return;
+              const subject = options.buildSubject(cust as RecipientInfo);
+              const html = options.buildHtml(cust as RecipientInfo);
+
+              try {
+                await pooledTransporter!.sendMail({
+                  from: fromAddress,
+                  to: cust.email,
+                  subject,
+                  html,
+                });
+
+                totalSent++;
+                emailLogRecords.push({
+                  recipient: cust.email,
+                  subject,
+                  body: html,
+                  status: "SENT",
+                  sentBy: options.sentBy || "Automated System",
+                });
+              } catch (sendErr: any) {
+                totalFailed++;
+                emailLogRecords.push({
+                  recipient: cust.email,
+                  subject,
+                  body: html,
+                  status: "FAILED",
+                  error: sendErr?.message || "SMTP Error",
+                  sentBy: options.sentBy || "Automated System",
+                });
+              }
+            })
+          );
+        }
+
+        // Batch insert email logs for this chunk
+        if (emailLogRecords.length > 0) {
+          try {
+            await prisma.emailLog.createMany({ data: emailLogRecords });
+          } catch (logErr) {
+            console.error("[EmailQueue] Failed to record batch logs:", logErr);
+          }
+        }
+
+        totalProcessed += chunk.length;
+        offset += chunk.length;
+
+        // Controlled delay gap between batches to protect SMTP IP reputation & avoid rate limits
+        if (chunk.length === batchSize) {
+          await sleep(delayBetweenBatches);
+        }
+      }
+
+      // Trigger admin notification upon broadcast completion
+      await createNotification({
+        type: "EMAIL_SENT",
+        title: `Campaign Broadcast: ${options.campaignName}`,
+        message: `Successfully delivered to ${totalSent} customer${totalSent === 1 ? "" : "s"} (${totalFailed} failed).`,
+        metadata: {
+          campaign: options.campaignName,
+          totalRecipients,
+          totalSent,
+          totalFailed,
+        },
+      });
+
+      console.log(`[EmailQueue] Broadcast completed for "${options.campaignName}". Sent: ${totalSent}, Failed: ${totalFailed}.`);
+    } catch (queueErr) {
+      console.error("[EmailQueue] Fatal queue error:", queueErr);
+    } finally {
+      if (pooledTransporter) {
+        try {
+          pooledTransporter.close();
+        } catch {}
+      }
+    }
+  })();
 }
 
 /**

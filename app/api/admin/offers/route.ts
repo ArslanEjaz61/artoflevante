@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/adminScope";
 import { canAccessAllBranches } from "@/lib/session";
 import { createNotification } from "@/lib/notifications";
+import { queueEmailBroadcast } from "@/lib/email";
 
 export async function GET() {
   const { error, status, session } = await requireAdmin();
@@ -127,7 +128,74 @@ export async function POST(req: NextRequest) {
     metadata: { offerId: offer.id, offerName: offer.name, hasImage: !!imageUrl },
   });
 
-  return NextResponse.json({ ok: true, offer });
+  // Queue automated promotional announcement email broadcast to all registered members
+  const discountBadge = Boolean(isPercent) ? `${amount}% OFF` : `AED ${amount} OFF`;
+  queueEmailBroadcast({
+    campaignName: `Offer: ${offer.name} (${discountBadge})`,
+    sentBy: session.id || "Admin",
+    batchSize: 50, // 50 recipients per chunk
+    delayBetweenBatchesMs: 300, // 300ms gap between batches to prevent spam-block
+    concurrencyPerBatch: 5, // 5 parallel sends at a time
+    buildSubject: (cust) => `🎉 New Exclusive Offer: ${offer.name} (${discountBadge}) — Bombay Chowpatty`,
+    buildHtml: (cust) => `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #FAF7F4; padding: 24px; border-radius: 20px; border: 1px solid #EAE3DC;">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <h1 style="color: #801313; margin: 0; font-size: 24px; font-weight: 900; letter-spacing: -0.5px;">BOMBAY CHOWPATTY</h1>
+          <p style="color: #7A6E67; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; font-weight: 700;">Exclusive Loyalty Club</p>
+        </div>
+
+        <div style="background: #FFFFFF; padding: 24px; border-radius: 16px; border: 1px solid #EAE3DC; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+          ${
+            offer.imageUrl
+              ? `<div style="text-align: center; margin-bottom: 20px; border-radius: 12px; overflow: hidden; border: 1px solid #EAE3DC; background: #1E1815;">
+                  <img src="${offer.imageUrl}" alt="${offer.name}" style="width: 100%; max-height: 280px; object-fit: cover; display: block;" />
+                </div>`
+              : ""
+          }
+
+          <div style="display: inline-block; background: #801313; color: #FFFFFF; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
+            ${discountBadge}
+          </div>
+
+          <h2 style="font-size: 20px; color: #1E1815; margin: 0 0 10px 0; font-weight: 800; line-height: 1.3;">
+            ${offer.name}
+          </h2>
+
+          <p style="font-size: 14px; color: #5C504A; line-height: 1.6; margin: 0 0 20px 0;">
+            ${offer.description || "We are excited to share a brand new exclusive promotion with all our loyal members! Visit us to savor the authentic taste of Bombay with special savings."}
+          </p>
+
+          <div style="background: #FAF7F4; border: 1px solid #EAE3DC; border-radius: 12px; padding: 14px 16px; margin-bottom: 20px;">
+            <div style="font-size: 11px; color: #7A6E67; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">OFFER DETAILS &amp; VALIDITY</div>
+            <div style="font-size: 13px; color: #1E1815; font-weight: 700;">
+              📅 Valid ${start ? `from ${start.toLocaleDateString()}` : "immediately"} ${end ? `until ${end.toLocaleDateString()}` : "for a limited time"}
+            </div>
+            <div style="font-size: 12px; color: #5C504A; margin-top: 4px;">
+              📍 Applicable across Bombay Chowpatty UAE branch locations (Dine In &amp; Takeaway)
+            </div>
+          </div>
+
+          <div style="text-align: center; padding-top: 8px;">
+            <p style="font-size: 13px; color: #5C504A; margin: 0 0 14px 0;">
+              Simply show your digital loyalty QR card or mobile number at checkout to redeem this promotion!
+            </p>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px; font-size: 11px; color: #7A6E67; line-height: 1.5;">
+          <p style="margin: 0;">Hello <strong>${cust.name || "Valued Member"}</strong>, you received this because you are an active member of Bombay Chowpatty Loyalty Club.</p>
+          <p style="margin: 4px 0 0 0;">Your Current Balance: <strong style="color: #801313;">${cust.pointsBalance || 0} Points</strong></p>
+          <p style="margin: 4px 0 0 0;">UAE • 14 Outlets • Dine In &amp; Takeaway</p>
+        </div>
+      </div>
+    `,
+  });
+
+  return NextResponse.json({
+    ok: true,
+    offer,
+    message: "Offer published successfully and queued for safe background email broadcast.",
+  });
 }
 
 export async function PATCH(req: NextRequest) {
