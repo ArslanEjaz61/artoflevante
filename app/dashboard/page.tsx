@@ -541,7 +541,7 @@ export default function CustomerDashboardPage() {
             <img src="/bc-roundel.png" alt="Levante" className="w-full h-full object-contain" />
           </div>
           <div className="min-w-0">
-            <div className="font-display font-bold uppercase tracking-[0.02em] text-[16px] sm:text-[21px] leading-none text-[#F5EFE0] [text-shadow:0_1px_2px_rgba(120,20,20,0.45)] truncate">
+            <div className="font-display font-bold uppercase tracking-[0.02em] text-[16px] sm:text-[21px] leading-none text-[#A57414] truncate">
               Welcome Back
             </div>
             <h1 className="font-display text-[17px] sm:text-[21px] font-bold text-[#1E1815] leading-tight mt-0.5 truncate">
@@ -1192,7 +1192,7 @@ export default function CustomerDashboardPage() {
                 )}
                 {dateFilter === "all" && (
                   <p className="text-[10px] text-[#A0938C] mt-0.5">
-                    Points earned and redeemed on your dine-in bills will appear here automatically.
+                    Points earned and redeemed on your bills will appear here automatically.
                   </p>
                 )}
               </div>
@@ -1719,7 +1719,7 @@ export default function CustomerDashboardPage() {
                   {popupOffer.name}
                 </h3>
                 <p className="text-xs text-[#7A6E67] mt-1.5 leading-relaxed font-body">
-                  {popupOffer.description || "Visit the Levante boutique to enjoy this special deal on your next dine-in or takeaway order!"}
+                  {popupOffer.description || "Visit the Levante boutique to enjoy this special deal on your next visit!"}
                 </p>
               </div>
 

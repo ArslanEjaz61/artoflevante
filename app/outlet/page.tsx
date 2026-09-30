@@ -1122,7 +1122,7 @@ function OutletContent() {
                 {!successReceipt ? (
                   <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-5">
                     <div>
-                      <h4 className="font-extrabold text-sm sm:text-base text-[#1E1815]">Give Loyalty Points on Dine-in Bill</h4>
+                      <h4 className="font-extrabold text-sm sm:text-base text-[#1E1815]">Give Loyalty Points on Bill</h4>
                       <p className="text-xs text-[#7A6E67] mt-0.5">
                         Enter invoice # and bill amount to award points and stamp visit.
                       </p>

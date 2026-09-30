@@ -289,7 +289,7 @@ export async function POST(req: NextRequest) {
                     <p style="font-size: 13px; color: #5C504A; margin: 4px 0 0 0;">${activeBirthdayReward.description}</p>
                     <div style="margin-top: 10px; font-size: 11px; color: #7A6E67;">Valid until: <strong>${expiryDate.toLocaleDateString()}</strong></div>
                   </div>
-                  <p style="font-size: 13px; color: #5C504A; margin-bottom: 0;">Show your digital QR card or phone number at any of our 14 UAE outlets to redeem your birthday treat!</p>
+                  <p style="font-size: 13px; color: #5C504A; margin-bottom: 0;">Show your digital QR card or phone number at the Levante boutique to redeem your birthday treat!</p>
                 </div>
               </div>
             `;

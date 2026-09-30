@@ -2519,7 +2519,7 @@ export default function AdminPage() {
                   ? `${allBranches.find((b: any) => b.id === overviewBranchFilter)?.name} (${allBranches.find((b: any) => b.id === overviewBranchFilter)?.city || "UAE"}) • Live sync active`
                   : session.branchName
                     ? `${session.branchName} • Live sync active`
-                    : "All 14 UAE Locations • Live sync active"}
+                    : "Levante • Al Jaddaf, Dubai • Live sync active"}
               </p>
             </div>
           </div>
@@ -10066,7 +10066,7 @@ export default function AdminPage() {
                       </span>
                       <span className="text-[10px] text-[#7A6E67]">
                         {editOfferForm.branchIds.length === 0
-                          ? "Universal / All 14 UAE Branches (Visible to every customer)"
+                          ? "Universal / All Branches (Visible to every customer)"
                           : `Selected for ${editOfferForm.branchIds.length} branches (Visible to all customers)`}
                       </span>
                     </div>
@@ -10638,7 +10638,7 @@ export default function AdminPage() {
                         .replace(/{customer_name}/g, "Sara Al Nuaimi")
                         .replace(/{points_balance}/g, "250")
                         .replace(/{reward_name}/g, "Complimentary Royal Dessert")
-                        .replace(/{reward_description}/g, "Special royal dessert treat valid across 14 UAE outlets.")
+                        .replace(/{reward_description}/g, "Special treat valid at the Levante boutique.")
                         .replace(/{expiry_date}/g, "30 Oct 2026")
                         .replace(/{offer_title}/g, "Double Points Weekend Extravaganza"),
                     }}
@@ -10647,7 +10647,7 @@ export default function AdminPage() {
                   {/* Email Footer */}
                   <div className="bg-[#FAF7F4] p-4 text-center border-t border-[#EAE3DC] text-[10px] text-[#7A6E67] space-y-1">
                     <div className="font-semibold text-[#1E1815]">
-                      Levante UAE • 14 Mall &amp; City Outlets
+                      Levante • Al Jaddaf, Dubai
                     </div>
                     <div>
                       You received this message as a valued member of the Levante Rewards.

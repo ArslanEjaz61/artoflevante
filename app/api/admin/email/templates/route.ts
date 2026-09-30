@@ -20,7 +20,7 @@ const DEFAULT_BIRTHDAY_TEMPLATE = {
       <div style="font-size: 12px; color: #9E690B; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px;">YOUR EXCLUSIVE BIRTHDAY REWARD</div>
       <div style="font-size: 20px; color: #0E331E; font-weight: 900; margin: 8px 0;">{reward_name}</div>
       <p style="font-size: 13px; color: #5C504A; margin: 6px 0 0 0;">{reward_description}</p>
-      <div style="margin-top: 12px; font-size: 11px; color: #7A6E67; font-weight: bold;">Valid for 30 Days Across All 14 UAE Outlets</div>
+      <div style="margin-top: 12px; font-size: 11px; color: #7A6E67; font-weight: bold;">Valid for 30 Days at Levante</div>
     </div>
     
     <div style="background: #FAF7F4; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; display: flex; justify-content: space-between;">

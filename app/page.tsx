@@ -367,7 +367,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
 
           <p className="text-xs text-[#7A6E67] mb-5 leading-relaxed">
             {mode === "register"
-              ? `Register to unlock an instant ${programInfo.welcomeDiscountPercent}% welcome voucher and earn points on every dining visit.`
+              ? `Register to unlock an instant ${programInfo.welcomeDiscountPercent}% welcome voucher and earn points on every visit.`
               : "Enter your registered mobile number to receive a secure login code."}
           </p>
 
@@ -672,7 +672,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
                     {welcomeGift.discountPercent}% Welcome Voucher
                   </div>
                   <div className="text-[11px] text-[#7A6E67]">
-                    Ready to use on your first dining order
+                    Ready to use on your first order
                   </div>
                 </div>
                 <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold shrink-0">
