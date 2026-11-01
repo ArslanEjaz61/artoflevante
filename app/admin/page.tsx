@@ -4256,6 +4256,10 @@ export default function AdminPage() {
                                 <span className="px-2 py-0.5 rounded-full bg-[#1E7A4D]/10 text-[#1E7A4D] border border-[#1E7A4D]/20 text-[10px] font-black uppercase">
                                   Self Check-in
                                 </span>
+                              ) : v.checkInMethod === "RECEIPT_SCAN" ? (
+                                <span className="px-2 py-0.5 rounded-full bg-[#B45309]/10 text-[#B45309] border border-[#B45309]/20 text-[10px] font-black uppercase">
+                                  Receipt Scan
+                                </span>
                               ) : (
                                 <span className="px-2 py-0.5 rounded-full bg-[#7C3AED]/10 text-[#7C3AED] border border-[#7C3AED]/20 text-[10px] font-black uppercase">
                                   Staff POS
@@ -7134,7 +7138,9 @@ export default function AdminPage() {
                         <div>
                           <input
                             id={item.key}
-                            type={item.type === "number" ? "number" : "text"}
+                            type={item.secret ? "password" : item.type === "number" ? "number" : "text"}
+                            autoComplete={item.secret ? "new-password" : undefined}
+                            placeholder={item.secret ? "sk-or-v1-…" : undefined}
                             value={settingsForm[item.key] ?? ""}
                             onChange={(e) =>
                               setSettingsForm({ ...settingsForm, [item.key]: e.target.value })

@@ -35,6 +35,22 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (birthday !== undefined) {
+      const currentCust = await prisma.customer.findUnique({
+        where: { id: customerId },
+        select: { birthday: true },
+      });
+
+      if (currentCust?.birthday) {
+        const requestedDate = birthday ? new Date(birthday).toISOString().slice(0, 10) : "";
+        const existingDate = currentCust.birthday.toISOString().slice(0, 10);
+        if (requestedDate !== existingDate) {
+          return NextResponse.json(
+            { error: "Date of birth is already registered and locked. Please contact customer support if you need to update it." },
+            { status: 400 }
+          );
+        }
+      }
+
       if (!birthday || String(birthday).trim() === "") {
         data.birthday = null;
       } else {

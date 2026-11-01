@@ -7,7 +7,7 @@ import { clearSettingsCache, DEFAULTS } from "@/lib/loyalty";
 // Default comprehensive system settings with clean category grouping
 const SYSTEM_SETTING_DEFINITIONS: Record<
   string,
-  { label: string; description: string; category: "general" | "loyalty" | "security"; defaultValue: string; type: "text" | "number" }
+  { label: string; description: string; category: "general" | "loyalty" | "security"; defaultValue: string; type: "text" | "number"; secret?: boolean }
 > = {
   // General App & Brand Settings
   program_name: {
@@ -113,6 +113,35 @@ const SYSTEM_SETTING_DEFINITIONS: Record<
     type: "number",
   },
 
+  receipt_max_age_days: {
+    label: "Receipt Scan: Max Bill Age (Days)",
+    description: "Bills older than this cannot be claimed by scanning",
+    category: "loyalty",
+    defaultValue: "7",
+    type: "number",
+  },
+  receipt_daily_limit: {
+    label: "Receipt Scan: Claims per Customer per Day",
+    description: "How many scanned bills one customer can claim in 24 hours",
+    category: "loyalty",
+    defaultValue: "3",
+    type: "number",
+  },
+  openrouter_api_key: {
+    label: "Receipt Scan AI Key (OpenRouter API Key)",
+    description: "Used to read receipt photos. Paste a key from openrouter.ai/keys; it is stored securely and only shown masked",
+    category: "loyalty",
+    defaultValue: "",
+    type: "text",
+    secret: true,
+  },
+  receipt_vision_model: {
+    label: "Receipt Scan AI Model (optional)",
+    description: "Leave empty for the free default. Set a model id (e.g. google/gemini-2.5-flash) once you add OpenRouter credit",
+    category: "loyalty",
+    defaultValue: "",
+    type: "text",
+  },
   // Security & Anti-Fraud Thresholds
   qr_token_ttl_seconds: {
     label: "Dynamic QR Code Lifespan (Seconds)",
@@ -151,6 +180,12 @@ const SYSTEM_SETTING_DEFINITIONS: Record<
   },
 };
 
+/** Shows only the tail of a stored secret so it can be recognised but not copied out of the page. */
+function maskSecret(v?: string): string {
+  if (!v) return "";
+  return v.length <= 8 ? "••••" : `••••••••${v.slice(-4)}`;
+}
+
 // GET: Fetch all system settings
 export async function GET() {
   const { error, status, session } = await requireAdmin();
@@ -164,7 +199,8 @@ export async function GET() {
 
     const settings = Object.entries(SYSTEM_SETTING_DEFINITIONS).map(([key, meta]) => ({
       key,
-      value: dbMap[key] ?? meta.defaultValue,
+      value: meta.secret ? maskSecret(dbMap[key]) : dbMap[key] ?? meta.defaultValue,
+      secret: !!meta.secret,
       label: meta.label,
       description: meta.description,
       category: meta.category,
@@ -220,6 +256,8 @@ export async function POST(req: NextRequest) {
     }
 
     for (const [key, val] of Object.entries(settings)) {
+      // A secret still showing its mask was not edited, so keep the stored one.
+      if (SYSTEM_SETTING_DEFINITIONS[key]?.secret && typeof val === "string" && val.includes("••••")) continue;
       if (typeof val === "string" || typeof val === "number" || typeof val === "boolean") {
         await prisma.setting.upsert({
           where: { key },

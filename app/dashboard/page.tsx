@@ -38,6 +38,7 @@ import {
 import QRCode from "qrcode";
 import { usePwaInstall } from "@/lib/usePwaInstall";
 import { InstallGuideModal } from "@/components/InstallGuideModal";
+import ReceiptScanner from "@/components/ReceiptScanner";
 
 function formatRelativeTime(iso?: string | null): string {
   if (!iso) return "—";
@@ -775,6 +776,10 @@ export default function CustomerDashboardPage() {
           Show this QR to cashier. Scanning opens your profile without sharing mobile number.
         </p>
       </div>
+
+      {/* SCAN A RECEIPT TO EARN POINTS */}
+      <ReceiptScanner onClaimed={loadCard} />
+
 
       {/* ============================================================== */}
       {/* 7. BIRTHDAY SURPRISE & FREE VOUCHERS CARDS                     */}

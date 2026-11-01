@@ -4,8 +4,13 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-const databaseUrl =
-  process.env.DATABASE_URL ||
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl && process.env.NODE_ENV === "production") {
+  throw new Error("FATAL: DATABASE_URL environment variable is missing in production!");
+}
+
+const resolvedDbUrl =
+  databaseUrl ||
   "postgresql://postgres:12345678@127.0.0.1:5432/loyalty?schema=public";
 
 export const prisma =
@@ -13,7 +18,7 @@ export const prisma =
   new PrismaClient({
     datasources: {
       db: {
-        url: databaseUrl,
+        url: resolvedDbUrl,
       },
     },
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],

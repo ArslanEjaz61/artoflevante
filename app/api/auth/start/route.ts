@@ -58,6 +58,22 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Rate limiting: maximum 4 OTP requests per mobile in a 10-minute window
+  const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+  const recentOtpCount = await prisma.otpCode.count({
+    where: {
+      mobile: normalized,
+      createdAt: { gte: tenMinutesAgo },
+    },
+  });
+
+  if (recentOtpCount >= 4) {
+    return NextResponse.json(
+      { error: "Too many verification code requests. Please wait a few minutes before trying again." },
+      { status: 429 }
+    );
+  }
+
   // Clear pending OTPs for this number/purpose
   await prisma.otpCode.deleteMany({ where: { mobile: normalized, purpose, consumedAt: null } });
 

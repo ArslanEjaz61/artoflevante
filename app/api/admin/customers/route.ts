@@ -18,41 +18,55 @@ export async function GET(req: NextRequest) {
   const branchFilter = searchParams.get("branchId");
 
   const ids = await scopedCustomerIds(prisma, session);
-  const where: any = {};
+  const andConditions: any[] = [];
+
   if (ids !== null) {
-    where.id = { in: ids };
+    andConditions.push({ id: { in: ids } });
   } else if (branchFilter && branchFilter !== "all") {
-    where.OR = [
-      { homeBranchId: branchFilter },
-      { transactions: { some: { branchId: branchFilter } } },
-      { visits: { some: { branchId: branchFilter } } },
-    ];
+    andConditions.push({
+      OR: [
+        { homeBranchId: branchFilter },
+        { transactions: { some: { branchId: branchFilter } } },
+        { visits: { some: { branchId: branchFilter } } },
+      ],
+    });
   }
 
   if (q) {
     const digits = q.replace(/\D/g, "");
-    where.OR = [
-      { name: { contains: q, mode: "insensitive" } },
-      { email: { contains: q, mode: "insensitive" } },
-      ...(digits ? [{ mobile: { contains: digits } }] : []),
-    ];
+    andConditions.push({
+      OR: [
+        { name: { contains: q, mode: "insensitive" } },
+        { email: { contains: q, mode: "insensitive" } },
+        ...(digits ? [{ mobile: { contains: digits } }] : []),
+      ],
+    });
   }
 
   let orderBy: any = { createdAt: "desc" };
 
   if (filter === "inactive") {
     const cutoff = new Date(Date.now() - 60 * 86400_000);
-    where.AND = [
-      { OR: [{ lastVisitAt: { lt: cutoff } }, { lastVisitAt: null, createdAt: { lt: cutoff } }] },
-    ];
+    andConditions.push({
+      OR: [{ lastVisitAt: { lt: cutoff } }, { lastVisitAt: null, createdAt: { lt: cutoff } }],
+    });
   } else if (filter === "recent") {
-    where.lastVisitAt = { not: null };
+    andConditions.push({ lastVisitAt: { not: null } });
     orderBy = { lastVisitAt: "desc" };
   } else if (filter === "highSpend") {
     orderBy = { totalSpend: "desc" };
   } else if (filter === "highPoints") {
     orderBy = { pointsBalance: "desc" };
+  } else if (filter === "birthdays") {
+    const currentMonthNum = new Date().getUTCMonth() + 1;
+    const bdayCustomerIds: Array<{ id: string }> = await prisma.$queryRaw`
+      SELECT id FROM "Customer" WHERE birthday IS NOT NULL AND EXTRACT(MONTH FROM birthday) = ${currentMonthNum}
+    `;
+    const bdayIds = bdayCustomerIds.map((r) => r.id);
+    andConditions.push({ id: { in: bdayIds } });
   }
+
+  const where = andConditions.length > 0 ? { AND: andConditions } : {};
 
   const [total, rows] = await Promise.all([
     prisma.customer.count({ where }),
@@ -85,11 +99,6 @@ export async function GET(req: NextRequest) {
     isBlocked: c.isBlocked,
     blocked: c.isBlocked,
   }));
-
-  if (filter === "birthdays") {
-    const m = new Date().getUTCMonth();
-    customers = customers.filter((c) => c.birthday && new Date(c.birthday).getUTCMonth() === m);
-  }
 
   return NextResponse.json({
     customers,

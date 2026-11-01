@@ -44,7 +44,7 @@ export function createTransporter(config: SmtpConfig, pooled: boolean = false) {
       pass: config.pass,
     },
     tls: {
-      rejectUnauthorized: false, // Prevents self-signed cert errors on dev/custom mail servers
+      rejectUnauthorized: process.env.SMTP_IGNORE_TLS === "true" || process.env.NODE_ENV !== "production" ? false : true,
     },
   });
 }

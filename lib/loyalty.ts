@@ -18,6 +18,12 @@ export const DEFAULTS: Record<string, string> = {
   qr_token_ttl_seconds: "180",
   otp_ttl_seconds: "300",
   otp_max_attempts: "5",
+
+  // Receipt scanning (customer app)
+  receipt_max_age_days: "7", // bills older than this cannot be claimed
+  receipt_daily_limit: "3", // receipts one customer can claim per day
+  openrouter_api_key: "", // set in Admin > Settings; reads receipt photos
+  receipt_vision_model: "", // optional override of the first AI model tried
 };
 
 let cache: Record<string, string> | null = null;

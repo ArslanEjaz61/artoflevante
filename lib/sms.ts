@@ -1,7 +1,7 @@
 const PROVIDER = process.env.SMS_PROVIDER || "console";
 
 export function isDevDelivery(): boolean {
-  return PROVIDER === "console";
+  return process.env.NODE_ENV !== "production" && PROVIDER === "console";
 }
 
 export async function sendOtp(mobile: string, code: string): Promise<{ delivered: boolean; provider: string }> {

@@ -12,29 +12,38 @@ export async function GET() {
   }
 
   try {
-    const branches = await prisma.branch.findMany({
-      include: {
-        _count: {
-          select: {
-            staff: true,
-            homeCustomers: true,
-            transactions: true,
-            offers: true,
-            visits: true,
+    const [branches, branchAggs] = await Promise.all([
+      prisma.branch.findMany({
+        include: {
+          _count: {
+            select: {
+              staff: true,
+              homeCustomers: true,
+              transactions: true,
+              offers: true,
+              visits: true,
+            },
           },
         },
-        transactions: {
-          where: { isReversed: false },
-          select: { amount: true, pointsEarned: true },
+        orderBy: [{ isActive: "desc" }, { code: "asc" }],
+      }),
+      prisma.transaction.groupBy({
+        by: ["branchId"],
+        where: { isReversed: false },
+        _sum: {
+          amount: true,
+          pointsEarned: true,
         },
-      },
-      orderBy: [{ isActive: "desc" }, { code: "asc" }],
-    });
+      }),
+    ]);
+
+    const aggMap = new Map(branchAggs.map((a) => [a.branchId, a._sum]));
 
     const formattedBranches = await Promise.all(
       branches.map(async (b) => {
-        const totalRevenue = b.transactions.reduce((acc, t) => acc + Number(t.amount || 0), 0);
-        const totalPoints = b.transactions.reduce((acc, t) => acc + Number(t.pointsEarned || 0), 0);
+        const sumData = aggMap.get(b.id);
+        const totalRevenue = Number(sumData?.amount || 0);
+        const totalPoints = sumData?.pointsEarned || 0;
         
         let dailyCode = b.dailyCode;
         let dailyCodeExpiresAt = b.dailyCodeExpiresAt ? b.dailyCodeExpiresAt.toISOString() : null;

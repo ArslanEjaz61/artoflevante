@@ -1,33 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { cookies } from "next/headers";
+import { setOutletSession, getOutletSession, clearOutletSession } from "@/lib/session";
 
-const OUTLET_COOKIE = "outlet_branch_code";
-
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(req.url);
-    const sampleOnly = searchParams.get("sampleOnly") === "true";
-
-    const cookieStore = await cookies();
-    const branchCode = cookieStore.get(OUTLET_COOKIE)?.value;
-
-    if (sampleOnly || !branchCode) {
-      // Provide sample active branch info for the entry screen helper
-      const sampleBranch = await prisma.branch.findFirst({
-        where: { isActive: true },
-        select: { code: true, name: true, city: true },
-        orderBy: { code: "asc" },
-      });
-      return NextResponse.json({ authenticated: false, sampleBranch });
+    const session = await getOutletSession();
+    if (!session) {
+      return NextResponse.json({ authenticated: false });
     }
 
     const branch = await prisma.branch.findFirst({
       where: {
-        OR: [
-          { code: { equals: branchCode, mode: "insensitive" } },
-          { id: branchCode },
-        ],
+        id: session.branchId,
         isActive: true,
       },
       select: {
@@ -42,7 +26,7 @@ export async function GET(req: NextRequest) {
     });
 
     if (!branch) {
-      cookieStore.delete(OUTLET_COOKIE);
+      await clearOutletSession();
       return NextResponse.json({ authenticated: false });
     }
 
@@ -74,8 +58,6 @@ export async function POST(req: NextRequest) {
         OR: [
           { code: { equals: rawCode, mode: "insensitive" } },
           { dailyCode: { equals: rawCode, mode: "insensitive" } },
-          { id: rawCode },
-          { name: { equals: rawCode, mode: "insensitive" } },
         ],
         isActive: true,
       },
@@ -86,21 +68,20 @@ export async function POST(req: NextRequest) {
         city: true,
         address: true,
         hours: true,
+        dailyCode: true,
       },
     });
 
     if (!branch) {
       return NextResponse.json({
         error: "Outlet code not recognized. Please check your branch code.",
-      }, { status: 404 });
+      }, { status: 401 });
     }
 
-    const cookieStore = await cookies();
-    cookieStore.set(OUTLET_COOKIE, branch.code, {
-      path: "/",
-      httpOnly: true,
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 30, // 30 days
+    await setOutletSession({
+      id: branch.id,
+      code: branch.code,
+      name: branch.name,
     });
 
     return NextResponse.json({
@@ -114,8 +95,7 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE() {
   try {
-    const cookieStore = await cookies();
-    cookieStore.delete(OUTLET_COOKIE);
+    await clearOutletSession();
     return NextResponse.json({ ok: true });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to clear outlet session." }, { status: 500 });

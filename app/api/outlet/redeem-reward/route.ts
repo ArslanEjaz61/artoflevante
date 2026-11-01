@@ -1,14 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { createNotification } from "@/lib/notifications";
-import { cookies } from "next/headers";
-
-const OUTLET_COOKIE = "outlet_branch_code";
+import { getOutletSession } from "@/lib/session";
 
 export async function POST(req: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const branchCodeCookie = cookieStore.get(OUTLET_COOKIE)?.value;
+    const session = await getOutletSession();
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized. Please authenticate your outlet terminal first." },
+        { status: 401 }
+      );
+    }
+
+    const branch = await prisma.branch.findUnique({
+      where: { id: session.branchId },
+    });
+
+    if (!branch || !branch.isActive) {
+      return NextResponse.json(
+        { error: "Active outlet branch not found. Please re-authenticate." },
+        { status: 401 }
+      );
+    }
 
     let body: any;
     try {
@@ -17,31 +31,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid request payload." }, { status: 400 });
     }
 
-    const { customerId, customerRewardId, branchId: explicitBranchId, branchCode: explicitBranchCode } = body || {};
+    const { customerId, customerRewardId } = body || {};
 
     if (!customerId || !customerRewardId) {
       return NextResponse.json({ error: "Customer ID and Reward ID are required." }, { status: 400 });
-    }
-
-    // Resolve branch
-    const branchSearchCode = explicitBranchCode || branchCodeCookie;
-    let branch: any = null;
-
-    if (explicitBranchId) {
-      branch = await prisma.branch.findUnique({ where: { id: explicitBranchId } });
-    } else if (branchSearchCode) {
-      branch = await prisma.branch.findFirst({
-        where: {
-          OR: [
-            { code: { equals: branchSearchCode, mode: "insensitive" } },
-            { id: branchSearchCode },
-          ],
-        },
-      });
-    }
-
-    if (!branch || !branch.isActive) {
-      return NextResponse.json({ error: "Active outlet branch not found." }, { status: 400 });
     }
 
     const customer = await prisma.customer.findUnique({ where: { id: customerId } });
@@ -89,22 +82,26 @@ export async function POST(req: NextRequest) {
       // If it is a POINTS redemption reward where points are deducted upon redemption:
       let updatedPointsBalance = customer.pointsBalance;
       if (custReward.reward.type === "POINTS" && custReward.reward.threshold > 0) {
-        if (customer.pointsBalance >= custReward.reward.threshold) {
-          const updatedCust = await tx.customer.update({
-            where: { id: customer.id },
-            data: { pointsBalance: { decrement: custReward.reward.threshold } },
-          });
-          updatedPointsBalance = updatedCust.pointsBalance;
-
-          await tx.pointsLedger.create({
-            data: {
-              customerId: customer.id,
-              delta: -custReward.reward.threshold,
-              reason: "reward_redemption",
-              note: `Redeemed ${custReward.reward.name} at ${branch.name}`,
-            },
-          });
+        // Re-read the balance inside the transaction so two simultaneous redemptions cannot both pass
+        const freshCust = await tx.customer.findUnique({ where: { id: customer.id } });
+        if (!freshCust || freshCust.pointsBalance < custReward.reward.threshold) {
+          throw new Error(`Insufficient points balance. Customer has ${freshCust?.pointsBalance || 0} pts, but ${custReward.reward.threshold} pts are required.`);
         }
+
+        const updatedCust = await tx.customer.update({
+          where: { id: customer.id },
+          data: { pointsBalance: { decrement: custReward.reward.threshold } },
+        });
+        updatedPointsBalance = updatedCust.pointsBalance;
+
+        await tx.pointsLedger.create({
+          data: {
+            customerId: customer.id,
+            delta: -custReward.reward.threshold,
+            reason: "reward_redemption",
+            note: `Redeemed ${custReward.reward.name} at ${branch.name}`,
+          },
+        });
       }
 
       await tx.auditLog.create({

@@ -1,14 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { newlyEligibleRewards, getNumber, getSettings } from "@/lib/loyalty";
-import { cookies } from "next/headers";
-
-const OUTLET_COOKIE = "outlet_branch_code";
+import { getOutletSession } from "@/lib/session";
 
 export async function POST(req: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const branchCodeCookie = cookieStore.get(OUTLET_COOKIE)?.value;
+    const session = await getOutletSession();
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized. Please authenticate your outlet terminal first." },
+        { status: 401 }
+      );
+    }
+
+    const branch = await prisma.branch.findUnique({
+      where: { id: session.branchId },
+    });
+
+    if (!branch || !branch.isActive) {
+      return NextResponse.json(
+        { error: "Active outlet branch not found. Please re-authenticate." },
+        { status: 401 }
+      );
+    }
 
     let body: any;
     try {
@@ -17,31 +31,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid request payload." }, { status: 400 });
     }
 
-    const { customerId, branchId: explicitBranchId, branchCode: explicitBranchCode } = body || {};
+    const { customerId } = body || {};
 
     if (!customerId) {
       return NextResponse.json({ error: "Customer ID is required." }, { status: 400 });
-    }
-
-    // Resolve branch
-    const branchSearchCode = explicitBranchCode || branchCodeCookie;
-    let branch: any = null;
-
-    if (explicitBranchId) {
-      branch = await prisma.branch.findUnique({ where: { id: explicitBranchId } });
-    } else if (branchSearchCode) {
-      branch = await prisma.branch.findFirst({
-        where: {
-          OR: [
-            { code: { equals: branchSearchCode, mode: "insensitive" } },
-            { id: branchSearchCode },
-          ],
-        },
-      });
-    }
-
-    if (!branch || !branch.isActive) {
-      return NextResponse.json({ error: "Active outlet branch not found." }, { status: 400 });
     }
 
     const customer = await prisma.customer.findUnique({ where: { id: customerId } });

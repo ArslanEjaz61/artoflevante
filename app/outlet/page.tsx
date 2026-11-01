@@ -126,7 +126,7 @@ function OutletContent() {
 
   // Branch Info
   const [activeBranch, setActiveBranch] = useState<Branch | null>(null);
-  const [sampleBranch, setSampleBranch] = useState<Branch | null>(null);
+
 
   // Screen 1: Outlet Code Input
   const [outletCodeInput, setOutletCodeInput] = useState("");
@@ -209,13 +209,16 @@ function OutletContent() {
       }
 
       // If refreshed or no code in URL: show Screen 1 (Branch Code Entry)
-      fetch("/api/outlet/auth?sampleOnly=true")
+      fetch("/api/outlet/auth")
         .then((r) => r.json())
         .then((data) => {
-          if (data.sampleBranch) {
-            setSampleBranch(data.sampleBranch);
+          if (data.authenticated && data.branch) {
+            setActiveBranch(data.branch);
+            setScreen("ready");
           }
-          setScreen("entry");
+          else {
+            setScreen("entry");
+          }
         })
         .catch(() => setScreen("entry"))
         .finally(() => setLoadingSession(false));
@@ -717,20 +720,7 @@ function OutletContent() {
 
           {/* Helper Sample Code Hint */}
           <div className="mt-7 text-[11.5px] text-[#7A6E67] font-medium">
-            {sampleBranch ? (
-              <>
-                {sampleBranch.name} code:{" "}
-                <button
-                  type="button"
-                  onClick={() => setOutletCodeInput(sampleBranch.code)}
-                  className="font-bold font-mono text-[#1E1815] hover:text-[#0E331E] underline cursor-pointer"
-                >
-                  {sampleBranch.code}
-                </button>
-              </>
-            ) : (
-              "Enter your 4-digit branch code (e.g. 1005 for Dubai Festival City)"
-            )}
+            Enter your branch code
           </div>
         </div>
         </div>
