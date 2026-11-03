@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 @theme {
+  /* foldables / small tablets: 512px+ gets the roomier "sm" layout (was 640px) */
+  --breakpoint-sm: 32rem;
   /* Display face for the branded member screens (matches the brand artwork). */
   --font-display: "Montserrat", ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
@@ -145,4 +147,13 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .bc-receipt-sweep { animation-duration: 3s; }
+}
+
+/* Dual-screen devices (Surface Duo etc.) when an app is spanned across the hinge: keep content on the left screen */
+@media (horizontal-viewport-segments: 2) {
+  .fold-safe {
+    max-width: env(viewport-segment-width 0 0);
+    margin-left: 0;
+    margin-right: auto;
+  }
 }

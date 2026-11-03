@@ -2290,12 +2290,12 @@ export default function AdminPage() {
       : 0;
 
   return (
-    <div className="h-screen overflow-hidden bg-[#F5EFE0] text-[#221C1A] flex flex-col md:flex-row relative">
+    <div className="h-screen overflow-hidden bg-[#F5EFE0] text-[#221C1A] flex flex-col lg:flex-row relative">
       {/* Mobile Backdrop Overlay */}
       {mobileMenuOpen && (
         <div
           onClick={() => setMobileMenuOpen(false)}
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity animate-in fade-in duration-200"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-opacity animate-in fade-in duration-200"
           aria-hidden="true"
         />
       )}
@@ -2303,7 +2303,7 @@ export default function AdminPage() {
       {/* ===================== SIDEBAR NAVIGATION ===================== */}
       {/* Fixed drawer sliding from left on mobile, permanent left sidebar on desktop */}
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-50 w-72 md:w-64 h-full bg-[#FAF7F4] text-[#1E1815] flex-shrink-0 flex flex-col border-r border-[#EAE3DC] shadow-xl md:shadow-none transition-transform duration-300 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-72 lg:w-64 h-full bg-[#FAF7F4] text-[#1E1815] flex-shrink-0 flex flex-col border-r border-[#EAE3DC] shadow-xl lg:shadow-none transition-transform duration-300 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
           }`}
       >
         {/* Brand Header */}
@@ -2325,7 +2325,7 @@ export default function AdminPage() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(false)}
-            className="md:hidden p-2 rounded-xl bg-[#EFE9E2] text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#E5DDD4] transition-colors cursor-pointer"
+            className="lg:hidden p-2 rounded-xl bg-[#EFE9E2] text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#E5DDD4] transition-colors cursor-pointer"
             aria-label="Close navigation"
           >
             <X className="w-5 h-5" />
@@ -2492,7 +2492,7 @@ export default function AdminPage() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 rounded-xl bg-[#FAF7F4] border border-[#EAE3DC] text-[#1E1815] hover:bg-[#F2ECE6] transition-colors cursor-pointer shrink-0"
+              className="lg:hidden p-2 rounded-xl bg-[#FAF7F4] border border-[#EAE3DC] text-[#1E1815] hover:bg-[#F2ECE6] transition-colors cursor-pointer shrink-0"
               aria-label="Open sidebar navigation"
             >
               <Menu className="w-5 h-5" />

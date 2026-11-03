@@ -522,7 +522,7 @@ export default function CustomerDashboardPage() {
   const firstName = customer?.name ? customer.name.trim().split(" ")[0] : "VIP Member";
 
   return (
-    <div className="min-h-screen bg-[#F5EFE0] text-[#1E1815] pb-24 px-3.5 sm:px-4 pt-3.5 sm:pt-5 max-w-md w-full mx-auto selection:bg-[#0E331E] selection:text-white">
+    <div className="min-h-screen bg-[#F5EFE0] text-[#1E1815] pb-24 px-3.5 sm:px-4 pt-3.5 sm:pt-5 max-w-md w-full mx-auto fold-safe [box-shadow:0_0_0_100vmax_#F5EFE0] [clip-path:inset(0_-100vmax)] selection:bg-[#0E331E] selection:text-white">
       {/* Toast Notification */}
       {toast && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#1E1815] text-white px-4 py-2.5 rounded-full text-xs font-bold shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-top-4 max-w-[90vw] text-center">
