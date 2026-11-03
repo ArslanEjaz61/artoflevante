@@ -39,18 +39,38 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Customer account not found or is blocked." }, { status: 404 });
     }
 
-    // checked again here: two quick taps, or the same bill scanned on two phones
+    const MIN_RECEIPT_DATE = "2026-11-01";
+    if (claim.receiptDate && claim.receiptDate < MIN_RECEIPT_DATE) {
+      return NextResponse.json(
+        { error: `This receipt is dated ${claim.receiptDate}. Receipts dated before October 1, 2026 are not eligible for points.` },
+        { status: 400 }
+      );
+    }
+
+    // Global duplicate check across all branches
     const duplicate = await prisma.transaction.findFirst({
       where: {
-        invoiceNumber: claim.invoiceNumber,
-        branchId: branch.id,
+        invoiceNumber: { equals: claim.invoiceNumber, mode: "insensitive" },
       },
+      include: { branch: true },
+    });
+    const duplicateVisit = await prisma.customerVisit.findFirst({
+      where: {
+        OR: [
+          { couponCode: { equals: claim.invoiceNumber, mode: "insensitive" } },
+          { couponCode: { equals: `RCPT-${claim.invoiceNumber}`, mode: "insensitive" } },
+        ],
+      },
+      include: { branch: true },
     });
     const samePhoto = await prisma.auditLog.findFirst({
       where: { action: "customer.receipt_claim", metadata: { path: ["imageSha"], equals: claim.imageSha } },
     });
-    if (duplicate || samePhoto) {
-      return NextResponse.json({ error: `Invoice #${claim.invoiceNumber} has already been used to earn points.` }, { status: 409 });
+    if (duplicate || duplicateVisit || samePhoto) {
+      const loc = duplicate?.branch?.name || duplicateVisit?.branch?.name || "an outlet";
+      return NextResponse.json({
+        error: `Invoice #${claim.invoiceNumber} has already been used to earn points at ${loc}. Duplicate claims are not allowed.`,
+      }, { status: 409 });
     }
 
     const dailyLimit = (await getNumber("receipt_daily_limit")) || 3;
@@ -100,7 +120,7 @@ export async function POST(req: NextRequest) {
           data: {
             customerId,
             branchId: branch.id,
-            couponCode: `RCPT-${claim.invoiceNumber}`,
+            couponCode: claim.invoiceNumber,
             pointsEarned,
             checkInMethod: "RECEIPT_SCAN",
             note: `Receipt scan · Invoice #${claim.invoiceNumber} · Bill: ${currency} ${claim.total.toFixed(2)}`,
@@ -152,8 +172,8 @@ export async function POST(req: NextRequest) {
 
     await createNotification({
       type: "POINTS_EARNED",
-      title: `+${pointsEarned} Points from a scanned receipt: ${customer.name || "Customer"}`,
-      message: `${customer.name || "Customer"} scanned invoice #${claim.invoiceNumber} (${currency} ${claim.total.toFixed(2)}) from ${branch.name} and earned +${pointsEarned} pts.`,
+      title: `+${pointsEarned} Pts & +1 Visit: ${customer.name || "Customer"}`,
+      message: `${customer.name || "Customer"} scanned receipt #${claim.invoiceNumber} (${currency} ${claim.total.toFixed(2)}) at ${branch.name}. Earned +${pointsEarned} pts and +1 visit stamp.`,
       metadata: {
         customerId,
         transactionId: result.trx.id,
@@ -162,7 +182,22 @@ export async function POST(req: NextRequest) {
         pointsEarned,
         amount: claim.total,
         newBalance: result.customer.pointsBalance,
+        newVisitCount: result.customer.visitCount,
         source: "receipt_scan",
+      },
+    });
+
+    await createNotification({
+      type: "VISIT_CHECKIN",
+      title: `Visit Check-In: ${customer.name || "Customer"}`,
+      message: `${customer.name || "Customer"} checked in via scanned receipt at ${branch.name} (Invoice #${claim.invoiceNumber}, ${currency} ${claim.total.toFixed(2)}).`,
+      metadata: {
+        customerId,
+        branchName: branch.name,
+        invoiceNumber: claim.invoiceNumber,
+        pointsEarned,
+        amount: claim.total,
+        visitCount: result.customer.visitCount,
       },
     });
 
@@ -187,11 +222,18 @@ export async function POST(req: NextRequest) {
         },
       });
       newRewards.push({ id: cr.id, name: r.name, description: r.description });
+
+      await createNotification({
+        type: "PROMOTION_CREATED",
+        title: `Reward Unlocked: ${r.name}`,
+        message: `${customer.name || "A member"} unlocked "${r.name}" through their receipt visit & points!`,
+        metadata: { customerId, rewardId: r.id },
+      });
     }
 
     return NextResponse.json({
       ok: true,
-      message: `+${pointsEarned} points added from invoice #${claim.invoiceNumber} at ${branch.name}.`,
+      message: `+${pointsEarned} points and +1 visit stamp added from invoice #${claim.invoiceNumber} at ${branch.name}.`,
       transaction: {
         id: result.trx.id,
         invoiceNumber: claim.invoiceNumber,

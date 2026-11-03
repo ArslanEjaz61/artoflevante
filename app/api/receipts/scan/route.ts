@@ -81,13 +81,27 @@ export async function POST(req: NextRequest) {
 
     const fail = (error: string, status = 422) => NextResponse.json({ error, reading }, { status });
 
-    if (!reading.isReceipt) return fail("We couldn't find a bill in that photo. Please photograph the whole printed receipt.");
-    if (!reading.isBrandBill) return fail("This doesn't look like a Levante receipt. Only our bills earn points.");
-    if (!reading.invoiceNumber || !reading.total || reading.confidence < 0.5) {
+    if (!reading.isReceipt) {
+      return fail(reading.rejectionReason || "We couldn't find a valid bill in that photo. Please photograph the whole printed receipt.");
+    }
+    if (!reading.isBrandBill) {
+      return fail(
+        reading.rejectionReason ||
+          "This receipt does not belong to Levante. Only authentic Levante receipts are accepted."
+      );
+    }
+    if (!reading.invoiceNumber || !reading.total || reading.confidence < 0.4) {
       return fail("We couldn't read the invoice number and total clearly. Please retake the photo in good light, flat and in focus.");
     }
 
+    const MIN_RECEIPT_DATE = "2026-11-01";
     if (reading.date) {
+      if (reading.date < MIN_RECEIPT_DATE) {
+        return fail(
+          `This receipt is dated ${reading.date}. Receipts dated before October 1, 2026 are not eligible for points.`,
+          422
+        );
+      }
       const age = receiptAgeDays(reading.date);
       const maxAge = (await getNumber("receipt_max_age_days")) || 7;
       if (age < -1) return fail("The date on this receipt is in the future. Please check the photo.");
@@ -97,15 +111,32 @@ export async function POST(req: NextRequest) {
     let branch = reading.branchCode ? branches.find((b) => b.code.toUpperCase() === reading.branchCode) ?? null : null;
     if (!branch && branches.length === 1) branch = branches[0];
 
-    // the same bill must not earn twice: same invoice at that outlet, or same invoice + same total anywhere
+    // Global duplicate check across all branches
     const duplicate = await prisma.transaction.findFirst({
       where: {
-        invoiceNumber: reading.invoiceNumber,
-        ...(branch ? { branchId: branch.id } : {}),
+        OR: [
+          { invoiceNumber: { equals: reading.invoiceNumber, mode: "insensitive" } },
+          { invoiceNumber: { equals: `INV# ${reading.invoiceNumber}`, mode: "insensitive" } },
+        ],
       },
+      include: { branch: true },
     });
-    if (duplicate) {
-      return fail(`Invoice #${reading.invoiceNumber} has already been used to earn points.`, 409);
+    const duplicateVisit = await prisma.customerVisit.findFirst({
+      where: {
+        OR: [
+          { couponCode: { equals: reading.invoiceNumber, mode: "insensitive" } },
+          { couponCode: { equals: `RCPT-${reading.invoiceNumber}`, mode: "insensitive" } },
+        ],
+      },
+      include: { branch: true },
+    });
+
+    if (duplicate || duplicateVisit) {
+      const loc = duplicate?.branch?.name || duplicateVisit?.branch?.name || "an outlet";
+      return fail(
+        `Invoice #${reading.invoiceNumber} has already been registered and points issued at ${loc}. Duplicate claims are not allowed.`,
+        409
+      );
     }
 
     await storeReceiptImage(imageSha, image);
@@ -128,6 +159,9 @@ export async function POST(req: NextRequest) {
         currency: reading.currency || (await getSetting("currency")) || "AED",
         date: reading.date,
         outletText: reading.outletText,
+        trn: reading.trn || null,
+        providerUsed: reading.providerUsed,
+        modelUsed: reading.modelUsed,
       },
       branch: branch ? { id: branch.id, name: branch.name, city: branch.city } : null,
       // only needed when we could not tell which outlet issued the bill

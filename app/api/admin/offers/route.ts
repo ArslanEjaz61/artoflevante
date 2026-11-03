@@ -9,6 +9,19 @@ export async function GET() {
   const { error, status, session } = await requireAdmin();
   if (error || !session) return NextResponse.json({ error: error || "Unauthorized" }, { status: status || 401 });
 
+  const now = new Date();
+
+  // Auto-pause any active offers whose validity date has ended
+  await prisma.offer.updateMany({
+    where: {
+      isActive: true,
+      endsAt: { lt: now },
+    },
+    data: {
+      isActive: false,
+    },
+  });
+
   const offers = await prisma.offer.findMany({
     include: { branches: { include: { branch: { select: { id: true, name: true, city: true } } } } },
     orderBy: { createdAt: "desc" },
@@ -21,33 +34,35 @@ export async function GET() {
     orderBy: [{ code: "asc" }],
   });
 
-  const now = new Date();
-
   return NextResponse.json({
     ok: true,
     canEdit: canAccessAllBranches(session.role),
     branches,
-    offers: offers.map((o) => ({
-      id: o.id,
-      name: o.name,
-      nameAr: o.nameAr,
-      description: o.description,
-      descriptionAr: o.descriptionAr,
-      imageUrl: o.imageUrl,
-      bannerText: o.bannerText,
-      value: Number(o.discountValue),
-      isPercent: o.isPercent,
-      segment: o.segment,
-      startsAt: o.startsAt,
-      endsAt: o.endsAt,
-      isActive: o.isActive,
-      isLive:
-        o.isActive &&
-        (!o.startsAt || o.startsAt <= now) &&
-        (!o.endsAt || o.endsAt >= now),
-      branches: o.branches.map((b) => b.branch),
-      createdAt: o.createdAt,
-    })),
+    offers: offers.map((o) => {
+      const isExpired = Boolean(o.endsAt && o.endsAt < now);
+      const isScheduled = Boolean(o.startsAt && o.startsAt > now);
+      const isLive = Boolean(o.isActive && !isExpired && !isScheduled);
+      return {
+        id: o.id,
+        name: o.name,
+        nameAr: o.nameAr,
+        description: o.description,
+        descriptionAr: o.descriptionAr,
+        imageUrl: o.imageUrl,
+        bannerText: o.bannerText,
+        value: Number(o.discountValue),
+        isPercent: o.isPercent,
+        segment: o.segment,
+        startsAt: o.startsAt,
+        endsAt: o.endsAt,
+        isActive: o.isActive,
+        isExpired,
+        isScheduled,
+        isLive,
+        branches: o.branches.map((b) => b.branch),
+        createdAt: o.createdAt,
+      };
+    }),
   });
 }
 
@@ -222,7 +237,19 @@ export async function PATCH(req: NextRequest) {
   if (bannerText !== undefined) updateData.bannerText = bannerText ? String(bannerText).trim() : null;
   if (value !== undefined) updateData.discountValue = Number(value);
   if (isPercent !== undefined) updateData.isPercent = Boolean(isPercent);
-  if (isActive !== undefined) updateData.isActive = Boolean(isActive);
+  if (isActive !== undefined) {
+    if (isActive) {
+      const existing = await prisma.offer.findUnique({ where: { id: String(id) }, select: { endsAt: true } });
+      const effectiveEndsAt = endsAt !== undefined ? (endsAt ? new Date(endsAt) : null) : existing?.endsAt;
+      if (effectiveEndsAt && effectiveEndsAt < new Date()) {
+        return NextResponse.json(
+          { error: "This campaign has already expired. Please extend its validity end date before activating." },
+          { status: 400 }
+        );
+      }
+    }
+    updateData.isActive = Boolean(isActive);
+  }
   if (startsAt !== undefined) updateData.startsAt = startsAt ? new Date(startsAt) : null;
   if (endsAt !== undefined) updateData.endsAt = endsAt ? new Date(endsAt) : null;
 

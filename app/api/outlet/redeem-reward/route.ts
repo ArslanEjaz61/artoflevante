@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { createNotification } from "@/lib/notifications";
 import { getOutletSession } from "@/lib/session";
+import { formatFullInvoice } from "@/lib/receiptUtils";
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,7 +32,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid request payload." }, { status: 400 });
     }
 
-    const { customerId, customerRewardId } = body || {};
+    const {
+      customerId,
+      customerRewardId,
+      invoiceNumber,
+    } = body || {};
 
     if (!customerId || !customerRewardId) {
       return NextResponse.json({ error: "Customer ID and Reward ID are required." }, { status: 400 });
@@ -81,8 +86,10 @@ export async function POST(req: NextRequest) {
 
       // If it is a POINTS redemption reward where points are deducted upon redemption:
       let updatedPointsBalance = customer.pointsBalance;
+      let updatedVisitCount = customer.visitCount;
+
       if (custReward.reward.type === "POINTS" && custReward.reward.threshold > 0) {
-        // Re-read the balance inside the transaction so two simultaneous redemptions cannot both pass
+        // Fetch latest fresh customer record within transaction to prevent race conditions
         const freshCust = await tx.customer.findUnique({ where: { id: customer.id } });
         if (!freshCust || freshCust.pointsBalance < custReward.reward.threshold) {
           throw new Error(`Insufficient points balance. Customer has ${freshCust?.pointsBalance || 0} pts, but ${custReward.reward.threshold} pts are required.`);
@@ -102,6 +109,16 @@ export async function POST(req: NextRequest) {
             note: `Redeemed ${custReward.reward.name} at ${branch.name}`,
           },
         });
+      } else if (custReward.reward.type === "VISITS") {
+        // Milestone reached & gift claimed! Reset visit counter for next cycle
+        const thresholdToDeduct =
+          custReward.reward.threshold > 0 ? custReward.reward.threshold : customer.visitCount;
+        const newVisits = Math.max(0, customer.visitCount - thresholdToDeduct);
+        const updatedCust = await tx.customer.update({
+          where: { id: customer.id },
+          data: { visitCount: newVisits },
+        });
+        updatedVisitCount = updatedCust.visitCount;
       }
 
       await tx.auditLog.create({
@@ -116,6 +133,7 @@ export async function POST(req: NextRequest) {
             rewardType: custReward.reward.type,
             branchId: branch.id,
             branchName: branch.name,
+            invoiceNumber: invoiceNumber ? formatFullInvoice(String(invoiceNumber).trim(), branch.invoicePrefix || branch.code) : null,
           },
         },
       });
@@ -123,6 +141,7 @@ export async function POST(req: NextRequest) {
       return {
         customerReward: updatedReward,
         pointsBalance: updatedPointsBalance,
+        visitCount: updatedVisitCount,
       };
     });
 
@@ -176,7 +195,7 @@ export async function POST(req: NextRequest) {
         id: customer.id,
         name: customer.name,
         pointsBalance: result.pointsBalance,
-        visitCount: customer.visitCount,
+        visitCount: result.visitCount,
       },
       availableRewards,
     });

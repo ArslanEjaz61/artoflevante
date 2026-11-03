@@ -122,7 +122,7 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
       {/* the card on the dashboard */}
       <div className="rounded-3xl bg-white shadow-sm mb-4 overflow-hidden border border-[#0E331E]/10">
         <div className="px-4.5 sm:px-6 pt-4 pb-3.5 flex items-center gap-3.5">
-          <div className="relative w-12 h-12 rounded-2xl bg-[#0E331E] text-[#FEF7C5] flex items-center justify-center shrink-0 shadow-md shadow-[#0E331E]/25">
+          <div className="relative w-12 h-12 rounded-2xl bg-[#0E331E] text-[#F5EFE0] flex items-center justify-center shrink-0 shadow-md shadow-[#0E331E]/25">
             <ReceiptText className="w-6 h-6" />
             <ScanLine className="w-4 h-4 absolute -right-1 -bottom-1 bg-[#CC8820] text-white rounded-md p-0.5" />
           </div>
@@ -137,7 +137,7 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
           <button
             type="button"
             onClick={() => cameraRef.current?.click()}
-            className="bg-[#0E331E] hover:bg-[#0A2617] text-[#FEF7C5] rounded-2xl py-3 px-3 font-display font-bold text-[14.5px] flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-[0.99]"
+            className="bg-[#0E331E] hover:bg-[#0A2617] text-[#F5EFE0] rounded-2xl py-3 px-3 font-display font-bold text-[14.5px] flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-[0.99]"
           >
             <Camera className="w-[18px] h-[18px] shrink-0" />
             Open camera
@@ -175,7 +175,7 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
 
             {/* photo with a scan sweep while it is being read */}
             {"photo" in phase && phase.photo && (
-              <div className="mx-5 mb-3 relative rounded-2xl overflow-hidden bg-[#2a1a17] h-[34dvh] max-h-[300px]">
+              <div className="mx-5 mb-3 relative rounded-2xl overflow-hidden bg-[#172A1D] h-[34dvh] max-h-[300px]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={phase.photo} alt="Your receipt" className="w-full h-full object-contain" />
                 {phase.step === "reading" && (
@@ -197,6 +197,13 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
 
               {(phase.step === "review" || phase.step === "claiming") && (
                 <>
+                  <div className="mb-3 px-3.5 py-2.5 rounded-2xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 text-emerald-900 font-bold text-xs">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>Levante Receipt Verified</span>
+                    </div>
+                  </div>
+
                   <div className="rounded-2xl bg-white border border-[#0E331E]/10 divide-y divide-[#0E331E]/8 font-display text-[14px]">
                     <Row label="Invoice #" value={<span className="font-mono font-bold">{phase.scan.receipt.invoiceNumber}</span>} />
                     <Row label="Date" value={formatDate(phase.scan.receipt.date)} />
@@ -232,8 +239,11 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                     />
                   </div>
 
-                  <div className="mt-3 rounded-2xl bg-[#0E331E] text-[#FEF7C5] px-4 py-3 flex items-center justify-between">
-                    <span className="font-display font-bold text-[14px]">You&apos;ll earn</span>
+                  <div className="mt-3 rounded-2xl bg-[#0E331E] text-[#F5EFE0] px-4 py-3 flex items-center justify-between">
+                    <div>
+                      <span className="font-display font-bold text-[14px] block">You&apos;ll earn</span>
+                      <span className="text-[11px] text-[#F5EFE0]/80 font-medium">+1 Visit Stamp included</span>
+                    </div>
                     <span className="font-display font-extrabold text-[#F2C76B] text-[26px] leading-none">+{phase.scan.pointsToEarn} pts</span>
                   </div>
 
@@ -257,7 +267,7 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                       className="py-3 rounded-2xl bg-[#CC8820] hover:bg-[#b5781b] text-white font-display font-extrabold text-[15px] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 transition-colors"
                     >
                       {phase.step === "claiming" ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
-                      {phase.step === "claiming" ? "Adding points…" : `Add ${phase.scan.pointsToEarn} points`}
+                      {phase.step === "claiming" ? "Claiming visit & points…" : `Add ${phase.scan.pointsToEarn} pts + 1 Visit`}
                     </button>
                   </div>
                   <p className="text-[11px] text-[#8A7F7C] mt-2.5 font-display text-center">
@@ -271,15 +281,22 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                   <div className="bc-receipt-pop mx-auto w-20 h-20 rounded-full bg-[#0E331E] flex items-center justify-center shadow-lg shadow-[#0E331E]/30">
                     <CheckCircle2 className="w-11 h-11 text-[#F2C76B]" />
                   </div>
-                  <div className="font-display font-extrabold text-[#CC8820] text-[40px] leading-none mt-4">
-                    +{phase.result.transaction?.pointsEarned ?? 0}
+                  <div className="font-display font-extrabold text-[#CC8820] text-[36px] sm:text-[40px] leading-none mt-4">
+                    +{phase.result.transaction?.pointsEarned ?? 0} pts
                   </div>
-                  <div className="font-display font-bold text-[#0E331E] text-[15px] mt-1">points added</div>
+                  <div className="font-display font-bold text-[#0E331E] text-[15px] mt-1">
+                    Points &amp; +1 Visit Stamp Added!
+                  </div>
                   <p className="font-display text-[13px] text-[#4A3F39] mt-2">
                     Invoice #{phase.result.transaction?.invoiceNumber} · {phase.result.transaction?.branchName}
                   </p>
-                  <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#FAF2E2] px-4 py-1.5 font-display text-[13px] font-bold text-[#8A5600]">
-                    New balance: {phase.result.customer?.pointsBalance ?? "—"} pts
+                  <div className="mt-3 flex items-center justify-center gap-2 flex-wrap">
+                    <div className="inline-flex items-center gap-1.5 rounded-full bg-[#FAF2E2] px-3.5 py-1.5 font-display text-[12.5px] font-bold text-[#8A5600]">
+                      Points: {phase.result.customer?.pointsBalance ?? "—"} pts
+                    </div>
+                    <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 px-3.5 py-1.5 font-display text-[12.5px] font-bold text-emerald-800">
+                      Total Visits: {phase.result.customer?.visitCount ?? "—"} visits
+                    </div>
                   </div>
                   {phase.result.newRewards?.length > 0 && (
                     <div className="mt-3 rounded-2xl border-2 border-[#E5A93C] bg-[#FFF8EA] p-3 text-left">
@@ -293,7 +310,7 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                   <button
                     type="button"
                     onClick={close}
-                    className="w-full mt-5 py-3 rounded-2xl bg-[#0E331E] text-[#FEF7C5] font-display font-extrabold text-[15px] cursor-pointer"
+                    className="w-full mt-5 py-3 rounded-2xl bg-[#0E331E] text-[#F5EFE0] font-display font-extrabold text-[15px] cursor-pointer"
                   >
                     Done
                   </button>
@@ -317,7 +334,7 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                     <button
                       type="button"
                       onClick={retake}
-                      className="py-3 rounded-2xl bg-[#0E331E] text-[#FEF7C5] font-display font-bold text-[14px] flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="py-3 rounded-2xl bg-[#0E331E] text-[#F5EFE0] font-display font-bold text-[14px] flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <Camera className="w-4 h-4" /> Try again
                     </button>

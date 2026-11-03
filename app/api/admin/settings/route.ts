@@ -7,7 +7,7 @@ import { clearSettingsCache, DEFAULTS } from "@/lib/loyalty";
 // Default comprehensive system settings with clean category grouping
 const SYSTEM_SETTING_DEFINITIONS: Record<
   string,
-  { label: string; description: string; category: "general" | "loyalty" | "security"; defaultValue: string; type: "text" | "number"; secret?: boolean }
+  { label: string; description: string; category: "general" | "loyalty" | "security" | "ai"; defaultValue: string; type: "text" | "number"; secret?: boolean }
 > = {
   // General App & Brand Settings
   program_name: {
@@ -113,34 +113,72 @@ const SYSTEM_SETTING_DEFINITIONS: Record<
     type: "number",
   },
 
-  receipt_max_age_days: {
-    label: "Receipt Scan: Max Bill Age (Days)",
-    description: "Bills older than this cannot be claimed by scanning",
-    category: "loyalty",
-    defaultValue: "7",
-    type: "number",
+  // AI Vision & Receipt Scanning Engine
+  receipt_ai_provider: {
+    label: "Active AI Vision Provider",
+    description: "Choose which AI service inspects bills: gemini (Google Gemini), openai (OpenAI GPT-4o), or openrouter",
+    category: "ai",
+    defaultValue: "openrouter",
+    type: "text",
   },
-  receipt_daily_limit: {
-    label: "Receipt Scan: Claims per Customer per Day",
-    description: "How many scanned bills one customer can claim in 24 hours",
-    category: "loyalty",
-    defaultValue: "3",
-    type: "number",
-  },
-  openrouter_api_key: {
-    label: "Receipt Scan AI Key (OpenRouter API Key)",
-    description: "Used to read receipt photos. Paste a key from openrouter.ai/keys; it is stored securely and only shown masked",
-    category: "loyalty",
+  gemini_api_key: {
+    label: "Google Gemini API Key",
+    description: "API Key from Google AI Studio (aistudio.google.com). Highly recommended for fast & accurate receipt OCR.",
+    category: "ai",
     defaultValue: "",
     type: "text",
     secret: true,
   },
-  receipt_vision_model: {
-    label: "Receipt Scan AI Model (optional)",
-    description: "Leave empty for the free default. Set a model id (e.g. google/gemini-2.5-flash) once you add OpenRouter credit",
-    category: "loyalty",
+  gemini_model: {
+    label: "Google Gemini Model Name",
+    description: "Vision model identifier (default: gemini-2.5-flash or gemini-1.5-flash)",
+    category: "ai",
+    defaultValue: "gemini-2.5-flash",
+    type: "text",
+  },
+  openai_api_key: {
+    label: "OpenAI API Key",
+    description: "API Key from platform.openai.com for GPT-4o Vision multimodal analysis",
+    category: "ai",
     defaultValue: "",
     type: "text",
+    secret: true,
+  },
+  openai_model: {
+    label: "OpenAI Model Name",
+    description: "OpenAI vision model (default: gpt-4o-mini or gpt-4o)",
+    category: "ai",
+    defaultValue: "gpt-4o-mini",
+    type: "text",
+  },
+  openrouter_api_key: {
+    label: "OpenRouter API Key",
+    description: "API key from openrouter.ai/keys to access multi-provider models",
+    category: "ai",
+    defaultValue: "",
+    type: "text",
+    secret: true,
+  },
+  openrouter_model: {
+    label: "OpenRouter Vision Model",
+    description: "Model id, e.g. google/gemini-2.5-flash or anthropic/claude-3.5-sonnet",
+    category: "ai",
+    defaultValue: "google/gemini-2.5-flash",
+    type: "text",
+  },
+  receipt_max_age_days: {
+    label: "Receipt Max Age Allowed (Days)",
+    description: "Bills older than this cannot be claimed by customer scanning",
+    category: "ai",
+    defaultValue: "7",
+    type: "number",
+  },
+  receipt_daily_limit: {
+    label: "Receipt Daily Limit per Customer",
+    description: "Maximum scanned bills one customer can claim in a 24-hour window",
+    category: "ai",
+    defaultValue: "3",
+    type: "number",
   },
   // Security & Anti-Fraud Thresholds
   qr_token_ttl_seconds: {

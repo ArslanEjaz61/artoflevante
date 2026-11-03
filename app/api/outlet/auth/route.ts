@@ -22,6 +22,7 @@ export async function GET() {
         address: true,
         hours: true,
         dailyCode: true,
+        invoicePrefix: true,
       },
     });
 
@@ -69,6 +70,7 @@ export async function POST(req: NextRequest) {
         address: true,
         hours: true,
         dailyCode: true,
+        invoicePrefix: true,
       },
     });
 

@@ -14,7 +14,7 @@ export interface SmtpConfig {
 }
 
 export async function getSmtpConfig(): Promise<SmtpConfig> {
-  const host = (await getSetting("smtp_host")) || process.env.SMTP_HOST || "";
+  const host = (await getSetting("smtp_host")) || process.env.SMTP_HOST || "smtp.gmail.com";
   const port = parseInt((await getSetting("smtp_port")) || process.env.SMTP_PORT || "587", 10);
   const secure = ((await getSetting("smtp_secure")) || process.env.SMTP_SECURE || "false") === "true";
   const user = (await getSetting("smtp_user")) || process.env.SMTP_USER || "";
@@ -328,4 +328,80 @@ export async function testSmtpConnection(
     ok: true,
     message: `Test email sent successfully to ${testRecipient}! (Message ID: ${info.messageId})`,
   };
+}
+
+
+/**
+ * Sends a branded One-Time Passcode (OTP) verification email for customer login
+ */
+export async function sendOtpEmail(
+  email: string,
+  code: string,
+  customerName?: string
+): Promise<{ ok: boolean; provider: string; error?: string }> {
+  const brand = process.env.NEXT_PUBLIC_APP_NAME || "Levante Rewards";
+  const subject = `${code} is your ${brand} login code`;
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>${subject}</title>
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #FAF7F4; margin: 0; padding: 24px; color: #1E1815;">
+      <div style="max-width: 520px; margin: 0 auto; background-color: #ffffff; border-radius: 20px; border: 1px solid #EAE3DC; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.04);">
+        <div style="background: linear-gradient(135deg, #0E331E 0%, #0C5B27 100%); padding: 32px 24px; text-align: center; color: #ffffff;">
+          <h1 style="margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">${brand}</h1>
+          <p style="margin: 6px 0 0; font-size: 12px; color: #F5EFE0; letter-spacing: 0.8px; text-transform: uppercase; font-weight: 600;">Secure Member Sign-In</p>
+        </div>
+        <div style="padding: 32px 28px;">
+          <p style="font-size: 15px; color: #1E1815; margin: 0 0 14px;">
+            Hello${customerName ? ` <strong>${customerName}</strong>` : ""},
+          </p>
+          <p style="font-size: 14px; color: #5A4E47; line-height: 1.6; margin: 0 0 24px;">
+            Use the 6-digit one-time passcode below to securely access your Loyalty Club account:
+          </p>
+          <div style="background: #FAF7F4; border: 2px dashed #0E331E; border-radius: 16px; padding: 20px 16px; text-align: center; margin: 0 0 24px;">
+            <div style="font-family: 'Courier New', Courier, monospace; font-size: 38px; font-weight: 900; letter-spacing: 10px; color: #0E331E;">
+              ${code}
+            </div>
+          </div>
+          <div style="background: #FFF9F2; border: 1px solid #F3E5D4; border-radius: 12px; padding: 14px 16px; margin: 0 0 24px;">
+            <p style="margin: 0; font-size: 12px; color: #8A5A20; line-height: 1.6;">
+              ⏱ <strong>Code expires in 5 minutes.</strong><br />
+              🔒 For your security, never share this code with anyone. Our staff will never ask for your code.
+            </p>
+          </div>
+          <p style="font-size: 11px; color: #9A8E87; line-height: 1.5; margin: 0; border-top: 1px solid #EAE3DC; padding-top: 16px; text-align: center;">
+            Levante • 14 Outlets Across Dubai, Sharjah, Abu Dhabi &amp; Ajman
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    const config = await getSmtpConfig();
+    if (config.host && config.user) {
+      const res = await sendEmail({
+        to: email,
+        subject,
+        html,
+        sentBy: "System (Auth OTP)",
+      });
+      if (res.ok) {
+        console.log(`[otp:email] Sent OTP to ${email} via SMTP`);
+        return { ok: true, provider: "email" };
+      }
+      console.warn(`[otp:email] SMTP failed (${res.error}), logging code`);
+    } else {
+      console.log(`[otp:email] SMTP not configured in Settings. OTP for ${email} is: ${code}`);
+    }
+  } catch (err: any) {
+    console.warn(`[otp:email] SMTP error:`, err?.message || err);
+  }
+
+  return { ok: true, provider: "email" };
 }

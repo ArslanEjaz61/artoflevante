@@ -19,11 +19,17 @@ export const DEFAULTS: Record<string, string> = {
   otp_ttl_seconds: "300",
   otp_max_attempts: "5",
 
-  // Receipt scanning (customer app)
+  // Receipt scanning (customer app) & AI Vision Hub
   receipt_max_age_days: "7", // bills older than this cannot be claimed
   receipt_daily_limit: "3", // receipts one customer can claim per day
-  openrouter_api_key: "", // set in Admin > Settings; reads receipt photos
-  receipt_vision_model: "", // optional override of the first AI model tried
+  receipt_ai_provider: "openrouter", // "gemini" | "openai" | "openrouter"
+  gemini_api_key: "",
+  gemini_model: "gemini-2.5-flash",
+  openai_api_key: "",
+  openai_model: "gpt-4o-mini",
+  openrouter_api_key: "",
+  openrouter_model: "google/gemini-2.5-flash",
+  receipt_vision_model: "", // legacy fallback
 };
 
 let cache: Record<string, string> | null = null;

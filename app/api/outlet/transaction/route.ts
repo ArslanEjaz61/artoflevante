@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { pointsForAmount, newlyEligibleRewards, getNumber, getSettings } from "@/lib/loyalty";
+import { formatFullInvoice } from "@/lib/receipts";
 import { normalizeCode } from "@/lib/crypto";
 import { createNotification } from "@/lib/notifications";
 import { getOutletSession } from "@/lib/session";
@@ -42,7 +43,8 @@ export async function POST(req: NextRequest) {
       token: rawToken,
     } = body || {};
 
-    const cleanInvoice = String(invoiceNumber || "").trim();
+    const rawInvoice = String(invoiceNumber || "").trim();
+    const cleanInvoice = formatFullInvoice(rawInvoice, branch.invoicePrefix || branch.code);
     const value = Number(amount);
     const pointsToRedeem = Math.max(0, parseInt(String(rawPointsToRedeem || 0), 10) || 0);
 
@@ -74,17 +76,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Customer account is blocked." }, { status: 403 });
     }
 
-    // Prevent duplicate invoice at this branch
+    // Prevent duplicate invoice across ALL branches
     const duplicate = await prisma.transaction.findFirst({
       where: {
-        branchId: branch.id,
-        invoiceNumber: cleanInvoice,
+        invoiceNumber: { equals: cleanInvoice, mode: "insensitive" },
       },
+      include: { branch: true },
+    });
+    const duplicateVisit = await prisma.customerVisit.findFirst({
+      where: {
+        OR: [
+          { couponCode: { equals: cleanInvoice, mode: "insensitive" } },
+          { couponCode: { equals: `RCPT-${cleanInvoice}`, mode: "insensitive" } },
+        ],
+      },
+      include: { branch: true },
     });
 
-    if (duplicate) {
+    if (duplicate || duplicateVisit) {
+      const loc = duplicate?.branch?.name || duplicateVisit?.branch?.name || "an outlet";
       return NextResponse.json(
-        { error: `Invoice #${cleanInvoice} has already been recorded at ${branch.name}.` },
+        { error: `Invoice #${cleanInvoice} has already been recorded at ${loc}. Duplicate invoices are not allowed.` },
         { status: 409 }
       );
     }

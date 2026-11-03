@@ -2665,6 +2665,7 @@ export namespace Prisma {
     createdAt: Date | null
     dailyCode: string | null
     dailyCodeExpiresAt: Date | null
+    invoicePrefix: string | null
   }
 
   export type BranchMaxAggregateOutputType = {
@@ -2682,6 +2683,7 @@ export namespace Prisma {
     createdAt: Date | null
     dailyCode: string | null
     dailyCodeExpiresAt: Date | null
+    invoicePrefix: string | null
   }
 
   export type BranchCountAggregateOutputType = {
@@ -2699,6 +2701,7 @@ export namespace Prisma {
     createdAt: number
     dailyCode: number
     dailyCodeExpiresAt: number
+    invoicePrefix: number
     _all: number
   }
 
@@ -2718,6 +2721,7 @@ export namespace Prisma {
     createdAt?: true
     dailyCode?: true
     dailyCodeExpiresAt?: true
+    invoicePrefix?: true
   }
 
   export type BranchMaxAggregateInputType = {
@@ -2735,6 +2739,7 @@ export namespace Prisma {
     createdAt?: true
     dailyCode?: true
     dailyCodeExpiresAt?: true
+    invoicePrefix?: true
   }
 
   export type BranchCountAggregateInputType = {
@@ -2752,6 +2757,7 @@ export namespace Prisma {
     createdAt?: true
     dailyCode?: true
     dailyCodeExpiresAt?: true
+    invoicePrefix?: true
     _all?: true
   }
 
@@ -2842,6 +2848,7 @@ export namespace Prisma {
     createdAt: Date
     dailyCode: string | null
     dailyCodeExpiresAt: Date | null
+    invoicePrefix: string | null
     _count: BranchCountAggregateOutputType | null
     _min: BranchMinAggregateOutputType | null
     _max: BranchMaxAggregateOutputType | null
@@ -2876,6 +2883,7 @@ export namespace Prisma {
     createdAt?: boolean
     dailyCode?: boolean
     dailyCodeExpiresAt?: boolean
+    invoicePrefix?: boolean
     homeCustomers?: boolean | Branch$homeCustomersArgs<ExtArgs>
     staff?: boolean | Branch$staffArgs<ExtArgs>
     transactions?: boolean | Branch$transactionsArgs<ExtArgs>
@@ -2899,6 +2907,7 @@ export namespace Prisma {
     createdAt?: boolean
     dailyCode?: boolean
     dailyCodeExpiresAt?: boolean
+    invoicePrefix?: boolean
   }, ExtArgs["result"]["branch"]>
 
   export type BranchSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2916,6 +2925,7 @@ export namespace Prisma {
     createdAt?: boolean
     dailyCode?: boolean
     dailyCodeExpiresAt?: boolean
+    invoicePrefix?: boolean
   }, ExtArgs["result"]["branch"]>
 
   export type BranchSelectScalar = {
@@ -2933,9 +2943,10 @@ export namespace Prisma {
     createdAt?: boolean
     dailyCode?: boolean
     dailyCodeExpiresAt?: boolean
+    invoicePrefix?: boolean
   }
 
-  export type BranchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "name" | "nameAr" | "address" | "addressAr" | "phone" | "hours" | "city" | "crmUrl" | "isActive" | "createdAt" | "dailyCode" | "dailyCodeExpiresAt", ExtArgs["result"]["branch"]>
+  export type BranchOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "name" | "nameAr" | "address" | "addressAr" | "phone" | "hours" | "city" | "crmUrl" | "isActive" | "createdAt" | "dailyCode" | "dailyCodeExpiresAt" | "invoicePrefix", ExtArgs["result"]["branch"]>
   export type BranchInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     homeCustomers?: boolean | Branch$homeCustomersArgs<ExtArgs>
     staff?: boolean | Branch$staffArgs<ExtArgs>
@@ -2971,6 +2982,7 @@ export namespace Prisma {
       createdAt: Date
       dailyCode: string | null
       dailyCodeExpiresAt: Date | null
+      invoicePrefix: string | null
     }, ExtArgs["result"]["branch"]>
     composites: {}
   }
@@ -3413,6 +3425,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Branch", 'DateTime'>
     readonly dailyCode: FieldRef<"Branch", 'String'>
     readonly dailyCodeExpiresAt: FieldRef<"Branch", 'DateTime'>
+    readonly invoicePrefix: FieldRef<"Branch", 'String'>
   }
     
 
@@ -22053,7 +22066,8 @@ export namespace Prisma {
     isActive: 'isActive',
     createdAt: 'createdAt',
     dailyCode: 'dailyCode',
-    dailyCodeExpiresAt: 'dailyCodeExpiresAt'
+    dailyCodeExpiresAt: 'dailyCodeExpiresAt',
+    invoicePrefix: 'invoicePrefix'
   };
 
   export type BranchScalarFieldEnum = (typeof BranchScalarFieldEnum)[keyof typeof BranchScalarFieldEnum]
@@ -22494,6 +22508,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Branch"> | Date | string
     dailyCode?: StringNullableFilter<"Branch"> | string | null
     dailyCodeExpiresAt?: DateTimeNullableFilter<"Branch"> | Date | string | null
+    invoicePrefix?: StringNullableFilter<"Branch"> | string | null
     homeCustomers?: CustomerListRelationFilter
     staff?: StaffListRelationFilter
     transactions?: TransactionListRelationFilter
@@ -22516,6 +22531,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     dailyCode?: SortOrderInput | SortOrder
     dailyCodeExpiresAt?: SortOrderInput | SortOrder
+    invoicePrefix?: SortOrderInput | SortOrder
     homeCustomers?: CustomerOrderByRelationAggregateInput
     staff?: StaffOrderByRelationAggregateInput
     transactions?: TransactionOrderByRelationAggregateInput
@@ -22541,6 +22557,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Branch"> | Date | string
     dailyCode?: StringNullableFilter<"Branch"> | string | null
     dailyCodeExpiresAt?: DateTimeNullableFilter<"Branch"> | Date | string | null
+    invoicePrefix?: StringNullableFilter<"Branch"> | string | null
     homeCustomers?: CustomerListRelationFilter
     staff?: StaffListRelationFilter
     transactions?: TransactionListRelationFilter
@@ -22563,6 +22580,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     dailyCode?: SortOrderInput | SortOrder
     dailyCodeExpiresAt?: SortOrderInput | SortOrder
+    invoicePrefix?: SortOrderInput | SortOrder
     _count?: BranchCountOrderByAggregateInput
     _max?: BranchMaxOrderByAggregateInput
     _min?: BranchMinOrderByAggregateInput
@@ -22586,6 +22604,7 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Branch"> | Date | string
     dailyCode?: StringNullableWithAggregatesFilter<"Branch"> | string | null
     dailyCodeExpiresAt?: DateTimeNullableWithAggregatesFilter<"Branch"> | Date | string | null
+    invoicePrefix?: StringNullableWithAggregatesFilter<"Branch"> | string | null
   }
 
   export type CustomerWhereInput = {
@@ -23827,6 +23846,7 @@ export namespace Prisma {
     createdAt?: Date | string
     dailyCode?: string | null
     dailyCodeExpiresAt?: Date | string | null
+    invoicePrefix?: string | null
     homeCustomers?: CustomerCreateNestedManyWithoutHomeBranchInput
     staff?: StaffCreateNestedManyWithoutBranchInput
     transactions?: TransactionCreateNestedManyWithoutBranchInput
@@ -23849,6 +23869,7 @@ export namespace Prisma {
     createdAt?: Date | string
     dailyCode?: string | null
     dailyCodeExpiresAt?: Date | string | null
+    invoicePrefix?: string | null
     homeCustomers?: CustomerUncheckedCreateNestedManyWithoutHomeBranchInput
     staff?: StaffUncheckedCreateNestedManyWithoutBranchInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutBranchInput
@@ -23871,6 +23892,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
     dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoicePrefix?: NullableStringFieldUpdateOperationsInput | string | null
     homeCustomers?: CustomerUpdateManyWithoutHomeBranchNestedInput
     staff?: StaffUpdateManyWithoutBranchNestedInput
     transactions?: TransactionUpdateManyWithoutBranchNestedInput
@@ -23893,6 +23915,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
     dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoicePrefix?: NullableStringFieldUpdateOperationsInput | string | null
     homeCustomers?: CustomerUncheckedUpdateManyWithoutHomeBranchNestedInput
     staff?: StaffUncheckedUpdateManyWithoutBranchNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutBranchNestedInput
@@ -23915,6 +23938,7 @@ export namespace Prisma {
     createdAt?: Date | string
     dailyCode?: string | null
     dailyCodeExpiresAt?: Date | string | null
+    invoicePrefix?: string | null
   }
 
   export type BranchUpdateManyMutationInput = {
@@ -23932,6 +23956,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
     dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoicePrefix?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BranchUncheckedUpdateManyInput = {
@@ -23949,6 +23974,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
     dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoicePrefix?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CustomerCreateInput = {
@@ -25416,6 +25442,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     dailyCode?: SortOrder
     dailyCodeExpiresAt?: SortOrder
+    invoicePrefix?: SortOrder
   }
 
   export type BranchMaxOrderByAggregateInput = {
@@ -25433,6 +25460,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     dailyCode?: SortOrder
     dailyCodeExpiresAt?: SortOrder
+    invoicePrefix?: SortOrder
   }
 
   export type BranchMinOrderByAggregateInput = {
@@ -25450,6 +25478,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     dailyCode?: SortOrder
     dailyCodeExpiresAt?: SortOrder
+    invoicePrefix?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -28029,6 +28058,7 @@ export namespace Prisma {
     createdAt?: Date | string
     dailyCode?: string | null
     dailyCodeExpiresAt?: Date | string | null
+    invoicePrefix?: string | null
     staff?: StaffCreateNestedManyWithoutBranchInput
     transactions?: TransactionCreateNestedManyWithoutBranchInput
     offers?: OfferBranchCreateNestedManyWithoutBranchInput
@@ -28050,6 +28080,7 @@ export namespace Prisma {
     createdAt?: Date | string
     dailyCode?: string | null
     dailyCodeExpiresAt?: Date | string | null
+    invoicePrefix?: string | null
     staff?: StaffUncheckedCreateNestedManyWithoutBranchInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutBranchInput
     offers?: OfferBranchUncheckedCreateNestedManyWithoutBranchInput
@@ -28245,6 +28276,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
     dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoicePrefix?: NullableStringFieldUpdateOperationsInput | string | null
     staff?: StaffUpdateManyWithoutBranchNestedInput
     transactions?: TransactionUpdateManyWithoutBranchNestedInput
     offers?: OfferBranchUpdateManyWithoutBranchNestedInput
@@ -28266,6 +28298,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
     dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoicePrefix?: NullableStringFieldUpdateOperationsInput | string | null
     staff?: StaffUncheckedUpdateManyWithoutBranchNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutBranchNestedInput
     offers?: OfferBranchUncheckedUpdateManyWithoutBranchNestedInput
@@ -28507,6 +28540,7 @@ export namespace Prisma {
     createdAt?: Date | string
     dailyCode?: string | null
     dailyCodeExpiresAt?: Date | string | null
+    invoicePrefix?: string | null
     homeCustomers?: CustomerCreateNestedManyWithoutHomeBranchInput
     transactions?: TransactionCreateNestedManyWithoutBranchInput
     offers?: OfferBranchCreateNestedManyWithoutBranchInput
@@ -28528,6 +28562,7 @@ export namespace Prisma {
     createdAt?: Date | string
     dailyCode?: string | null
     dailyCodeExpiresAt?: Date | string | null
+    invoicePrefix?: string | null
     homeCustomers?: CustomerUncheckedCreateNestedManyWithoutHomeBranchInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutBranchInput
     offers?: OfferBranchUncheckedCreateNestedManyWithoutBranchInput
@@ -28637,6 +28672,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
     dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoicePrefix?: NullableStringFieldUpdateOperationsInput | string | null
     homeCustomers?: CustomerUpdateManyWithoutHomeBranchNestedInput
     transactions?: TransactionUpdateManyWithoutBranchNestedInput
     offers?: OfferBranchUpdateManyWithoutBranchNestedInput
@@ -28658,6 +28694,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
     dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoicePrefix?: NullableStringFieldUpdateOperationsInput | string | null
     homeCustomers?: CustomerUncheckedUpdateManyWithoutHomeBranchNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutBranchNestedInput
     offers?: OfferBranchUncheckedUpdateManyWithoutBranchNestedInput
@@ -28772,6 +28809,7 @@ export namespace Prisma {
     createdAt?: Date | string
     dailyCode?: string | null
     dailyCodeExpiresAt?: Date | string | null
+    invoicePrefix?: string | null
     homeCustomers?: CustomerCreateNestedManyWithoutHomeBranchInput
     staff?: StaffCreateNestedManyWithoutBranchInput
     offers?: OfferBranchCreateNestedManyWithoutBranchInput
@@ -28793,6 +28831,7 @@ export namespace Prisma {
     createdAt?: Date | string
     dailyCode?: string | null
     dailyCodeExpiresAt?: Date | string | null
+    invoicePrefix?: string | null
     homeCustomers?: CustomerUncheckedCreateNestedManyWithoutHomeBranchInput
     staff?: StaffUncheckedCreateNestedManyWithoutBranchInput
     offers?: OfferBranchUncheckedCreateNestedManyWithoutBranchInput
@@ -28974,6 +29013,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
     dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoicePrefix?: NullableStringFieldUpdateOperationsInput | string | null
     homeCustomers?: CustomerUpdateManyWithoutHomeBranchNestedInput
     staff?: StaffUpdateManyWithoutBranchNestedInput
     offers?: OfferBranchUpdateManyWithoutBranchNestedInput
@@ -28995,6 +29035,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
     dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoicePrefix?: NullableStringFieldUpdateOperationsInput | string | null
     homeCustomers?: CustomerUncheckedUpdateManyWithoutHomeBranchNestedInput
     staff?: StaffUncheckedUpdateManyWithoutBranchNestedInput
     offers?: OfferBranchUncheckedUpdateManyWithoutBranchNestedInput
@@ -29640,6 +29681,7 @@ export namespace Prisma {
     createdAt?: Date | string
     dailyCode?: string | null
     dailyCodeExpiresAt?: Date | string | null
+    invoicePrefix?: string | null
     homeCustomers?: CustomerCreateNestedManyWithoutHomeBranchInput
     staff?: StaffCreateNestedManyWithoutBranchInput
     transactions?: TransactionCreateNestedManyWithoutBranchInput
@@ -29661,6 +29703,7 @@ export namespace Prisma {
     createdAt?: Date | string
     dailyCode?: string | null
     dailyCodeExpiresAt?: Date | string | null
+    invoicePrefix?: string | null
     homeCustomers?: CustomerUncheckedCreateNestedManyWithoutHomeBranchInput
     staff?: StaffUncheckedCreateNestedManyWithoutBranchInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutBranchInput
@@ -29743,6 +29786,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
     dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoicePrefix?: NullableStringFieldUpdateOperationsInput | string | null
     homeCustomers?: CustomerUpdateManyWithoutHomeBranchNestedInput
     staff?: StaffUpdateManyWithoutBranchNestedInput
     transactions?: TransactionUpdateManyWithoutBranchNestedInput
@@ -29764,6 +29808,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
     dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoicePrefix?: NullableStringFieldUpdateOperationsInput | string | null
     homeCustomers?: CustomerUncheckedUpdateManyWithoutHomeBranchNestedInput
     staff?: StaffUncheckedUpdateManyWithoutBranchNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutBranchNestedInput
@@ -29900,6 +29945,7 @@ export namespace Prisma {
     createdAt?: Date | string
     dailyCode?: string | null
     dailyCodeExpiresAt?: Date | string | null
+    invoicePrefix?: string | null
     homeCustomers?: CustomerCreateNestedManyWithoutHomeBranchInput
     staff?: StaffCreateNestedManyWithoutBranchInput
     transactions?: TransactionCreateNestedManyWithoutBranchInput
@@ -29921,6 +29967,7 @@ export namespace Prisma {
     createdAt?: Date | string
     dailyCode?: string | null
     dailyCodeExpiresAt?: Date | string | null
+    invoicePrefix?: string | null
     homeCustomers?: CustomerUncheckedCreateNestedManyWithoutHomeBranchInput
     staff?: StaffUncheckedCreateNestedManyWithoutBranchInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutBranchInput
@@ -30011,6 +30058,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
     dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoicePrefix?: NullableStringFieldUpdateOperationsInput | string | null
     homeCustomers?: CustomerUpdateManyWithoutHomeBranchNestedInput
     staff?: StaffUpdateManyWithoutBranchNestedInput
     transactions?: TransactionUpdateManyWithoutBranchNestedInput
@@ -30032,6 +30080,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dailyCode?: NullableStringFieldUpdateOperationsInput | string | null
     dailyCodeExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invoicePrefix?: NullableStringFieldUpdateOperationsInput | string | null
     homeCustomers?: CustomerUncheckedUpdateManyWithoutHomeBranchNestedInput
     staff?: StaffUncheckedUpdateManyWithoutBranchNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutBranchNestedInput

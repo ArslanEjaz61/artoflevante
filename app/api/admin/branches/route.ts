@@ -58,6 +58,7 @@ export async function GET() {
         return {
           id: b.id,
           code: b.code,
+          invoicePrefix: b.invoicePrefix || b.code || "LV",
           name: b.name,
           nameAr: b.nameAr,
           city: b.city || "Dubai",
@@ -110,7 +111,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const { code, name, nameAr, city, address, addressAr, phone, hours, crmUrl, isActive, dailyCode, dailyCodeExpiresAt } = body || {};
+  const { code, invoicePrefix, name, nameAr, city, address, addressAr, phone, hours, crmUrl, isActive, dailyCode, dailyCodeExpiresAt } = body || {};
 
   if (!code || String(code).trim().length < 2) {
     return NextResponse.json({ error: "Branch code is required (e.g. 1015)." }, { status: 400 });
@@ -137,6 +138,7 @@ export async function POST(req: NextRequest) {
     const branch = await prisma.branch.create({
       data: {
         code: cleanCode,
+        invoicePrefix: invoicePrefix ? String(invoicePrefix).trim().toUpperCase() : cleanCode,
         name: String(name).trim(),
         nameAr: nameAr ? String(nameAr).trim() : null,
         city: city ? String(city).trim() : "Dubai",
@@ -194,7 +196,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const { id, code, name, nameAr, city, address, addressAr, phone, hours, crmUrl, isActive, dailyCode, dailyCodeExpiresAt, rotateCode } = body || {};
+  const { id, code, invoicePrefix, name, nameAr, city, address, addressAr, phone, hours, crmUrl, isActive, dailyCode, dailyCodeExpiresAt, rotateCode } = body || {};
 
   if (!id) {
     return NextResponse.json({ error: "Branch ID is required." }, { status: 400 });
@@ -240,6 +242,7 @@ export async function PUT(req: NextRequest) {
       where: { id: branch.id },
       data: {
         code: cleanCode,
+        invoicePrefix: invoicePrefix !== undefined ? (invoicePrefix ? String(invoicePrefix).trim().toUpperCase() : null) : branch.invoicePrefix,
         name: name !== undefined ? String(name).trim() : branch.name,
         nameAr: nameAr !== undefined ? (nameAr ? String(nameAr).trim() : null) : branch.nameAr,
         city: city !== undefined ? (city ? String(city).trim() : null) : branch.city,
