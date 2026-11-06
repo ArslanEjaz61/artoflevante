@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import QRCode from "qrcode";
 import { prisma } from "@/lib/db";
-import { getCustomerId } from "@/lib/session";
+import { getCustomerId, clearCustomerSession } from "@/lib/session";
 import { randomCode, formatCode } from "@/lib/crypto";
 import { getNumber, getSettings, pointsToCurrency, newlyEligibleRewards, calculateVisitMilestoneProgress } from "@/lib/loyalty";
 
@@ -16,8 +16,14 @@ export async function GET() {
     include: { homeBranch: { select: { id: true, name: true, city: true } } },
   });
 
-  if (!customer || customer.isBlocked) {
-    return NextResponse.json({ error: "Account not available." }, { status: 403 });
+  if (!customer) {
+    await clearCustomerSession();
+    return NextResponse.json({ error: "Session expired or member account not found." }, { status: 401 });
+  }
+
+  if (customer.isBlocked) {
+    await clearCustomerSession();
+    return NextResponse.json({ error: "Your membership account has been suspended. Please contact store management." }, { status: 403 });
   }
 
   const ttl = (await getNumber("qr_token_ttl_seconds")) || 180;

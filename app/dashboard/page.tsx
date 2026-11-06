@@ -335,8 +335,11 @@ export default function CustomerDashboardPage() {
   const loadCard = useCallback(async () => {
     try {
       const r = await fetch("/api/card");
-      if (r.status === 401) {
-        router.push("/login");
+      if (r.status === 401 || r.status === 403) {
+        try {
+          await fetch("/api/auth/logout", { method: "POST" });
+        } catch {}
+        window.location.href = "/login";
         return;
       }
       const d = await r.json();
@@ -448,8 +451,13 @@ export default function CustomerDashboardPage() {
           <h2 className="text-xl font-bold mb-2 text-[#1E1815]">Notice</h2>
           <p className="text-sm text-[#7A6E67] mb-4">{err}</p>
           <button
-            onClick={() => router.push("/login")}
-            className="py-2.5 px-6 rounded-xl bg-[#0E331E] text-white font-bold text-sm cursor-pointer shadow-md"
+            onClick={async () => {
+              try {
+                await fetch("/api/auth/logout", { method: "POST" });
+              } catch {}
+              window.location.href = "/login";
+            }}
+            className="py-2.5 px-6 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-bold text-sm cursor-pointer shadow-md transition-all"
           >
             Sign In Again
           </button>
