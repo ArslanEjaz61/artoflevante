@@ -16,7 +16,7 @@ export async function sendOtp(
   // 1. Primary: WhatsApp Direct Delivery if session is active
   if (WhatsAppService.isConnected()) {
     const waText =
-      `*Morango Loyalty Verification Code*\n\n` +
+      `*Levante Loyalty Verification Code*\n\n` +
       `Your verification code is: *${code}*\n\n` +
       `This code is valid for 5 minutes. Please do not share this code with anyone.`;
 
@@ -47,7 +47,7 @@ export async function sendOtp(
         body: JSON.stringify({
           to: mobile,
           sender,
-          message: `${code} is your Morango verification code.`,
+          message: `${code} is your Levante verification code.`,
         }),
       });
       if (!res.ok) {

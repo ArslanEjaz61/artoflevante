@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type ChangeEvent, type ReactNode } from "react";
-import { Camera, ImageUp, ScanLine, X, CheckCircle2, AlertCircle, RotateCcw, ReceiptText, Gift, Loader2 } from "lucide-react";
+import { Camera, ImageUp, ScanLine, X, CheckCircle2, AlertCircle, AlertTriangle, RotateCcw, ReceiptText, Gift, Loader2 } from "lucide-react";
 
 /**
  * "Scan your receipt" card for the customer dashboard.
@@ -318,11 +318,31 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
               )}
 
               {phase.step === "error" && (
-                <>
-                  <div className="flex items-start gap-2.5 rounded-2xl bg-[#FBEDEA] border border-[#0E331E]/15 p-3.5 font-display text-[14px] text-[#0A2617]">
-                    <AlertCircle className="w-5 h-5 shrink-0 mt-px" />
-                    <span>{phase.message}</span>
-                  </div>
+                <div className="space-y-4">
+                  {phase.message.toLowerCase().includes("duplicate") || phase.message.toLowerCase().includes("already been") ? (
+                    <div className="text-center space-y-3">
+                      <div className="w-14 h-14 rounded-full bg-red-50 border-2 border-red-200 text-red-600 flex items-center justify-center mx-auto shadow-sm">
+                        <AlertTriangle className="w-7 h-7 stroke-[2.5]" />
+                      </div>
+                      <span className="inline-block px-3 py-1 rounded-full bg-red-100 text-red-800 text-[10px] font-black uppercase tracking-wider">
+                        DUPLICATE BILL DETECTED
+                      </span>
+                      <h4 className="font-display font-black text-lg text-[#1E1815]">
+                        Invoice Already Registered
+                      </h4>
+                      <div className="bg-red-50 border border-red-200 rounded-2xl p-3.5 text-xs font-bold text-red-900 leading-relaxed text-center">
+                        {phase.message}
+                      </div>
+                      <p className="text-[11px] text-[#7A6E67]">
+                        This invoice has already been recorded or claimed in the Levante loyalty system. Points cannot be awarded more than once for the same bill.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex items-start gap-2.5 rounded-2xl bg-[#FBEDEA] border border-[#0E331E]/15 p-3.5 font-display text-[14px] text-[#0A2617]">
+                      <AlertCircle className="w-5 h-5 shrink-0 mt-px" />
+                      <span>{phase.message}</span>
+                    </div>
+                  )}
                   <div className="grid grid-cols-2 gap-2 mt-4">
                     <button
                       type="button"
@@ -339,7 +359,7 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                       <Camera className="w-4 h-4" /> Try again
                     </button>
                   </div>
-                </>
+                </div>
               )}
             </div>
           </div>

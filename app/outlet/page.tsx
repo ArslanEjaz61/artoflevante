@@ -9,6 +9,7 @@ import {
   Camera,
   CheckCircle2,
   AlertCircle,
+  AlertTriangle,
   X,
   Sparkles,
   ArrowRight,
@@ -218,6 +219,7 @@ function OutletContent() {
   const [customRedeemInput, setCustomRedeemInput] = useState<string>("");
   const [submittingBill, setSubmittingBill] = useState(false);
   const [billErr, setBillErr] = useState("");
+  const [duplicateAlertMessage, setDuplicateAlertMessage] = useState<string | null>(null);
   const [successReceipt, setSuccessReceipt] = useState<any | null>(null);
 
   // Visit stamp action state
@@ -575,7 +577,16 @@ function OutletContent() {
         ]);
       }
     } catch (err: any) {
-      setBillErr(err.message || "Failed to record transaction.");
+      const msg = err.message || "Failed to record transaction.";
+      setBillErr(msg);
+      if (
+        msg.toLowerCase().includes("duplicate") ||
+        msg.toLowerCase().includes("already been") ||
+        msg.toLowerCase().includes("recorded") ||
+        msg.toLowerCase().includes("registered")
+      ) {
+        setDuplicateAlertMessage(msg);
+      }
     } finally {
       setSubmittingBill(false);
     }
@@ -631,7 +642,16 @@ function OutletContent() {
         ]);
       }
     } catch (err: any) {
-      setVisitErr(err.message || "Failed to stamp visit.");
+      const msg = err.message || "Failed to stamp visit.";
+      setVisitErr(msg);
+      if (
+        msg.toLowerCase().includes("duplicate") ||
+        msg.toLowerCase().includes("already been") ||
+        msg.toLowerCase().includes("recorded") ||
+        msg.toLowerCase().includes("registered")
+      ) {
+        setDuplicateAlertMessage(msg);
+      }
     } finally {
       setSubmittingVisit(false);
     }
@@ -740,7 +760,16 @@ function OutletContent() {
         ]);
       }
     } catch (err: any) {
-      setRewardErr(err.message || "Failed to apply discount.");
+      const msg = err.message || "Failed to apply discount.";
+      setRewardErr(msg);
+      if (
+        msg.toLowerCase().includes("duplicate") ||
+        msg.toLowerCase().includes("already been") ||
+        msg.toLowerCase().includes("recorded") ||
+        msg.toLowerCase().includes("registered")
+      ) {
+        setDuplicateAlertMessage(msg);
+      }
       throw err;
     } finally {
       setRedeemingRewardId(null);
@@ -2519,14 +2548,32 @@ function OutletContent() {
                         setConfirmingReward(null);
                         setActionMode("points");
                       } catch (e: any) {
-                        setRewardModalErr(e.message || "Failed to record discounted transaction.");
+                        const msg = e.message || "Failed to record discounted transaction.";
+                        setRewardModalErr(msg);
+                        if (
+                          msg.toLowerCase().includes("duplicate") ||
+                          msg.toLowerCase().includes("already been") ||
+                          msg.toLowerCase().includes("recorded") ||
+                          msg.toLowerCase().includes("registered")
+                        ) {
+                          setDuplicateAlertMessage(msg);
+                        }
                       }
                     } else {
                       try {
                         await handleRedeemReward(confirmingReward.id, rewardModalInvoice.trim() ? formatFullInvoice(rewardModalInvoice.trim(), activeBranch.invoicePrefix || activeBranch.code) : undefined);
                         setConfirmingReward(null);
                       } catch (e: any) {
-                        setRewardModalErr(e.message || "Failed to deliver gift.");
+                        const msg = e.message || "Failed to deliver gift.";
+                        setRewardModalErr(msg);
+                        if (
+                          msg.toLowerCase().includes("duplicate") ||
+                          msg.toLowerCase().includes("already been") ||
+                          msg.toLowerCase().includes("recorded") ||
+                          msg.toLowerCase().includes("registered")
+                        ) {
+                          setDuplicateAlertMessage(msg);
+                        }
                       }
                     }
                   }}
@@ -2654,6 +2701,59 @@ function OutletContent() {
               className="w-full py-3 px-6 rounded-xl bg-[#0E331E] hover:bg-[#067C2E] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
             >
               CLOSE RECEIPT
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Duplicate Bill / Entry Alert Modal - Center Screen Popup */}
+      {duplicateAlertMessage && (
+        <div className="fixed inset-0 z-[100] bg-black/65 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-white rounded-3xl p-6 sm:p-7 border border-red-200 shadow-2xl text-center space-y-4 animate-in zoom-in-95 duration-200 relative">
+            {/* Close Button */}
+            <button
+              onClick={() => setDuplicateAlertMessage(null)}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center transition-colors cursor-pointer"
+              title="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Warning Icon Badge */}
+            <div className="w-16 h-16 rounded-full bg-red-50 border-2 border-red-200 text-red-600 flex items-center justify-center mx-auto shadow-sm">
+              <AlertTriangle className="w-8 h-8 stroke-[2.5]" />
+            </div>
+
+            {/* Title & Tag */}
+            <div>
+              <span className="inline-block px-3 py-1 rounded-full bg-red-100 text-red-800 text-[10px] font-black uppercase tracking-wider">
+                DUPLICATE ENTRY DETECTED
+              </span>
+              <h3 className="font-display font-black text-xl text-[#1E1815] mt-1.5">
+                Invoice Already Recorded
+              </h3>
+            </div>
+
+            {/* Error Message Box */}
+            <div className="bg-red-50/90 border border-red-200 rounded-2xl p-4 text-center">
+              <p className="text-xs sm:text-sm font-bold text-red-900 leading-relaxed break-words">
+                {duplicateAlertMessage}
+              </p>
+            </div>
+
+            {/* Security Note */}
+            <div className="bg-[#FAF7F4] rounded-xl p-3 border border-[#EAE3DC] text-[11px] text-[#7A6E67] leading-relaxed">
+              <span className="font-bold text-[#1E1815] block mb-0.5">Anti-Fraud Protection Active</span>
+              This invoice has already been stamped or claimed in the Levante loyalty system. Duplicate points cannot be issued for the same receipt.
+            </div>
+
+            {/* Dismiss Button */}
+            <button
+              type="button"
+              onClick={() => setDuplicateAlertMessage(null)}
+              className="w-full py-3.5 px-6 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+            >
+               CLOSE
             </button>
           </div>
         </div>

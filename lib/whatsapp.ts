@@ -275,7 +275,7 @@ class WhatsAppServiceImpl {
           const user = this.socket?.user;
           this.connectedJid = user?.id || null;
           this.connectedPhone = user?.id ? user.id.split(":")[0].split("@")[0] : null;
-          this.connectedName = user?.name || "Morango Loyalty Admin";
+          this.connectedName = user?.name || "Levante Loyalty Admin";
           this.lastConnectedAt = new Date();
 
           console.log(`[WhatsApp] CONNECTED as +${this.connectedPhone} (${this.connectedName})`);

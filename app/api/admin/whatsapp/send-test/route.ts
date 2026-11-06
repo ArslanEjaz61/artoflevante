@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
     const text =
       message?.trim() ||
-      "Morango Loyalty: WhatsApp Gateway test message successfully delivered! Your WhatsApp OTP engine is operational.";
+      "Levante Loyalty: WhatsApp Gateway test message successfully delivered! Your WhatsApp OTP engine is operational.";
 
     const result = await WhatsAppService.sendMessage(phoneNumber, text);
     if (!result.success) {

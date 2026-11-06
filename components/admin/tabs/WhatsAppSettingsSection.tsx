@@ -305,7 +305,7 @@ export default function WhatsAppSettingsSection() {
                     +{statusData.connectedPhone}
                   </h4>
                   <p className="text-xs text-[#7A6E67] font-semibold mt-0.5">
-                    {statusData.connectedName || "Morango Loyalty Verified Number"}
+                    {statusData.connectedName || "Levante Loyalty Verified Number"}
                   </p>
                 </div>
               </div>
@@ -368,7 +368,7 @@ export default function WhatsAppSettingsSection() {
                   </label>
                   <input
                     type="text"
-                    placeholder="Morango Loyalty test verification message..."
+                    placeholder="Levante Loyalty test verification message..."
                     value={testMessage}
                     onChange={(e) => setTestMessage(e.target.value)}
                     className="w-full px-3.5 py-2.5 bg-white border border-[#EAE3DC] rounded-xl text-xs text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
