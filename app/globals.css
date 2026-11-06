@@ -190,13 +190,15 @@ body {
   border-bottom: 1px solid rgba(176, 132, 60, 0.35);
   backdrop-filter: blur(8px);
 }
-/* every primary maroon surface: gradient with a gold edge */
-.bc-admin .bg-\[\#0E331E\] {
-  background: linear-gradient(165deg, #1DA54B 0%, #0B6B2C 100%);
-  box-shadow: inset 0 0 0 1px rgba(236, 192, 104, 0.55), 0 6px 14px rgba(11, 107, 44, 0.25);
+/* Admin primary dark green surfaces matching Levante brand styling */
+.bc-admin .bg-\[\#0E331E\],
+.bc-admin .bg-\[\#143F26\] {
+  background: #143F26 !important;
+  box-shadow: 0 4px 12px rgba(20, 63, 38, 0.20) !important;
 }
-.bc-admin .hover\:bg-\[\#0E331E\]:hover {
-  background: linear-gradient(165deg, #1DA54B 0%, #0B6B2C 100%);
+.bc-admin .hover\:bg-\[\#0E331E\]:hover,
+.bc-admin .hover\:bg-\[\#143F26\]:hover {
+  background: #0E331E !important;
 }
 
 /* hero card */
@@ -261,7 +263,7 @@ body {
     display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;
     padding: 6px;
     border-radius: 22px;
-    background: linear-gradient(165deg, #118E3C 0%, #095623 100%);
+    background: linear-gradient(165deg, #143F26 0%, #0E331E 100%);
     box-shadow: inset 0 0 0 1px rgba(236, 192, 104, 0.6), 0 14px 30px rgba(6, 60, 24, 0.45);
   }
 }
@@ -278,6 +280,6 @@ body {
 }
 .bc-tab-on {
   color: #fffaf0;
-  background: linear-gradient(165deg, #30C864, #118E3C);
-  box-shadow: inset 0 0 0 1px rgba(255, 214, 140, 0.85), 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: #143F26;
+  box-shadow: 0 4px 12px rgba(20, 63, 38, 0.25);
 }

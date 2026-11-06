@@ -996,7 +996,7 @@ function OutletContent() {
                   <input
                     id="cust-phone-input"
                     type="tel"
-                    placeholder={countryCode === "971" ? "50 123 4567" : `Enter ${currentCountry.max}-digit number`}
+                    placeholder={currentCountry.placeholder || `Enter ${currentCountry.max}-digit number`}
                     value={mobileInput}
                     maxLength={currentCountry.max}
                     onChange={(e) => {

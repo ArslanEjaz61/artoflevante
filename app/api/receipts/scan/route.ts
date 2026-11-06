@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { prisma } from "@/lib/db";
 import { getCustomerId } from "@/lib/session";
 import { getNumber, getSetting, pointsForAmount } from "@/lib/loyalty";
-import { readReceipt, receiptAgeDays, signReceiptClaim, storeReceiptImage } from "@/lib/receipts";
+import { readReceipt, receiptAgeDays, signReceiptClaim, storeReceiptImage, findExistingInvoice, formatFullInvoice, extractSerialFromInvoice } from "@/lib/receipts";
 
 const MAX_BYTES = 6 * 1024 * 1024;
 const SCANS_PER_HOUR = 15; // keeps the vision bill bounded if someone hammers the button
@@ -91,50 +91,37 @@ export async function POST(req: NextRequest) {
       );
     }
     if (!reading.invoiceNumber || !reading.total || reading.confidence < 0.4) {
-      return fail("We couldn't read the invoice number and total clearly. Please retake the photo in good light, flat and in focus.");
+      return fail("We couldn't read the bill number and total clearly. Please retake the photo in good light, flat and in focus.");
+    }
+
+    if (!reading.date) {
+      return fail("We couldn't read the date printed on this receipt. Please ensure the date portion is clearly visible.");
     }
 
     const MIN_RECEIPT_DATE = "2026-11-01";
-    if (reading.date) {
-      if (reading.date < MIN_RECEIPT_DATE) {
-        return fail(
-          `This receipt is dated ${reading.date}. Receipts dated before October 1, 2026 are not eligible for points.`,
-          422
-        );
-      }
-      const age = receiptAgeDays(reading.date);
-      const maxAge = (await getNumber("receipt_max_age_days")) || 7;
-      if (age < -1) return fail("The date on this receipt is in the future. Please check the photo.");
-      if (age > maxAge) return fail(`This receipt is ${age} days old. Bills can be claimed within ${maxAge} days of your visit.`);
+    if (reading.date < MIN_RECEIPT_DATE) {
+      return fail(
+        `This receipt is dated ${reading.date}. Receipts dated before November 1, 2026 are not eligible for points.`,
+        422
+      );
     }
+    const age = receiptAgeDays(reading.date);
+    const maxAge = (await getNumber("receipt_max_age_days")) || 7;
+    if (age < -1) return fail("The date on this receipt is in the future. Please check the photo.");
+    if (age > maxAge) return fail(`This receipt is ${age} days old. Bills can only be claimed within ${maxAge} days of your visit.`);
 
     let branch = reading.branchCode ? branches.find((b) => b.code.toUpperCase() === reading.branchCode) ?? null : null;
     if (!branch && branches.length === 1) branch = branches[0];
 
-    // Global duplicate check across all branches
-    const duplicate = await prisma.transaction.findFirst({
-      where: {
-        OR: [
-          { invoiceNumber: { equals: reading.invoiceNumber, mode: "insensitive" } },
-          { invoiceNumber: { equals: `INV# ${reading.invoiceNumber}`, mode: "insensitive" } },
-        ],
-      },
-      include: { branch: true },
-    });
-    const duplicateVisit = await prisma.customerVisit.findFirst({
-      where: {
-        OR: [
-          { couponCode: { equals: reading.invoiceNumber, mode: "insensitive" } },
-          { couponCode: { equals: `RCPT-${reading.invoiceNumber}`, mode: "insensitive" } },
-        ],
-      },
-      include: { branch: true },
-    });
+    const branchPrefix = branch?.invoicePrefix || "LV";
+    const fullInvoice = formatFullInvoice(reading.invoiceNumber, branchPrefix, reading.date);
+    const serial = extractSerialFromInvoice(reading.invoiceNumber);
 
-    if (duplicate || duplicateVisit) {
-      const loc = duplicate?.branch?.name || duplicateVisit?.branch?.name || "an outlet";
+    // Thorough duplicate check: catches cashier POS entries, upload claims, and all prefix/serial variations
+    const existing = await findExistingInvoice(reading.invoiceNumber, branchPrefix, reading.date);
+    if (existing) {
       return fail(
-        `Invoice #${reading.invoiceNumber} has already been registered and points issued at ${loc}. Duplicate claims are not allowed.`,
+        `Bill #${serial} (${existing.invoiceNumber}) has already been registered and points awarded at ${existing.location}${existing.date ? ` on ${existing.date}` : ""}. Duplicate claims are not permitted.`,
         409
       );
     }
@@ -143,7 +130,7 @@ export async function POST(req: NextRequest) {
 
     const claimToken = await signReceiptClaim({
       customerId,
-      invoiceNumber: reading.invoiceNumber,
+      invoiceNumber: fullInvoice,
       total: reading.total,
       branchId: branch?.id ?? null,
       receiptDate: reading.date,
@@ -154,7 +141,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       ok: true,
       receipt: {
-        invoiceNumber: reading.invoiceNumber,
+        invoiceNumber: fullInvoice,
         total: reading.total,
         currency: reading.currency || (await getSetting("currency")) || "AED",
         date: reading.date,

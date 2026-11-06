@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/mobile";
+import { COUNTRIES, DEFAULT_COUNTRY, detectUserCountrySync, detectUserCountry } from "@/lib/mobile";
 import {
   Sparkles,
   ArrowRight,
@@ -78,14 +78,33 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
   } | null>(null);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
-  const [f, setF] = useState({
-    name: "",
-    mobile: "",
-    countryCode: DEFAULT_COUNTRY,
-    email: "",
-    birthday: "",
-    branchId: "",
+  const userManuallyChangedCountry = useRef(false);
+
+  const [f, setF] = useState(() => {
+    const detected = typeof window !== "undefined" ? detectUserCountrySync() : null;
+    return {
+      name: "",
+      mobile: "",
+      countryCode: detected ? detected.code : DEFAULT_COUNTRY,
+      email: "",
+      birthday: "",
+      branchId: "",
+    };
   });
+
+  useEffect(() => {
+    try {
+      const syncDetected = detectUserCountrySync();
+      if (syncDetected && !userManuallyChangedCountry.current) {
+        setF((prev) => ({ ...prev, countryCode: syncDetected.code }));
+      }
+      detectUserCountry().then((asyncDetected) => {
+        if (asyncDetected && !userManuallyChangedCountry.current) {
+          setF((prev) => ({ ...prev, countryCode: asyncDetected.code }));
+        }
+      }).catch(() => {});
+    } catch {}
+  }, []);
   const selectedCountry = COUNTRIES.find((c) => c.code === f.countryCode) || COUNTRIES[0];
   const [code, setCode] = useState("");
   const [devCode, setDevCode] = useState("");
@@ -548,8 +567,9 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
               <div className="flex gap-2 items-center">
                 <CountryCodePicker
                   value={f.countryCode}
-                  onChange={(c) => {
-                    const newCountry = COUNTRIES.find((item) => item.code === c) || COUNTRIES[0];
+                  onChange={(c, countryObj) => {
+                    userManuallyChangedCountry.current = true;
+                    const newCountry = countryObj || COUNTRIES.find((item) => item.code === c) || COUNTRIES[0];
                     setF((prev) => ({
                       ...prev,
                       countryCode: c,
@@ -560,11 +580,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
                 <input
                   type="tel"
                   inputMode="numeric"
-                  placeholder={
-                    selectedCountry.code === "971"
-                      ? "50 123 4567"
-                      : `${selectedCountry.max} digits without country code`
-                  }
+                  placeholder={selectedCountry.placeholder || `${selectedCountry.max} digits without country code`}
                   value={f.mobile}
                   maxLength={selectedCountry.max}
                   onChange={handleMobileChange}
@@ -578,7 +594,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
                 <span className="font-medium text-[#7A6E67]">
                   Write number without country code{" "}
                   <span className="text-[#0E331E] font-bold">
-                    ({selectedCountry.code === "971" ? "e.g. 50 123 4567" : `${selectedCountry.max} digits`})
+                    ({selectedCountry.iso}: e.g. {selectedCountry.placeholder})
                   </span>
                 </span>
                 <span

@@ -1871,7 +1871,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "overview"
-              ? "bg-[#0E331E] text-white shadow-xs"
+              ? "bg-[#143F26] text-white shadow-md shadow-[#143F26]/20"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -1885,7 +1885,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "customers"
-              ? "bg-[#0E331E] text-white shadow-xs"
+              ? "bg-[#143F26] text-white shadow-md shadow-[#143F26]/20"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -1899,7 +1899,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "offers"
-              ? "bg-[#0E331E] text-white shadow-xs"
+              ? "bg-[#143F26] text-white shadow-md shadow-[#143F26]/20"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -1913,7 +1913,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "branches"
-              ? "bg-[#0E331E] text-white shadow-xs"
+              ? "bg-[#143F26] text-white shadow-md shadow-[#143F26]/20"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -1927,7 +1927,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "staff"
-              ? "bg-[#0E331E] text-white shadow-xs"
+              ? "bg-[#143F26] text-white shadow-md shadow-[#143F26]/20"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -1941,7 +1941,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "visits"
-              ? "bg-[#0E331E] text-white shadow-xs"
+              ? "bg-[#143F26] text-white shadow-md shadow-[#143F26]/20"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -1955,7 +1955,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "outlet"
-              ? "bg-[#0E331E] text-white shadow-xs"
+              ? "bg-[#143F26] text-white shadow-md shadow-[#143F26]/20"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -1969,7 +1969,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "settings"
-              ? "bg-[#0E331E] text-white shadow-xs"
+              ? "bg-[#143F26] text-white shadow-md shadow-[#143F26]/20"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >
@@ -1983,7 +1983,7 @@ export default function AdminPage() {
               setMobileMenuOpen(false);
             }}
             className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${tab === "audit"
-              ? "bg-[#0E331E] text-white shadow-xs"
+              ? "bg-[#143F26] text-white shadow-md shadow-[#143F26]/20"
               : "text-[#5C504A] hover:bg-[#EFE9E2] hover:text-[#1E1815]"
               }`}
           >

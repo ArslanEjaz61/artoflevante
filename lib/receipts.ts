@@ -1,3 +1,4 @@
+import { prisma } from "./db";
 import { SignJWT, jwtVerify } from "jose";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -41,34 +42,35 @@ export interface BranchHint {
   invoicePrefix?: string | null;
 }
 
-export { MIN_RECEIPT_DATE, getBranchInvoicePrefix, formatFullInvoice } from "./receiptUtils";
+export { MIN_RECEIPT_DATE, LEVANTE_OFFICIAL_TRN, getBranchInvoicePrefix, formatFullInvoice, extractSerialFromInvoice } from "./receiptUtils";
 
-const BRAND_PROMPT = `You are a specialist receipt verification AI for Levante (Art of Levante: a Dubai, UAE brand selling coffee, flowers and chocolates).
+const BRAND_PROMPT = `You are a specialist receipt verification AI for Levante (Art of Levante: a Dubai, UAE restaurant & cafe brand selling artisan coffee, fresh flowers and luxury chocolates).
 
 Inspect the uploaded image thoroughly and extract the data as a single JSON object.
 
-CRITICAL AUTHENTICITY CHECKS:
+CRITICAL AUTHENTICITY & BRAND VALIDATION CHECKS (STRICT BRAND ENFORCEMENT):
 1. Is it a printed receipt / tax invoice / bill?
-   - If not a receipt at all (e.g. random photo, selfie, furniture, scenery, fake graphic), set "isReceipt": false, "isBrandBill": false, and explain in "rejectionReason".
-2. Is it genuinely issued by LEVANTE?
-   - Look for the name "Levante" or "Art of Levante" (or the Levante logo with "Coffee · Flowers · Chocolates") at the top of the bill.
-   - If this receipt belongs to ANY other merchant (e.g. Carrefour, Lulu, McDonald's, KFC, Starbucks, petrol station, or another cafe or flower shop), you MUST set "isBrandBill": false and "rejectionReason": "This receipt is from another store/brand. Only authentic Levante receipts are accepted."
+   - If not a printed physical or digital receipt (e.g. random photo, selfie, furniture, scenery, fake graphic, menu card), set "isReceipt": false, "isBrandBill": false, and explain in "rejectionReason".
+2. MUST BE AN AUTHENTIC LEVANTE RECEIPT:
+   - The receipt MUST be genuinely issued by "Levante" (or "Art of Levante").
+   - Official hallmarks of an authentic Levante receipt:
+     * Header: "Levante" or "Levante, Boutique XII Building - Jaddaf Waterfront - Dubai - United Arab Emirates"
+     * Contact: "042412288"
+     * Tax Registration Number (TRN): "104974684300003"
+     * Footer Slogan: "Fresh Flowers • Artisan Coffee • Chocolates"
+     * POS System: "Powered by TMBill"
+   - If this receipt belongs to ANY other merchant or brand (e.g. Carrefour, Lulu, McDonald's, KFC, Starbucks, Costa, petrol station, supermarket, or ANY other cafe/restaurant), you MUST set:
+     "isBrandBill": false,
+     "rejectionReason": "This receipt does not belong to Levante. Only authentic Levante receipts are accepted."
 
 FIELD EXTRACTION RULES:
-- invoiceNumber: The TAX INVOICE / bill number printed on the bill (not the table number, order token or TRN). Extract the unique identifier exactly as printed. Strip any surrounding labels, leave just the clean invoice code.
-- total: The FINAL net payable amount paid by customer (grand total including 5% VAT in AED).
-  Examples:
-  - If bill shows "Total AED 31.00", return 31.00.
-  - If bill shows "Total AED 44.00", return 44.00.
-  - If bill shows "Total AED 10.00", return 10.00.
-  - If bill shows "Total AED 55.00", return 55.00.
-  - If bill shows "Total AED 4.00", return 4.00.
-  DO NOT return Sub Total, Net Amount, VAT Amount, or Amount Received / Balance. Return ONLY the final Total amount.
-- currency: Currency code (e.g. "AED").
-- date: Date printed on the receipt in YYYY-MM-DD format. Convert any printed date format (for example "01-Nov-2026") to "2026-11-01".
-- outletText: The outlet / branch name or staff location printed on the bill (for example "Levante - Al Jaddaf").
+- invoiceNumber: The printed TAX INVOICE / bill number (e.g. "4974" from "Bill No : 4974"). Extract ONLY the numeric or alphanumeric serial, strip prefixes like "Bill No :".
+- total: The FINAL net payable Grand Total paid by customer in AED (e.g. 53.00 from "Grand Total : AED 53.00"). DO NOT return Sub Total, Net Amount, VAT Amount, or Amount Received / Balance. Return ONLY the final Grand Total.
+- currency: Currency code (must be "AED" for Levante Dubai).
+- date: The date printed on the receipt in YYYY-MM-DD format (for example "06 November 2026" or "06-Nov-2026" -> "2026-11-06").
+- outletText: The outlet / branch name or address printed on the bill (for example "Levante - Al Jaddaf Waterfront").
 - branchCode: Compare outletText with the BRANCHES list below and match the exact branch code if recognized, otherwise null.
-- trn: The Tax Registration Number printed on the bill, or null.
+- trn: The Tax Registration Number printed on the bill (for Levante: "104974684300003"), or null.
 - confidence: A float between 0.0 and 1.0 indicating clarity and confidence in invoiceNumber + total.
 
 Respond with ONLY this JSON structure (no markdown fences, no explanation text outside JSON):
@@ -548,4 +550,101 @@ export function receiptAgeDays(date: string): number {
   today.setHours(0, 0, 0, 0);
   const d = new Date(`${date}T00:00:00`);
   return Math.round((today.getTime() - d.getTime()) / 86400_000);
+}
+
+
+export interface DuplicateInvoiceResult {
+  isDuplicate: boolean;
+  location: string;
+  invoiceNumber: string;
+  date: string | null;
+  amount: number | null;
+  customerId: string | null;
+  source: "TRANSACTION" | "VISIT";
+}
+
+/**
+ * Searches across Transaction and CustomerVisit for any prior use of this invoice or bill number.
+ * Matches:
+ * 1. Full formatted invoice (e.g. LV-26-4974)
+ * 2. Raw serial number (e.g. 4974)
+ * 3. Suffix / ending with serial (e.g. -4974)
+ * 4. Variations with INV# or RCPT-
+ */
+export async function findExistingInvoice(
+  invoiceInput: string,
+  branchInvoicePrefix?: string | null,
+  receiptDate?: Date | string | null
+): Promise<DuplicateInvoiceResult | null> {
+  const { extractSerialFromInvoice, formatFullInvoice } = await import("./receiptUtils");
+  const serial = extractSerialFromInvoice(invoiceInput);
+  const fullInvoice = formatFullInvoice(invoiceInput, branchInvoicePrefix || "LV", receiptDate || new Date());
+
+  const searchInvoices = new Set<string>();
+  if (fullInvoice) searchInvoices.add(fullInvoice.toUpperCase());
+  if (serial) {
+    searchInvoices.add(serial);
+    searchInvoices.add(`LV-26-${serial}`);
+    searchInvoices.add(`1001-26-${serial}`);
+    searchInvoices.add(`INV# ${serial}`);
+    searchInvoices.add(`INV# ${fullInvoice}`);
+  }
+
+  // 1. Check Transaction table
+  const txConditions: any[] = Array.from(searchInvoices).map((inv) => ({
+    invoiceNumber: { equals: inv, mode: "insensitive" },
+  }));
+  if (serial) {
+    txConditions.push({ invoiceNumber: { endsWith: `-${serial}`, mode: "insensitive" } });
+  }
+
+  const existingTx = await prisma.transaction.findFirst({
+    where: { OR: txConditions },
+    include: { branch: true, customer: true, staff: true },
+  });
+
+  if (existingTx) {
+    return {
+      isDuplicate: true,
+      location: existingTx.branch?.name || "Levante",
+      invoiceNumber: existingTx.invoiceNumber,
+      date: existingTx.createdAt ? existingTx.createdAt.toISOString().split("T")[0] : null,
+      amount: Number(existingTx.amount) || null,
+      customerId: existingTx.customerId,
+      source: "TRANSACTION",
+    };
+  }
+
+  // 2. Check CustomerVisit table
+  const visitConditions: any[] = [];
+  Array.from(searchInvoices).forEach((inv) => {
+    visitConditions.push(
+      { couponCode: { equals: inv, mode: "insensitive" } },
+      { couponCode: { equals: `RCPT-${inv}`, mode: "insensitive" } }
+    );
+  });
+  if (serial) {
+    visitConditions.push(
+      { couponCode: { endsWith: `-${serial}`, mode: "insensitive" } }
+    );
+  }
+
+  const existingVisit = await prisma.customerVisit.findFirst({
+    where: { OR: visitConditions },
+    include: { branch: true, customer: true },
+  });
+
+  if (existingVisit) {
+    return {
+      isDuplicate: true,
+      location: existingVisit.branch?.name || "Levante",
+      invoiceNumber: existingVisit.couponCode,
+      date: existingVisit.createdAt ? existingVisit.createdAt.toISOString().split("T")[0] : null,
+      amount: null,
+      customerId: existingVisit.customerId,
+      source: "VISIT",
+    };
+  }
+
+  return null;
 }

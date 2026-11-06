@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { pointsForAmount, newlyEligibleRewards, getNumber, getSettings } from "@/lib/loyalty";
-import { formatFullInvoice } from "@/lib/receipts";
+import { formatFullInvoice, findExistingInvoice, extractSerialFromInvoice } from "@/lib/receipts";
 import { normalizeCode } from "@/lib/crypto";
 import { createNotification } from "@/lib/notifications";
 import { getOutletSession } from "@/lib/session";
@@ -76,27 +76,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Customer account is blocked." }, { status: 403 });
     }
 
-    // Prevent duplicate invoice across ALL branches
-    const duplicate = await prisma.transaction.findFirst({
-      where: {
-        invoiceNumber: { equals: cleanInvoice, mode: "insensitive" },
-      },
-      include: { branch: true },
-    });
-    const duplicateVisit = await prisma.customerVisit.findFirst({
-      where: {
-        OR: [
-          { couponCode: { equals: cleanInvoice, mode: "insensitive" } },
-          { couponCode: { equals: `RCPT-${cleanInvoice}`, mode: "insensitive" } },
-        ],
-      },
-      include: { branch: true },
-    });
-
-    if (duplicate || duplicateVisit) {
-      const loc = duplicate?.branch?.name || duplicateVisit?.branch?.name || "an outlet";
+    // Comprehensive duplicate check across ALL branches, claims, and serial variations
+    const existing = await findExistingInvoice(rawInvoice, branch.invoicePrefix || branch.code);
+    if (existing) {
+      const serial = extractSerialFromInvoice(rawInvoice);
       return NextResponse.json(
-        { error: `Invoice #${cleanInvoice} has already been recorded at ${loc}. Duplicate invoices are not allowed.` },
+        { error: `Bill #${serial} (${existing.invoiceNumber}) has already been recorded at ${existing.location}${existing.date ? ` on ${existing.date}` : ""}. Duplicate entries are not allowed.` },
         { status: 409 }
       );
     }

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { getCustomerId } from "@/lib/session";
 import { getNumber, getSetting, pointsForAmount, newlyEligibleRewards } from "@/lib/loyalty";
 import { createNotification } from "@/lib/notifications";
-import { verifyReceiptClaim } from "@/lib/receipts";
+import { verifyReceiptClaim, findExistingInvoice, formatFullInvoice, extractSerialFromInvoice } from "@/lib/receipts";
 
 /**
  * Step 2 of receipt scanning: the customer confirmed what /api/receipts/scan read, so record the
@@ -47,29 +47,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Global duplicate check across all branches
-    const duplicate = await prisma.transaction.findFirst({
-      where: {
-        invoiceNumber: { equals: claim.invoiceNumber, mode: "insensitive" },
-      },
-      include: { branch: true },
-    });
-    const duplicateVisit = await prisma.customerVisit.findFirst({
-      where: {
-        OR: [
-          { couponCode: { equals: claim.invoiceNumber, mode: "insensitive" } },
-          { couponCode: { equals: `RCPT-${claim.invoiceNumber}`, mode: "insensitive" } },
-        ],
-      },
-      include: { branch: true },
-    });
+    const branchPrefix = branch.invoicePrefix || "LV";
+    const fullInvoice = formatFullInvoice(claim.invoiceNumber, branchPrefix, claim.receiptDate);
+    const serial = extractSerialFromInvoice(claim.invoiceNumber);
+
     const samePhoto = await prisma.auditLog.findFirst({
       where: { action: "customer.receipt_claim", metadata: { path: ["imageSha"], equals: claim.imageSha } },
     });
-    if (duplicate || duplicateVisit || samePhoto) {
-      const loc = duplicate?.branch?.name || duplicateVisit?.branch?.name || "an outlet";
+    if (samePhoto) {
       return NextResponse.json({
-        error: `Invoice #${claim.invoiceNumber} has already been used to earn points at ${loc}. Duplicate claims are not allowed.`,
+        error: "This receipt photo has already been used to earn points.",
+      }, { status: 409 });
+    }
+
+    // Comprehensive duplicate check: matches cashier POS bills, claims, and all serial variations
+    const existing = await findExistingInvoice(claim.invoiceNumber, branchPrefix, claim.receiptDate);
+    if (existing) {
+      return NextResponse.json({
+        error: `Bill #${serial} (${existing.invoiceNumber}) has already been registered and points awarded at ${existing.location}${existing.date ? ` on ${existing.date}` : ""}. Duplicate claims are not permitted.`,
       }, { status: 409 });
     }
 
@@ -96,7 +91,7 @@ export async function POST(req: NextRequest) {
             customerId,
             branchId: branch.id,
             staffId: null,
-            invoiceNumber: claim.invoiceNumber,
+            invoiceNumber: fullInvoice,
             amount: claim.total,
             pointsEarned,
             discountGiven: 0,

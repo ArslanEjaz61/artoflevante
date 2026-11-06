@@ -725,7 +725,7 @@ export default function OutletTab({
                           <input
                             id="admin-pos-phone"
                             type="tel"
-                            placeholder={outletCountryCode === "971" ? "50 123 4567" : `Enter ${adminCountry.max}-digit number`}
+                            placeholder={adminCountry.placeholder || `Enter ${adminCountry.max}-digit number`}
                             value={outletMobileInput}
                             maxLength={adminCountry.max}
                             onChange={(e) => {

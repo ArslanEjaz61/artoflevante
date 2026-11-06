@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getStaffSession, canAccessBranch } from "@/lib/session";
 import { pointsForAmount, newlyEligibleRewards, getNumber } from "@/lib/loyalty";
+import { formatFullInvoice, findExistingInvoice, extractSerialFromInvoice } from "@/lib/receipts";
 import { normalizeCode } from "@/lib/crypto";
 
 export async function POST(req: NextRequest) {
@@ -60,21 +61,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "You cannot record a sale for that branch." }, { status: 403 });
   }
 
-  const duplicate = await prisma.transaction.findFirst({
-    where: { branchId, invoiceNumber: invoice },
-  });
-  if (duplicate) {
+  const branch = await prisma.branch.findUnique({ where: { id: branchId } });
+  const cleanInvoice = formatFullInvoice(invoice, branch?.invoicePrefix || branch?.code);
+  const serial = extractSerialFromInvoice(invoice);
+
+  const existing = await findExistingInvoice(invoice, branch?.invoicePrefix || branch?.code);
+  if (existing) {
     await prisma.auditLog.create({
       data: {
         staffId: session.id,
         action: "transaction.duplicate_blocked",
         entityType: "Transaction",
-        entityId: duplicate.id,
-        metadata: { invoiceNumber: invoice, branchId },
+        metadata: { invoiceNumber: cleanInvoice, cleanInvoice, branchId },
       },
     });
     return NextResponse.json(
-      { error: `Invoice ${invoice} has already been used at this branch.` },
+      { error: `Bill #${serial} (${existing.invoiceNumber}) has already been recorded at ${existing.location}${existing.date ? ` on ${existing.date}` : ""}. Duplicate entries are not allowed.` },
       { status: 409 }
     );
   }

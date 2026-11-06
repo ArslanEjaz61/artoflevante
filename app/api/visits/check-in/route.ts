@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { getCustomerId, getStaffSession } from "@/lib/session";
 import { getOrRotateBranchDailyCode } from "@/lib/visits";
 import { getNumber, getSetting, pointsForAmount, newlyEligibleRewards } from "@/lib/loyalty";
-import { formatFullInvoice } from "@/lib/receipts";
+import { formatFullInvoice, findExistingInvoice, extractSerialFromInvoice } from "@/lib/receipts";
 import { createNotification } from "@/lib/notifications";
 
 export async function POST(req: NextRequest) {
@@ -128,16 +128,11 @@ export async function POST(req: NextRequest) {
     let normalizedBillInvoice = cleanInvoice;
     if (!isCustomerPortal && cleanInvoice) {
       normalizedBillInvoice = formatFullInvoice(cleanInvoice, matchedBranch.invoicePrefix || matchedBranch.code);
-      const duplicateInvoice = await prisma.transaction.findFirst({
-        where: {
-          invoiceNumber: { equals: normalizedBillInvoice, mode: "insensitive" },
-        },
-        include: { branch: true },
-      });
-
-      if (duplicateInvoice) {
+      const existing = await findExistingInvoice(cleanInvoice, matchedBranch.invoicePrefix || matchedBranch.code);
+      if (existing) {
+        const serial = extractSerialFromInvoice(cleanInvoice);
         return NextResponse.json({
-          error: `Invoice #${normalizedBillInvoice} has already been registered and points issued at ${duplicateInvoice.branch?.name || "an outlet"}. Duplicate invoice numbers are not allowed.`,
+          error: `Bill #${serial} (${existing.invoiceNumber}) has already been registered and points issued at ${existing.location}${existing.date ? ` on ${existing.date}` : ""}. Duplicate invoice numbers are not allowed.`,
         }, { status: 409 });
       }
     }
