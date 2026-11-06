@@ -3,11 +3,19 @@ import { cookies } from "next/headers";
 
 const CUSTOMER_COOKIE = "loyalty_customer";
 const STAFF_COOKIE = "loyalty_staff";
+const OUTLET_COOKIE = "loyalty_outlet";
 const CUSTOMER_DAYS = 90;
 const STAFF_HOURS = 12;
+const OUTLET_DAYS = 30;
 
 function secret(): Uint8Array {
-  const value = process.env.SESSION_SECRET || "default_fallback_session_secret_at_least_32_characters_long";
+  const value = process.env.SESSION_SECRET;
+  if (!value) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("FATAL: SESSION_SECRET environment variable is missing in production!");
+    }
+    return new TextEncoder().encode("default_fallback_session_secret_at_least_32_characters_long");
+  }
   return new TextEncoder().encode(value);
 }
 
@@ -88,10 +96,42 @@ export async function clearStaffSession(): Promise<void> {
   store.delete(STAFF_COOKIE);
 }
 
+// -------------------------------------------------------------------- outlet
+
+export interface OutletSession {
+  branchId: string;
+  branchCode: string;
+  branchName: string;
+}
+
+export async function setOutletSession(branch: { id: string; code: string; name: string }): Promise<void> {
+  const token = await sign(
+    { sub: branch.id, kind: "outlet", branchCode: branch.code, branchName: branch.name },
+    `${OUTLET_DAYS}d`
+  );
+  const store = await cookies();
+  store.set(OUTLET_COOKIE, token, { ...baseCookie, maxAge: OUTLET_DAYS * 86400 });
+}
+
+export async function getOutletSession(): Promise<OutletSession | null> {
+  const payload = await read(OUTLET_COOKIE);
+  if (payload?.kind !== "outlet" || !payload.sub) return null;
+  return {
+    branchId: payload.sub as string,
+    branchCode: (payload.branchCode as string) ?? "",
+    branchName: (payload.branchName as string) ?? "",
+  };
+}
+
+export async function clearOutletSession(): Promise<void> {
+  const store = await cookies();
+  store.delete(OUTLET_COOKIE);
+}
+
 // --------------------------------------------------------------- permissions
 
 export function canAccessAllBranches(role?: string): boolean {
-  return role === "SUPER_ADMIN" || role === "COMPANY_ADMIN" || role === "BRANCH_MANAGER";
+  return role === "SUPER_ADMIN" || role === "COMPANY_ADMIN";
 }
 
 export function canAccessBranch(session: StaffSession | null, branchId: string): boolean {

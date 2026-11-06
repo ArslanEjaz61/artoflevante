@@ -3,10 +3,11 @@ import { prisma } from "@/lib/db";
 import { getCustomerId, getStaffSession } from "@/lib/session";
 import { getOrRotateBranchDailyCode } from "@/lib/visits";
 import { getNumber, getSetting, pointsForAmount, newlyEligibleRewards } from "@/lib/loyalty";
+import { formatFullInvoice } from "@/lib/receipts";
 import { createNotification } from "@/lib/notifications";
 
 export async function POST(req: NextRequest) {
-  // Can be checked in by customer directly or by staff cashier
+  // Can be checked in by customer directly (visit stamp only) or by staff cashier (with verified bill)
   const customerIdFromCookie = await getCustomerId();
   const staffSession = await getStaffSession();
 
@@ -28,16 +29,20 @@ export async function POST(req: NextRequest) {
   }
 
   const cleanCode = couponCode.trim().toUpperCase().replace(/\s+/g, "");
+  const isCustomerPortal = !staffSession && Boolean(customerIdFromCookie);
+
   const cleanInvoice = String(invoiceNumber || "").trim().toUpperCase();
   const rawBill = amount !== undefined && amount !== null && amount !== "" ? amount : billAmount;
   const numAmount = Number(rawBill);
 
-  if (!cleanInvoice) {
-    return NextResponse.json({ error: "Please enter the bill invoice number (e.g. INV-1002)." }, { status: 400 });
-  }
-
-  if (!Number.isFinite(numAmount) || numAmount <= 0) {
-    return NextResponse.json({ error: "Please enter a valid bill payment amount (e.g. 50.00)." }, { status: 400 });
+  // If staff cashier is checking in a bill on behalf of customer:
+  if (!isCustomerPortal) {
+    if (!cleanInvoice) {
+      return NextResponse.json({ error: "Please enter the bill invoice number (e.g. INV-1002)." }, { status: 400 });
+    }
+    if (!Number.isFinite(numAmount) || numAmount <= 0) {
+      return NextResponse.json({ error: "Please enter a valid bill payment amount (e.g. 50.00)." }, { status: 400 });
+    }
   }
 
   // Determine target customer
@@ -119,18 +124,22 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // Check C: DUPLICATE INVOICE NUMBER PREVENTION
-    const duplicateInvoice = await prisma.transaction.findFirst({
-      where: {
-        branchId: matchedBranch.id,
-        invoiceNumber: cleanInvoice,
-      },
-    });
+    // Check C: For staff cashier checking in bill, duplicate invoice prevention across ALL branches
+    let normalizedBillInvoice = cleanInvoice;
+    if (!isCustomerPortal && cleanInvoice) {
+      normalizedBillInvoice = formatFullInvoice(cleanInvoice, matchedBranch.invoicePrefix || matchedBranch.code);
+      const duplicateInvoice = await prisma.transaction.findFirst({
+        where: {
+          invoiceNumber: { equals: normalizedBillInvoice, mode: "insensitive" },
+        },
+        include: { branch: true },
+      });
 
-    if (duplicateInvoice) {
-      return NextResponse.json({
-        error: `Invoice #${cleanInvoice} has already been registered and points issued. Duplicate invoice numbers are not allowed.`,
-      }, { status: 409 });
+      if (duplicateInvoice) {
+        return NextResponse.json({
+          error: `Invoice #${normalizedBillInvoice} has already been registered and points issued at ${duplicateInvoice.branch?.name || "an outlet"}. Duplicate invoice numbers are not allowed.`,
+        }, { status: 409 });
+      }
     }
 
     // 4. Fetch customer
@@ -143,37 +152,41 @@ export async function POST(req: NextRequest) {
     }
 
     // 5. Calculate Points dynamically based on bill amount and loyalty rules
-    const pointsEarned = await pointsForAmount(numAmount);
+    // Customer Portal check-in gets 0 spend points (spends require receipt scan or POS till)
+    const pointsEarned = isCustomerPortal ? 0 : await pointsForAmount(numAmount);
     const currency = (await getSetting("currency")) || "AED";
     const expiryDays = (await getNumber("points_expiry_days")) || 0;
 
     // 6. Execute atomic database transaction
     const result = await prisma.$transaction(async (tx) => {
-      // Create Transaction record
-      const trx = await tx.transaction.create({
-        data: {
-          customerId: customer.id,
-          branchId: matchedBranch.id,
-          staffId: staffSession?.id || null,
-          invoiceNumber: cleanInvoice,
-          amount: numAmount,
-          pointsEarned,
-          discountGiven: 0,
-        },
-      });
+      let trx: any = null;
 
-      // Create Points Ledger entry
-      if (pointsEarned > 0) {
-        await tx.pointsLedger.create({
+      // Staff Cashier check-in creates transaction
+      if (!isCustomerPortal && cleanInvoice && numAmount > 0) {
+        trx = await tx.transaction.create({
           data: {
             customerId: customer.id,
-            transactionId: trx.id,
-            delta: pointsEarned,
-            reason: "purchase",
-            note: `Visit bill payment at ${matchedBranch.name} (Invoice #${cleanInvoice})`,
-            expiresAt: expiryDays > 0 ? new Date(Date.now() + expiryDays * 86400_000) : null,
+            branchId: matchedBranch.id,
+            staffId: staffSession?.id || null,
+            invoiceNumber: normalizedBillInvoice,
+            amount: numAmount,
+            pointsEarned,
+            discountGiven: 0,
           },
         });
+
+        if (pointsEarned > 0) {
+          await tx.pointsLedger.create({
+            data: {
+              customerId: customer.id,
+              transactionId: trx.id,
+              delta: pointsEarned,
+              reason: "purchase",
+              note: `Visit bill payment at ${matchedBranch.name} (Invoice #${cleanInvoice})`,
+              expiresAt: expiryDays > 0 ? new Date(Date.now() + expiryDays * 86400_000) : null,
+            },
+          });
+        }
       }
 
       // Create CustomerVisit record
@@ -184,17 +197,23 @@ export async function POST(req: NextRequest) {
           couponCode: matchingEntry.dailyCode,
           pointsEarned,
           checkInMethod: staffSession ? "STAFF_POS" : "CUSTOMER_PORTAL",
-          note: `Invoice #${cleanInvoice} · Bill: ${currency} ${numAmount.toFixed(2)}`,
+          note: isCustomerPortal
+            ? `Daily visit check-in at ${matchedBranch.name}`
+            : `Invoice #${cleanInvoice} · Bill: ${currency} ${numAmount.toFixed(2)}`,
         },
       });
 
-      // Increment customer visit count, points balance, and total spend
+      // Increment customer visit count, and spend/points only if staff verified
       const updatedCustomer = await tx.customer.update({
         where: { id: customer.id },
         data: {
           visitCount: { increment: 1 },
-          totalSpend: { increment: numAmount },
-          pointsBalance: { increment: pointsEarned },
+          ...(isCustomerPortal
+            ? {}
+            : {
+                totalSpend: { increment: numAmount },
+                pointsBalance: { increment: pointsEarned },
+              }),
           lastVisitAt: new Date(),
         },
       });
@@ -203,17 +222,17 @@ export async function POST(req: NextRequest) {
       await tx.auditLog.create({
         data: {
           staffId: staffSession?.id || null,
-          action: "customer.visit_checkin_with_bill",
-          entityType: "Transaction",
-          entityId: trx.id,
+          action: isCustomerPortal ? "customer.visit_checkin" : "customer.visit_checkin_with_bill",
+          entityType: "CustomerVisit",
+          entityId: visit.id,
           metadata: {
             customerId: customer.id,
             customerName: customer.name,
             branchId: matchedBranch.id,
             branchName: matchedBranch.name,
             couponCode: matchingEntry.dailyCode,
-            invoiceNumber: cleanInvoice,
-            amount: numAmount,
+            invoiceNumber: isCustomerPortal ? null : cleanInvoice,
+            amount: isCustomerPortal ? 0 : numAmount,
             pointsEarned,
             newVisitCount: updatedCustomer.visitCount,
             newPointsBalance: updatedCustomer.pointsBalance,
@@ -228,18 +247,20 @@ export async function POST(req: NextRequest) {
     await createNotification({
       type: "VISIT_CHECKIN",
       title: `Visit Check-In: ${customer.name || "Customer"}`,
-      message: `${customer.name || "Customer"} checked in at ${matchedBranch.name} (Code: ${matchingEntry.dailyCode}, Bill: AED ${numAmount.toFixed(2)}, Earned: +${pointsEarned} pts).`,
+      message: isCustomerPortal
+        ? `${customer.name || "Customer"} checked in at ${matchedBranch.name} (Daily Code: ${matchingEntry.dailyCode}).`
+        : `${customer.name || "Customer"} checked in at ${matchedBranch.name} (Code: ${matchingEntry.dailyCode}, Bill: AED ${numAmount.toFixed(2)}, Earned: +${pointsEarned} pts).`,
       metadata: {
         customerId: customer.id,
         branchName: matchedBranch.name,
         couponCode: matchingEntry.dailyCode,
-        invoiceNumber: cleanInvoice,
+        invoiceNumber: isCustomerPortal ? null : cleanInvoice,
         pointsEarned,
-        amount: numAmount,
+        amount: isCustomerPortal ? 0 : numAmount,
       },
     });
 
-    // 7. Check for milestone rewards newly unlocked by this visit / points balance
+    // 7. Check for milestone rewards newly unlocked by this visit
     const held = await prisma.customerReward.findMany({
       where: { customerId: customer.id, status: "AVAILABLE" },
       select: { rewardId: true },
@@ -251,49 +272,38 @@ export async function POST(req: NextRequest) {
       alreadyHeldRewardIds: held.map((h) => h.rewardId),
     });
 
-    const issuedRewards: any[] = [];
-    for (const r of unlocked) {
-      const cr = await prisma.customerReward.create({
+    for (const reward of unlocked) {
+      await prisma.customerReward.create({
         data: {
           customerId: customer.id,
-          rewardId: r.id,
+          rewardId: reward.id,
           status: "AVAILABLE",
-          expiresAt: r.validDays ? new Date(Date.now() + r.validDays * 86400_000) : null,
         },
       });
-      issuedRewards.push({ id: cr.id, name: r.name, description: r.description });
+
+      await createNotification({
+        type: "PROMOTION_CREATED",
+        title: `Reward Unlocked: ${reward.name}`,
+        message: `${customer.name || "A member"} unlocked "${reward.name}" through their visit check-in!`,
+        metadata: { customerId: customer.id, rewardId: reward.id },
+      });
     }
 
     return NextResponse.json({
       ok: true,
-      message: `Visit & Bill recorded! You earned +${pointsEarned} points at ${matchedBranch.name}.`,
-      branch: {
-        id: matchedBranch.id,
-        name: matchedBranch.name,
-        code: matchedBranch.code,
-        city: matchedBranch.city,
-      },
-      transaction: {
-        id: result.trx.id,
-        invoiceNumber: cleanInvoice,
-        amount: numAmount,
-        pointsEarned,
-        currency,
-      },
-      visit: {
-        id: result.visit.id,
-        couponCode: result.visit.couponCode,
-        createdAt: result.visit.createdAt,
-      },
+      message: isCustomerPortal
+        ? `Visit recorded at ${matchedBranch.name}! Your visit stamp is updated. To earn points for your dining bill, scan your receipt below or show your Membership QR to the cashier!`
+        : `Visit and bill recorded successfully! Points earned: +${pointsEarned} pts.`,
+      visit: result.visit,
+      transaction: result.trx,
       customer: {
         visitCount: result.customer.visitCount,
         pointsBalance: result.customer.pointsBalance,
-        totalSpend: Number(result.customer.totalSpend),
       },
-      newRewards: issuedRewards,
+      unlockedRewards: unlocked,
     });
   } catch (err: any) {
     console.error("POST /api/visits/check-in error:", err);
-    return NextResponse.json({ error: err.message || "Failed to check in visit." }, { status: 500 });
+    return NextResponse.json({ error: err?.message || "Failed to process visit check-in." }, { status: 500 });
   }
 }

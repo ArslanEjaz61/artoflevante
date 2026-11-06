@@ -31,15 +31,18 @@ import {
   PartyPopper,
   LogOut,
   Building2,
+  UserX,
 } from "lucide-react";
 import jsQR from "jsqr";
-import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/mobile";
+import { COUNTRIES, DEFAULT_COUNTRY, findCountry, normalizeMobile } from "@/lib/mobile";
 import { CrmTopHeader } from "@/components/CrmTopHeader";
 import { CountryCodePicker } from "@/components/CountryCodePicker";
+import { formatFullInvoice, getBranchInvoicePrefix } from "@/lib/receiptUtils";
 
 interface Branch {
   id: string;
   code: string;
+  invoicePrefix?: string;
   name: string;
   city?: string;
   address?: string;
@@ -114,6 +117,46 @@ function RibbonIcon({ className = "w-7 h-7" }: { className?: string }) {
   );
 }
 
+function getRewardBadge(reward: RewardItem) {
+  switch (reward.type) {
+    case "VISITS":
+      return {
+        label: reward.threshold ? `Visit #${reward.threshold} Milestone Gift` : "Visit Milestone Gift",
+        bg: "bg-amber-100 text-amber-900 border-amber-200",
+      };
+    case "BIRTHDAY":
+      return {
+        label: "Birthday Celebration Treat",
+        bg: "bg-pink-100 text-pink-900 border-pink-200",
+      };
+    case "WELCOME":
+      return {
+        label: "Welcome Member Gift",
+        bg: "bg-purple-100 text-purple-900 border-purple-200",
+      };
+    case "POINTS":
+      return {
+        label: reward.threshold ? `${reward.threshold} Pts Milestone Reward` : "Points Reward",
+        bg: "bg-blue-100 text-blue-900 border-blue-200",
+      };
+    default:
+      return {
+        label: "Special Member Treat",
+        bg: "bg-emerald-100 text-emerald-900 border-emerald-200",
+      };
+  }
+}
+
+function getRewardValueText(reward: RewardItem, currency: string) {
+  if (reward.isPercent) {
+    return `${reward.value}% Discount Offer`;
+  }
+  if (reward.value > 0) {
+    return `${currency} ${reward.value.toFixed(2)} Off Bill`;
+  }
+  return "100% Free Complimentary Item / Gift";
+}
+
 function OutletContent() {
   const searchParams = useSearchParams();
   const codeParam = searchParams
@@ -126,7 +169,7 @@ function OutletContent() {
 
   // Branch Info
   const [activeBranch, setActiveBranch] = useState<Branch | null>(null);
-  const [sampleBranch, setSampleBranch] = useState<Branch | null>(null);
+
 
   // Screen 1: Outlet Code Input
   const [outletCodeInput, setOutletCodeInput] = useState("");
@@ -140,6 +183,7 @@ function OutletContent() {
   const [qrInput, setQrInput] = useState("");
   const [searchBusy, setSearchBusy] = useState(false);
   const [searchErr, setSearchErr] = useState("");
+  const [notFoundTarget, setNotFoundTarget] = useState<string | null>(null);
 
   // Camera Scanner for QR tab
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -166,6 +210,7 @@ function OutletContent() {
   const [actionMode, setActionMode] = useState<"points" | "visit" | "reward" | "redeem_points">("points");
 
   // Bill & Points awarding state
+  const dynamicInvoicePrefix = getBranchInvoicePrefix(activeBranch?.invoicePrefix || activeBranch?.code || "LV");
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [billAmount, setBillAmount] = useState("");
   const [selectedRewardId, setSelectedRewardId] = useState<string | null>(null);
@@ -184,6 +229,10 @@ function OutletContent() {
   const [redeemingRewardId, setRedeemingRewardId] = useState<string | null>(null);
   const [rewardSuccessReceipt, setRewardSuccessReceipt] = useState<any | null>(null);
   const [rewardErr, setRewardErr] = useState("");
+  const [confirmingReward, setConfirmingReward] = useState<RewardItem | null>(null);
+  const [rewardModalInvoice, setRewardModalInvoice] = useState("");
+  const [rewardModalBillAmount, setRewardModalBillAmount] = useState("");
+  const [rewardModalErr, setRewardModalErr] = useState("");
 
   // Detailed History Receipt Modal
   const [selectedHistoryReceipt, setSelectedHistoryReceipt] = useState<any | null>(null);
@@ -209,13 +258,16 @@ function OutletContent() {
       }
 
       // If refreshed or no code in URL: show Screen 1 (Branch Code Entry)
-      fetch("/api/outlet/auth?sampleOnly=true")
+      fetch("/api/outlet/auth")
         .then((r) => r.json())
         .then((data) => {
-          if (data.sampleBranch) {
-            setSampleBranch(data.sampleBranch);
+          if (data.authenticated && data.branch) {
+            setActiveBranch(data.branch);
+            setScreen("ready");
           }
-          setScreen("entry");
+          else {
+            setScreen("entry");
+          }
         })
         .catch(() => setScreen("entry"))
         .finally(() => setLoadingSession(false));
@@ -276,6 +328,20 @@ function OutletContent() {
 
       if (!tokenToSearch && !mobileToSearch) return;
 
+      if (searchTab === "phone" && !overrideToken) {
+        const country = findCountry(countryCode) || { min: 9, max: 9, name: "UAE" };
+        const validE164 = normalizeMobile(mobileInput, countryCode);
+        if (!validE164) {
+          const cleanDigits = mobileInput.replace(/\D/g, "");
+          setSearchErr(
+            countryCode === "971" && !cleanDigits.startsWith("5")
+              ? "UAE numbers must start with 5 (e.g. 50 123 4567)."
+              : `Please enter a complete ${country.max}-digit mobile number without country code.`
+          );
+          return;
+        }
+      }
+
       setSearchBusy(true);
       setSearchErr("");
 
@@ -292,10 +358,11 @@ function OutletContent() {
 
         const data = await res.json();
         if (!res.ok) {
-          throw new Error(data.error || "Customer not found.");
+          throw new Error(data.error || "No registered customer found with this mobile number.");
         }
 
         setCustomer(data.customer);
+        setNotFoundTarget(null);
         setAvailableRewards(data.availableRewards || []);
         setRecentTransactions(data.recentTransactions || []);
         if (data.loyaltyRules) {
@@ -321,7 +388,13 @@ function OutletContent() {
 
         setScreen("customer");
       } catch (err: any) {
-        setSearchErr(err.message || "Could not find customer profile.");
+        setCustomer(null);
+        setScreen("ready");
+        setAvailableRewards([]);
+        setRecentTransactions([]);
+        const targetDesc = searchTab === "phone" ? `+${countryCode} ${mobileInput}` : (tokenToSearch || "scanned QR");
+        setNotFoundTarget(targetDesc);
+        setSearchErr(err.message || "No registered customer found.");
       } finally {
         setSearchBusy(false);
       }
@@ -448,7 +521,7 @@ function OutletContent() {
         body: JSON.stringify({
           customerId: customer.id,
           branchId: activeBranch.id,
-          invoiceNumber: invoiceNumber.trim(),
+          invoiceNumber: formatFullInvoice(invoiceNumber, activeBranch.invoicePrefix || activeBranch.code),
           amount: val,
           redeemRewardId: selectedRewardId || undefined,
           pointsToRedeem: pointsToRedeemInput > 0 ? pointsToRedeemInput : undefined,
@@ -564,8 +637,8 @@ function OutletContent() {
     }
   }
 
-  // 7. Handle Action 3: "Redeem visit offer / Gifts & Discounts" (Direct 1-Click Deliver/Redeem)
-  async function handleRedeemReward(rewardId: string) {
+  // 7. Handle Action 3: "Redeem visit offer / Gifts & Discounts"
+  async function handleRedeemReward(rewardId: string, invoice?: string) {
     if (!customer || !activeBranch) return;
 
     setRedeemingRewardId(rewardId);
@@ -580,6 +653,7 @@ function OutletContent() {
           customerId: customer.id,
           customerRewardId: rewardId,
           branchId: activeBranch.id,
+          invoiceNumber: invoice ? formatFullInvoice(invoice, activeBranch.invoicePrefix || activeBranch.code) : undefined,
         }),
       });
 
@@ -595,12 +669,79 @@ function OutletContent() {
           ? {
               ...prev,
               pointsBalance: data.customer.pointsBalance,
+              visitCount: data.customer.visitCount !== undefined ? data.customer.visitCount : prev.visitCount,
             }
           : null
       );
       setAvailableRewards(data.availableRewards || []);
     } catch (err: any) {
       setRewardErr(err.message || "Failed to redeem offer.");
+      throw err;
+    } finally {
+      setRedeemingRewardId(null);
+    }
+  }
+
+  // Handle Discount Voucher Redemption with Bill Amount & Invoice
+  async function handleRedeemDiscountWithBill(rewardId: string, invoice: string, amount: number) {
+    if (!customer || !activeBranch) return;
+
+    setRedeemingRewardId(rewardId);
+    setRewardErr("");
+    setRewardSuccessReceipt(null);
+
+    try {
+      const res = await fetch("/api/outlet/transaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerId: customer.id,
+          branchId: activeBranch.id,
+          invoiceNumber: formatFullInvoice(invoice, activeBranch.invoicePrefix || activeBranch.code),
+          amount: amount,
+          redeemRewardId: rewardId,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to apply discount and record transaction.");
+      }
+
+      setSuccessReceipt(data);
+      setCustomer((prev) =>
+        prev
+          ? {
+              ...prev,
+              pointsBalance: data.customer.pointsBalance,
+              visitCount: data.customer.visitCount,
+              totalSpend: (prev.totalSpend || 0) + amount,
+            }
+          : null
+      );
+      if (data.availableRewards) {
+        setAvailableRewards(data.availableRewards);
+      } else {
+        setAvailableRewards((prev) => prev.filter((r) => r.id !== rewardId));
+      }
+      if (data.transaction) {
+        setRecentTransactions((prev) => [
+          {
+            id: data.transaction.id,
+            invoiceNumber: data.transaction.invoiceNumber,
+            amount: data.transaction.amount,
+            pointsEarned: data.transaction.pointsEarned,
+            discountGiven: data.transaction.discountGiven || 0,
+            redeemedRewards: data.redeemedVoucher ? [data.redeemedVoucher.name] : [],
+            branchName: activeBranch.name,
+            createdAt: data.transaction.createdAt || new Date().toISOString(),
+          },
+          ...prev,
+        ]);
+      }
+    } catch (err: any) {
+      setRewardErr(err.message || "Failed to apply discount.");
+      throw err;
     } finally {
       setRedeemingRewardId(null);
     }
@@ -702,7 +843,7 @@ function OutletContent() {
             <button
               type="submit"
               disabled={!outletCodeInput.trim() || outletAuthBusy}
-              className="w-full mt-2 py-3.5 px-6 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full mt-2 py-3.5 px-6 rounded-xl bg-[#0E331E] hover:bg-[#067C2E] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {outletAuthBusy ? (
                 <>
@@ -717,20 +858,7 @@ function OutletContent() {
 
           {/* Helper Sample Code Hint */}
           <div className="mt-7 text-[11.5px] text-[#7A6E67] font-medium">
-            {sampleBranch ? (
-              <>
-                {sampleBranch.name} code:{" "}
-                <button
-                  type="button"
-                  onClick={() => setOutletCodeInput(sampleBranch.code)}
-                  className="font-bold font-mono text-[#1E1815] hover:text-[#0E331E] underline cursor-pointer"
-                >
-                  {sampleBranch.code}
-                </button>
-              </>
-            ) : (
-              "Enter your 4-digit branch code (e.g. 1005 for Dubai Festival City)"
-            )}
+            Enter your branch code
           </div>
         </div>
         </div>
@@ -844,51 +972,85 @@ function OutletContent() {
           </div>
 
           {/* TAB 1: Mobile Search */}
-          {searchTab === "phone" && (
-            <form onSubmit={handleLookupCustomer} className="animate-in fade-in duration-150">
-              <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="cust-phone-input">
-                Mobile number
-              </label>
+          {searchTab === "phone" && (() => {
+            const currentCountry = findCountry(countryCode) || { min: 9, max: 9, name: "UAE" };
+            const cleanDigits = mobileInput.replace(/\D/g, "");
+            const isMobileValid = Boolean(normalizeMobile(mobileInput, countryCode));
 
-              <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
-                <CountryCodePicker
-                  value={countryCode}
-                  onChange={setCountryCode}
-                  disabled={searchBusy}
-                />
+            return (
+              <form onSubmit={handleLookupCustomer} className="animate-in fade-in duration-150">
+                <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="cust-phone-input">
+                  Mobile number
+                </label>
 
-                <input
-                  id="cust-phone-input"
-                  type="tel"
-                  placeholder="50 123 4567"
-                  value={mobileInput}
-                  onChange={(e) => setMobileInput(e.target.value.replace(/[^\d\s]/g, ""))}
-                  autoFocus
-                  required
-                  className="flex-1 px-4 py-3.5 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs transition-colors"
-                />
+                <div className="flex gap-2.5 items-center">
+                  <CountryCodePicker
+                    value={countryCode}
+                    onChange={(val) => {
+                      setCountryCode(val);
+                      if (searchErr) setSearchErr("");
+                    }}
+                    disabled={searchBusy}
+                  />
 
-                <button
-                  type="submit"
-                  disabled={!mobileInput.trim() || searchBusy}
-                  className="py-3.5 px-7 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
-                >
-                  {searchBusy ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>FINDING…</span>
-                    </>
-                  ) : (
-                    <span>OPEN CUSTOMER</span>
-                  )}
-                </button>
-              </div>
+                  <input
+                    id="cust-phone-input"
+                    type="tel"
+                    placeholder={countryCode === "971" ? "50 123 4567" : `Enter ${currentCountry.max}-digit number`}
+                    value={mobileInput}
+                    maxLength={currentCountry.max}
+                    onChange={(e) => {
+                      let raw = e.target.value.replace(/\D/g, "");
+                      if (raw.startsWith("00")) raw = raw.slice(2);
+                      if (raw.startsWith(countryCode) && raw.length > currentCountry.max) {
+                        raw = raw.slice(countryCode.length);
+                      }
+                      if (raw.startsWith("0")) raw = raw.replace(/^0+/, "");
+                      setMobileInput(raw.slice(0, currentCountry.max));
+                      if (!raw) {
+                        setSearchErr("");
+                        setNotFoundTarget(null);
+                      }
+                    }}
+                    autoFocus
+                    required
+                    className="flex-1 min-w-0 px-4 h-11 bg-white border border-[#EAE3DC] rounded-xl text-base font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs transition-colors"
+                  />
 
-              <div className="text-[11px] text-[#7A6E67] font-medium mt-2.5">
-                Choose the country code and enter the number without the first zero.
-              </div>
-            </form>
-          )}
+                  <button
+                    type="submit"
+                    disabled={!isMobileValid || searchBusy}
+                    title={!isMobileValid ? `Please enter complete ${currentCountry.max}-digit number` : "Open Customer Profile"}
+                    className="py-3 px-6 h-11 rounded-xl bg-[#0E331E] hover:bg-[#067C2E] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0 flex items-center justify-center gap-2"
+                  >
+                    {searchBusy ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>FINDING…</span>
+                      </>
+                    ) : (
+                      <span>OPEN CUSTOMER</span>
+                    )}
+                  </button>
+                </div>
+                <div className="mt-1.5 flex items-center justify-between text-[11px] text-[#7A6E67] font-medium">
+                  <span>
+                    Enter number without country code{" "}
+                    <strong className="text-[#0E331E]">
+                      ({countryCode === "971" ? "e.g. 50 123 4567" : `${currentCountry.max} digits`})
+                    </strong>
+                  </span>
+                  <span className={`font-mono font-bold ${isMobileValid ? "text-emerald-700" : "text-[#0E331E]"}`}>
+                    {cleanDigits.length}/{currentCountry.max}
+                  </span>
+                </div>
+
+                <div className="text-[11px] text-[#7A6E67] font-medium mt-2.5">
+                  Choose the country code and enter the complete number without the first zero. Half or incomplete numbers cannot be opened.
+                </div>
+              </form>
+            );
+          })()}
 
           {/* TAB 2: QR Scanner Search */}
           {searchTab === "qr" && (
@@ -921,7 +1083,7 @@ function OutletContent() {
                 <button
                   type="submit"
                   disabled={!qrInput.trim() || searchBusy}
-                  className="py-3.5 px-7 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
+                  className="py-3.5 px-7 rounded-xl bg-[#0E331E] hover:bg-[#067C2E] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
                 >
                   {searchBusy ? "FINDING…" : "LOOKUP QR"}
                 </button>
@@ -964,12 +1126,35 @@ function OutletContent() {
                 <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
                 <span>{searchErr}</span>
               </div>
-              <button onClick={() => setSearchErr("")} className="cursor-pointer">
+              <button onClick={() => { setSearchErr(""); setNotFoundTarget(null); }} className="cursor-pointer">
                 <X className="w-4 h-4" />
               </button>
             </div>
           )}
         </div>
+
+        {/* NOT FOUND CARD (IN PLACE OF THE PREVIOUS CUSTOMER) */}
+        {!customer && notFoundTarget && (
+          <div className="bg-white rounded-3xl sm:rounded-4xl p-6 sm:p-10 border border-[#EAE3DC] shadow-sm text-center animate-in fade-in slide-in-from-bottom-2 duration-200">
+            <div className="w-16 h-16 rounded-full bg-[#0E331E]/10 text-[#0E331E] flex items-center justify-center mx-auto mb-3 shadow-2xs">
+              <UserX className="w-8 h-8 text-[#0E331E]" />
+            </div>
+            <h3 className="font-display font-black text-lg sm:text-xl text-[#1E1815]">
+              Customer Not Found
+            </h3>
+            <p className="text-xs sm:text-sm text-[#7A6E67] font-medium mt-1 max-w-md mx-auto">
+              No registered member found for{" "}
+              <strong className="text-[#1E1815] font-mono font-bold">
+                {notFoundTarget}
+              </strong>
+              .
+            </p>
+            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FAF7F4] border border-[#EAE3DC] text-[11px] text-[#7A6E67] font-semibold">
+              <AlertCircle className="w-3.5 h-3.5 text-[#0E331E] shrink-0" />
+              <span>Please double-check the entered number or scan customer's membership QR card.</span>
+            </div>
+          </div>
+        )}
 
         {/* ============================================================== */}
         {/* SCREEN 2 (EXTENDED): CUSTOMER PROFILE & 3 ACTION MODE DESK     */}
@@ -1026,6 +1211,8 @@ function OutletContent() {
                 onClick={() => {
                   setActionMode("points");
                   setBillErr("");
+                  setPointsToRedeemInput(0);
+                  setCustomRedeemInput("");
                 }}
                 className={`p-4.5 rounded-2xl border text-left flex flex-col justify-between transition-all cursor-pointer relative ${
                   actionMode === "points"
@@ -1117,37 +1304,49 @@ function OutletContent() {
             {/* ============================================================== */}
             {/* ACTION PANEL 1: GIVE LOYALTY POINTS                            */}
             {/* ============================================================== */}
+            {/* ============================================================== */}
+            {/* ACTION PANEL 1: GIVE LOYALTY POINTS / RECORD BILL WITH DISCOUNT*/}
+            {/* ============================================================== */}
             {actionMode === "points" && (
               <div className="pt-2 animate-in fade-in duration-200">
                 {!successReceipt ? (
                   <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#FAF7F4] border border-[#EAE3DC] space-y-5">
                     <div>
-                      <h4 className="font-extrabold text-sm sm:text-base text-[#1E1815]">Give Loyalty Points on Bill</h4>
+                      <h4 className="font-extrabold text-sm sm:text-base text-[#1E1815]">Give Loyalty Points on Dine-in Bill</h4>
                       <p className="text-xs text-[#7A6E67] mt-0.5">
-                        Enter invoice # and bill amount to award points and stamp visit.
+                        Enter invoice # and bill amount to award loyalty points. You can also apply member discount vouchers on this bill.
                       </p>
                     </div>
 
                     <form onSubmit={handleRecordSale} className="space-y-4 pt-2 border-t border-[#EAE3DC]">
+                      {/* Invoice & Bill Amount */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
                         <div>
                           <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="outlet-inv-input">
                             Invoice / Receipt #
                           </label>
-                          <input
-                            id="outlet-inv-input"
-                            type="text"
-                            placeholder="E.G. INV-10982"
-                            value={invoiceNumber}
-                            onChange={(e) => setInvoiceNumber(e.target.value.toUpperCase())}
-                            required
-                            className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3.5 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs"
-                          />
+                          <div className="flex rounded-xl border border-[#EAE3DC] overflow-hidden focus-within:border-[#0E331E] bg-white shadow-2xs">
+                            <span className="inline-flex items-center px-3 sm:px-3.5 bg-[#FAF7F4] border-r border-[#EAE3DC] text-xs sm:text-sm font-mono font-black text-[#0E331E] select-none tracking-wider whitespace-nowrap">
+                              {dynamicInvoicePrefix}
+                            </span>
+                            <input
+                              id="outlet-inv-input"
+                              type="text"
+                              placeholder="88280"
+                              value={invoiceNumber}
+                              onChange={(e) => setInvoiceNumber(e.target.value.replace(/[^0-9a-zA-Z-]/g, '').toUpperCase())}
+                              required
+                              className="flex-1 px-3.5 sm:px-4 py-2.5 sm:py-3.5 bg-transparent font-mono text-sm font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none"
+                            />
+                          </div>
+                          <p className="text-[10px] text-[#7A6E67] font-mono mt-1">
+                            Prefix is auto-fixed. Cashier only enters receipt serial (e.g. 88280).
+                          </p>
                         </div>
 
                         <div>
                           <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="outlet-amount-input">
-                            Bill Amount ({loyaltyRules.currency})
+                            Gross Bill Amount ({loyaltyRules.currency})
                           </label>
                           <input
                             id="outlet-amount-input"
@@ -1163,34 +1362,136 @@ function OutletContent() {
                         </div>
                       </div>
 
+                      {/* Optional Member Discount Vouchers */}
+                      {availableRewards.length > 0 && (
+                        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#EAE3DC] space-y-2.5 shadow-2xs">
+                          <div className="flex items-center justify-between">
+                            <div className="text-xs font-black text-[#1E1815] flex items-center gap-1.5">
+                              <Tag className="w-3.5 h-3.5 text-[#0E331E]" />
+                              <span>Apply Member Discount Voucher (Optional):</span>
+                            </div>
+                            {selectedRewardId && (
+                              <button
+                                type="button"
+                                onClick={() => setSelectedRewardId(null)}
+                                className="text-[11px] font-bold text-red-700 hover:text-red-900 cursor-pointer"
+                              >
+                                Remove Voucher
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {availableRewards.map((reward) => {
+                              const isSelected = selectedRewardId === reward.id;
+                              const badge = getRewardBadge(reward);
+                              const discountPreview = reward.isPercent
+                                ? `${reward.value}% OFF`
+                                : reward.value > 0
+                                ? `${loyaltyRules.currency} ${reward.value.toFixed(2)} OFF`
+                                : "Complimentary Item";
+
+                              return (
+                                <button
+                                  key={reward.id}
+                                  type="button"
+                                  onClick={() => setSelectedRewardId(isSelected ? null : reward.id)}
+                                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-1.5 ${
+                                    isSelected
+                                      ? "bg-[#0E331E]/5 border-[#0E331E] ring-2 ring-[#0E331E]/20"
+                                      : "bg-[#FAF7F4] border-[#EAE3DC] hover:border-[#0E331E]/50"
+                                  }`}
+                                >
+                                  <div className="flex items-start justify-between gap-1.5">
+                                    <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border ${badge.bg}`}>
+                                      {badge.label}
+                                    </span>
+                                    {isSelected ? (
+                                      <span className="px-2 py-0.5 rounded-full bg-[#0E331E] text-white text-[9px] font-black uppercase shrink-0">
+                                        APPLIED ✓
+                                      </span>
+                                    ) : (
+                                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-black uppercase shrink-0">
+                                        {discountPreview}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="font-extrabold text-xs text-[#1E1815] truncate">
+                                    {reward.name}
+                                  </div>
+                                  {reward.description && (
+                                    <div className="text-[10px] text-[#7A6E67] line-clamp-1">
+                                      {reward.description}
+                                    </div>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+
+
                       <div className="text-[11px] text-[#7A6E67] font-medium leading-relaxed">
                         {loyaltyRules.currency} {loyaltyRules.spendAedForPoints} = {loyaltyRules.pointsEarnedPerSpend} point(s). Minimum spend {loyaltyRules.currency} 1. Duplicate invoices are blocked.
                       </div>
 
-                      {/* Dynamic Points Calculation Breakdown */}
+                      {/* Dynamic Points Calculation & Discount Breakdown */}
                       {parsedAmount > 0 && (
                         <div className="p-4 rounded-2xl bg-white border border-[#EAE3DC] space-y-2 text-xs shadow-2xs">
                           <div className="flex justify-between items-center text-[#7A6E67]">
                             <span>Gross Bill Amount:</span>
-                            <span className="font-bold text-[#1E1815]">
+                            <span className="font-bold text-[#1E1815] font-mono">
                               {loyaltyRules.currency} {parsedAmount.toFixed(2)}
                             </span>
                           </div>
 
-                          <div className="flex justify-between items-center text-emerald-800 font-medium">
-                            <span>Points Calculation ({loyaltyRules.currency} {loyaltyRules.spendAedForPoints} = {loyaltyRules.pointsEarnedPerSpend} pt):</span>
+                          {voucherDiscount > 0 && (
+                            <div className="flex justify-between items-center text-red-700">
+                              <span>
+                                Voucher Discount ({selectedReward?.name}):
+                              </span>
+                              <span className="font-bold font-mono">
+                                -{loyaltyRules.currency} {voucherDiscount.toFixed(2)}
+                              </span>
+                            </div>
+                          )}
+
+                          {directPointsDiscount > 0 && (
+                            <div className="flex justify-between items-center text-red-700">
+                              <span>Points Redeemed ({pointsToRedeemInput} pts):</span>
+                              <span className="font-bold font-mono">
+                                -{loyaltyRules.currency} {directPointsDiscount.toFixed(2)}
+                              </span>
+                            </div>
+                          )}
+
+                          {totalDiscount > 0 && (
+                            <div className="flex justify-between items-center text-red-800 font-bold pt-1 border-t border-[#EAE3DC]/60">
+                              <span>Total Bill Discount Applied:</span>
+                              <span className="font-mono font-black text-sm">
+                                -{loyaltyRules.currency} {totalDiscount.toFixed(2)}
+                              </span>
+                            </div>
+                          )}
+
+                          <div className="flex justify-between items-center text-[#1E1815] pt-1.5 border-t border-[#EAE3DC]">
+                            <span className="font-black text-sm text-[#0E331E]">Net Amount to Collect from Customer:</span>
+                            <span className="font-black font-mono text-base text-[#0E331E]">
+                              {loyaltyRules.currency} {netPayable.toFixed(2)}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between items-center text-emerald-800 font-medium pt-1 border-t border-[#EAE3DC]/60">
+                            <span>Points Customer Will Earn (+1 visit stamped):</span>
                             <span className="font-mono text-emerald-700 font-extrabold text-sm">+{estimatedPointsToEarn} pts</span>
                           </div>
 
-                          <div className="flex justify-between items-center text-blue-900 font-medium">
-                            <span>Visit Stamp:</span>
-                            <span className="font-bold font-mono text-blue-700">+1 visit</span>
-                          </div>
-
-                          <div className="pt-2 border-t border-[#EAE3DC] flex justify-between items-center">
-                            <span className="font-bold text-[#1E1815]">Customer New Total Balance:</span>
-                            <span className="font-black font-mono text-base text-[#0E331E]">
-                              {customer.pointsBalance + estimatedPointsToEarn} pts
+                          <div className="flex justify-between items-center text-[#7A6E67] pt-1">
+                            <span>Customer New Total Balance:</span>
+                            <span className="font-black font-mono text-xs text-[#1E1815]">
+                              {Math.max(0, customer.pointsBalance - pointsToRedeemInput) + estimatedPointsToEarn} pts
                             </span>
                           </div>
                         </div>
@@ -1217,12 +1518,17 @@ function OutletContent() {
                         <button
                           type="submit"
                           disabled={submittingBill || !invoiceNumber.trim() || !billAmount.trim()}
-                          className="flex-1 py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-wider sm:tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 text-center"
+                          className="flex-1 py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-[#0E331E] hover:bg-[#067C2E] text-white font-black text-xs uppercase tracking-wider sm:tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 text-center"
                         >
                           {submittingBill ? (
                             <>
                               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
                               <span>RECORDING TRANSACTION…</span>
+                            </>
+                          ) : totalDiscount > 0 ? (
+                            <>
+                              <DollarSign className="w-4 h-4 shrink-0" />
+                              <span>RECORD SALE &amp; APPLY -{loyaltyRules.currency} {totalDiscount.toFixed(2)} DISCOUNT</span>
                             </>
                           ) : (
                             <>
@@ -1234,7 +1540,99 @@ function OutletContent() {
                       </div>
                     </form>
                   </div>
-                ) : null}
+                ) : (
+                  /* Success Receipt Modal Card */
+                  <div className="p-6 sm:p-7 rounded-3xl bg-emerald-50 border border-emerald-200 text-center space-y-5 animate-in fade-in zoom-in duration-200">
+                    <div className="w-14 h-14 rounded-full bg-emerald-600 text-white flex items-center justify-center mx-auto shadow-md">
+                      <Check className="w-7 h-7 stroke-[3]" />
+                    </div>
+                    <div>
+                      <h3 className="font-display font-black text-2xl text-emerald-950">Sale &amp; Points Recorded!</h3>
+                      <p className="text-xs text-emerald-800 font-medium mt-1">
+                        Invoice #{successReceipt.transaction?.invoiceNumber} recorded successfully at {activeBranch.name}.
+                      </p>
+                    </div>
+
+                    <div className="max-w-sm mx-auto bg-white rounded-2xl p-4.5 border border-emerald-200 text-xs text-left space-y-2 font-medium shadow-xs">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[#7A6E67]">Gross Bill:</span>
+                        <span className="font-bold text-[#1E1815] font-mono">
+                          {loyaltyRules.currency} {Number(successReceipt.transaction?.grossBill || successReceipt.transaction?.amount || 0).toFixed(2)}
+                        </span>
+                      </div>
+
+                      {Number(successReceipt.transaction?.discountGiven || 0) > 0 && (
+                        <div className="flex justify-between items-center text-red-700">
+                          <span>
+                            Total Discount:
+                            {successReceipt.redeemedVoucher && (
+                              <span className="block text-[10px] text-red-600">({successReceipt.redeemedVoucher.name})</span>
+                            )}
+                          </span>
+                          <span className="font-bold font-mono">
+                            -{loyaltyRules.currency} {Number(successReceipt.transaction.discountGiven).toFixed(2)}
+                          </span>
+                        </div>
+                      )}
+
+                      {successReceipt.pointsRedeemed && (
+                        <div className="flex justify-between items-center text-red-700">
+                          <span>Points Redeemed:</span>
+                          <span className="font-bold font-mono">-{successReceipt.pointsRedeemed.points} pts</span>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center text-[#1E1815] pt-1.5 border-t border-[#EAE3DC]">
+                        <span className="font-black text-xs text-[#0E331E]">Customer Paid (Net):</span>
+                        <span className="font-black text-sm text-[#0E331E] font-mono">
+                          {loyaltyRules.currency} {Number(successReceipt.transaction?.amountPaid ?? successReceipt.transaction?.netPayable ?? 0).toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center text-emerald-800 pt-1.5 border-t border-[#EAE3DC]">
+                        <span>Points Awarded on Bill:</span>
+                        <span className="font-black font-mono">+{successReceipt.transaction?.pointsEarned || 0} pts</span>
+                      </div>
+
+                      <div className="flex justify-between items-center text-blue-800">
+                        <span>Visit Count:</span>
+                        <span className="font-black font-mono">Visit #{successReceipt.customer?.visitCount} (Stamped ✓)</span>
+                      </div>
+
+                      <div className="flex justify-between items-center pt-2 border-t border-[#EAE3DC]">
+                        <span className="text-[#7A6E67]">Customer Updated Balance:</span>
+                        <span className="font-black text-sm text-[#0E331E] font-mono">{successReceipt.customer?.pointsBalance} pts</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-sm mx-auto">
+                      <button
+                        onClick={() => {
+                          setSuccessReceipt(null);
+                          setInvoiceNumber("");
+                          setBillAmount("");
+                          setSelectedRewardId(null);
+                          setPointsToRedeemInput(0);
+                        }}
+                        className="flex-1 py-3.5 px-6 rounded-xl bg-white border border-emerald-300 text-emerald-900 font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                      >
+                        RECORD ANOTHER BILL
+                      </button>
+                      <button
+                        onClick={() => {
+                          setCustomer(null);
+                          setSuccessReceipt(null);
+                          setMobileInput("");
+                          setQrInput("");
+                          setScreen("ready");
+                        }}
+                        className="flex-1 py-3.5 px-6 rounded-xl bg-[#0E331E] hover:bg-[#067C2E] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+                      >
+                        NEXT CUSTOMER
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -1366,15 +1764,23 @@ function OutletContent() {
                             <label className="block text-xs font-black text-[#1E1815] mb-2" htmlFor="redeem-inv-input">
                               Invoice / Receipt #
                             </label>
-                            <input
-                              id="redeem-inv-input"
-                              type="text"
-                              placeholder="E.G. INV-10982"
-                              value={invoiceNumber}
-                              onChange={(e) => setInvoiceNumber(e.target.value.toUpperCase())}
-                              required
-                              className="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-white border border-[#EAE3DC] rounded-xl font-mono text-sm font-bold text-[#1E1815] uppercase placeholder:text-[#B5AAA2] focus:outline-none focus:border-[#0E331E] shadow-2xs"
-                            />
+                            <div className="flex rounded-xl border border-[#EAE3DC] overflow-hidden focus-within:border-[#0E331E] bg-white shadow-2xs">
+                              <span className="inline-flex items-center px-3 sm:px-3.5 bg-[#FAF7F4] border-r border-[#EAE3DC] text-xs sm:text-sm font-mono font-black text-[#0E331E] select-none tracking-wider whitespace-nowrap">
+                                {dynamicInvoicePrefix}
+                              </span>
+                              <input
+                                id="redeem-inv-input"
+                                type="text"
+                                placeholder="88280"
+                                value={invoiceNumber}
+                                onChange={(e) => setInvoiceNumber(e.target.value.replace(/[^0-9a-zA-Z-]/g, '').toUpperCase())}
+                                required
+                                className="flex-1 px-3.5 sm:px-4 py-2.5 sm:py-3 bg-transparent font-mono text-sm font-bold text-[#1E1815] placeholder:text-[#B5AAA2] focus:outline-none"
+                              />
+                            </div>
+                            <p className="text-[10px] text-[#7A6E67] font-mono mt-1">
+                              Prefix is auto-fixed. Cashier only enters receipt serial (e.g. 88280).
+                            </p>
                           </div>
 
                           <div>
@@ -1434,7 +1840,7 @@ function OutletContent() {
                         <button
                           type="submit"
                           disabled={submittingBill || !invoiceNumber.trim() || !billAmount.trim() || pointsToRedeemInput <= 0}
-                          className="w-full py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-wider sm:tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 text-center"
+                          className="w-full py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-[#0E331E] hover:bg-[#067C2E] text-white font-black text-xs uppercase tracking-wider sm:tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 text-center"
                         >
                           {submittingBill ? (
                             <>
@@ -1460,7 +1866,94 @@ function OutletContent() {
                       </div>
                     )}
                   </div>
-                ) : null}
+                ) : (
+                  /* Success Receipt Modal Card */
+                  <div className="p-6 sm:p-7 rounded-3xl bg-emerald-50 border border-emerald-200 text-center space-y-5 animate-in fade-in zoom-in duration-200">
+                    <div className="w-14 h-14 rounded-full bg-emerald-600 text-white flex items-center justify-center mx-auto shadow-md">
+                      <Check className="w-7 h-7 stroke-[3]" />
+                    </div>
+                    <div>
+                      <h3 className="font-display font-black text-2xl text-emerald-950">Points Redeemed on Bill!</h3>
+                      <p className="text-xs text-emerald-800 font-medium mt-1">
+                        Invoice #{successReceipt.transaction?.invoiceNumber} recorded successfully at {activeBranch.name}.
+                      </p>
+                    </div>
+
+                    <div className="max-w-sm mx-auto bg-white rounded-2xl p-4.5 border border-emerald-200 text-xs text-left space-y-2 font-medium shadow-xs">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[#7A6E67]">Gross Bill:</span>
+                        <span className="font-bold text-[#1E1815] font-mono">
+                          {loyaltyRules.currency} {Number(successReceipt.transaction?.grossBill || successReceipt.transaction?.amount || 0).toFixed(2)}
+                        </span>
+                      </div>
+
+                      {Number(successReceipt.transaction?.discountGiven || 0) > 0 && (
+                        <div className="flex justify-between items-center text-red-700">
+                          <span>Points Discount Applied:</span>
+                          <span className="font-bold font-mono">
+                            -{loyaltyRules.currency} {Number(successReceipt.transaction.discountGiven).toFixed(2)}
+                          </span>
+                        </div>
+                      )}
+
+                      {successReceipt.pointsRedeemed && (
+                        <div className="flex justify-between items-center text-red-700">
+                          <span>Points Redeemed:</span>
+                          <span className="font-bold font-mono">-{successReceipt.pointsRedeemed.points} pts</span>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center text-[#1E1815] pt-1.5 border-t border-[#EAE3DC]">
+                        <span className="font-black text-xs text-[#0E331E]">Customer Paid (Net):</span>
+                        <span className="font-black text-sm text-[#0E331E] font-mono">
+                          {loyaltyRules.currency} {Number(successReceipt.transaction?.amountPaid ?? successReceipt.transaction?.netPayable ?? 0).toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center text-emerald-800 pt-1.5 border-t border-[#EAE3DC]">
+                        <span>Points Awarded on Bill:</span>
+                        <span className="font-black font-mono">+{successReceipt.transaction?.pointsEarned || 0} pts</span>
+                      </div>
+
+                      <div className="flex justify-between items-center text-blue-800">
+                        <span>Visit Count:</span>
+                        <span className="font-black font-mono">Visit #{successReceipt.customer?.visitCount} (Stamped ✓)</span>
+                      </div>
+
+                      <div className="flex justify-between items-center pt-2 border-t border-[#EAE3DC]">
+                        <span className="text-[#7A6E67]">Customer Updated Balance:</span>
+                        <span className="font-black text-sm text-[#0E331E] font-mono">{successReceipt.customer?.pointsBalance} pts</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-sm mx-auto">
+                      <button
+                        onClick={() => {
+                          setSuccessReceipt(null);
+                          setInvoiceNumber("");
+                          setBillAmount("");
+                          setSelectedRewardId(null);
+                          setPointsToRedeemInput(0);
+                        }}
+                        className="flex-1 py-3.5 px-6 rounded-xl bg-white border border-emerald-300 text-emerald-900 font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                      >
+                        RECORD ANOTHER BILL
+                      </button>
+                      <button
+                        onClick={() => {
+                          setCustomer(null);
+                          setSuccessReceipt(null);
+                          setMobileInput("");
+                          setQrInput("");
+                          setScreen("ready");
+                        }}
+                        className="flex-1 py-3.5 px-6 rounded-xl bg-[#0E331E] hover:bg-[#067C2E] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+                      >
+                        NEXT CUSTOMER
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -1517,7 +2010,7 @@ function OutletContent() {
                         type="button"
                         onClick={handleGiveVisit}
                         disabled={submittingVisit}
-                        className="flex-1 py-4 px-6 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="flex-1 py-4 px-6 rounded-xl bg-[#0E331E] hover:bg-[#067C2E] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                       >
                         {submittingVisit ? (
                           <>
@@ -1586,7 +2079,7 @@ function OutletContent() {
                           setQrInput("");
                           setScreen("ready");
                         }}
-                        className="flex-1 py-3.5 px-6 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+                        className="flex-1 py-3.5 px-6 rounded-xl bg-[#0E331E] hover:bg-[#067C2E] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
                       >
                         NEXT CUSTOMER
                       </button>
@@ -1597,7 +2090,7 @@ function OutletContent() {
             )}
 
             {/* ============================================================== */}
-            {/* ACTION PANEL 3: REDEEM VISIT OFFER (1-Click Deliver/Redeem)    */}
+            {/* ACTION PANEL 3: REDEEM VISIT OFFER & MEMBER GIFTS              */}
             {/* ============================================================== */}
             {actionMode === "reward" && (
               <div className="pt-2 animate-in fade-in duration-200 space-y-4 sm:space-y-5">
@@ -1642,57 +2135,85 @@ function OutletContent() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     {availableRewards.map((reward) => {
                       const isBusy = redeemingRewardId === reward.id;
+                      const badge = getRewardBadge(reward);
+                      const isDiscount = reward.isPercent || reward.value > 0;
+
                       return (
                         <div
                           key={reward.id}
                           className="p-4 sm:p-4.5 rounded-2xl bg-[#FAF7F4] border border-[#EAE3DC] flex flex-col justify-between gap-3.5 shadow-2xs hover:border-[#0E331E]/40 transition-colors"
                         >
-                          <div className="flex items-start justify-between gap-2">
+                          <div className="space-y-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${badge.bg}`}>
+                                {badge.label}
+                              </span>
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase shrink-0">
+                                READY
+                              </span>
+                            </div>
+
                             <div className="min-w-0">
-                              <div className="flex items-center gap-2">
-                                <h4 className="font-extrabold text-sm sm:text-base text-[#1E1815] leading-snug break-words">{reward.name}</h4>
-                              </div>
+                              <h4 className="font-extrabold text-sm sm:text-base text-[#1E1815] leading-snug break-words flex items-center gap-1.5">
+                                <Gift className="w-4 h-4 text-[#0E331E] shrink-0" />
+                                <span>{reward.name}</span>
+                              </h4>
                               {reward.description && (
                                 <p className="text-xs text-[#7A6E67] font-medium mt-1 leading-relaxed">
                                   {reward.description}
                                 </p>
                               )}
-                              <div className="text-[11px] text-[#0E331E] font-bold mt-1">
-                                {reward.isPercent
-                                  ? `${reward.value}% Discount Offer`
-                                  : reward.value > 0
-                                  ? `${loyaltyRules.currency} ${reward.value} Value`
-                                  : "Complimentary Item / Milestone Gift"}
+                              <div className="text-[11px] text-[#0E331E] font-bold mt-1.5 flex items-center gap-1">
+                                <Tag className="w-3 h-3 text-[#0E331E]" />
+                                <span>{getRewardValueText(reward, loyaltyRules.currency)}</span>
                               </div>
                             </div>
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase shrink-0">
-                              READY
-                            </span>
                           </div>
 
-                          <div className="pt-2.5 border-t border-[#EAE3DC] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                          <div className="pt-2.5 border-t border-[#EAE3DC] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <span className="text-[11px] text-[#7A6E67] font-mono">
                               {reward.expiresAt ? `Valid till ${new Date(reward.expiresAt).toLocaleDateString()}` : "No expiry date"}
                             </span>
 
-                            <button
-                              type="button"
-                              disabled={isBusy}
-                              onClick={() => handleRedeemReward(reward.id)}
-                              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-wider shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
-                            >
-                              {isBusy ? (
-                                <>
-                                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
-                                  <span>REDEEMING…</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Gift className="w-3.5 h-3.5 shrink-0" />
-                                  <span>REDEEM &amp; DELIVER</span>
-                                </>
+                            <div className="flex items-center gap-2">
+                              {isDiscount && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedRewardId(reward.id);
+                                    setActionMode("points");
+                                  }}
+                                  className="px-3 py-2 rounded-xl bg-white hover:bg-[#F3EDE6] border border-[#EAE3DC] text-[#0E331E] font-bold text-[11px] uppercase tracking-wider transition-all cursor-pointer"
+                                  title="Apply as discount on dine-in bill"
+                                >
+                                  Apply to Bill
+                                </button>
                               )}
-                            </button>
+
+                              <button
+                                type="button"
+                                disabled={isBusy}
+                                onClick={() => {
+                                  setConfirmingReward(reward);
+                                  setRewardModalInvoice("");
+                                  setRewardModalBillAmount("");
+                                  setRewardModalErr("");
+                                }}
+                                className="px-3.5 py-2 rounded-xl bg-[#0E331E] hover:bg-[#067C2E] text-white font-black text-xs uppercase tracking-wider shadow-xs transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+                              >
+                                {isBusy ? (
+                                  <>
+                                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
+                                    <span>REDEEMING…</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Gift className="w-3.5 h-3.5 shrink-0" />
+                                    <span>REDEEM &amp; DELIVER</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       );
@@ -1774,6 +2295,265 @@ function OutletContent() {
           </div>
         )}
       </div>
+
+      {/* Gift / Voucher Redemption Modal */}
+      {confirmingReward && customer && activeBranch && (() => {
+        const isDiscount = Boolean(confirmingReward.isPercent || (confirmingReward.value && confirmingReward.value > 0));
+        const badge = getRewardBadge(confirmingReward);
+        const parsedBill = parseFloat(rewardModalBillAmount) || 0;
+        const calculatedDiscount = isDiscount
+          ? confirmingReward.isPercent
+            ? Math.round(parsedBill * (confirmingReward.value / 100) * 100) / 100
+            : Math.min(parsedBill, confirmingReward.value)
+          : 0;
+        const netPayable = Math.max(0, parsedBill - calculatedDiscount);
+        const ptsEarned =
+          loyaltyRules.spendAedForPoints > 0
+            ? Math.floor((parsedBill / loyaltyRules.spendAedForPoints) * (loyaltyRules.pointsEarnedPerSpend || 1))
+            : 0;
+        const isBusy = redeemingRewardId === confirmingReward.id;
+
+        return (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3.5 sm:p-4 animate-in fade-in duration-200">
+            <div className="bg-white rounded-3xl p-5 sm:p-7 max-w-md w-full shadow-2xl border border-[#EAE3DC] space-y-4 sm:space-y-5 animate-in zoom-in-95 duration-200 relative max-h-[92vh] overflow-y-auto">
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setConfirmingReward(null)}
+                disabled={isBusy}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#FAF7F4] hover:bg-[#F3EDE6] text-[#7A6E67] flex items-center justify-center transition-colors cursor-pointer"
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Icon Header */}
+              <div className="text-center space-y-1.5">
+                <div className="w-12 h-12 rounded-full bg-[#0E331E]/10 text-[#0E331E] flex items-center justify-center mx-auto shadow-xs">
+                  {isDiscount ? <Tag className="w-6 h-6 text-[#0E331E]" /> : <Gift className="w-6 h-6 text-[#0E331E]" />}
+                </div>
+
+                <div>
+                  <div className="text-[10px] font-black tracking-widest text-[#0E331E] uppercase">
+                    {isDiscount ? "REDEEM DISCOUNT VOUCHER" : "CONFIRM GIFT REDEMPTION"}
+                  </div>
+                  <h3 className="font-display font-black text-xl text-[#1E1815] mt-0.5">
+                    {isDiscount ? "Apply Discount to Bill" : "Redeem & Deliver Gift"}
+                  </h3>
+                  <p className="text-xs text-[#7A6E67] font-medium mt-1">
+                    {isDiscount
+                      ? `Apply ${getRewardValueText(confirmingReward, loyaltyRules.currency)} to member order at ${activeBranch.name}.`
+                      : `Hand over complimentary treat to member ${customer.name}.`}
+                  </p>
+                </div>
+              </div>
+
+              {/* Reward Snapshot Card */}
+              <div className="bg-[#FAF7F4] rounded-2xl p-4 border border-[#EAE3DC] text-xs text-left space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider border ${badge.bg}`}>
+                    {badge.label}
+                  </span>
+                  <span className="font-mono text-[11px] text-[#7A6E67]">
+                    {confirmingReward.expiresAt ? `Exp: ${new Date(confirmingReward.expiresAt).toLocaleDateString()}` : "No expiry"}
+                  </span>
+                </div>
+
+                <div>
+                  <div className="font-extrabold text-sm text-[#1E1815]">{confirmingReward.name}</div>
+                  {confirmingReward.description && (
+                    <div className="text-[11px] text-[#7A6E67] mt-0.5 font-medium">{confirmingReward.description}</div>
+                  )}
+                </div>
+
+                <div className="pt-2 border-t border-[#EAE3DC] flex items-center justify-between text-[11px]">
+                  <span className="text-[#7A6E67]">Recipient Member:</span>
+                  <span className="font-bold text-[#1E1815]">{customer.name} ({customer.mobile})</span>
+                </div>
+              </div>
+
+              {/* Form Section */}
+              {isDiscount ? (
+                <div className="space-y-3.5 text-left">
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#1E1815] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                      <Receipt className="w-3.5 h-3.5 text-[#0E331E]" />
+                      <span>Invoice / Bill Number <strong className="text-[#0E331E]">*</strong></span>
+                    </label>
+                    <div className="flex rounded-xl border border-[#EAE3DC] overflow-hidden focus-within:border-[#0E331E] bg-white shadow-2xs">
+                      <span className="inline-flex items-center px-3 bg-[#FAF7F4] border-r border-[#EAE3DC] text-xs font-mono font-black text-[#0E331E] select-none tracking-wider whitespace-nowrap">
+                        {dynamicInvoicePrefix}
+                      </span>
+                      <input
+                        type="text"
+                        value={rewardModalInvoice}
+                        onChange={(e) => {
+                          setRewardModalInvoice(e.target.value.replace(/[^0-9a-zA-Z-]/g, '').toUpperCase());
+                          setRewardModalErr("");
+                        }}
+                        placeholder="88280"
+                        className="flex-1 px-3.5 py-2.5 bg-transparent text-xs font-mono font-bold text-[#1E1815] focus:outline-none placeholder:text-[#BDB0A4]"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#1E1815] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                      <DollarSign className="w-3.5 h-3.5 text-[#0E331E]" />
+                      <span>Total Gross Bill ({loyaltyRules.currency}) <strong className="text-[#0E331E]">*</strong></span>
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      value={rewardModalBillAmount}
+                      onChange={(e) => {
+                        setRewardModalBillAmount(e.target.value);
+                        setRewardModalErr("");
+                      }}
+                      placeholder="e.g. 150.00"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3DC] bg-white text-xs font-mono font-bold text-[#1E1815] focus:border-[#0E331E] focus:ring-2 focus:ring-[#0E331E]/15 outline-none transition-all placeholder:text-[#BDB0A4]"
+                    />
+                  </div>
+
+                  {/* Live Calculation Preview */}
+                  {parsedBill > 0 ? (
+                    <div className="p-3.5 rounded-2xl bg-[#FAF7F4] border border-[#0E331E]/20 shadow-xs space-y-2 text-xs">
+                      <div className="flex justify-between items-center text-[#7A6E67]">
+                        <span>Gross Bill:</span>
+                        <span className="font-mono font-bold text-[#1E1815]">{loyaltyRules.currency} {parsedBill.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-[#0E331E] font-bold">
+                        <span>Discount ({getRewardValueText(confirmingReward, loyaltyRules.currency)}):</span>
+                        <span className="font-mono">-{loyaltyRules.currency} {calculatedDiscount.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center pt-2 border-t border-[#EAE3DC] font-black text-sm">
+                        <span className="text-[#1E1815]">Customer Net Payable:</span>
+                        <span className="font-mono text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200 shadow-2xs">{loyaltyRules.currency} {netPayable.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center pt-1 text-[11px] text-emerald-800 font-bold">
+                        <span>Points to Earn (Gross Bill):</span>
+                        <span className="font-mono">+{ptsEarned} pts</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-3 rounded-xl bg-[#FAF7F4] border border-[#EAE3DC] text-center text-[11px] text-[#7A6E67]">
+                      Enter bill amount above to see live discounted payable total.
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3.5 text-left">
+                  <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-950 text-xs font-medium space-y-1">
+                    <div className="font-bold flex items-center gap-1.5 text-amber-900">
+                      <Gift className="w-4 h-4 text-amber-700" />
+                      <span>Complimentary Gift Handover</span>
+                    </div>
+                    <p className="text-[11px] text-amber-900 leading-relaxed">
+                      Confirming this handover will mark the gift as redeemed for <strong>{customer.name}</strong> and advance their visit cycle.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-[#1E1815] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                      <Receipt className="w-3.5 h-3.5 text-[#7A6E67]" />
+                      <span>Invoice / Order Reference # (Optional)</span>
+                    </label>
+                    <div className="flex rounded-xl border border-[#EAE3DC] overflow-hidden focus-within:border-[#0E331E] bg-white shadow-2xs">
+                      <span className="inline-flex items-center px-3 bg-[#FAF7F4] border-r border-[#EAE3DC] text-xs font-mono font-black text-[#0E331E] select-none tracking-wider whitespace-nowrap">
+                        {dynamicInvoicePrefix}
+                      </span>
+                      <input
+                        type="text"
+                        value={rewardModalInvoice}
+                        onChange={(e) => {
+                          setRewardModalInvoice(e.target.value.replace(/[^0-9a-zA-Z-]/g, '').toUpperCase());
+                          setRewardModalErr("");
+                        }}
+                        placeholder="88280 (optional)"
+                        className="flex-1 px-3.5 py-2.5 bg-transparent text-xs font-mono font-bold text-[#1E1815] focus:outline-none placeholder:text-[#BDB0A4]"
+                      />
+                    </div>
+                    <p className="text-[10px] text-[#7A6E67] font-mono mt-1">
+                      Prefix is auto-fixed ({dynamicInvoicePrefix}). Enter receipt serial if applicable.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Error Message */}
+              {(rewardModalErr || rewardErr) && (
+                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-bold flex items-center gap-2 text-left">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                  <span>{rewardModalErr || rewardErr}</span>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-2.5 sm:gap-3 pt-1">
+                <button
+                  type="button"
+                  disabled={isBusy}
+                  onClick={() => setConfirmingReward(null)}
+                  className="flex-1 py-3 px-4 rounded-xl bg-white hover:bg-[#FAF7F4] border border-[#EAE3DC] text-[#7A6E67] font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                >
+                  CANCEL
+                </button>
+
+                <button
+                  type="button"
+                  disabled={isBusy || (isDiscount && (!rewardModalInvoice.trim() || parsedBill <= 0))}
+                  onClick={async () => {
+                    setRewardModalErr("");
+                    if (isDiscount) {
+                      if (!rewardModalInvoice.trim()) {
+                        setRewardModalErr("Please enter the invoice number.");
+                        return;
+                      }
+                      if (parsedBill <= 0) {
+                        setRewardModalErr("Please enter a valid bill amount greater than 0.");
+                        return;
+                      }
+                      try {
+                        await handleRedeemDiscountWithBill(confirmingReward.id, rewardModalInvoice.trim(), parsedBill);
+                        setConfirmingReward(null);
+                        setActionMode("points");
+                      } catch (e: any) {
+                        setRewardModalErr(e.message || "Failed to record discounted transaction.");
+                      }
+                    } else {
+                      try {
+                        await handleRedeemReward(confirmingReward.id, rewardModalInvoice.trim() ? formatFullInvoice(rewardModalInvoice.trim(), activeBranch.invoicePrefix || activeBranch.code) : undefined);
+                        setConfirmingReward(null);
+                      } catch (e: any) {
+                        setRewardModalErr(e.message || "Failed to deliver gift.");
+                      }
+                    }
+                  }}
+                  className="flex-1 py-3 px-4 rounded-xl bg-[#0E331E] hover:bg-[#067C2E] text-white font-black text-xs uppercase tracking-wider shadow-md transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+                >
+                  {isBusy ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
+                      <span>PROCESSING…</span>
+                    </>
+                  ) : isDiscount ? (
+                    <>
+                      <Check className="w-4 h-4 stroke-[2.5]" />
+                      <span>{parsedBill > 0 ? `CONFIRM & PAY ${loyaltyRules.currency} ${netPayable.toFixed(2)}` : "CONFIRM & APPLY"}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4 stroke-[2.5]" />
+                      <span>YES, CONFIRM &amp; DELIVER</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* History Receipt Details Modal */}
       {selectedHistoryReceipt && (
@@ -1871,7 +2651,7 @@ function OutletContent() {
 
             <button
               onClick={() => setSelectedHistoryReceipt(null)}
-              className="w-full py-3 px-6 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
+              className="w-full py-3 px-6 rounded-xl bg-[#0E331E] hover:bg-[#067C2E] text-white font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-[0.99] cursor-pointer"
             >
               CLOSE RECEIPT
             </button>

@@ -154,6 +154,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const freshCust = await tx.customer.findUnique({ where: { id: customerId } });
+    if (!freshCust || (pointsSpent > 0 && freshCust.pointsBalance < pointsSpent)) {
+      throw new Error(`Insufficient points balance. Customer currently has ${freshCust?.pointsBalance || 0} points.`);
+    }
+
     const updatedCustomer = await tx.customer.update({
       where: { id: customerId },
       data: {

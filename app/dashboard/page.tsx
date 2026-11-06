@@ -38,6 +38,9 @@ import {
 import QRCode from "qrcode";
 import { usePwaInstall } from "@/lib/usePwaInstall";
 import { InstallGuideModal } from "@/components/InstallGuideModal";
+import ReceiptScanner from "@/components/ReceiptScanner";
+import { CountryCodePicker } from "@/components/CountryCodePicker";
+import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/mobile";
 
 function formatRelativeTime(iso?: string | null): string {
   if (!iso) return "—";
@@ -71,7 +74,7 @@ export default function CustomerDashboardPage() {
   const [dateFilter, setDateFilter] = useState<"all" | "today" | "7days" | "30days">("all");
   const [showSwitchModal, setShowSwitchModal] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [profile, setProfile] = useState({ name: "", email: "", birthday: "" });
+  const [profile, setProfile] = useState({ name: "", mobile: "", countryCode: DEFAULT_COUNTRY, email: "", birthday: "" });
   const [profileBusy, setProfileBusy] = useState(false);
   const [profileMsg, setProfileMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
@@ -386,8 +389,21 @@ export default function CustomerDashboardPage() {
 
   function openEditor() {
     if (!data?.customer) return;
+    let raw = data.customer.mobile || "";
+    let cc = DEFAULT_COUNTRY;
+    let num = raw;
+    if (num.startsWith("+")) num = num.slice(1);
+    for (const country of COUNTRIES) {
+      if (num.startsWith(country.code)) {
+        cc = country.code;
+        num = num.slice(country.code.length);
+        break;
+      }
+    }
     setProfile({
       name: data.customer.name || "",
+      mobile: num,
+      countryCode: cc,
       email: data.customer.email || "",
       birthday: data.customer.birthday ? String(data.customer.birthday).slice(0, 10) : "",
     });
@@ -405,6 +421,8 @@ export default function CustomerDashboardPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: profile.name.trim(),
+          mobile: profile.mobile.trim(),
+          countryCode: profile.countryCode,
           email: profile.email.trim(),
           birthday: profile.birthday || null,
         }),
@@ -521,7 +539,7 @@ export default function CustomerDashboardPage() {
   const firstName = customer?.name ? customer.name.trim().split(" ")[0] : "VIP Member";
 
   return (
-    <div className="min-h-screen bg-[#F5EFE0] text-[#1E1815] pb-24 px-3.5 sm:px-4 pt-3.5 sm:pt-5 max-w-md w-full mx-auto selection:bg-[#0E331E] selection:text-white">
+    <div className="min-h-screen bg-[#F5EFE0] text-[#1E1815] pb-24 px-3.5 sm:px-4 pt-3.5 sm:pt-5 max-w-md w-full mx-auto fold-safe [box-shadow:0_0_0_100vmax_#F5EFE0] [clip-path:inset(0_-100vmax)] selection:bg-[#0E331E] selection:text-white">
       {/* Toast Notification */}
       {toast && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#1E1815] text-white px-4 py-2.5 rounded-full text-xs font-bold shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-top-4 max-w-[90vw] text-center">
@@ -775,6 +793,10 @@ export default function CustomerDashboardPage() {
           Show this QR to cashier. Scanning opens your profile without sharing mobile number.
         </p>
       </div>
+
+      {/* SCAN A RECEIPT TO EARN POINTS */}
+      <ReceiptScanner onClaimed={loadCard} />
+
 
       {/* ============================================================== */}
       {/* 7. BIRTHDAY SURPRISE & FREE VOUCHERS CARDS                     */}
@@ -1356,13 +1378,42 @@ export default function CustomerDashboardPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-extrabold uppercase text-[#7A6E67] mb-1">Email</label>
+                  <label className="block text-[10px] font-extrabold uppercase text-[#7A6E67] mb-1">
+                    Mobile Number (Login &amp; WhatsApp OTP)
+                  </label>
+                  <div className="flex gap-1.5 items-center">
+                    <CountryCodePicker
+                      value={profile.countryCode}
+                      onChange={(code) => setProfile({ ...profile, countryCode: code })}
+                    />
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      required
+                      placeholder="50 123 4567"
+                      value={profile.mobile}
+                      onChange={(e) => setProfile({ ...profile, mobile: e.target.value.replace(/\D/g, "") })}
+                      className="flex-1 min-w-0 px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-mono font-bold focus:outline-none focus:border-[#0E331E]"
+                    />
+                  </div>
+                  <p className="text-[10px] text-[#7A6E67] mt-1">
+                    Enter digits without country code. Used for WhatsApp OTP and till loyalty search.
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase text-[#7A6E67] mb-1">
+                    Email Address (Login &amp; Digital Receipts)
+                  </label>
                   <input
                     type="email"
+                    placeholder="name@example.com"
                     value={profile.email}
                     onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                     className="w-full px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E]"
                   />
+                  <p className="text-[10px] text-[#7A6E67] mt-1">
+                    Used for email login and digital promotion gift vouchers.
+                  </p>
                 </div>
                 <div>
                   <label className="block text-[10px] font-extrabold uppercase text-[#7A6E67] mb-1">Birthday</label>

@@ -33,6 +33,8 @@ model Branch {
   dailyCode          String?
   dailyCodeExpiresAt DateTime?
 
+  invoicePrefix String? // e.g. "LV"
+
   homeCustomers Customer[]      @relation("HomeBranch")
   staff         Staff[]
   transactions  Transaction[]

@@ -69,17 +69,15 @@ export function CountryCodePicker({
         type="button"
         disabled={disabled}
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center gap-2 px-3.5 py-3.5 bg-white border border-[#EAE3DC] hover:border-[#0E331E]/40 rounded-xl text-xs font-bold text-[#1E1815] shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+        className="flex items-center gap-1.5 px-3 bg-white border border-[#EAE3DC] hover:border-[#0E331E]/40 rounded-xl text-xs font-bold text-[#1E1815] shadow-2xs transition-all cursor-pointer disabled:opacity-50 shrink-0 h-11"
+        aria-label={`Country code +${selectedCountry.code}`}
       >
-        <span className="text-base leading-none">{selectedCountry.flag}</span>
-        <span className="font-extrabold text-xs text-[#1E1815]">
-          {selectedCountry.name}
-        </span>
-        <span className="font-mono text-[11px] font-bold text-[#7A6E67]">
+        <span className="text-base leading-none shrink-0">{selectedCountry.flag}</span>
+        <span className="font-mono text-xs font-bold text-[#1E1815] shrink-0">
           +{selectedCountry.code}
         </span>
         <ChevronDown
-          className={`w-3.5 h-3.5 text-[#7A6E67] transition-transform duration-200 ${
+          className={`w-3.5 h-3.5 text-[#7A6E67] shrink-0 transition-transform duration-200 ${
             isOpen ? "rotate-180 text-[#0E331E]" : ""
           }`}
         />

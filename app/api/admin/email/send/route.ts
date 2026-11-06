@@ -4,6 +4,15 @@ import { prisma } from "@/lib/db";
 import { sendEmail, queueEmailBroadcast } from "@/lib/email";
 import { createNotification } from "@/lib/notifications";
 
+function escapeHtml(str: string): string {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 export async function GET(req: NextRequest) {
   const auth = await requireAdmin();
   if (auth.error) {
@@ -156,15 +165,15 @@ export async function POST(req: NextRequest) {
       concurrencyPerBatch: 5,
       whereClause,
       buildSubject: (cust) => {
-        const cName = cust.name || "Valued Member";
-        return subject.replace(/{customer_name}/g, cName).replace(/{name}/g, cName);
+        const cName = (cust.name || "Valued Member").replace(/[\r\n]/g, " ");
+        return subject.replace(/{customer_name}/g, cName).replace(/{name}/g, cName).replace(/[\r\n]/g, " ");
       },
       buildHtml: (cust) => {
-        const cName = cust.name || "Valued Member";
+        const cName = escapeHtml(cust.name || "Valued Member");
         const personalizedHtml = content
           .replace(/{customer_name}/g, cName)
           .replace(/{name}/g, cName)
-          .replace(/{points_balance}/g, String(cust.pointsBalance || 0))
+          .replace(/{points_balance}/g, String(Math.floor(cust.pointsBalance || 0)))
           .replace(/{app_name}/g, "Levante Rewards");
 
         return `

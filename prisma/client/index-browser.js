@@ -135,7 +135,8 @@ exports.Prisma.BranchScalarFieldEnum = {
   isActive: 'isActive',
   createdAt: 'createdAt',
   dailyCode: 'dailyCode',
-  dailyCodeExpiresAt: 'dailyCodeExpiresAt'
+  dailyCodeExpiresAt: 'dailyCodeExpiresAt',
+  invoicePrefix: 'invoicePrefix'
 };
 
 exports.Prisma.CustomerScalarFieldEnum = {
