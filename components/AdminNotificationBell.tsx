@@ -32,7 +32,7 @@ export function AdminNotificationBell() {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<AdminNotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
-  const [filter, setFilter] = useState<"all" | "unread">("unread");
+  const [filter, setFilter] = useState<"all" | "unread">("all");
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -149,8 +149,12 @@ export function AdminNotificationBell() {
   const handleToggle = () => {
     const nextState = !open;
     setOpen(nextState);
-    if (nextState && unreadCount > 0) {
-      handleMarkAllRead();
+    if (nextState) {
+      if (unreadCount > 0) {
+        setFilter("unread");
+      } else {
+        setFilter("all");
+      }
     }
   };
 
@@ -215,25 +219,27 @@ export function AdminNotificationBell() {
           <div className="px-3 py-2 bg-white border-b border-[#EAE3DC] flex items-center justify-between text-[11px]">
             <div className="flex items-center gap-1.5">
               <button
+                type="button"
                 onClick={() => setFilter("unread")}
                 className={`px-3 py-1 rounded-lg font-bold transition-colors cursor-pointer shrink-0 ${
-                  filter === "unread" ? "bg-[#0E331E] text-white shadow-xs" : "bg-[#FAF7F4] text-[#7A6E67] hover:text-[#1E1815]"
+                  filter === "unread" ? "bg-[#143F26] text-white shadow-xs" : "bg-[#FAF7F4] text-[#7A6E67] hover:text-[#1E1815]"
                 }`}
               >
                 Unread ({unreadCount})
               </button>
               <button
+                type="button"
                 onClick={() => setFilter("all")}
                 className={`px-3 py-1 rounded-lg font-bold transition-colors cursor-pointer shrink-0 ${
-                  filter === "all" ? "bg-[#0E331E] text-white shadow-xs" : "bg-[#FAF7F4] text-[#7A6E67] hover:text-[#1E1815]"
+                  filter === "all" ? "bg-[#143F26] text-white shadow-xs" : "bg-[#FAF7F4] text-[#7A6E67] hover:text-[#1E1815]"
                 }`}
               >
                 All ({notifications.length})
               </button>
             </div>
             {unreadCount > 0 && (
-              <span className="text-[10px] font-bold text-[#143F26]">
-                {unreadCount} pending
+              <span className="text-[10px] font-bold text-[#143F26] bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0">
+                {unreadCount} new
               </span>
             )}
           </div>
@@ -244,8 +250,11 @@ export function AdminNotificationBell() {
               filteredList.map((item) => (
                 <div
                   key={item.id}
-                  className={`p-3 sm:p-3.5 transition-colors flex items-start gap-3 relative ${
-                    !item.isRead ? "bg-[#FAF3E6]/60 hover:bg-[#FAF3E6]" : "bg-white hover:bg-[#FAF7F4]"
+                  onClick={() => !item.isRead && handleMarkSingleRead(item.id)}
+                  className={`p-3 sm:p-3.5 transition-colors flex items-start gap-3 relative cursor-pointer ${
+                    !item.isRead
+                      ? "bg-emerald-50/50 hover:bg-emerald-50/80 border-l-4 border-[#143F26]"
+                      : "bg-white hover:bg-[#FAF7F4] border-l-4 border-transparent"
                   }`}
                 >
                   <div className="w-8 h-8 rounded-xl bg-white border border-[#EAE3DC] shadow-2xs flex items-center justify-center shrink-0 mt-0.5">
@@ -254,14 +263,16 @@ export function AdminNotificationBell() {
 
                   <div className="flex-1 min-w-0 pr-6">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <h4 className="text-xs font-black text-[#1E1815] leading-snug truncate">
+                      <h4 className={`text-xs leading-snug truncate ${!item.isRead ? "font-black text-[#143F26]" : "font-bold text-[#1E1815]"}`}>
                         {item.title}
                       </h4>
                       {!item.isRead && (
-                        <span className="w-2 h-2 rounded-full bg-[#143F26] shrink-0" />
+                        <span className="px-1.5 py-0.2 rounded bg-[#143F26] text-white text-[9px] font-black uppercase tracking-wider shrink-0">
+                          NEW
+                        </span>
                       )}
                     </div>
-                    <p className="text-xs text-[#5C504A] mt-0.5 leading-relaxed break-words">
+                    <p className={`text-xs mt-0.5 leading-relaxed break-words ${!item.isRead ? "text-[#1E1815] font-medium" : "text-[#7A6E67]"}`}>
                       {item.message}
                     </p>
                     <span className="text-[10px] font-bold text-[#8C7F78] mt-1 block">
@@ -272,8 +283,11 @@ export function AdminNotificationBell() {
                   {!item.isRead && (
                     <button
                       type="button"
-                      onClick={() => handleMarkSingleRead(item.id)}
-                      className="absolute right-2.5 top-3 p-1 text-[#7A6E67] hover:text-[#1E7A4D] hover:bg-white rounded-md transition-colors cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMarkSingleRead(item.id);
+                      }}
+                      className="absolute right-2.5 top-3 p-1.5 text-[#7A6E67] hover:text-[#1E7A4D] hover:bg-white rounded-lg transition-colors cursor-pointer"
                       title="Mark as read"
                     >
                       <Check className="w-3.5 h-3.5" />
