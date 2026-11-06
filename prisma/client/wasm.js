@@ -374,7 +374,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/var/www/artoflevante/prisma/client",
+      "value": "D:\\morangoprojects\\artoflevante\\prisma\\client",
       "fromEnvVar": null
     },
     "config": {
@@ -383,12 +383,12 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "debian-openssl-3.0.x",
+        "value": "windows",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/var/www/artoflevante/prisma/schema.prisma",
+    "sourceFilePath": "D:\\morangoprojects\\artoflevante\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
