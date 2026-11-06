@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { Search, Filter, ChevronRight } from "lucide-react";
+import React, { useState } from "react";
+import { Search, Filter, ChevronRight, Download, Loader2 } from "lucide-react";
 import { formatRelativeTime, formatMoney } from "../adminUtils";
 
 interface CustomersTabProps {
@@ -23,6 +23,32 @@ export default function CustomersTab({
   openCustomerDetail,
   cur = "AED",
 }: CustomersTabProps) {
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const url = `/api/admin/customers/export?q=${encodeURIComponent(q)}&filter=${encodeURIComponent(filter)}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      const today = new Date().toISOString().split("T")[0];
+      a.download = `levante_customers_${today}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (err) {
+      console.error("Failed to export customers:", err);
+      alert("Failed to export customers. Please try again.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <>
       <div className="bg-white border border-[#EAE3DC] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-5">
@@ -39,18 +65,36 @@ export default function CustomersTab({
                   />
                 </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <Filter className="w-4 h-4 text-[#7A6E67] shrink-0" />
-                  <select
-                    value={filter}
-                    onChange={(e) => setFilter(e.target.value)}
-                    className="w-full sm:w-auto px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#143F26]"
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                  <div className="flex items-center gap-2 flex-1 sm:flex-initial">
+                    <Filter className="w-4 h-4 text-[#7A6E67] shrink-0" />
+                    <select
+                      value={filter}
+                      onChange={(e) => setFilter(e.target.value)}
+                      className="w-full sm:w-auto px-3 py-2 text-xs bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-semibold focus:outline-none focus:border-[#143F26]"
+                    >
+                      <option value="all">All Members</option>
+                      <option value="recent">Active Recently</option>
+                      <option value="highSpend">Top Spenders</option>
+                      <option value="highPoints">Top Points Balance</option>
+                    </select>
+                  </div>
+
+                  {/* Export Customers Button */}
+                  <button
+                    type="button"
+                    onClick={handleExport}
+                    disabled={exporting}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#143F26] hover:bg-[#0c2a19] text-white font-bold text-xs shadow-xs transition-all cursor-pointer disabled:opacity-50 shrink-0"
+                    title="Export customer list as CSV"
                   >
-                    <option value="all">All Members</option>
-                    <option value="recent">Active Recently</option>
-                    <option value="highSpend">Top Spenders</option>
-                    <option value="highPoints">Top Points Balance</option>
-                  </select>
+                    {exporting ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Download className="w-3.5 h-3.5" />
+                    )}
+                    <span>{exporting ? "Exporting…" : "Export Customers"}</span>
+                  </button>
                 </div>
               </div>
 

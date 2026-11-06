@@ -123,6 +123,7 @@ export async function GET(req: NextRequest) {
     recentTx,
     topRewardRows,
     staffRows,
+    returningCustomerRows,
   ] = await Promise.all([
     prisma.customer.count({ where: custWhere }),
     prisma.customer.count({ where: { ...custWhere, createdAt: { gte: past7Cutoff } } }),
@@ -195,6 +196,14 @@ export async function GET(req: NextRequest) {
         branch: { select: { name: true } },
       },
       orderBy: { lastLogin: "desc" },
+    }),
+    prisma.customer.findMany({
+      where: { ...custWhere, visitCount: { gt: 1 } },
+      include: {
+        homeBranch: { select: { id: true, name: true, code: true } },
+      },
+      orderBy: [{ visitCount: "desc" }, { lastVisitAt: "desc" }],
+      take: 20,
     }),
   ]);
 
@@ -327,6 +336,19 @@ export async function GET(req: NextRequest) {
       role: s.role,
       branch: s.branch?.name ?? "All branches",
       lastLogin: s.lastLogin,
+    })),
+    returningCustomers: returningCustomerRows.map((c) => ({
+      id: c.id,
+      name: c.name || "Member",
+      mobile: c.mobile || "—",
+      email: c.email || "—",
+      cardCode: c.cardCode || null,
+      visitCount: c.visitCount || 0,
+      totalSpend: Number(c.totalSpend || 0),
+      pointsBalance: c.pointsBalance || 0,
+      lastVisitAt: c.lastVisitAt,
+      branch: c.homeBranch?.name || "All Outlets",
+      branchCode: c.homeBranch?.code || "",
     })),
   });
 }

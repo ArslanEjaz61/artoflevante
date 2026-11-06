@@ -16,6 +16,10 @@ import {
   Clock,
   Store,
   ExternalLink,
+  Repeat,
+  ArrowRight,
+  UserPlus,
+  ChevronRight,
 } from "lucide-react";
 import { formatMoney, formatRelativeTime, DEFAULT_BRANCHES } from "../adminUtils";
 
@@ -29,6 +33,7 @@ interface OverviewTabProps {
   setTab: (t: any) => void;
   handleOpenStoreCrm: (b: any) => void;
   cur?: string;
+  openCustomerDetail?: (id: string) => void;
 }
 
 export default function OverviewTab({
@@ -41,6 +46,7 @@ export default function OverviewTab({
   setTab,
   handleOpenStoreCrm,
   cur = "AED",
+  openCustomerDetail,
 }: OverviewTabProps) {
     const metrics = data?.metrics || data?.kpis || {};
   const branchesList = allBranches.length > 0 ? allBranches : DEFAULT_BRANCHES;
@@ -205,15 +211,15 @@ export default function OverviewTab({
               </div>
 
               {/* Top Executive KPI Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
                 {/* Metric 1: Total Revenue */}
-                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#143F26]/10 to-transparent rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
                   <div className="flex items-center justify-between text-[#7A6E67] mb-2 text-xs font-bold uppercase tracking-wider">
                     <span>Tracked Revenue</span>
                     <Receipt className="w-4 h-4 text-[#143F26]" />
                   </div>
-                  <div className="text-2xl font-black text-[#1E1815] tracking-tight">
+                  <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
                     {formatMoney(cur, metrics.totalRevenue || 0)}
                   </div>
                   <div className="mt-2 text-xs font-semibold text-[#1E7A4D] flex items-center gap-1">
@@ -223,13 +229,13 @@ export default function OverviewTab({
                 </div>
 
                 {/* Metric 2: Total Members */}
-                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#C68A1E]/10 to-transparent rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
                   <div className="flex items-center justify-between text-[#7A6E67] mb-2 text-xs font-bold uppercase tracking-wider">
                     <span>Total Members</span>
                     <Users className="w-4 h-4 text-[#C68A1E]" />
                   </div>
-                  <div className="text-2xl font-black text-[#1E1815] tracking-tight">
+                  <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
                     {metrics.totalMembers ?? metrics.totalCustomers ?? 0}
                   </div>
                   <div className="mt-2 text-xs font-semibold text-[#1E7A4D] flex items-center gap-1">
@@ -239,13 +245,13 @@ export default function OverviewTab({
                 </div>
 
                 {/* Metric 3: Total Store Visits */}
-                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#1E7A4D]/10 to-transparent rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
                   <div className="flex items-center justify-between text-[#7A6E67] mb-2 text-xs font-bold uppercase tracking-wider">
                     <span>Total Visits</span>
                     <UserCheck className="w-4 h-4 text-[#1E7A4D]" />
                   </div>
-                  <div className="text-2xl font-black text-[#1E1815] tracking-tight">
+                  <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
                     {metrics.totalVisits ?? 0}
                   </div>
                   <div className="mt-2 text-xs font-semibold text-[#7A6E67]">
@@ -256,14 +262,30 @@ export default function OverviewTab({
                   </div>
                 </div>
 
-                {/* Metric 4: Rewards Claimed */}
-                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                {/* Metric 4: Returning Customers (Repeat Visitors) */}
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#143F26]/15 to-transparent rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
+                  <div className="flex items-center justify-between text-[#7A6E67] mb-2 text-xs font-bold uppercase tracking-wider">
+                    <span>Returning Members</span>
+                    <Repeat className="w-4 h-4 text-[#143F26]" />
+                  </div>
+                  <div className="text-xl sm:text-2xl font-black text-[#143F26] tracking-tight">
+                    {metrics.returningCustomers ?? 0}
+                  </div>
+                  <div className="mt-2 text-xs font-bold text-emerald-800 flex items-center gap-1">
+                    <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>{metrics.repeatRate ?? metrics.returnRate ?? 0}% Repeat Visit Rate</span>
+                  </div>
+                </div>
+
+                {/* Metric 5: Rewards Claimed */}
+                <div className="bg-white border border-[#EAE3DC] rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#8B5CF6]/10 to-transparent rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
                   <div className="flex items-center justify-between text-[#7A6E67] mb-2 text-xs font-bold uppercase tracking-wider">
                     <span>Rewards Claimed</span>
                     <Gift className="w-4 h-4 text-[#8B5CF6]" />
                   </div>
-                  <div className="text-2xl font-black text-[#1E1815] tracking-tight">
+                  <div className="text-xl sm:text-2xl font-black text-[#1E1815] tracking-tight">
                     {metrics.rewardsClaimed ?? metrics.rewardsRedeemed ?? 0}
                     <span className="text-xs font-normal text-[#7A6E67] ml-1">
                       / {metrics.rewardsIssued ?? 0} issued
@@ -457,6 +479,120 @@ export default function OverviewTab({
                       No transactions registered yet. Scan cards or record visits!
                     </div>
                   )}
+                </div>
+              </div>
+
+              {/* Returning Customers (Repeat Visitors) Table */}
+              <div className="bg-white border border-[#EAE3DC] rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="font-extrabold text-base text-[#1E1815] flex items-center gap-2">
+                        <Repeat className="w-4 h-4 text-[#143F26]" />
+                        Returning Members Directory
+                      </h2>
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
+                        {data?.returningCustomers?.length ?? metrics.returningCustomers ?? 0} Repeat Visitors
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#7A6E67] mt-0.5">
+                      Loyal members who have visited Levante 2 or more times. Click on any member to view full visit history.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setTab("customers")}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FAF7F4] hover:bg-[#143F26] text-[#1E1815] hover:text-white border border-[#EAE3DC] hover:border-[#143F26] text-xs font-bold transition-all shadow-2xs cursor-pointer w-fit"
+                  >
+                    <span>View All Members</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div className="overflow-x-auto w-full custom-scrollbar rounded-2xl border border-[#EAE3DC]">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-[#FAF7F4] border-b border-[#EAE3DC] text-[#7A6E67] uppercase tracking-wider font-bold text-[11px]">
+                      <tr>
+                        <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Member</th>
+                        <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Mobile &amp; Email</th>
+                        <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Total Visits</th>
+                        <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Total Spend</th>
+                        <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Points Balance</th>
+                        <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Home Outlet</th>
+                        <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap">Last Visit</th>
+                        <th className="py-3 px-3.5 sm:px-4 whitespace-nowrap text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#EFE8E1] bg-white">
+                      {data?.returningCustomers && data.returningCustomers.length > 0 ? (
+                        data.returningCustomers.map((c: any) => (
+                          <tr
+                            key={c.id}
+                            onClick={() => openCustomerDetail && openCustomerDetail(c.id)}
+                            className="hover:bg-[#FAF7F4] transition-all cursor-pointer group"
+                          >
+                            <td className="py-3.5 px-3.5 sm:px-4 whitespace-nowrap">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-full bg-[#143F26]/10 text-[#143F26] font-black text-xs flex items-center justify-center shrink-0">
+                                  {c.name ? c.name.charAt(0).toUpperCase() : "M"}
+                                </div>
+                                <div>
+                                  <div className="font-bold text-[#1E1815] group-hover:text-[#143F26] transition-colors">
+                                    {c.name || "Member"}
+                                  </div>
+                                  {c.cardCode && (
+                                    <div className="text-[10px] font-mono text-[#8C7F78]">
+                                      ID: {c.cardCode}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3.5 px-3.5 sm:px-4 whitespace-nowrap font-mono text-xs">
+                              <div className="text-[#1E1815] font-bold">{c.mobile || "—"}</div>
+                              {c.email && c.email !== "—" && (
+                                <div className="text-[10px] text-[#7A6E67] font-sans truncate max-w-[160px]">{c.email}</div>
+                              )}
+                            </td>
+                            <td className="py-3.5 px-3.5 sm:px-4 whitespace-nowrap">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold font-mono text-xs">
+                                <UserCheck className="w-3 h-3 text-emerald-600" />
+                                {c.visitCount} visits
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-3.5 sm:px-4 whitespace-nowrap font-bold text-[#1E1815]">
+                              {formatMoney(cur, c.totalSpend)}
+                            </td>
+                            <td className="py-3.5 px-3.5 sm:px-4 whitespace-nowrap">
+                              <span className="font-black text-[#1E7A4D]">
+                                +{c.pointsBalance} pts
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-3.5 sm:px-4 whitespace-nowrap text-[#7A6E67]">
+                              <span className="px-2 py-0.5 rounded-lg bg-[#FAF7F4] border border-[#EAE3DC] font-semibold text-[11px] text-[#4A3F39]">
+                                {c.branch || "All Outlets"}
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-3.5 sm:px-4 whitespace-nowrap text-[#7A6E67] text-[11px]">
+                              {formatRelativeTime(c.lastVisitAt)}
+                            </td>
+                            <td className="py-3.5 px-3.5 sm:px-4 whitespace-nowrap text-right">
+                              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#143F26] group-hover:underline">
+                                <span>View Details</span>
+                                <ChevronRight className="w-3 h-3" />
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={8} className="py-8 text-center text-xs text-[#7A6E67]">
+                            No returning members with 2+ visits recorded yet. As customers revisit outlets, they will be listed here.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 

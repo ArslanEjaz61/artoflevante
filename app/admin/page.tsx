@@ -2174,6 +2174,7 @@ export default function AdminPage() {
               setOverviewDateFilter={setOverviewDateFilter}
               setTab={setTab}
               cur={cur}
+              openCustomerDetail={openCustomerDetail}
             />
           )}
 

@@ -307,6 +307,13 @@ export default function CustomerDetailModal({
                               </span>
                             </div>
                             <div className="flex justify-between py-1 border-b border-[#EAE3DC]/60">
+                              <span className="text-[#7A6E67]">Total Store Visits</span>
+                              <span className="font-bold text-[#143F26] bg-[#143F26]/10 px-2.5 py-0.5 rounded-lg flex items-center gap-1 font-mono">
+                                <UserCheck className="w-3 h-3 text-[#143F26]" />
+                                {selectedCustomerData.visitCount || 0} visits
+                              </span>
+                            </div>
+                            <div className="flex justify-between py-1 border-b border-[#EAE3DC]/60">
                               <span className="text-[#7A6E67]">Customer ID</span>
                               <span className="font-mono font-bold text-[#1E1815]">
                                 {selectedCustomerData.cardCode || "Auto-Assigned"}
