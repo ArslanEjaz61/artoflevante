@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
             couponCode: trx.invoiceNumber,
             pointsEarned: trx.pointsEarned,
             checkInMethod: "STAFF_POS",
-            note: `Invoice #${trx.invoiceNumber} recorded at ${trx.branch.name}`,
+            note: `POS · Invoice #${trx.invoiceNumber} · Bill: AED ${Number(trx.amount || 0).toFixed(2)}`,
             createdAt: trx.createdAt,
           },
         });

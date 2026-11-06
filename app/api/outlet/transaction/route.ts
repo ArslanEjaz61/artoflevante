@@ -181,7 +181,7 @@ export async function POST(req: NextRequest) {
           couponCode: cleanInvoice,
           pointsEarned,
           checkInMethod: "STAFF_POS",
-          note: `Invoice #${cleanInvoice} recorded at ${branch.name}`,
+          note: `POS · Invoice #${cleanInvoice} · Bill: ${currency} ${value.toFixed(2)}`,
         },
       });
 
