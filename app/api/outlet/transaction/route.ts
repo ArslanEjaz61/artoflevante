@@ -1,16 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { pointsForAmount, newlyEligibleRewards, getNumber, getSettings } from "@/lib/loyalty";
+import { formatFullInvoice } from "@/lib/receipts";
 import { normalizeCode } from "@/lib/crypto";
 import { createNotification } from "@/lib/notifications";
-import { cookies } from "next/headers";
-
-const OUTLET_COOKIE = "outlet_branch_code";
+import { getOutletSession } from "@/lib/session";
 
 export async function POST(req: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const branchCode = cookieStore.get(OUTLET_COOKIE)?.value;
+    const session = await getOutletSession();
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized. Please authenticate your outlet terminal first." },
+        { status: 401 }
+      );
+    }
+
+    const branch = await prisma.branch.findUnique({
+      where: { id: session.branchId },
+    });
+
+    if (!branch || !branch.isActive) {
+      return NextResponse.json(
+        { error: "Active outlet branch not found. Please re-authenticate." },
+        { status: 401 }
+      );
+    }
 
     let body: any;
     try {
@@ -21,8 +36,6 @@ export async function POST(req: NextRequest) {
 
     const {
       customerId,
-      branchId: explicitBranchId,
-      branchCode: explicitBranchCode,
       invoiceNumber,
       amount,
       redeemRewardId,
@@ -30,7 +43,8 @@ export async function POST(req: NextRequest) {
       token: rawToken,
     } = body || {};
 
-    const cleanInvoice = String(invoiceNumber || "").trim();
+    const rawInvoice = String(invoiceNumber || "").trim();
+    const cleanInvoice = formatFullInvoice(rawInvoice, branch.invoicePrefix || branch.code);
     const value = Number(amount);
     const pointsToRedeem = Math.max(0, parseInt(String(rawPointsToRedeem || 0), 10) || 0);
 
@@ -39,27 +53,6 @@ export async function POST(req: NextRequest) {
     }
     if (!Number.isFinite(value) || value <= 0) {
       return NextResponse.json({ error: "Please enter a valid bill amount greater than 0." }, { status: 400 });
-    }
-
-    // Resolve branch
-    const branchSearchCode = explicitBranchCode || branchCode;
-    let branch: any = null;
-
-    if (explicitBranchId) {
-      branch = await prisma.branch.findUnique({ where: { id: explicitBranchId } });
-    } else if (branchSearchCode) {
-      branch = await prisma.branch.findFirst({
-        where: {
-          OR: [
-            { code: { equals: branchSearchCode, mode: "insensitive" } },
-            { id: branchSearchCode },
-          ],
-        },
-      });
-    }
-
-    if (!branch || !branch.isActive) {
-      return NextResponse.json({ error: "Active outlet branch not found. Please re-enter outlet code." }, { status: 400 });
     }
 
     // Resolve customer
@@ -83,17 +76,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Customer account is blocked." }, { status: 403 });
     }
 
-    // Prevent duplicate invoice at this branch
+    // Prevent duplicate invoice across ALL branches
     const duplicate = await prisma.transaction.findFirst({
       where: {
-        branchId: branch.id,
-        invoiceNumber: cleanInvoice,
+        invoiceNumber: { equals: cleanInvoice, mode: "insensitive" },
       },
+      include: { branch: true },
+    });
+    const duplicateVisit = await prisma.customerVisit.findFirst({
+      where: {
+        OR: [
+          { couponCode: { equals: cleanInvoice, mode: "insensitive" } },
+          { couponCode: { equals: `RCPT-${cleanInvoice}`, mode: "insensitive" } },
+        ],
+      },
+      include: { branch: true },
     });
 
-    if (duplicate) {
+    if (duplicate || duplicateVisit) {
+      const loc = duplicate?.branch?.name || duplicateVisit?.branch?.name || "an outlet";
       return NextResponse.json(
-        { error: `Invoice #${cleanInvoice} has already been recorded at ${branch.name}.` },
+        { error: `Invoice #${cleanInvoice} has already been recorded at ${loc}. Duplicate invoices are not allowed.` },
         { status: 409 }
       );
     }
@@ -235,6 +238,11 @@ export async function POST(req: NextRequest) {
       }
 
       // 4. Update customer stats
+      const freshCust = await tx.customer.findUnique({ where: { id: customer.id } });
+      if (!freshCust || (totalPointsSpent > 0 && freshCust.pointsBalance < totalPointsSpent)) {
+        throw new Error(`Insufficient points balance. Customer currently has ${freshCust?.pointsBalance || 0} points.`);
+      }
+
       const netPointsDelta = pointsEarned - totalPointsSpent;
       const updatedCustomer = await tx.customer.update({
         where: { id: customer.id },

@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# scanned receipt photos
+/storage
+/data/whatsapp_auth
+data/whatsapp_auth/
+

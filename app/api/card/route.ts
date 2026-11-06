@@ -158,31 +158,38 @@ export async function GET() {
 
   if (customer.birthday) {
     const today = new Date();
-    const todayZero = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const bdayRaw = new Date(customer.birthday);
-    const bdayThisYear = new Date(today.getFullYear(), bdayRaw.getMonth(), bdayRaw.getDate());
-    const isBirthdayMonth = today.getMonth() === bdayRaw.getMonth();
-    const isBirthdayToday = today.getMonth() === bdayRaw.getMonth() && today.getDate() === bdayRaw.getDate();
+    // Use UTC dates so PostgreSQL @db.Date doesn't shift by timezone offsets
+    const bdayMonth = bdayRaw.getUTCMonth();
+    const bdayDate = bdayRaw.getUTCDate();
+    const currentMonth = today.getUTCMonth();
+    const currentDate = today.getUTCDate();
+
+    const isBirthdayMonth = currentMonth === bdayMonth;
+    const isBirthdayToday = currentMonth === bdayMonth && currentDate === bdayDate;
+
+    const thisYear = today.getUTCFullYear();
+    const bdayThisYear = new Date(Date.UTC(thisYear, bdayMonth, bdayDate));
+    const todayZero = new Date(Date.UTC(thisYear, currentMonth, currentDate));
 
     let daysUntil = Math.ceil((bdayThisYear.getTime() - todayZero.getTime()) / (1000 * 60 * 60 * 24));
     if (daysUntil < 0 && !isBirthdayMonth) {
-      const bdayNextYear = new Date(today.getFullYear() + 1, bdayRaw.getMonth(), bdayRaw.getDate());
+      const bdayNextYear = new Date(Date.UTC(thisYear + 1, bdayMonth, bdayDate));
       daysUntil = Math.ceil((bdayNextYear.getTime() - todayZero.getTime()) / (1000 * 60 * 60 * 24));
     }
 
+    const startOfThisYear = new Date(Date.UTC(thisYear, 0, 1));
     const existingBirthdayReward = await prisma.customerReward.findFirst({
       where: {
         customerId,
         reward: { type: "BIRTHDAY" },
+        issuedAt: { gte: startOfThisYear },
       },
       include: { reward: true },
       orderBy: { issuedAt: "desc" },
     });
 
-    const thisYear = today.getFullYear();
-    const alreadyIssuedThisYear = existingBirthdayReward
-      ? new Date(existingBirthdayReward.issuedAt).getFullYear() === thisYear
-      : false;
+    const alreadyIssuedThisYear = Boolean(existingBirthdayReward);
 
     birthdayStatus.hasBirthday = true;
     birthdayStatus.birthdayDate = customer.birthday.toISOString();
@@ -216,7 +223,7 @@ export async function GET() {
       const isApproaching = isBirthdayMonth || (daysUntil >= 0 && daysUntil <= 30);
 
       if (isApproaching) {
-        const isExactDayReached = isBirthdayToday || (isBirthdayMonth && today.getDate() >= bdayRaw.getDate());
+        const isExactDayReached = isBirthdayToday || (isBirthdayMonth && currentDate >= bdayDate);
 
         if (!isExactDayReached && daysUntil > 0) {
           // Keep surprise gift locked with countdown
@@ -231,41 +238,55 @@ export async function GET() {
             const chosenReward =
               activeBirthdayRewards[Math.floor(Math.random() * activeBirthdayRewards.length)];
 
-            const cr = await prisma.customerReward.create({
-              data: {
-                customerId,
-                rewardId: chosenReward.id,
-                status: "AVAILABLE",
-                expiresAt: chosenReward.validDays
-                  ? new Date(Date.now() + chosenReward.validDays * 86400_000)
-                  : new Date(Date.now() + 30 * 86400_000),
-              },
-              include: { reward: true },
-            });
-
-            if (!chosenReward.isPercent && Number(chosenReward.value) > 0 && chosenReward.threshold === 0) {
-              const bonusPts = Math.floor(Number(chosenReward.value));
-              await prisma.customer.update({
-                where: { id: customerId },
-                data: { pointsBalance: { increment: bonusPts } },
+            // Atomic check and create to prevent duplicate reward / bonus points under concurrent calls
+            const cr = await prisma.$transaction(async (tx) => {
+              const alreadyThere = await tx.customerReward.findFirst({
+                where: {
+                  customerId,
+                  reward: { type: "BIRTHDAY" },
+                  issuedAt: { gte: startOfThisYear },
+                },
+                include: { reward: true },
               });
-              await prisma.pointsLedger.create({
+              if (alreadyThere) return alreadyThere;
+
+              const createdReward = await tx.customerReward.create({
                 data: {
                   customerId,
-                  delta: bonusPts,
-                  reason: "birthday",
-                  note: `Birthday surprise treat: +${bonusPts} bonus points awarded`,
+                  rewardId: chosenReward.id,
+                  status: "AVAILABLE",
+                  expiresAt: chosenReward.validDays
+                    ? new Date(Date.now() + chosenReward.validDays * 86400_000)
+                    : new Date(Date.now() + 30 * 86400_000),
                 },
+                include: { reward: true },
               });
-            }
+
+              if (!chosenReward.isPercent && Number(chosenReward.value) > 0 && chosenReward.threshold === 0) {
+                const bonusPts = Math.floor(Number(chosenReward.value));
+                await tx.customer.update({
+                  where: { id: customerId },
+                  data: { pointsBalance: { increment: bonusPts } },
+                });
+                await tx.pointsLedger.create({
+                  data: {
+                    customerId,
+                    delta: bonusPts,
+                    reason: "birthday",
+                    note: `Birthday surprise treat: +${bonusPts} bonus points awarded`,
+                  },
+                });
+              }
+              return createdReward;
+            });
 
             birthdayStatus.status = "AVAILABLE";
             birthdayStatus.reward = {
               id: cr.id,
-              name: chosenReward.name,
-              description: chosenReward.description,
-              value: Number(chosenReward.value),
-              isPercent: chosenReward.isPercent,
+              name: cr.reward?.name || chosenReward.name,
+              description: cr.reward?.description || chosenReward.description,
+              value: Number(cr.reward?.value || chosenReward.value),
+              isPercent: cr.reward?.isPercent ?? chosenReward.isPercent,
               expiresAt: cr.expiresAt,
               status: "AVAILABLE",
             };

@@ -336,6 +336,8 @@ export async function GET(
           method:
             v.checkInMethod === "STAFF_POS"
               ? "Staff Till QR"
+              : v.checkInMethod === "RECEIPT_SCAN"
+              ? "Receipt Scan"
               : v.checkInMethod === "QR_SCAN"
               ? "QR Passcode"
               : "24h Dine-in Coupon",

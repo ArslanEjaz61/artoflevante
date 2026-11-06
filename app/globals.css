@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 @theme {
+  /* foldables / small tablets: 512px+ gets the roomier "sm" layout (was 640px) */
+  --breakpoint-sm: 32rem;
   /* Display face for the branded member screens (matches the brand artwork). */
   --font-display: "Montserrat", ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
@@ -118,4 +120,164 @@ body {
 
 .animate-spin-custom {
   animation: spin 0.75s linear infinite;
+}
+
+/* Receipt scanner (components/ReceiptScanner.tsx): a gold line sweeping the photo while it is read */
+.bc-receipt-sweep {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 22%;
+  top: -22%;
+  background: linear-gradient(180deg, transparent, rgba(242, 199, 107, 0.35) 70%, #f2c76b 100%);
+  border-bottom: 2px solid #ffe2a0;
+  box-shadow: 0 6px 18px rgba(255, 200, 110, 0.7);
+  animation: bc-receipt-sweep 1.6s ease-in-out infinite;
+}
+@keyframes bc-receipt-sweep {
+  0% { top: -22%; }
+  100% { top: 100%; }
+}
+@keyframes bc-receipt-pop-in {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.bc-receipt-pop {
+  animation: bc-receipt-pop-in 0.5s cubic-bezier(0.2, 0.9, 0.25, 1.3) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bc-receipt-sweep { animation-duration: 3s; }
+}
+
+/* Dual-screen devices (Surface Duo etc.) when an app is spanned across the hinge: keep content on the left screen */
+@media (horizontal-viewport-segments: 2) {
+  .fold-safe {
+    max-width: env(viewport-segment-width 0 0);
+    margin-left: 0;
+    margin-right: auto;
+  }
+}
+
+/* ======================================================================
+   Admin look: maroon gradient + warm cream, like the Operations Dashboard.
+   Scoped to .bc-admin (the signed-in admin shell) so nothing else changes.
+   ====================================================================== */
+.bc-admin.bc-admin {
+  background:
+    radial-gradient(90% 40% at 100% 0%, rgba(30, 176, 80, 0.10), transparent 60%),
+    radial-gradient(80% 40% at 0% 100%, rgba(204, 136, 32, 0.12), transparent 60%),
+    linear-gradient(180deg, #fbf3e6 0%, #f5e6d3 100%);
+}
+/* white cards become warm cream with a gold hairline */
+.bc-admin .bg-white {
+  background: linear-gradient(165deg, #fffdf8 0%, #f9efe0 100%);
+}
+.bc-admin .border-\[\#EAE3DC\],
+.bc-admin .border-\[\#EFE8E1\],
+.bc-admin .border-\[\#DCD3CB\] {
+  border-color: rgba(176, 132, 60, 0.30);
+}
+.bc-admin .bg-\[\#FAF7F4\] {
+  background-color: #fbf1e2;
+}
+/* sidebar + top bar */
+.bc-admin aside {
+  background: linear-gradient(180deg, #fffaf0 0%, #f6e8d3 100%);
+  border-right-color: rgba(176, 132, 60, 0.35);
+}
+.bc-admin main > header {
+  background: linear-gradient(180deg, rgba(255, 253, 248, 0.96), rgba(249, 239, 224, 0.96));
+  border-bottom: 1px solid rgba(176, 132, 60, 0.35);
+  backdrop-filter: blur(8px);
+}
+/* every primary maroon surface: gradient with a gold edge */
+.bc-admin .bg-\[\#0E331E\] {
+  background: linear-gradient(165deg, #1DA54B 0%, #0B6B2C 100%);
+  box-shadow: inset 0 0 0 1px rgba(236, 192, 104, 0.55), 0 6px 14px rgba(11, 107, 44, 0.25);
+}
+.bc-admin .hover\:bg-\[\#0E331E\]:hover {
+  background: linear-gradient(165deg, #1DA54B 0%, #0B6B2C 100%);
+}
+
+/* hero card */
+.bc-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 18px 18px 16px;
+  color: #fff4df;
+  background:
+    radial-gradient(70% 90% at 100% 0%, rgba(80, 255, 140, 0.30), transparent 60%),
+    linear-gradient(160deg, #118E3C 0%, #0A5F27 55%, #063F19 100%);
+  box-shadow: inset 0 0 0 1px rgba(236, 192, 104, 0.6), 0 12px 28px rgba(10, 95, 39, 0.32);
+}
+.bc-hero-lines {
+  position: absolute;
+  right: 0;
+  top: 6px;
+  width: 56%;
+  height: 100px;
+  opacity: 0.5;
+  fill: none;
+  stroke: rgba(246, 212, 138, 0.55);
+  stroke-width: 1.4;
+  pointer-events: none;
+}
+.bc-hero-lines path:nth-child(2) { stroke: rgba(110, 255, 159, 0.4); }
+.bc-hero-lines path:nth-child(3) { stroke: rgba(246, 212, 138, 0.28); }
+.bc-hero-top { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.bc-hero-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 11px; border-radius: 9999px;
+  font-size: 11.5px; font-weight: 700; color: #ffe9bb;
+  background: rgba(2, 30, 12, 0.35);
+  border: 1px solid rgba(236, 192, 104, 0.55);
+}
+.bc-hero-pill-ghost { background: rgba(255, 244, 223, 0.08); }
+.bc-hero-greet { position: relative; margin-top: 16px; font-size: 22px; line-height: 1.15; font-weight: 800; letter-spacing: -0.01em; color: #fff7e6; }
+.bc-hero-note { position: relative; margin-top: 3px; font-size: 12.5px; color: rgba(255, 238, 212, 0.78); }
+.bc-hero-label { position: relative; margin-top: 16px; font-size: 10.5px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255, 226, 170, 0.85); }
+.bc-hero-value { position: relative; margin-top: 2px; font-size: clamp(26px, 7.4vw, 38px); font-weight: 900; letter-spacing: -0.02em; line-height: 1.1; color: #fffaf0; }
+.bc-hero-meter { position: relative; margin-top: 16px; height: 6px; border-radius: 9999px; background: rgba(255, 244, 223, 0.18); overflow: hidden; }
+.bc-hero-meter div { height: 100%; border-radius: 9999px; background: linear-gradient(90deg, #f2a73b, #ffd88a); }
+.bc-hero-meter-row { position: relative; margin-top: 7px; display: flex; justify-content: space-between; gap: 10px; font-size: 11px; color: rgba(255, 238, 212, 0.8); }
+.bc-hero-meter-row b { color: #ffd88a; font-weight: 800; white-space: nowrap; }
+.bc-hero-stats { position: relative; margin-top: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.bc-hero-stats > div {
+  padding: 9px 10px; border-radius: 14px;
+  background: linear-gradient(165deg, #fff6e4, #f6e5cb);
+  box-shadow: inset 0 0 0 1px rgba(236, 192, 104, 0.7);
+  min-width: 0;
+}
+.bc-hero-stats span { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; color: #7a6e67; }
+.bc-hero-stats b { display: block; margin-top: 2px; font-size: 15px; font-weight: 900; color: #0A5F27; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* bottom tab bar (phones only) */
+@media (max-width: 1023px) {
+  .bc-tabbar {
+    position: fixed; left: 10px; right: 10px;
+    bottom: max(env(safe-area-inset-bottom), 10px);
+    z-index: 30;
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;
+    padding: 6px;
+    border-radius: 22px;
+    background: linear-gradient(165deg, #118E3C 0%, #095623 100%);
+    box-shadow: inset 0 0 0 1px rgba(236, 192, 104, 0.6), 0 14px 30px rgba(6, 60, 24, 0.45);
+  }
+}
+@media (min-width: 1024px) {
+  .bc-tabbar {
+    display: none !important;
+  }
+}
+.bc-tab {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  padding: 8px 2px; border-radius: 16px;
+  font-size: 10.5px; font-weight: 700; color: rgba(255, 236, 205, 0.78);
+  background: transparent; border: 0; cursor: pointer;
+}
+.bc-tab-on {
+  color: #fffaf0;
+  background: linear-gradient(165deg, #30C864, #118E3C);
+  box-shadow: inset 0 0 0 1px rgba(255, 214, 140, 0.85), 0 4px 12px rgba(0, 0, 0, 0.3);
 }

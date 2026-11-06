@@ -14,8 +14,125 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
-  const { mobile, countryCode, code, mode } = body || {};
+  const { mobile, countryCode, email, code, mode, loginMethod } = body || {};
   const purpose = mode === "login" ? "login" : "register";
+  const isEmailLogin = purpose === "login" && (loginMethod === "email" || (!mobile && Boolean(email)));
+
+  const maxAttempts = (await getNumber("otp_max_attempts")) || 5;
+
+  // ==============================================================
+  // 1. EMAIL LOGIN VERIFICATION
+  // ==============================================================
+  if (isEmailLogin) {
+    const cleanEmail = String(email || "").trim().toLowerCase();
+    if (!cleanEmail || !code) {
+      return NextResponse.json({ error: "Please enter the verification code sent to your email." }, { status: 400 });
+    }
+
+    const identifier = `email:${cleanEmail}`;
+    const otp = await prisma.otpCode.findFirst({
+      where: { mobile: identifier, purpose: "login", consumedAt: null },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!otp) {
+      return NextResponse.json(
+        { error: "No active verification code found for this email. Please request a new code." },
+        { status: 400 }
+      );
+    }
+
+    if (otp.expiresAt < new Date()) {
+      return NextResponse.json(
+        { error: "That verification code has expired (valid for 5 minutes). Please request a new code." },
+        { status: 400 }
+      );
+    }
+
+    if (otp.attempts >= maxAttempts) {
+      return NextResponse.json(
+        { error: "Too many wrong attempts. This code is invalidated. Please request a new code." },
+        { status: 429 }
+      );
+    }
+
+    const valid = await verifySecret(String(code).trim(), otp.codeHash);
+    if (!valid) {
+      await prisma.otpCode.update({
+        where: { id: otp.id },
+        data: { attempts: { increment: 1 } },
+      });
+      const left = maxAttempts - (otp.attempts + 1);
+      return NextResponse.json(
+        { error: left > 0 ? `Wrong code. ${left} attempt${left === 1 ? "" : "s"} left.` : "Wrong code." },
+        { status: 400 }
+      );
+    }
+
+    // Mark code as consumed
+    await prisma.otpCode.update({ where: { id: otp.id }, data: { consumedAt: new Date() } });
+
+    const customer = await prisma.customer.findFirst({
+      where: { email: { equals: cleanEmail, mode: "insensitive" } },
+      include: { homeBranch: { select: { id: true, name: true, city: true } } },
+    });
+
+    if (!customer) {
+      return NextResponse.json({ error: "No loyalty account found with this email." }, { status: 404 });
+    }
+
+    if (customer.isBlocked) {
+      return NextResponse.json({ error: "This loyalty account is currently inactive." }, { status: 403 });
+    }
+
+    await setCustomerSession(customer.id);
+
+    // Audit Log & Notification for Email Sign In
+    try {
+      const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "127.0.0.1";
+      const userAgent = req.headers.get("user-agent")?.slice(0, 150) || "Customer Portal (Email Login)";
+      await prisma.auditLog.create({
+        data: {
+          action: "customer.login",
+          entityType: "Customer",
+          entityId: customer.id,
+          reason: `Customer sign in via Email OTP: ${customer.name || "Member"} (${customer.email})`,
+          metadata: {
+            method: "email",
+            email: customer.email,
+            mobile: customer.mobile,
+            name: customer.name || "Guest Member",
+            pointsBalance: customer.pointsBalance,
+            visitCount: customer.visitCount,
+            homeBranch: customer.homeBranch?.name || "Not assigned",
+            ip,
+            userAgent,
+          },
+        },
+      });
+
+      await createNotification({
+        type: "CUSTOMER_LOGIN",
+        title: `Customer Sign In (Email): ${customer.name || "Member"}`,
+        message: `${customer.name || "Customer"} (${customer.email}) signed into the Loyalty Club with ${customer.pointsBalance} pts balance.`,
+        metadata: {
+          customerId: customer.id,
+          email: customer.email,
+          mobile: customer.mobile,
+          name: customer.name,
+          pointsBalance: customer.pointsBalance,
+        },
+      });
+    } catch (auditErr) {
+      console.error("Failed to write email login audit record:", auditErr);
+    }
+
+    return NextResponse.json({ ok: true, customerId: customer.id, isNew: false });
+  }
+
+  // ==============================================================
+  // 2. MOBILE NUMBER (DEFAULT LOGIN & REGISTRATION) VERIFICATION
+  // ==============================================================
   const normalized = normalizeMobile(mobile, countryCode || DEFAULT_COUNTRY);
 
   if (!normalized || !code) {
@@ -31,10 +148,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No code was requested. Please start again." }, { status: 400 });
   }
   if (otp.expiresAt < new Date()) {
-    return NextResponse.json({ error: "That code has expired. Please request a new one." }, { status: 400 });
+    return NextResponse.json({ error: "That code has expired (valid for 5 minutes). Please request a new one." }, { status: 400 });
   }
 
-  const maxAttempts = (await getNumber("otp_max_attempts")) || 5;
   if (otp.attempts >= maxAttempts) {
     return NextResponse.json(
       { error: "Too many wrong attempts. Please request a new code." },
@@ -76,8 +192,9 @@ export async function POST(req: NextRequest) {
           action: "customer.login",
           entityType: "Customer",
           entityId: customer.id,
-          reason: `Customer sign in via SMS OTP: ${customer.name || "Member"} (${customer.mobile})`,
+          reason: `Customer sign in via WhatsApp/SMS OTP: ${customer.name || "Member"} (${customer.mobile})`,
           metadata: {
+            method: "mobile",
             mobile: customer.mobile,
             name: customer.name || "Guest Member",
             pointsBalance: customer.pointsBalance,
@@ -122,8 +239,9 @@ export async function POST(req: NextRequest) {
           action: "customer.login",
           entityType: "Customer",
           entityId: alreadyThere.id,
-          reason: `Customer sign in via SMS OTP: ${alreadyThere.name || "Member"} (${alreadyThere.mobile})`,
+          reason: `Customer sign in via WhatsApp/SMS OTP: ${alreadyThere.name || "Member"} (${alreadyThere.mobile})`,
           metadata: {
+            method: "mobile",
             mobile: alreadyThere.mobile,
             name: alreadyThere.name || "Guest Member",
             pointsBalance: alreadyThere.pointsBalance,
@@ -265,4 +383,3 @@ export async function POST(req: NextRequest) {
     },
   });
 }
-

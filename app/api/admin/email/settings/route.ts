@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
     ok: true,
     settings: {
       ...config,
+      host: config.host || "smtp.gmail.com",
       pass: config.pass ? "••••••••••••" : "",
       hasPassword: !!config.pass,
     },

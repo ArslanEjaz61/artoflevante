@@ -33,7 +33,10 @@ export async function GET(req: NextRequest) {
         where: {
           customerId: trx.customerId,
           branchId: trx.branchId,
-          couponCode: trx.invoiceNumber,
+          OR: [
+            { couponCode: trx.invoiceNumber },
+            { couponCode: `RCPT-${trx.invoiceNumber}` },
+          ],
         },
       });
       if (!exists) {

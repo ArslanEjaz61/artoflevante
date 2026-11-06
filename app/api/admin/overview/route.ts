@@ -238,8 +238,11 @@ export async function GET(req: NextRequest) {
     where: { ...custWhere, birthday: { not: null } },
     select: { id: true, name: true, mobile: true, birthday: true },
   });
-  const birthdays = withBirthday
-    .filter((c) => c.birthday && new Date(c.birthday).getUTCMonth() === thisMonth)
+  const allBirthdaysThisMonth = withBirthday.filter(
+    (c) => c.birthday && new Date(c.birthday).getUTCMonth() === thisMonth
+  );
+  const totalBirthdaysThisMonth = allBirthdaysThisMonth.length;
+  const birthdays = allBirthdaysThisMonth
     .sort((a, b) => new Date(a.birthday!).getUTCDate() - new Date(b.birthday!).getUTCDate())
     .slice(0, 10);
 
@@ -274,7 +277,7 @@ export async function GET(req: NextRequest) {
     walletFloat: walletFloat,
     discountGiven: Number(txAgg._sum.discountGiven ?? 0),
     returningCustomers: returningCount,
-    birthdaysThisMonth: birthdays.length,
+    birthdaysThisMonth: totalBirthdaysThisMonth,
   };
 
   return NextResponse.json({

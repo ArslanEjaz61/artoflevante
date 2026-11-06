@@ -67,7 +67,7 @@ const DEFAULT_OFFERS_TEMPLATE = {
   </div>
   
   <div style="text-align: center; margin-top: 20px; font-size: 11px; color: #8C7F78;">
-    <p style="margin: 0;">Levante UAE • Authentic Indian Street Food & Sweets</p>
+    <p style="margin: 0;">Levante • Coffee · Flowers · Chocolates</p>
   </div>
 </div>`,
 };

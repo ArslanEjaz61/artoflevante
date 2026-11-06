@@ -1,14 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { createNotification } from "@/lib/notifications";
-import { cookies } from "next/headers";
-
-const OUTLET_COOKIE = "outlet_branch_code";
+import { getOutletSession } from "@/lib/session";
+import { formatFullInvoice } from "@/lib/receiptUtils";
 
 export async function POST(req: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const branchCodeCookie = cookieStore.get(OUTLET_COOKIE)?.value;
+    const session = await getOutletSession();
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized. Please authenticate your outlet terminal first." },
+        { status: 401 }
+      );
+    }
+
+    const branch = await prisma.branch.findUnique({
+      where: { id: session.branchId },
+    });
+
+    if (!branch || !branch.isActive) {
+      return NextResponse.json(
+        { error: "Active outlet branch not found. Please re-authenticate." },
+        { status: 401 }
+      );
+    }
 
     let body: any;
     try {
@@ -17,31 +32,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid request payload." }, { status: 400 });
     }
 
-    const { customerId, customerRewardId, branchId: explicitBranchId, branchCode: explicitBranchCode } = body || {};
+    const {
+      customerId,
+      customerRewardId,
+      invoiceNumber,
+    } = body || {};
 
     if (!customerId || !customerRewardId) {
       return NextResponse.json({ error: "Customer ID and Reward ID are required." }, { status: 400 });
-    }
-
-    // Resolve branch
-    const branchSearchCode = explicitBranchCode || branchCodeCookie;
-    let branch: any = null;
-
-    if (explicitBranchId) {
-      branch = await prisma.branch.findUnique({ where: { id: explicitBranchId } });
-    } else if (branchSearchCode) {
-      branch = await prisma.branch.findFirst({
-        where: {
-          OR: [
-            { code: { equals: branchSearchCode, mode: "insensitive" } },
-            { id: branchSearchCode },
-          ],
-        },
-      });
-    }
-
-    if (!branch || !branch.isActive) {
-      return NextResponse.json({ error: "Active outlet branch not found." }, { status: 400 });
     }
 
     const customer = await prisma.customer.findUnique({ where: { id: customerId } });
@@ -88,23 +86,39 @@ export async function POST(req: NextRequest) {
 
       // If it is a POINTS redemption reward where points are deducted upon redemption:
       let updatedPointsBalance = customer.pointsBalance;
-      if (custReward.reward.type === "POINTS" && custReward.reward.threshold > 0) {
-        if (customer.pointsBalance >= custReward.reward.threshold) {
-          const updatedCust = await tx.customer.update({
-            where: { id: customer.id },
-            data: { pointsBalance: { decrement: custReward.reward.threshold } },
-          });
-          updatedPointsBalance = updatedCust.pointsBalance;
+      let updatedVisitCount = customer.visitCount;
 
-          await tx.pointsLedger.create({
-            data: {
-              customerId: customer.id,
-              delta: -custReward.reward.threshold,
-              reason: "reward_redemption",
-              note: `Redeemed ${custReward.reward.name} at ${branch.name}`,
-            },
-          });
+      if (custReward.reward.type === "POINTS" && custReward.reward.threshold > 0) {
+        // Fetch latest fresh customer record within transaction to prevent race conditions
+        const freshCust = await tx.customer.findUnique({ where: { id: customer.id } });
+        if (!freshCust || freshCust.pointsBalance < custReward.reward.threshold) {
+          throw new Error(`Insufficient points balance. Customer has ${freshCust?.pointsBalance || 0} pts, but ${custReward.reward.threshold} pts are required.`);
         }
+
+        const updatedCust = await tx.customer.update({
+          where: { id: customer.id },
+          data: { pointsBalance: { decrement: custReward.reward.threshold } },
+        });
+        updatedPointsBalance = updatedCust.pointsBalance;
+
+        await tx.pointsLedger.create({
+          data: {
+            customerId: customer.id,
+            delta: -custReward.reward.threshold,
+            reason: "reward_redemption",
+            note: `Redeemed ${custReward.reward.name} at ${branch.name}`,
+          },
+        });
+      } else if (custReward.reward.type === "VISITS") {
+        // Milestone reached & gift claimed! Reset visit counter for next cycle
+        const thresholdToDeduct =
+          custReward.reward.threshold > 0 ? custReward.reward.threshold : customer.visitCount;
+        const newVisits = Math.max(0, customer.visitCount - thresholdToDeduct);
+        const updatedCust = await tx.customer.update({
+          where: { id: customer.id },
+          data: { visitCount: newVisits },
+        });
+        updatedVisitCount = updatedCust.visitCount;
       }
 
       await tx.auditLog.create({
@@ -119,6 +133,7 @@ export async function POST(req: NextRequest) {
             rewardType: custReward.reward.type,
             branchId: branch.id,
             branchName: branch.name,
+            invoiceNumber: invoiceNumber ? formatFullInvoice(String(invoiceNumber).trim(), branch.invoicePrefix || branch.code) : null,
           },
         },
       });
@@ -126,6 +141,7 @@ export async function POST(req: NextRequest) {
       return {
         customerReward: updatedReward,
         pointsBalance: updatedPointsBalance,
+        visitCount: updatedVisitCount,
       };
     });
 
@@ -179,7 +195,7 @@ export async function POST(req: NextRequest) {
         id: customer.id,
         name: customer.name,
         pointsBalance: result.pointsBalance,
-        visitCount: customer.visitCount,
+        visitCount: result.visitCount,
       },
       availableRewards,
     });

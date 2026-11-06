@@ -13,11 +13,11 @@ function generateCodeSuffix(length = 4): string {
   return result;
 }
 
-/** Generate a readable 24-hour daily visit coupon code based on branch code (e.g. "1015-7K9A" or "DXB-8492") */
-export function generateBranchDailyCode(branchCode: string): string {
-  const cleanPrefix = String(branchCode || "VISIT").toUpperCase().replace(/[^A-Z0-9]/g, "");
-  const suffix = generateCodeSuffix(4);
-  return `${cleanPrefix}-${suffix}`;
+/** Generate a secure, high-entropy 24-hour daily visit coupon code without exposing sensitive branch codes (e.g. "7K9A-4M2P") */
+export function generateBranchDailyCode(_branchCode?: string): string {
+  const part1 = generateCodeSuffix(4);
+  const part2 = generateCodeSuffix(4);
+  return `${part1}-${part2}`;
 }
 
 /** Returns the active 24-hour daily visit coupon code for a branch, auto-rotating if expired */

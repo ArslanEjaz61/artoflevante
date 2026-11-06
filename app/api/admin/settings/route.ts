@@ -7,7 +7,7 @@ import { clearSettingsCache, DEFAULTS } from "@/lib/loyalty";
 // Default comprehensive system settings with clean category grouping
 const SYSTEM_SETTING_DEFINITIONS: Record<
   string,
-  { label: string; description: string; category: "general" | "loyalty" | "security"; defaultValue: string; type: "text" | "number" }
+  { label: string; description: string; category: "general" | "loyalty" | "security" | "ai"; defaultValue: string; type: "text" | "number"; secret?: boolean }
 > = {
   // General App & Brand Settings
   program_name: {
@@ -113,6 +113,73 @@ const SYSTEM_SETTING_DEFINITIONS: Record<
     type: "number",
   },
 
+  // AI Vision & Receipt Scanning Engine
+  receipt_ai_provider: {
+    label: "Active AI Vision Provider",
+    description: "Choose which AI service inspects bills: gemini (Google Gemini), openai (OpenAI GPT-4o), or openrouter",
+    category: "ai",
+    defaultValue: "openrouter",
+    type: "text",
+  },
+  gemini_api_key: {
+    label: "Google Gemini API Key",
+    description: "API Key from Google AI Studio (aistudio.google.com). Highly recommended for fast & accurate receipt OCR.",
+    category: "ai",
+    defaultValue: "",
+    type: "text",
+    secret: true,
+  },
+  gemini_model: {
+    label: "Google Gemini Model Name",
+    description: "Vision model identifier (default: gemini-2.5-flash or gemini-1.5-flash)",
+    category: "ai",
+    defaultValue: "gemini-2.5-flash",
+    type: "text",
+  },
+  openai_api_key: {
+    label: "OpenAI API Key",
+    description: "API Key from platform.openai.com for GPT-4o Vision multimodal analysis",
+    category: "ai",
+    defaultValue: "",
+    type: "text",
+    secret: true,
+  },
+  openai_model: {
+    label: "OpenAI Model Name",
+    description: "OpenAI vision model (default: gpt-4o-mini or gpt-4o)",
+    category: "ai",
+    defaultValue: "gpt-4o-mini",
+    type: "text",
+  },
+  openrouter_api_key: {
+    label: "OpenRouter API Key",
+    description: "API key from openrouter.ai/keys to access multi-provider models",
+    category: "ai",
+    defaultValue: "",
+    type: "text",
+    secret: true,
+  },
+  openrouter_model: {
+    label: "OpenRouter Vision Model",
+    description: "Model id, e.g. google/gemini-2.5-flash or anthropic/claude-3.5-sonnet",
+    category: "ai",
+    defaultValue: "google/gemini-2.5-flash",
+    type: "text",
+  },
+  receipt_max_age_days: {
+    label: "Receipt Max Age Allowed (Days)",
+    description: "Bills older than this cannot be claimed by customer scanning",
+    category: "ai",
+    defaultValue: "7",
+    type: "number",
+  },
+  receipt_daily_limit: {
+    label: "Receipt Daily Limit per Customer",
+    description: "Maximum scanned bills one customer can claim in a 24-hour window",
+    category: "ai",
+    defaultValue: "3",
+    type: "number",
+  },
   // Security & Anti-Fraud Thresholds
   qr_token_ttl_seconds: {
     label: "Dynamic QR Code Lifespan (Seconds)",
@@ -151,6 +218,12 @@ const SYSTEM_SETTING_DEFINITIONS: Record<
   },
 };
 
+/** Shows only the tail of a stored secret so it can be recognised but not copied out of the page. */
+function maskSecret(v?: string): string {
+  if (!v) return "";
+  return v.length <= 8 ? "••••" : `••••••••${v.slice(-4)}`;
+}
+
 // GET: Fetch all system settings
 export async function GET() {
   const { error, status, session } = await requireAdmin();
@@ -164,7 +237,8 @@ export async function GET() {
 
     const settings = Object.entries(SYSTEM_SETTING_DEFINITIONS).map(([key, meta]) => ({
       key,
-      value: dbMap[key] ?? meta.defaultValue,
+      value: meta.secret ? maskSecret(dbMap[key]) : dbMap[key] ?? meta.defaultValue,
+      secret: !!meta.secret,
       label: meta.label,
       description: meta.description,
       category: meta.category,
@@ -220,6 +294,8 @@ export async function POST(req: NextRequest) {
     }
 
     for (const [key, val] of Object.entries(settings)) {
+      // A secret still showing its mask was not edited, so keep the stored one.
+      if (SYSTEM_SETTING_DEFINITIONS[key]?.secret && typeof val === "string" && val.includes("••••")) continue;
       if (typeof val === "string" || typeof val === "number" || typeof val === "boolean") {
         await prisma.setting.upsert({
           where: { key },

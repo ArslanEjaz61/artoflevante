@@ -7,7 +7,7 @@ export async function GET() {
     const [branches, settings] = await Promise.all([
       prisma.branch.findMany({
         where: { isActive: true },
-        select: { id: true, code: true, name: true, city: true, address: true, hours: true },
+        select: { id: true, code: true, invoicePrefix: true, name: true, city: true, address: true, hours: true },
         orderBy: [{ city: "asc" }, { name: "asc" }],
       }),
       getSettings(),

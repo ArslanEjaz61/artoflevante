@@ -109,7 +109,7 @@ export default function AdminLoginPage() {
 
           <div>
             <label className="block text-[10px] font-extrabold uppercase tracking-wider text-[#7A6E67] mb-1.5" htmlFor="admin-p">
-              Admin Password / PIN Code
+              Password
             </label>
             <div className="relative">
               <input

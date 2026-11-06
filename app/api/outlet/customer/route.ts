@@ -3,9 +3,30 @@ import { prisma } from "@/lib/db";
 import { normalizeMobile } from "@/lib/mobile";
 import { normalizeCode } from "@/lib/crypto";
 import { getSettings } from "@/lib/loyalty";
+import { getOutletSession } from "@/lib/session";
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getOutletSession();
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized. Please authenticate your outlet terminal first." },
+        { status: 401 }
+      );
+    }
+
+    const branch = await prisma.branch.findUnique({
+      where: { id: session.branchId },
+      select: { id: true, code: true, name: true, isActive: true },
+    });
+
+    if (!branch || !branch.isActive) {
+      return NextResponse.json(
+        { error: "Outlet branch is inactive or not found. Please re-authenticate." },
+        { status: 401 }
+      );
+    }
+
     let body: any;
     try {
       body = await req.json();
@@ -71,16 +92,20 @@ export async function POST(req: NextRequest) {
       }
     } else if (mobile) {
       const e164 = normalizeMobile(mobile, countryCode || "971");
-      const digitsOnly = String(mobile).replace(/\D/g, "");
+      if (!e164) {
+        return NextResponse.json(
+          { error: "Please enter a complete and valid mobile number without country code." },
+          { status: 400 }
+        );
+      }
 
-      // Try exact E.164 first, then partial digits match
+      // Look up strictly by exact complete mobile number (prevents half-number matching)
       customer = await prisma.customer.findFirst({
         where: {
           isBlocked: false,
           OR: [
-            ...(e164 ? [{ mobile: e164 }] : []),
-            ...(digitsOnly.length >= 7 ? [{ mobile: { endsWith: digitsOnly } }] : []),
-            ...(digitsOnly.length >= 7 ? [{ mobile: { contains: digitsOnly } }] : []),
+            { mobile: e164 },
+            { mobile: `+${e164}` },
           ],
         },
         include: {

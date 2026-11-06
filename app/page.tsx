@@ -15,6 +15,10 @@ import {
   Ticket,
   X,
   RotateCw,
+  ChevronRight,
+  MessageSquare,
+  Mail,
+  Clock,
 } from "lucide-react";
 import { usePwaInstall } from "@/lib/usePwaInstall";
 import { InstallGuideModal } from "@/components/InstallGuideModal";
@@ -82,14 +86,18 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
     birthday: "",
     branchId: "",
   });
+  const selectedCountry = COUNTRIES.find((c) => c.code === f.countryCode) || COUNTRIES[0];
   const [code, setCode] = useState("");
   const [devCode, setDevCode] = useState("");
+  const [deliveryChannel, setDeliveryChannel] = useState<string>("sms");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [branchCode, setBranchCode] = useState("");
   const [resendTimer, setResendTimer] = useState(30);
   const [resendSuccess, setResendSuccess] = useState("");
   const [resending, setResending] = useState(false);
+  const [loginMethod, setLoginMethod] = useState<"mobile" | "email">("mobile");
+  const [otpExpiresIn, setOtpExpiresIn] = useState<number>(300);
 
   useEffect(() => {
     let interval: any;
@@ -100,6 +108,8 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
     }
     return () => clearInterval(interval);
   }, [view, resendTimer]);
+
+
 
   useEffect(() => {
     fetch("/api/card")
@@ -154,8 +164,25 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
   };
 
   const handleMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const digitsOnly = e.target.value.replace(/\D/g, "");
-    setF((x) => ({ ...x, mobile: digitsOnly }));
+    let raw = e.target.value.replace(/\D/g, "");
+    const selected = COUNTRIES.find((c) => c.code === f.countryCode) || COUNTRIES[0];
+
+    // Strip leading international prefix 00
+    if (raw.startsWith("00")) {
+      raw = raw.slice(2);
+    }
+    // Auto-strip country dialing code if pasted or typed (e.g. 97150...)
+    if (raw.startsWith(selected.code) && raw.length > selected.max) {
+      raw = raw.slice(selected.code.length);
+    }
+    // Auto-strip leading 0 (e.g. 050... or 0300...)
+    if (raw.startsWith("0")) {
+      raw = raw.replace(/^0+/, "");
+    }
+    // Cap to country maximum digits
+    const limited = raw.slice(0, selected.max);
+    setF((x) => ({ ...x, mobile: limited }));
+    if (err) setErr("");
   };
 
   function handleShare() {
@@ -189,14 +216,66 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
 
   async function sendCode(e?: React.FormEvent) {
     e?.preventDefault();
-    setBusy(true);
     setErr("");
     setResendSuccess("");
+
+    // Email Login Pathway
+    if (mode === "login" && loginMethod === "email") {
+      const cleanEmail = String(f.email || "").trim().toLowerCase();
+      if (!cleanEmail || !cleanEmail.includes("@")) {
+        setErr("Please enter a valid email address.");
+        return;
+      }
+
+      setBusy(true);
+      try {
+        const r = await fetch("/api/auth/start", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: cleanEmail, mode, loginMethod: "email" }),
+        });
+        const d = await r.json();
+        if (!r.ok) {
+          throw new Error(d.error || "Something went wrong.");
+        }
+        setDevCode(d.devCode || "");
+        setDeliveryChannel(d.channel || "email");
+        setResendTimer(45);
+        setOtpExpiresIn(d.expiresInSeconds || 300);
+        setView("code");
+      } catch (e2: any) {
+        setErr(String(e2.message || e2));
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
+
+    // Mobile Number Pathway
+    const cleanedDigits = f.mobile.replace(/\D/g, "");
+    if (!cleanedDigits) {
+      setErr("Please enter your mobile number.");
+      return;
+    }
+
+    if (cleanedDigits.length < selectedCountry.min || cleanedDigits.length > selectedCountry.max) {
+      setErr(
+        `Please enter a valid ${selectedCountry.name} mobile number (${selectedCountry.min === selectedCountry.max ? `${selectedCountry.max} digits` : `${selectedCountry.min}-${selectedCountry.max} digits`}) without country code.`
+      );
+      return;
+    }
+
+    if (selectedCountry.code === "971" && !cleanedDigits.startsWith("5")) {
+      setErr("UAE mobile number must start with 5 (e.g. 50 123 4567).");
+      return;
+    }
+
+    setBusy(true);
     try {
       const r = await fetch("/api/auth/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...f, mode }),
+        body: JSON.stringify({ ...f, mode, loginMethod: "mobile" }),
       });
       const d = await r.json();
       if (!r.ok) {
@@ -205,7 +284,9 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
         throw new Error(d.error || "Something went wrong.");
       }
       setDevCode(d.devCode || "");
-      setResendTimer(30);
+      if (d.channel) setDeliveryChannel(d.channel);
+      setResendTimer(45);
+      setOtpExpiresIn(d.expiresInSeconds || 300);
       setView("code");
     } catch (e2: any) {
       setErr(String(e2.message || e2));
@@ -220,17 +301,24 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
     setErr("");
     setResendSuccess("");
     try {
+      const payload =
+        mode === "login" && loginMethod === "email"
+          ? { email: String(f.email || "").trim().toLowerCase(), mode, loginMethod: "email" }
+          : { ...f, mode, loginMethod: "mobile" };
+
       const r = await fetch("/api/auth/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...f, mode }),
+        body: JSON.stringify(payload),
       });
       const d = await r.json();
       if (!r.ok) {
         throw new Error(d.error || "Could not resend code.");
       }
       setDevCode(d.devCode || "");
-      setResendTimer(30);
+      if (d.channel) setDeliveryChannel(d.channel);
+      setResendTimer(45);
+      setOtpExpiresIn(d.expiresInSeconds || 300);
       setResendSuccess("A new verification code has been sent!");
     } catch (e2: any) {
       setErr(String(e2.message || e2));
@@ -244,10 +332,15 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
     setBusy(true);
     setErr("");
     try {
+      const payload =
+        mode === "login" && loginMethod === "email"
+          ? { email: String(f.email || "").trim().toLowerCase(), code, mode, loginMethod: "email" }
+          : { mobile: f.mobile, countryCode: f.countryCode, code, mode, loginMethod: "mobile" };
+
       const r = await fetch("/api/auth/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mobile: f.mobile, countryCode: f.countryCode, code, mode }),
+        body: JSON.stringify(payload),
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Something went wrong.");
@@ -368,10 +461,69 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
           <p className="text-xs text-[#7A6E67] mb-5 leading-relaxed">
             {mode === "register"
               ? `Register to unlock an instant ${programInfo.welcomeDiscountPercent}% welcome voucher and earn points on every visit.`
-              : "Enter your registered mobile number to receive a secure login code."}
+              : loginMethod === "email"
+              ? "Sign in using your registered email address. We will send a 6-digit verification code to your inbox."
+              : "Enter your registered mobile number to receive a secure WhatsApp / SMS login code."}
           </p>
 
+          {/* Toggle Login Method: Mobile (default) vs Email */}
+          {mode === "login" && (
+            <div className="flex p-1 bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl mb-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginMethod("mobile");
+                  setErr("");
+                }}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  loginMethod === "mobile"
+                    ? "bg-[#0E331E] text-white shadow-xs"
+                    : "text-[#7A6E67] hover:text-[#1E1815]"
+                }`}
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>Mobile Number</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginMethod("email");
+                  setErr("");
+                }}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  loginMethod === "email"
+                    ? "bg-[#0E331E] text-white shadow-xs"
+                    : "text-[#7A6E67] hover:text-[#1E1815]"
+                }`}
+              >
+                <Mail className="w-3.5 h-3.5" />
+                <span>Email Address</span>
+              </button>
+            </div>
+          )}
+
           <form onSubmit={sendCode} className="space-y-3.5">
+            {mode === "login" && loginMethod === "email" ? (
+              <div>
+                <label className="block text-[10px] font-extrabold uppercase text-[#7A6E67] mb-1">
+                  Registered Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-[#7A6E67] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    type="email"
+                    placeholder="name@example.com"
+                    value={f.email}
+                    onChange={setField("email")}
+                    className="w-full pl-10 pr-3.5 h-11 text-sm bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] focus:outline-none focus:border-[#0E331E] font-medium"
+                    required
+                  />
+                </div>
+                <p className="mt-1.5 text-[11px] text-[#7A6E67]">
+                  A 6-digit verification code will be sent to your email inbox. Valid for 5 minutes.
+                </p>
+              </div>
+            ) : null}
             {mode === "register" && (
               <div>
                 <label className="block text-[10px] font-extrabold uppercase text-[#7A6E67] mb-1">
@@ -388,26 +540,61 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
               </div>
             )}
 
-            <div>
-              <label className="block text-[10px] font-extrabold uppercase text-[#7A6E67] mb-1">
-                Mobile Number
-              </label>
+            {(mode === "register" || loginMethod === "mobile") && (
+              <div>
+                <label className="block text-[10px] font-extrabold uppercase text-[#7A6E67] mb-1">
+                  Mobile Number
+                </label>
               <div className="flex gap-2 items-center">
                 <CountryCodePicker
                   value={f.countryCode}
-                  onChange={(c) => setF((prev) => ({ ...prev, countryCode: c }))}
+                  onChange={(c) => {
+                    const newCountry = COUNTRIES.find((item) => item.code === c) || COUNTRIES[0];
+                    setF((prev) => ({
+                      ...prev,
+                      countryCode: c,
+                      mobile: prev.mobile.slice(0, newCountry.max),
+                    }));
+                  }}
                 />
                 <input
                   type="tel"
                   inputMode="numeric"
-                  placeholder="501234567"
+                  placeholder={
+                    selectedCountry.code === "971"
+                      ? "50 123 4567"
+                      : `${selectedCountry.max} digits without country code`
+                  }
                   value={f.mobile}
+                  maxLength={selectedCountry.max}
                   onChange={handleMobileChange}
-                  className="flex-1 min-w-0 px-3.5 py-2.5 text-sm bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-mono font-bold focus:outline-none focus:border-[#0E331E]"
+                  className="flex-1 min-w-0 px-4 h-11 text-base bg-[#FAF7F4] border border-[#EAE3DC] rounded-xl text-[#1E1815] font-mono font-bold focus:outline-none focus:border-[#0E331E] tracking-wide"
                   required
                 />
               </div>
+
+              {/* Helper Message & Counter */}
+              <div className="mt-1.5 flex items-center justify-between gap-2 text-[11px] text-[#7A6E67]">
+                <span className="font-medium text-[#7A6E67]">
+                  Write number without country code{" "}
+                  <span className="text-[#0E331E] font-bold">
+                    ({selectedCountry.code === "971" ? "e.g. 50 123 4567" : `${selectedCountry.max} digits`})
+                  </span>
+                </span>
+                <span
+                  className={`font-mono text-[11px] font-bold shrink-0 ${
+                    f.mobile.length === selectedCountry.max
+                      ? "text-emerald-700"
+                      : f.mobile.length > 0 && f.mobile.length < selectedCountry.min
+                      ? "text-amber-700"
+                      : "text-[#7A6E67]"
+                  }`}
+                >
+                  {f.mobile.length}/{selectedCountry.max}
+                </span>
+              </div>
             </div>
+            )}
 
             {mode === "register" && (
               <>
@@ -531,18 +718,42 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
             className="inline-flex items-center gap-1.5 text-xs font-bold text-[#7A6E67] hover:text-[#1E1815] mb-3.5 cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            Change Number
+            {mode === "login" && loginMethod === "email" ? "Change Email" : "Change Number"}
           </button>
 
           <h2 className="text-xl font-black text-[#1E1815] mb-1">
             Enter 6-digit Code
           </h2>
-          <p className="text-xs text-[#7A6E67] mb-4 sm:mb-5 leading-relaxed">
-            We sent a verification code to{" "}
-            <strong className="text-[#1E1815] font-bold">
-              +{f.countryCode} {f.mobile}
-            </strong>
-          </p>
+          <div className="mb-4 sm:mb-5 leading-relaxed">
+            {deliveryChannel === "whatsapp" ? (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#25D366]/10 text-[#128C7E] border border-[#25D366]/20 font-bold text-xs mb-2">
+                <MessageSquare className="w-3.5 h-3.5 text-[#128C7E]" />
+                <span>Verification code sent via WhatsApp</span>
+              </div>
+            ) : deliveryChannel === "email" || (mode === "login" && loginMethod === "email") ? (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 font-bold text-xs mb-2">
+                <Mail className="w-3.5 h-3.5 text-blue-600" />
+                <span>Verification code sent to email inbox</span>
+              </div>
+            ) : null}
+            <p className="text-xs text-[#7A6E67]">
+              {mode === "login" && loginMethod === "email" ? (
+                <>
+                  We sent a 6-digit code to{" "}
+                  <strong className="text-[#1E1815] font-bold">{f.email}</strong>
+                </>
+              ) : (
+                <>
+                  We sent a verification code to{" "}
+                  <strong className="text-[#1E1815] font-bold">
+                    +{f.countryCode} {f.mobile}
+                  </strong>
+                </>
+              )}
+            </p>
+
+
+          </div>
 
           <form onSubmit={verify} className="space-y-4">
             <div>

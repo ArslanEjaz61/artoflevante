@@ -96,6 +96,10 @@ export async function POST(req: NextRequest) {
   const validRoles = ["SUPER_ADMIN", "COMPANY_ADMIN", "BRANCH_MANAGER", "CASHIER"];
   const targetRole = validRoles.includes(role) ? role : "CASHIER";
 
+  if (targetRole === "SUPER_ADMIN" && session.role !== "SUPER_ADMIN") {
+    return NextResponse.json({ error: "Only Super Administrators can create a Super Administrator account." }, { status: 403 });
+  }
+
   try {
     // Check for username collision
     const existing = await prisma.staff.findUnique({
@@ -204,6 +208,14 @@ export async function PUT(req: NextRequest) {
 
     if (!existing) {
       return NextResponse.json({ error: "Staff account not found." }, { status: 404 });
+    }
+
+    if (existing.role === "SUPER_ADMIN" && session.role !== "SUPER_ADMIN") {
+      return NextResponse.json({ error: "Only Super Administrators can modify a Super Administrator account." }, { status: 403 });
+    }
+
+    if (role === "SUPER_ADMIN" && session.role !== "SUPER_ADMIN") {
+      return NextResponse.json({ error: "Only Super Administrators can assign the Super Administrator role." }, { status: 403 });
     }
 
     const updateData: any = {};
@@ -336,6 +348,10 @@ export async function DELETE(req: NextRequest) {
 
     if (!staff) {
       return NextResponse.json({ error: "Staff account not found." }, { status: 404 });
+    }
+
+    if (staff.role === "SUPER_ADMIN" && session.role !== "SUPER_ADMIN") {
+      return NextResponse.json({ error: "Only Super Administrators can delete or deactivate a Super Administrator account." }, { status: 403 });
     }
 
     // If staff has processed transactions or audit entries, deactivate instead of hard delete to preserve history

@@ -12,29 +12,38 @@ export async function GET() {
   }
 
   try {
-    const branches = await prisma.branch.findMany({
-      include: {
-        _count: {
-          select: {
-            staff: true,
-            homeCustomers: true,
-            transactions: true,
-            offers: true,
-            visits: true,
+    const [branches, branchAggs] = await Promise.all([
+      prisma.branch.findMany({
+        include: {
+          _count: {
+            select: {
+              staff: true,
+              homeCustomers: true,
+              transactions: true,
+              offers: true,
+              visits: true,
+            },
           },
         },
-        transactions: {
-          where: { isReversed: false },
-          select: { amount: true, pointsEarned: true },
+        orderBy: [{ isActive: "desc" }, { code: "asc" }],
+      }),
+      prisma.transaction.groupBy({
+        by: ["branchId"],
+        where: { isReversed: false },
+        _sum: {
+          amount: true,
+          pointsEarned: true,
         },
-      },
-      orderBy: [{ isActive: "desc" }, { code: "asc" }],
-    });
+      }),
+    ]);
+
+    const aggMap = new Map(branchAggs.map((a) => [a.branchId, a._sum]));
 
     const formattedBranches = await Promise.all(
       branches.map(async (b) => {
-        const totalRevenue = b.transactions.reduce((acc, t) => acc + Number(t.amount || 0), 0);
-        const totalPoints = b.transactions.reduce((acc, t) => acc + Number(t.pointsEarned || 0), 0);
+        const sumData = aggMap.get(b.id);
+        const totalRevenue = Number(sumData?.amount || 0);
+        const totalPoints = sumData?.pointsEarned || 0;
         
         let dailyCode = b.dailyCode;
         let dailyCodeExpiresAt = b.dailyCodeExpiresAt ? b.dailyCodeExpiresAt.toISOString() : null;
@@ -49,6 +58,7 @@ export async function GET() {
         return {
           id: b.id,
           code: b.code,
+          invoicePrefix: b.invoicePrefix || b.code || "LV",
           name: b.name,
           nameAr: b.nameAr,
           city: b.city || "Dubai",
@@ -101,7 +111,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const { code, name, nameAr, city, address, addressAr, phone, hours, crmUrl, isActive, dailyCode, dailyCodeExpiresAt } = body || {};
+  const { code, invoicePrefix, name, nameAr, city, address, addressAr, phone, hours, crmUrl, isActive, dailyCode, dailyCodeExpiresAt } = body || {};
 
   if (!code || String(code).trim().length < 2) {
     return NextResponse.json({ error: "Branch code is required (e.g. 1015)." }, { status: 400 });
@@ -128,6 +138,7 @@ export async function POST(req: NextRequest) {
     const branch = await prisma.branch.create({
       data: {
         code: cleanCode,
+        invoicePrefix: invoicePrefix ? String(invoicePrefix).trim().toUpperCase() : cleanCode,
         name: String(name).trim(),
         nameAr: nameAr ? String(nameAr).trim() : null,
         city: city ? String(city).trim() : "Dubai",
@@ -185,7 +196,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const { id, code, name, nameAr, city, address, addressAr, phone, hours, crmUrl, isActive, dailyCode, dailyCodeExpiresAt, rotateCode } = body || {};
+  const { id, code, invoicePrefix, name, nameAr, city, address, addressAr, phone, hours, crmUrl, isActive, dailyCode, dailyCodeExpiresAt, rotateCode } = body || {};
 
   if (!id) {
     return NextResponse.json({ error: "Branch ID is required." }, { status: 400 });
@@ -231,6 +242,7 @@ export async function PUT(req: NextRequest) {
       where: { id: branch.id },
       data: {
         code: cleanCode,
+        invoicePrefix: invoicePrefix !== undefined ? (invoicePrefix ? String(invoicePrefix).trim().toUpperCase() : null) : branch.invoicePrefix,
         name: name !== undefined ? String(name).trim() : branch.name,
         nameAr: nameAr !== undefined ? (nameAr ? String(nameAr).trim() : null) : branch.nameAr,
         city: city !== undefined ? (city ? String(city).trim() : null) : branch.city,
