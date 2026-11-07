@@ -1,6 +1,6 @@
 import { prisma } from "./db";
 import { SignJWT, jwtVerify } from "jose";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile, readdir, stat, unlink } from "node:fs/promises";
 import path from "node:path";
 import { getSetting } from "./loyalty";
 
@@ -531,6 +531,50 @@ export async function verifyReceiptClaim(token: string): Promise<ReceiptClaim | 
   }
 }
 
+// ------------------------------------------------------------ keeping the photo & auto-cleanup
+
+let lastCleanupAt = 0;
+
+/**
+ * Automatically cleans up scanned receipt photos older than maxAgeDays (default: 10 days).
+ * Keeps server storage lightweight and prevents disk space exhaustion.
+ */
+export async function cleanOldReceiptImages(maxAgeDays = 10): Promise<{ deleted: number; scanned: number }> {
+  let deleted = 0;
+  let scanned = 0;
+  try {
+    const dir = path.join(process.cwd(), "storage", "receipts");
+    let files: string[] = [];
+    try {
+      files = await readdir(dir);
+    } catch {
+      return { deleted: 0, scanned: 0 };
+    }
+
+    const maxAgeMs = maxAgeDays * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+
+    for (const file of files) {
+      if (!file.endsWith(".jpg") && !file.endsWith(".png") && !file.endsWith(".jpeg")) continue;
+      scanned += 1;
+      const filePath = path.join(dir, file);
+      try {
+        const fileStat = await stat(filePath);
+        const ageMs = now - fileStat.mtimeMs;
+        if (ageMs > maxAgeMs) {
+          await unlink(filePath);
+          deleted += 1;
+        }
+      } catch {
+        // file might have been removed concurrently, ignore
+      }
+    }
+  } catch (err) {
+    console.error("cleanOldReceiptImages failed:", err);
+  }
+  return { deleted, scanned };
+}
+
 // ------------------------------------------------------------ keeping the photo
 
 /** Keeps every scanned bill (outside /public) so a disputed claim can be checked later. */
@@ -539,6 +583,12 @@ export async function storeReceiptImage(sha: string, image: Buffer): Promise<voi
     const dir = path.join(process.cwd(), "storage", "receipts");
     await mkdir(dir, { recursive: true });
     await writeFile(path.join(dir, `${sha}.jpg`), image);
+
+    const now = Date.now();
+    if (now - lastCleanupAt > 12 * 60 * 60 * 1000) {
+      lastCleanupAt = now;
+      cleanOldReceiptImages(10).catch(() => {});
+    }
   } catch (err) {
     console.error("could not store receipt image", err);
   }
