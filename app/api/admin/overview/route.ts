@@ -201,6 +201,7 @@ export async function GET(req: NextRequest) {
       where: { ...custWhere, visitCount: { gt: 1 } },
       include: {
         homeBranch: { select: { id: true, name: true, code: true } },
+        qrTokens: { take: 1, orderBy: { createdAt: "desc" }, select: { token: true } },
       },
       orderBy: [{ visitCount: "desc" }, { lastVisitAt: "desc" }],
       take: 20,
@@ -342,7 +343,7 @@ export async function GET(req: NextRequest) {
       name: c.name || "Member",
       mobile: c.mobile || "—",
       email: c.email || "—",
-      cardCode: c.cardCode || null,
+      cardCode: c.qrTokens[0]?.token || c.id.slice(-8).toUpperCase(),
       visitCount: c.visitCount || 0,
       totalSpend: Number(c.totalSpend || 0),
       pointsBalance: c.pointsBalance || 0,

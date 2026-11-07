@@ -307,7 +307,7 @@ export default function OutletTab({
         body: JSON.stringify({
           customerId: outletCustomer.id,
           branchId: chosenBranchId,
-          invoiceNumber: formatFullInvoice(outletInvoiceNumber, allBranches.find((b: any) => b.id === chosenBranchId)?.invoicePrefix || allBranches.find((b: any) => b.id === chosenBranchId)?.code),
+          invoiceNumber: formatFullInvoice(outletInvoiceNumber, allBranches.find((b: any) => b.id === chosenBranchId)?.invoicePrefix || "LV"),
           amount: val,
           redeemRewardId: outletSelectedRewardId || undefined,
           pointsToRedeem: outletPointsToRedeem > 0 ? outletPointsToRedeem : undefined,
@@ -441,7 +441,7 @@ export default function OutletTab({
           customerId: outletCustomer.id,
           customerRewardId: rewardId,
           branchId: chosenBranchId,
-          invoiceNumber: invoice ? formatFullInvoice(invoice, allBranches.find((b: any) => b.id === chosenBranchId)?.invoicePrefix || allBranches.find((b: any) => b.id === chosenBranchId)?.code) : undefined,
+          invoiceNumber: invoice ? formatFullInvoice(invoice, allBranches.find((b: any) => b.id === chosenBranchId)?.invoicePrefix || "LV") : undefined,
         }),
       });
 
@@ -488,7 +488,7 @@ export default function OutletTab({
         body: JSON.stringify({
           customerId: outletCustomer.id,
           branchId: chosenBranchId,
-          invoiceNumber: formatFullInvoice(invoice, allBranches.find((b: any) => b.id === chosenBranchId)?.invoicePrefix || allBranches.find((b: any) => b.id === chosenBranchId)?.code),
+          invoiceNumber: formatFullInvoice(invoice, allBranches.find((b: any) => b.id === chosenBranchId)?.invoicePrefix || "LV"),
           amount: amount,
           redeemRewardId: rewardId,
         }),
@@ -569,7 +569,7 @@ export default function OutletTab({
               allBranches.find((b: any) => b.id === (outletBranchId || allBranches[0]?.id)) ||
               allBranches[0];
   const adminDynamicInvoicePrefix = getBranchInvoicePrefix(
-    selectedAdminBranch?.invoicePrefix || selectedAdminBranch?.code || "BC"
+    selectedAdminBranch?.invoicePrefix || "LV"
   );
 
             return (
@@ -702,7 +702,7 @@ export default function OutletTab({
 
                   {/* TAB 1: Mobile Search Form */}
                   {outletSearchTab === "phone" && (() => {
-                    const adminCountry = findCountry(outletCountryCode) || { min: 9, max: 9, name: "UAE" };
+                    const adminCountry = findCountry(outletCountryCode) || { min: 9, max: 9, name: "UAE", placeholder: "50 123 4567" };
                     const cleanDigits = outletMobileInput.replace(/\D/g, "");
                     const isAdminMobileValid = Boolean(normalizeMobile(outletMobileInput, outletCountryCode));
 
@@ -2009,7 +2009,7 @@ export default function OutletTab({
                               }
                             } else {
                               try {
-                                await handleAdminRedeemReward(adminConfirmingReward.id, adminRewardModalInvoice.trim() ? formatFullInvoice(adminRewardModalInvoice.trim(), selectedAdminBranch?.invoicePrefix || selectedAdminBranch?.code) : undefined);
+                                await handleAdminRedeemReward(adminConfirmingReward.id, adminRewardModalInvoice.trim() ? formatFullInvoice(adminRewardModalInvoice.trim(), selectedAdminBranch?.invoicePrefix || "LV") : undefined);
                                 setAdminConfirmingReward(null);
                               } catch (e: any) {
                                 setAdminRewardModalErr(e.message || "Failed to deliver gift.");

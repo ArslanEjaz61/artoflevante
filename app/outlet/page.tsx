@@ -211,7 +211,7 @@ function OutletContent() {
   const [actionMode, setActionMode] = useState<"points" | "visit" | "reward" | "redeem_points">("points");
 
   // Bill & Points awarding state
-  const dynamicInvoicePrefix = getBranchInvoicePrefix(activeBranch?.invoicePrefix || activeBranch?.code || "LV");
+  const dynamicInvoicePrefix = getBranchInvoicePrefix(activeBranch?.invoicePrefix || "LV");
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [billAmount, setBillAmount] = useState("");
   const [selectedRewardId, setSelectedRewardId] = useState<string | null>(null);
@@ -523,7 +523,7 @@ function OutletContent() {
         body: JSON.stringify({
           customerId: customer.id,
           branchId: activeBranch.id,
-          invoiceNumber: formatFullInvoice(invoiceNumber, activeBranch.invoicePrefix || activeBranch.code),
+          invoiceNumber: formatFullInvoice(invoiceNumber, activeBranch.invoicePrefix || "LV"),
           amount: val,
           redeemRewardId: selectedRewardId || undefined,
           pointsToRedeem: pointsToRedeemInput > 0 ? pointsToRedeemInput : undefined,
@@ -673,7 +673,7 @@ function OutletContent() {
           customerId: customer.id,
           customerRewardId: rewardId,
           branchId: activeBranch.id,
-          invoiceNumber: invoice ? formatFullInvoice(invoice, activeBranch.invoicePrefix || activeBranch.code) : undefined,
+          invoiceNumber: invoice ? formatFullInvoice(invoice, activeBranch.invoicePrefix || "LV") : undefined,
         }),
       });
 
@@ -717,7 +717,7 @@ function OutletContent() {
         body: JSON.stringify({
           customerId: customer.id,
           branchId: activeBranch.id,
-          invoiceNumber: formatFullInvoice(invoice, activeBranch.invoicePrefix || activeBranch.code),
+          invoiceNumber: formatFullInvoice(invoice, activeBranch.invoicePrefix || "LV"),
           amount: amount,
           redeemRewardId: rewardId,
         }),
@@ -1002,7 +1002,7 @@ function OutletContent() {
 
           {/* TAB 1: Mobile Search */}
           {searchTab === "phone" && (() => {
-            const currentCountry = findCountry(countryCode) || { min: 9, max: 9, name: "UAE" };
+            const currentCountry = findCountry(countryCode) || { min: 9, max: 9, name: "UAE", placeholder: "50 123 4567" };
             const cleanDigits = mobileInput.replace(/\D/g, "");
             const isMobileValid = Boolean(normalizeMobile(mobileInput, countryCode));
 
@@ -2561,7 +2561,7 @@ function OutletContent() {
                       }
                     } else {
                       try {
-                        await handleRedeemReward(confirmingReward.id, rewardModalInvoice.trim() ? formatFullInvoice(rewardModalInvoice.trim(), activeBranch.invoicePrefix || activeBranch.code) : undefined);
+                        await handleRedeemReward(confirmingReward.id, rewardModalInvoice.trim() ? formatFullInvoice(rewardModalInvoice.trim(), activeBranch.invoicePrefix || "LV") : undefined);
                         setConfirmingReward(null);
                       } catch (e: any) {
                         const msg = e.message || "Failed to deliver gift.";

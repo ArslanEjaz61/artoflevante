@@ -73,7 +73,10 @@ export async function GET(req: NextRequest) {
 
   const customers = await prisma.customer.findMany({
     where,
-    include: { homeBranch: { select: { name: true, code: true } } },
+    include: {
+      homeBranch: { select: { name: true, code: true } },
+      qrTokens: { take: 1, orderBy: { createdAt: "desc" }, select: { token: true } },
+    },
     orderBy,
   });
 
@@ -93,7 +96,7 @@ export async function GET(req: NextRequest) {
   ];
 
   const rows = customers.map((c) => [
-    escapeCsv(c.cardCode || c.id),
+    escapeCsv(c.qrTokens[0]?.token || c.id.slice(-8).toUpperCase()),
     escapeCsv(c.name || "Member"),
     escapeCsv(c.mobile || ""),
     escapeCsv(c.email || ""),

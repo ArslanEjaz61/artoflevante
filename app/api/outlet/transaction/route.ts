@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     } = body || {};
 
     const rawInvoice = String(invoiceNumber || "").trim();
-    const cleanInvoice = formatFullInvoice(rawInvoice, branch.invoicePrefix || branch.code);
+    const cleanInvoice = formatFullInvoice(rawInvoice, branch.invoicePrefix || "LV");
     const value = Number(amount);
     const pointsToRedeem = Math.max(0, parseInt(String(rawPointsToRedeem || 0), 10) || 0);
 
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Comprehensive duplicate check across ALL branches, claims, and serial variations
-    const existing = await findExistingInvoice(rawInvoice, branch.invoicePrefix || branch.code);
+    const existing = await findExistingInvoice(rawInvoice, branch.invoicePrefix || "LV");
     if (existing) {
       const serial = extractSerialFromInvoice(rawInvoice);
       return NextResponse.json(

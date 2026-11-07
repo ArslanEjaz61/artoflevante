@@ -5,7 +5,7 @@ import { DEFAULTS } from "../lib/loyalty";
 const prisma = new PrismaClient();
 
 const BRANCHES = [
-  { code: "1001", name: "Levante - Al Jaddaf", city: "Dubai" },
+  { code: "LV-400", name: "Levante - Al Jaddaf", city: "Dubai", invoicePrefix: "LV" },
 ];
 
 const REWARDS = [

@@ -42,13 +42,13 @@ export async function POST(req: NextRequest) {
     const MIN_RECEIPT_DATE = "2026-11-01";
     if (claim.receiptDate && claim.receiptDate < MIN_RECEIPT_DATE) {
       return NextResponse.json(
-        { error: `This receipt is dated ${claim.receiptDate}. Receipts dated before October 1, 2026 are not eligible for points.` },
+        { error: `This receipt is dated ${claim.receiptDate}. Receipts dated before November 1, 2026 are not eligible for points.` },
         { status: 400 }
       );
     }
 
     const branchPrefix = branch.invoicePrefix || "LV";
-    const fullInvoice = formatFullInvoice(claim.invoiceNumber, branchPrefix, claim.receiptDate);
+    const fullInvoice = formatFullInvoice(claim.invoiceNumber, branchPrefix, claim.receiptDate || undefined);
     const serial = extractSerialFromInvoice(claim.invoiceNumber);
 
     const samePhoto = await prisma.auditLog.findFirst({
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Comprehensive duplicate check: matches cashier POS bills, claims, and all serial variations
-    const existing = await findExistingInvoice(claim.invoiceNumber, branchPrefix, claim.receiptDate);
+    const existing = await findExistingInvoice(claim.invoiceNumber, branchPrefix, claim.receiptDate || undefined);
     if (existing) {
       return NextResponse.json({
         error: `Bill #${serial} (${existing.invoiceNumber}) has already been registered and points awarded at ${existing.location}${existing.date ? ` on ${existing.date}` : ""}. Duplicate claims are not permitted.`,

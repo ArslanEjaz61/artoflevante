@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { normalizeMobile, DEFAULT_COUNTRY } from "@/lib/mobile";
-import { verifySecret } from "@/lib/crypto";
+import { verifySecret, randomCode } from "@/lib/crypto";
 import { setCustomerSession } from "@/lib/session";
 import { getNumber, getSetting, pointsToCurrency } from "@/lib/loyalty";
 import { createNotification } from "@/lib/notifications";
@@ -308,6 +308,16 @@ export async function POST(req: NextRequest) {
         pointsBalance: welcomeBonusPoints,
       },
     });
+
+    try {
+      await tx.qrToken.create({
+        data: {
+          token: randomCode(8),
+          customerId: created.id,
+          expiresAt: new Date(Date.now() + 10 * 365 * 86400_000),
+        },
+      });
+    } catch {}
 
     if (welcomeBonusPoints > 0) {
       await tx.pointsLedger.create({

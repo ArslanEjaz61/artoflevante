@@ -62,10 +62,10 @@ export async function POST(req: NextRequest) {
   }
 
   const branch = await prisma.branch.findUnique({ where: { id: branchId } });
-  const cleanInvoice = formatFullInvoice(invoice, branch?.invoicePrefix || branch?.code);
+  const cleanInvoice = formatFullInvoice(invoice, branch?.invoicePrefix || "LV");
   const serial = extractSerialFromInvoice(invoice);
 
-  const existing = await findExistingInvoice(invoice, branch?.invoicePrefix || branch?.code);
+  const existing = await findExistingInvoice(invoice, branch?.invoicePrefix || "LV");
   if (existing) {
     await prisma.auditLog.create({
       data: {

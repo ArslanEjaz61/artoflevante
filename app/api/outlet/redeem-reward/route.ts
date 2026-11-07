@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
             rewardType: custReward.reward.type,
             branchId: branch.id,
             branchName: branch.name,
-            invoiceNumber: invoiceNumber ? formatFullInvoice(String(invoiceNumber).trim(), branch.invoicePrefix || branch.code) : null,
+            invoiceNumber: invoiceNumber ? formatFullInvoice(String(invoiceNumber).trim(), branch.invoicePrefix || "LV") : null,
           },
         },
       });

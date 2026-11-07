@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
 
     const branches = await prisma.branch.findMany({
       where: { isActive: true },
-      select: { id: true, code: true, name: true, city: true, address: true },
+      select: { id: true, code: true, invoicePrefix: true, name: true, city: true, address: true },
       orderBy: { name: "asc" },
     });
 
