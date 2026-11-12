@@ -4,15 +4,15 @@
   /* foldables / small tablets: 512px+ gets the roomier "sm" layout (was 640px) */
   --breakpoint-sm: 32rem;
   /* Display face for the branded member screens (matches the brand artwork). */
-  --font-display: "Montserrat", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Playfair Display", "Cormorant Garamond", "Montserrat", serif;
 }
 
 :root {
   /* Brand artwork palette */
-  --bc-cream: #F5EFE0;
+  --bc-cream: #EFEBE0;
   --bc-red: #0E331E;
   --bc-gold: #CC8820;
-  --bc-blush: #F5EFE0;
+  --bc-blush: #EFEBE0;
 
   --paper: #FAF7F4;
   --surface: #FFFFFF;

@@ -377,7 +377,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
   }
 
   return (
-    <div className="min-h-screen bg-[#F5EFE0] flex flex-col font-sans selection:bg-[#0E331E] selection:text-white">
+    <div className="min-h-screen bg-[#EFEBE0] flex flex-col font-sans selection:bg-[#0E331E] selection:text-white">
       {showCrmHeader && <CrmTopHeader activeTab="customer" />}
       <div className="flex-1 flex flex-col items-center justify-center p-3 sm:p-5 max-w-md w-full mx-auto">
         {/* Toast Notification */}
@@ -392,53 +392,72 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
       {/* 1. HERO ONBOARDING VIEW (Exact design matching reference)      */}
       {/* ============================================================== */}
       {view === "hero" && (
-        // The welcome screen is the supplied artwork itself. The tappable areas
-        // are transparent overlays positioned as percentages of the image, so
-        // they stay aligned at any width.
-        <div className="w-full relative overflow-hidden rounded-[28px] shadow-2xl">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/welcome-art.jpg"
-            alt={`${BRAND} — join and get ${programInfo.welcomeDiscountPercent}% off your first order`}
-            className="w-full h-auto block select-none"
-            draggable={false}
-          />
+        <div className="w-full flex flex-col items-center">
+          <div className="w-full relative overflow-hidden rounded-[28px] shadow-2xl border border-[#E2DBD0]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/welcome-art.jpg"
+              alt={`${BRAND} — Loyalty Rewards`}
+              className="w-full h-auto block select-none pointer-events-none"
+              draggable={false}
+            />
 
-          <button
-            onClick={() => {
-              setMode("register");
-              setView("form");
-              setErr("");
-            }}
-            aria-label="Join now"
-            className="absolute rounded-full cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F5EFE0]"
-            style={{ left: "18.0%", top: "67.9%", width: "62.6%", height: "7.5%" }}
-          />
+            {/* 1. JOIN NOW Button (Pill outline) */}
+            <button
+              onClick={() => {
+                setMode("register");
+                setView("form");
+                setErr("");
+              }}
+              aria-label="Join now — Claim 10% off"
+              className="absolute rounded-full cursor-pointer bg-transparent hover:bg-[#C8BAA6]/45 active:bg-[#C8BAA6]/70 transition-colors duration-200 focus:outline-none focus-visible:outline-none"
+              style={{ left: "35.2%", top: "57.8%", width: "29.6%", height: "4.1%" }}
+            />
 
-          <button
-            onClick={() => {
-              setMode("login");
-              setView("form");
-              setErr("");
-            }}
-            aria-label="View my rewards"
-            className="absolute rounded-md cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F5EFE0]"
-            style={{ left: "12.4%", top: "77.4%", width: "75.7%", height: "3.0%" }}
-          />
+            {/* 2. Already a member? View My Rewards */}
+            <button
+              onClick={() => {
+                setMode("login");
+                setView("form");
+                setErr("");
+              }}
+              aria-label="Already a member? View My Rewards"
+              className="absolute rounded-lg cursor-pointer bg-transparent hover:bg-transparent active:bg-transparent focus:outline-none focus-visible:outline-none"
+              style={{ left: "10.0%", top: "69.5%", width: "80.0%", height: "4.5%" }}
+            />
 
-          <button
-            onClick={handleShare}
-            aria-label="Treat a friend"
-            className="absolute rounded-xl cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F5EFE0]"
-            style={{ left: "13.2%", top: "85.2%", width: "36.6%", height: "11.7%" }}
-          />
+            {/* 3. WhatsApp Contact Link (+971 52 812 2263) */}
+            <button
+              onClick={() => window.open("https://wa.me/971528122263", "_blank", "noopener,noreferrer")}
+              aria-label="Contact Levante on WhatsApp: +971 52 812 2263"
+              className="absolute cursor-pointer bg-transparent hover:bg-transparent active:bg-transparent focus:outline-none focus-visible:outline-none rounded-full"
+              style={{ left: "38.0%", top: "91.5%", width: "26.0%", height: "2.8%" }}
+            />
 
-          <button
-            onClick={handleInstall}
-            aria-label="Get the loyalty app"
-            className="absolute rounded-xl cursor-pointer transition-colors hover:bg-white/10 active:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F5EFE0]"
-            style={{ left: "53.4%", top: "85.2%", width: "35.3%", height: "12.0%" }}
-          />
+            {/* 4. TikTok Icon */}
+            <button
+              onClick={() => window.open("https://www.tiktok.com/@artoflevante", "_blank", "noopener,noreferrer")}
+              aria-label="Levante on TikTok: @artoflevante"
+              className="absolute cursor-pointer bg-transparent hover:bg-transparent active:bg-transparent focus:outline-none focus-visible:outline-none rounded-full"
+              style={{ left: "37.0%", top: "94.8%", width: "5.0%", height: "3.2%" }}
+            />
+
+            {/* 5. Facebook Icon */}
+            <button
+              onClick={() => window.open("https://www.facebook.com/artoflevante", "_blank", "noopener,noreferrer")}
+              aria-label="Levante on Facebook: @artoflevante"
+              className="absolute cursor-pointer bg-transparent hover:bg-transparent active:bg-transparent focus:outline-none focus-visible:outline-none rounded-full"
+              style={{ left: "42.5%", top: "94.8%", width: "5.0%", height: "3.2%" }}
+            />
+
+            {/* 6. Instagram Icon & /artoflevante Text */}
+            <button
+              onClick={() => window.open("https://www.instagram.com/artoflevante", "_blank", "noopener,noreferrer")}
+              aria-label="Levante on Instagram: @artoflevante"
+              className="absolute cursor-pointer bg-transparent hover:bg-transparent active:bg-transparent focus:outline-none focus-visible:outline-none rounded-md"
+              style={{ left: "48.0%", top: "94.8%", width: "24.0%", height: "3.2%" }}
+            />
+          </div>
         </div>
       )}
 
