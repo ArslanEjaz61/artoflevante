@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "node:crypto";
 import { prisma } from "@/lib/db";
 import { getCustomerId } from "@/lib/session";
-import { getNumber, getSetting, pointsForAmount } from "@/lib/loyalty";
-import { readReceipt, receiptAgeDays, signReceiptClaim, storeReceiptImage, findExistingInvoice, formatFullInvoice, extractSerialFromInvoice } from "@/lib/receipts";
+import { earnRule, getNumber, getSetting, pointsForAmount } from "@/lib/loyalty";
+import { ReceiptReaderError, readReceipt, receiptAgeDays, signReceiptClaim, storeReceiptImage, findExistingInvoice, formatFullInvoice, extractSerialFromInvoice } from "@/lib/receipts";
 
 const MAX_BYTES = 6 * 1024 * 1024;
 const SCANS_PER_HOUR = 15; // keeps the vision bill bounded if someone hammers the button
@@ -154,10 +154,15 @@ export async function POST(req: NextRequest) {
       // only needed when we could not tell which outlet issued the bill
       branches: branch ? [] : branches.map((b) => ({ id: b.id, name: b.name, city: b.city })),
       pointsToEarn: await pointsForAmount(reading.total),
+      // earning rule from Settings, shown to the customer ("AED 10 = 1 point")
+      earnRule: await earnRule(),
       claimToken,
     });
   } catch (err: any) {
     console.error("POST /api/receipts/scan error:", err);
-    return NextResponse.json({ error: err?.message || "Could not read the receipt." }, { status: 500 });
+    if (err instanceof ReceiptReaderError) {
+      return NextResponse.json({ error: err.message, code: "READER" }, { status: err.status });
+    }
+    return NextResponse.json({ error: "Something went wrong while reading your receipt. Please try again." }, { status: 500 });
   }
 }

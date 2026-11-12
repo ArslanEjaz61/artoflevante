@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type ChangeEvent, type ReactNode } from "react";
-import { Camera, ImageUp, ScanLine, X, CheckCircle2, AlertCircle, AlertTriangle, RotateCcw, ReceiptText, Gift, Loader2 } from "lucide-react";
+import { Camera, X, CheckCircle2, AlertCircle, AlertTriangle, RotateCcw, Gift, Loader2, Clock } from "lucide-react";
 
 /**
  * "Scan your receipt" card for the customer dashboard.
@@ -17,8 +17,11 @@ type Scan = {
   branch: { id: string; name: string; city?: string | null } | null;
   branches: { id: string; name: string; city?: string | null }[];
   pointsToEarn: number;
+  earnRule?: { spend: number; points: number; currency: string };
   claimToken: string;
 };
+
+const fmtNum = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(2).replace(/\.?0+$/, ""));
 
 type Phase =
   | { step: "closed" }
@@ -26,7 +29,7 @@ type Phase =
   | { step: "review"; photo: string; scan: Scan }
   | { step: "claiming"; photo: string; scan: Scan }
   | { step: "done"; result: any }
-  | { step: "error"; photo: string | null; message: string };
+  | { step: "error"; photo: string | null; message: string; busy?: boolean; blob?: Blob };
 
 const MAX_SIDE = 1600;
 
@@ -55,6 +58,16 @@ async function shrinkPhoto(file: File): Promise<Blob> {
   }
 }
 
+/** Never show raw provider / JSON errors to a customer. */
+function friendlyMessage(message: string): string {
+  if (/api error|\{"error"|rate.?limit|openrouter|gemini|openai|non-json/i.test(message)) {
+    return /429|rate.?limit/i.test(message)
+      ? "Our receipt reader is busy right now. Please wait a minute and try again — your bill is still valid."
+      : "We couldn't read your receipt right now. Please try again in a moment.";
+  }
+  return message;
+}
+
 function formatDate(d: string | null) {
   if (!d) return "Not printed";
   return new Date(`${d}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -71,21 +84,44 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
     e.target.value = ""; // lets the same photo be picked again after a retake
     if (!file) return;
 
-    let photo = "";
     try {
       const blob = await shrinkPhoto(file);
-      photo = URL.createObjectURL(blob);
-      setPhase({ step: "reading", photo });
-      setBranchId("");
+      await scan(blob, URL.createObjectURL(blob));
+    } catch (err: any) {
+      setPhase({ step: "error", photo: null, message: friendlyMessage(String(err?.message || err)) });
+    }
+  }
 
+  /** Sends the photo to the reader. Also used by "Try again" after the reader was busy (same photo, no retake). */
+  async function scan(blob: Blob, photo: string) {
+    setPhase({ step: "reading", photo });
+    setBranchId("");
+    try {
       const form = new FormData();
       form.append("image", blob, "receipt.jpg");
       const r = await fetch("/api/receipts/scan", { method: "POST", body: form });
       const d = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(d.error || "Could not read the receipt.");
+      if (!r.ok) {
+        // 5xx = reader busy / unavailable / timed out: the photo is fine, so let them resend it as is
+        const busy = r.status >= 500 || r.status === 429;
+        setPhase({
+          step: "error",
+          photo,
+          blob,
+          busy,
+          message: friendlyMessage(d.error || "We couldn't read your receipt right now. Please try again in a moment."),
+        });
+        return;
+      }
       setPhase({ step: "review", photo, scan: d });
-    } catch (err: any) {
-      setPhase({ step: "error", photo: photo || null, message: String(err?.message || err) });
+    } catch {
+      setPhase({
+        step: "error",
+        photo,
+        blob,
+        busy: true,
+        message: "No connection to the server. Please check your internet and try again.",
+      });
     }
   }
 
@@ -103,7 +139,7 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
       setPhase({ step: "done", result: d });
       onClaimed();
     } catch (err: any) {
-      setPhase({ step: "error", photo, message: String(err?.message || err) });
+      setPhase({ step: "error", photo, message: friendlyMessage(String(err?.message || err)) });
     }
   }
 
@@ -164,7 +200,7 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
           >
             <div className="flex items-center justify-between px-5 pt-4 pb-2">
               <div className="font-inter font-extrabold text-[#0E331E] text-[17px]">
-                {phase.step === "done" ? "Points added" : phase.step === "error" ? "Couldn't use this receipt" : "Your receipt"}
+                {phase.step === "done" ? "Points added" : phase.step === "error" ? (phase.busy ? "Almost there" : "Couldn't use this receipt") : "Your receipt"}
               </div>
               {phase.step !== "reading" && phase.step !== "claiming" && (
                 <button type="button" onClick={close} className="w-9 h-9 rounded-full hover:bg-black/5 flex items-center justify-center cursor-pointer" aria-label="Close">
@@ -238,6 +274,17 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                       }
                     />
                   </div>
+
+                  {/* earning rule from Settings, right under the bill total */}
+                  {phase.scan.earnRule && (
+                    <div className="mt-2 rounded-xl bg-[#0E331E]/[0.06] border border-[#0E331E]/10 px-3 py-2 text-center font-inter text-[12px] text-[#0E331E]">
+                      <span className="font-bold">
+                        {phase.scan.earnRule.currency} {fmtNum(phase.scan.earnRule.spend)} = {fmtNum(phase.scan.earnRule.points)}{" "}
+                        {phase.scan.earnRule.points === 1 ? "point" : "points"}
+                      </span>
+                      <span className="text-[#4A3F39]"> · points are earned on every bill you scan</span>
+                    </div>
+                  )}
 
                   <div className="mt-3 rounded-2xl bg-[#0E331E] text-[#F5EFE0] px-4 py-3 flex items-center justify-between">
                     <div>
@@ -337,6 +384,14 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                         This invoice has already been recorded or claimed in the Levante loyalty system. Points cannot be awarded more than once for the same bill.
                       </p>
                     </div>
+                  ) : phase.busy ? (
+                    <div className="text-center space-y-2.5 pt-1">
+                      <div className="w-14 h-14 rounded-full bg-[#FAF2E2] border-2 border-[#E5C27A] text-[#8A5600] flex items-center justify-center mx-auto">
+                        <Clock className="w-7 h-7" />
+                      </div>
+                      <h4 className="font-inter font-extrabold text-[17px] text-[#0E331E]">Please try again in a moment</h4>
+                      <p className="font-inter text-[13.5px] text-[#4A3F39] leading-relaxed">{phase.message}</p>
+                    </div>
                   ) : (
                     <div className="flex items-start gap-2.5 rounded-2xl bg-[#FBEDEA] border border-[#0E331E]/15 p-3.5 font-inter text-[14px] text-[#0A2617]">
                       <AlertCircle className="w-5 h-5 shrink-0 mt-px" />
@@ -351,13 +406,23 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                     >
                       Close
                     </button>
-                    <button
-                      type="button"
-                      onClick={retake}
-                      className="py-3 rounded-2xl bg-[#0E331E] text-[#F5EFE0] font-inter font-bold text-[14px] flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <Camera className="w-4 h-4" /> Try again
-                    </button>
+                    {phase.busy && phase.blob && phase.photo ? (
+                      <button
+                        type="button"
+                        onClick={() => scan(phase.blob!, phase.photo!)}
+                        className="py-3 rounded-2xl bg-[#0E331E] text-[#F5EFE0] font-inter font-bold text-[14px] flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <RotateCcw className="w-4 h-4" /> Try again
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={retake}
+                        className="py-3 rounded-2xl bg-[#0E331E] text-[#F5EFE0] font-inter font-bold text-[14px] flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <Camera className="w-4 h-4" /> Retake photo
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
