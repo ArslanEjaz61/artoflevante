@@ -120,34 +120,45 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
       <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
 
       {/* Scan your receipt banner matching reference design */}
-      <div className="py-2.5 my-3 flex flex-col xs:flex-row xs:items-center justify-between gap-2.5">
-        <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-xl bg-white text-[#163827] flex items-center justify-center shrink-0 border border-stone-200/80 shadow-2xs">
-            <ReceiptText className="w-5 h-5 stroke-[1.8]" />
+      <div className="py-2.5 my-2 flex items-center justify-between gap-1.5 min-[370px]:gap-2 w-full">
+        <div className="flex items-center gap-1.5 min-[370px]:gap-2 min-w-0 flex-1">
+          {/* White paper receipt icon with fold and lines */}
+          <div className="w-7 h-8 min-[370px]:w-8 min-[370px]:h-9 shrink-0 relative flex items-center justify-center">
+            <svg viewBox="0 0 32 38" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6.5 h-8 min-[370px]:w-7.5 min-[370px]:h-9 drop-shadow-[0_1px_2px_rgba(0,0,0,0.08)]">
+              <path d="M4 1C4 0.447715 4.44772 0 5 0H22L29 7V35.5L26 34L23 35.5L20 34L17 35.5L14 34L11 35.5L8 34L5 35.5L4 34.5V1Z" fill="#FFFFFF" stroke="#DDD7CE" strokeWidth="1" />
+              <path d="M22 0V7H29" fill="#F4F1EA" stroke="#DDD7CE" strokeWidth="1" strokeLinejoin="round" />
+              {/* Receipt lines */}
+              <line x1="7.5" y1="12" x2="23.5" y2="12" stroke="#B8B0A5" strokeWidth="1.4" strokeLinecap="round" />
+              <line x1="7.5" y1="16.5" x2="19.5" y2="16.5" stroke="#B8B0A5" strokeWidth="1.4" strokeLinecap="round" />
+              <line x1="7.5" y1="21" x2="23.5" y2="21" stroke="#B8B0A5" strokeWidth="1.4" strokeLinecap="round" />
+              <line x1="7.5" y1="25.5" x2="16.5" y2="25.5" stroke="#B8B0A5" strokeWidth="1.4" strokeLinecap="round" />
+            </svg>
           </div>
-          <div>
-            <div className="font-sans font-bold text-xs sm:text-sm text-[#1E1815] leading-tight">Scan your reciept</div>
-            <p className="font-sans text-[10px] sm:text-[11px] text-[#1E1815]/75 mt-0.5">
+          <div className="min-w-0">
+            <div className="font-sans font-bold text-[11px] min-[360px]:text-[11.5px] sm:text-[13px] text-[#1E1815] leading-tight">
+              Scan your reciept
+            </div>
+            <p className="font-sans text-[8.5px] min-[360px]:text-[9px] sm:text-[10px] text-[#6E635C] mt-0.5 leading-tight">
               And add points to your account.
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1 min-[370px]:gap-1.5 shrink-0">
           <button
             type="button"
             onClick={() => cameraRef.current?.click()}
-            className="bg-black hover:bg-stone-900 text-white rounded-xl py-2 px-3 text-[11px] sm:text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95"
+            className="bg-black hover:bg-neutral-900 text-white rounded-full py-1.5 px-2 min-[360px]:px-2.5 min-[390px]:px-3 text-[9.5px] min-[360px]:text-[10px] sm:text-[11px] font-bold flex items-center gap-1 sm:gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
           >
-            <Camera className="w-3.5 h-3.5" />
+            <Camera className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             <span>Open Camera</span>
           </button>
-          <span className="text-[11px] text-[#1E1815] font-semibold px-0.5">or</span>
+          <span className="text-[9.5px] min-[360px]:text-[10px] sm:text-[11px] text-[#554844] font-medium px-0.5">or</span>
           <button
             type="button"
             onClick={() => galleryRef.current?.click()}
-            className="bg-black hover:bg-stone-900 text-white rounded-xl py-2 px-3 text-[11px] sm:text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95"
+            className="bg-black hover:bg-neutral-900 text-white rounded-full py-1.5 px-2 min-[360px]:px-2.5 min-[390px]:px-3 text-[9.5px] min-[360px]:text-[10px] sm:text-[11px] font-bold flex items-center gap-1 sm:gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
           >
-            <ReceiptText className="w-3.5 h-3.5" />
+            <ReceiptText className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             <span>Upload Reciept</span>
           </button>
         </div>

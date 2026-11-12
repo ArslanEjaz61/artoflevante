@@ -58,9 +58,11 @@ function formatRelativeTime(iso?: string | null): string {
 }
 
 function formatCustomerCode(code?: string | null): string {
-  if (!code) return "LP987 867";
-  const clean = String(code).toUpperCase().replace(/[^A-Z0-9]/g, "");
-  if (clean.length > 5) return clean.slice(0, 5) + " " + clean.slice(5);
+  if (!code) return "LP987867";
+  let clean = String(code).toUpperCase().replace(/[^A-Z0-9]/g, "");
+  if (!clean.startsWith("LP")) {
+    clean = "LP" + clean;
+  }
   return clean;
 }
 
