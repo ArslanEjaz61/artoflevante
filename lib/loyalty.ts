@@ -82,6 +82,15 @@ export async function pointsForAmount(amount: number | string): Promise<number> 
   return Math.floor(value * rate);
 }
 
+/** The earning rule pointsForAmount uses, for display: spend `spend` (currency) = `points` points. */
+export async function earnRule(): Promise<{ spend: number; points: number; currency: string }> {
+  const currency = (await getSetting("currency")) || "AED";
+  const spendStep = (await getNumber("spend_aed_for_points")) || 1;
+  const pointsEarned = (await getNumber("points_earned_per_spend")) || 1;
+  if (spendStep > 0 && pointsEarned > 0) return { spend: spendStep, points: pointsEarned, currency };
+  return { spend: 1, points: (await getNumber("points_per_currency")) || 1, currency };
+}
+
 /** Calculate AED cash / discount value for a given points balance */
 export async function pointsToCurrency(points: number | string): Promise<number> {
   const pts = Number(points);

@@ -88,6 +88,49 @@ Respond with ONLY this JSON structure (no markdown fences, no explanation text o
   "confidence": number
 }`;
 
+/** HTTP failure from an AI provider; `status` lets us retry rate limits and explain them to customers. */
+class AIHttpError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+  }
+}
+
+/**
+ * Receipt-reader failure with a message that is safe to show to a customer.
+ * `status` is the HTTP status the scan API should answer with. Provider details are only logged.
+ */
+export class ReceiptReaderError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+  }
+}
+
+function customerFacingError(err: any): ReceiptReaderError {
+  const status = err instanceof AIHttpError ? err.status : 0;
+  const msg = String(err?.message || "");
+  if (status === 429 || /rate.?limit|quota|resource.?exhausted/i.test(msg)) {
+    return new ReceiptReaderError(
+      503,
+      "Our receipt reader is busy right now. Please wait a minute and try again — your bill is still valid."
+    );
+  }
+  if (err?.name === "TimeoutError" || err?.name === "AbortError" || /timed? ?out/i.test(msg)) {
+    return new ReceiptReaderError(504, "Reading your receipt took too long. Please check your connection and try again.");
+  }
+  if (status === 401 || status === 403 || status === 402) {
+    return new ReceiptReaderError(
+      503,
+      "Receipt scanning is temporarily unavailable. Please try again later or ask our staff to add the points at the counter."
+    );
+  }
+  if (/non-JSON/i.test(msg)) {
+    return new ReceiptReaderError(422, "We couldn't read this receipt clearly. Please retake the photo flat, in good light, with the whole bill visible.");
+  }
+  return new ReceiptReaderError(502, "We couldn't read your receipt right now. Please try again in a moment.");
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 /** Call Google Gemini Vision REST API directly */
 async function callGemini(
   image: Buffer,
@@ -128,7 +171,7 @@ async function callGemini(
 
   if (!res.ok) {
     const errText = await res.text().catch(() => "");
-    throw new Error(`Gemini API error (${res.status}): ${errText.slice(0, 300)}`);
+    throw new AIHttpError(res.status, `Gemini API error (${res.status}): ${errText.slice(0, 300)}`);
   }
 
   const data = await res.json();
@@ -182,7 +225,7 @@ async function callOpenAI(
 
   if (!res.ok) {
     const errText = await res.text().catch(() => "");
-    throw new Error(`OpenAI API error (${res.status}): ${errText.slice(0, 300)}`);
+    throw new AIHttpError(res.status, `OpenAI API error (${res.status}): ${errText.slice(0, 300)}`);
   }
 
   const data = await res.json();
@@ -206,8 +249,12 @@ async function callOpenRouter(
   const chosenModel = model.trim() || "google/gemini-2.5-flash";
   const url = "https://openrouter.ai/api/v1/chat/completions";
 
+  // If the chosen model is rate-limited upstream, OpenRouter tries the next one in `models`.
+  const fallbackModels = [chosenModel, "google/gemini-2.0-flash-001", "openai/gpt-4o-mini"].filter(
+    (m, i, all) => all.indexOf(m) === i
+  );
   const payload = {
-    model: chosenModel,
+    models: fallbackModels,
     temperature: 0.1,
     max_tokens: 1500,
     reasoning: { enabled: false },
@@ -237,7 +284,7 @@ async function callOpenRouter(
 
   if (!res.ok) {
     const errText = await res.text().catch(() => "");
-    throw new Error(`OpenRouter API error (${res.status}): ${errText.slice(0, 300)}`);
+    throw new AIHttpError(res.status, `OpenRouter API error (${res.status}): ${errText.slice(0, 300)}`);
   }
 
   const data = await res.json();
@@ -247,7 +294,7 @@ async function callOpenRouter(
     throw new Error(`OpenRouter returned non-JSON response: ${text.slice(0, 200)}`);
   }
 
-  return { raw: JSON.parse(jsonMatch), modelUsed: chosenModel };
+  return { raw: JSON.parse(jsonMatch), modelUsed: String(data?.model || chosenModel) };
 }
 
 /**
@@ -308,8 +355,10 @@ export async function readReceipt(
   }
 
   if (providersQueue.length === 0) {
-    throw new Error(
-      "No AI vision key configured. Please configure Google Gemini, OpenAI, or OpenRouter in Admin > Settings > AI Receipt Models."
+    console.error("AI Vision: no key configured (Admin > Settings > AI Receipt Models).");
+    throw new ReceiptReaderError(
+      503,
+      "Receipt scanning is temporarily unavailable. Please try again later or ask our staff to add the points at the counter."
     );
   }
 
@@ -318,7 +367,16 @@ export async function readReceipt(
   let successfulModel = "";
   let lastError: any = null;
 
-  for (const provider of providersQueue) {
+  const attempts = providersQueue.flatMap((p) => [p, p]); // each provider gets one retry
+  for (let a = 0; a < attempts.length; a++) {
+    const provider = attempts[a];
+    const isRetry = a % 2 === 1;
+    if (isRetry) {
+      const status = lastError instanceof AIHttpError ? lastError.status : 0;
+      // only retry rate limits / provider outages, never bad keys or bad photos
+      if (!(status === 429 || status >= 500)) continue;
+      await sleep(1500);
+    }
     try {
       if (provider.name === "gemini") {
         const res = await callGemini(image, mime, fullPrompt, provider.key, provider.model);
@@ -346,10 +404,8 @@ export async function readReceipt(
   }
 
   if (!raw) {
-    throw new Error(
-      lastError?.message ||
-        "Could not analyze the receipt with AI models. Please verify API keys in Admin Settings."
-    );
+    console.error("AI Vision: all providers failed:", lastError?.message || lastError);
+    throw customerFacingError(lastError);
   }
 
   // Parse and normalize output
