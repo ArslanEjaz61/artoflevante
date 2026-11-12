@@ -91,7 +91,7 @@ function buildClass(issuerId: string, origin: string, theme: StampTheme) {
   return {
     id: classId(issuerId),
     issuerName: "Levante",
-    programName: "Loyalty Stamp Card",
+    programName: "Stamp Card",
     programLogo: { sourceUri: { uri: `${origin}/bc-roundel.png` }, contentDescription: text("Levante") },
     // LEVANTE wordmark across the top, like the wallet-card mockup.
     wideProgramLogo: { sourceUri: { uri: `${origin}/levante-wordmark-wide.png` }, contentDescription: text("Levante") },
