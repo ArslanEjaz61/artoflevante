@@ -54,6 +54,19 @@ export async function setCustomerSession(customerId: string): Promise<void> {
   store.set(CUSTOMER_COOKIE, token, { ...baseCookie, maxAge: CUSTOMER_DAYS * 86400 });
 }
 
+export const CUSTOMER_COOKIE_NAME = CUSTOMER_COOKIE;
+
+/** Customer id from a raw session token (used by proxy.ts, which has no `cookies()` store). */
+export async function customerIdFromToken(token: string | undefined): Promise<string | null> {
+  if (!token) return null;
+  try {
+    const { payload } = await jwtVerify(token, secret());
+    return payload.kind === "customer" && typeof payload.sub === "string" ? payload.sub : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getCustomerId(): Promise<string | null> {
   const payload = await read(CUSTOMER_COOKIE);
   return payload?.kind === "customer" ? (payload.sub as string) : null;
