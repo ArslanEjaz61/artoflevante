@@ -856,7 +856,13 @@ export default function CustomerDashboardPage() {
           <div className="cd-recent-title">Recent visits and reciepts:</div>
 
           {filteredTransactions && filteredTransactions.length > 0 ? (
-            <div className="divide-y divide-[#EFE8E1]">
+            <div
+              className={`divide-y divide-[#EFE8E1] ${
+                filteredTransactions.length > 5
+                  ? "max-h-[16.5rem] overflow-y-auto overscroll-contain custom-scrollbar pr-1 -mr-1"
+                  : ""
+              }`}
+            >
               {filteredTransactions.map((t: any) => (
                 <div
                   key={t.id}
