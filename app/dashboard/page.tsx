@@ -42,6 +42,7 @@ import { InstallGuideModal } from "@/components/InstallGuideModal";
 import ReceiptScanner from "@/components/ReceiptScanner";
 import { AppleWalletIcon, GoogleWalletIcon } from "@/components/WalletIcons";
 import CustomerDesignB from "@/components/customer/CustomerDesignB";
+import "./customer-dashboard.css";
 import { CountryCodePicker } from "@/components/CountryCodePicker";
 import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/mobile";
 
@@ -657,8 +658,12 @@ export default function CustomerDashboardPage() {
     (r: any) => r.id !== welcomeReward?.id
   );
 
+  const welcomePercent = welcomeReward?.value ? Math.round(welcomeReward.value) : loyaltyRules?.welcomeDiscountPercent || 10;
+  const nthSuffix = (n: number) =>
+    n % 100 >= 11 && n % 100 <= 13 ? "th" : n % 10 === 1 ? "st" : n % 10 === 2 ? "nd" : n % 10 === 3 ? "rd" : "th";
+
   return (
-    <div className="min-h-screen bg-[#EFEBE0] text-[#1E1815] pb-24 px-3.5 sm:px-4 pt-3.5 sm:pt-5 max-w-md w-full mx-auto fold-safe [box-shadow:0_0_0_100vmax_#EFEBE0] [clip-path:inset(0_-100vmax)] selection:bg-[#0E331E] selection:text-white">
+    <div className="cd min-h-screen bg-[#EFEBE0] pb-24 max-w-md w-full mx-auto fold-safe [box-shadow:0_0_0_100vmax_#EFEBE0] [clip-path:inset(0_-100vmax)] selection:bg-[#0E331E] selection:text-white">
       {/* Toast Notification */}
       {toast && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#1E1815] text-white px-4 py-2.5 rounded-full text-xs font-bold shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-top-4 max-w-[90vw] text-center">
@@ -667,51 +672,39 @@ export default function CustomerDashboardPage() {
         </div>
       )}
 
-      {/* ============================================================== */}
-      {/* 1. TOP HEADER (Brand Roundel & "Loyality Reward Path")          */}
-      {/* ============================================================== */}
-      <header className="flex items-center justify-between mb-3 px-0.5">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-11 h-11 min-[380px]:w-12 min-[380px]:h-12 sm:w-14 sm:h-14 shrink-0 rounded-full overflow-hidden shadow-2xs">
+      {/* 1. HEADER: roundel + "Loyality Reward Path" (sizes: ./customer-dashboard.css) */}
+      <header className="cd-header">
+        <div className="cd-header-brand">
+          <div className="cd-logo">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/bc-roundel.png" alt="Levante" className="w-full h-full object-contain" />
+            <img src="/bc-roundel.png" alt="Levante" />
           </div>
-          <div className="min-w-0">
-            <h1 className="font-bold text-[17px] min-[380px]:text-[19px] sm:text-[21px] leading-tight text-[#1a3c24] tracking-tight truncate">
-              Loyality Reward Path
-            </h1>
-          </div>
+          <h1 className="cd-title">Loyality Reward Path</h1>
         </div>
-
-        {/* Action icons (Notifications & Menu) */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="cd-header-actions">
           <button
+            type="button"
             onClick={handleOpenOffersModal}
-            className="w-9 h-9 rounded-xl bg-white hover:bg-stone-50 text-[#0d331c] flex items-center justify-center transition-all shadow-2xs cursor-pointer active:scale-95 relative border border-stone-200/60"
+            className="cd-icon-btn"
             title="Special Offers & Deals"
             aria-label="View Deals"
           >
-            <Bell className="w-4 h-4 text-[#0d331c]" />
-            {unreadOffersCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#0d331c] text-white rounded-full text-[9px] font-black flex items-center justify-center border-2 border-white animate-pulse">
-                {unreadOffersCount}
-              </span>
-            )}
+            <Bell />
+            {unreadOffersCount > 0 && <span className="cd-icon-badge">{unreadOffersCount}</span>}
           </button>
           <button
+            type="button"
             onClick={() => setShowSwitchModal(true)}
-            className="w-9 h-9 rounded-xl bg-white hover:bg-stone-50 text-[#0d331c] flex items-center justify-center transition-all shadow-2xs cursor-pointer active:scale-95 shrink-0 border border-stone-200/60"
+            className="cd-icon-btn"
             title="Account Menu"
             aria-label="Open Menu"
           >
-            <Menu className="w-4 h-4 text-[#0d331c]" />
+            <Menu />
           </button>
         </div>
       </header>
 
-      {/* ============================================================== */}
-      {/* 2. DIGITAL MEMBERSHIP & STAMP CARD (CustomerDesignB 2-Card)    */}
-      {/* ============================================================== */}
+      {/* 2. STAMP CARD + QR CARD */}
       <CustomerDesignB
         customer={customer}
         qr={qr}
@@ -721,194 +714,124 @@ export default function CustomerDashboardPage() {
         couponDisplay={couponDisplay}
       />
 
-      {/* ============================================================== */}
-      {/* 3. THREE BLACK ACTION BUTTONS (Apple / Google / Web App)       */}
-      {/* ============================================================== */}
-      <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-3">
-        {/* 1. Add to Apple Wallet */}
-        <button
-          type="button"
-          onClick={handleAppleWallet}
-          disabled={walletLoading === "apple"}
-          className="bg-[#151515] hover:bg-[#222222] text-white rounded-xl py-2 px-1 min-[380px]:px-1.5 sm:px-2 flex items-center gap-1.5 min-[380px]:gap-2 cursor-pointer transition-all active:scale-95 shadow-xs"
-        >
-          <AppleWalletIcon className="w-5 h-4 sm:w-5.5 sm:h-4.5 shrink-0" />
-          <div className="text-left min-w-0">
-            <div className="text-[7.5px] min-[380px]:text-[8px] text-[#A0A0A0] leading-tight font-medium">Add to</div>
-            <div className="text-[9px] min-[380px]:text-[10px] font-bold text-white leading-tight truncate">Apple Wallet</div>
+      {/* 3. APPLE WALLET / GOOGLE WALLET / WEB APP */}
+      <div className="cd-wallets">
+        <button type="button" onClick={handleAppleWallet} disabled={walletLoading === "apple"} className="cd-wallet">
+          <AppleWalletIcon className="cd-wallet-icon" />
+          <div className="min-w-0">
+            <small>Add to</small>
+            <b>Apple Wallet</b>
           </div>
         </button>
-
-        {/* 2. Add to Google Wallet */}
         <button
           type="button"
           onClick={handleGoogleWallet}
           disabled={walletLoading === "google"}
-          className="bg-[#151515] hover:bg-[#222222] text-white rounded-xl py-2 px-1 min-[380px]:px-1.5 sm:px-2 flex items-center gap-1.5 min-[380px]:gap-2 cursor-pointer transition-all active:scale-95 shadow-xs"
+          className="cd-wallet cd-wallet-google"
         >
-          <div className="w-5 h-4 sm:w-5.5 sm:h-4.5 shrink-0 flex items-center justify-center">
-            <GoogleWalletIcon className="w-5 h-4 sm:w-5.5 sm:h-4.5" />
-          </div>
-          <div className="text-left min-w-0">
-            <div className="text-[7.5px] min-[380px]:text-[8px] text-[#A0A0A0] leading-tight font-medium">Add to</div>
-            <div className="text-[9px] min-[380px]:text-[10px] font-bold text-white leading-tight truncate">
-              {walletLoading === "google" ? "Saving..." : "Google Wallet"}
-            </div>
+          <GoogleWalletIcon className="cd-wallet-icon-g" />
+          <div className="min-w-0">
+            <small>Add to</small>
+            <b>{walletLoading === "google" ? "Saving..." : "Google Wallet"}</b>
           </div>
         </button>
-
-        {/* 3. Download it as WEB APP */}
-        <button
-          type="button"
-          onClick={handleInstall}
-          className="bg-[#151515] hover:bg-[#222222] text-white rounded-xl py-2 px-1 min-[380px]:px-1.5 sm:px-2 flex items-center justify-between gap-1 cursor-pointer transition-all active:scale-95 shadow-xs"
-        >
-          <div className="text-left min-w-0">
-            <div className="text-[7.5px] min-[380px]:text-[8px] text-[#A0A0A0] leading-tight font-medium">Download as</div>
-            <div className="text-[9px] min-[380px]:text-[10px] font-bold text-white leading-tight truncate">WEB APP</div>
-          </div>
-          <Download className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white shrink-0" />
+        <button type="button" onClick={handleInstall} className="cd-wallet cd-wallet-web">
+          <span>
+            Download it as
+            <br />
+            WEB APP
+          </span>
+          <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M28 4v32M15 24l13 13 13-13M4 38v14h48V38" />
+          </svg>
         </button>
       </div>
 
-      {/* ============================================================== */}
-      {/* 4. SCAN RECEIPT BANNER                                         */}
-      {/* ============================================================== */}
+      {/* 4. SCAN RECEIPT ROW */}
       <ReceiptScanner onClaimed={loadCard} />
 
-      {/* ============================================================== */}
-      {/* 5. WELCOME DISCOUNT CARD (From loyalty design)                 */}
-      {/* ============================================================== */}
-      <div className="bg-white rounded-2xl h-[70px] min-[380px]:h-[76px] sm:h-[80px] flex items-center justify-between overflow-hidden shadow-xs mb-3 relative border border-[#E8E2D7]">
-        {/* Left: WELCOME DISCOUNT */}
-        <div className="flex flex-col justify-center leading-none pl-3 min-[380px]:pl-4 py-1.5 min-w-0 pr-1">
-          <span className="font-black text-lg min-[380px]:text-xl sm:text-[23px] tracking-tight text-[#1b3124] uppercase leading-[0.9]">
-            WELCOME
-          </span>
-          <span className="font-black text-lg min-[380px]:text-xl sm:text-[23px] tracking-tight text-[#1b3124] uppercase leading-[0.9] mt-0.5 sm:mt-1">
-            DISCOUNT
-          </span>
+      {/* 5. WELCOME DISCOUNT */}
+      <div className="cd-banner cd-banner-first">
+        <div className="cd-banner-title">
+          Welcome
+          <br />
+          Discount
         </div>
-
-        {/* Center: TAP TO REDEEM ➔ or REDEEMED */}
         {welcomeReward?.isRedeemRequested ? (
-          <div className="flex items-center gap-1 bg-white/95 text-emerald-800 px-2 min-[380px]:px-2.5 py-1 rounded-full text-[9px] min-[380px]:text-[10px] font-black tracking-wider border border-emerald-300 shadow-2xs whitespace-nowrap">
-            <span>REDEEMED</span>
-          </div>
+          <span className="cd-redeemed">REDEEMED</span>
         ) : (
           <button
             type="button"
+            className="cd-tap"
             onClick={() => {
               if (welcomeReward) setRedeemModalReward(welcomeReward);
               else handleOpenOffersModal();
             }}
-            className="flex items-center gap-0.5 min-[380px]:gap-1 text-[8.5px] min-[380px]:text-[10px] font-bold text-[#1b3124] hover:underline cursor-pointer active:scale-95 transition-transform whitespace-nowrap px-1"
           >
-            <span>TAP TO REDEEM</span>
-            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#1b3124]" />
+            TAP TO REDEEM
+            <svg viewBox="0 0 205 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M2 10h198M190 2l9 8-9 8" />
+            </svg>
           </button>
         )}
-
-        {/* Right: Folded Ribbon 10% OFF */}
-        <div className="relative bg-[#0d331c] text-white pl-4 min-[380px]:pl-5 pr-3 min-[380px]:pr-4 py-2 sm:py-2.5 h-full flex flex-col justify-center items-center overflow-hidden [clip-path:polygon(20%_0%,_100%_0%,_100%_100%,_0%_100%)] shrink-0 min-w-[85px] sm:min-w-[95px]">
-          <div className="font-black text-xl min-[380px]:text-2xl sm:text-[27px] leading-none text-white tracking-tighter">
-            {welcomeReward?.value ? Math.round(welcomeReward.value) : 10}%
-          </div>
-          <div className="font-black text-[9px] min-[380px]:text-xs leading-none text-white tracking-widest uppercase mt-0.5">
-            OFF
-          </div>
-        </div>
+        <div className="cd-ribbon" />
+        <span className="cd-big cd-ten">{welcomePercent}</span>
+        <span className="cd-big cd-pct">%</span>
+        <span className="cd-big cd-off">OFF</span>
       </div>
 
-      {/* ============================================================== */}
-      {/* 5.1 ADDITIONAL UNLOCKED GIFTS (Rendered in matching shape)     */}
-      {/* ============================================================== */}
+      {/* 5.1 OTHER UNLOCKED GIFTS (same banner shape) */}
       {availableGifts.map((gift: any) => (
-        <div
-          key={gift.id}
-          className="bg-white rounded-2xl h-[70px] min-[380px]:h-[76px] sm:h-[80px] flex items-center justify-between overflow-hidden shadow-xs mb-3 relative border border-[#E8E2D7]"
-        >
-          {/* Left: GIFT REWARD & NAME */}
-          <div className="flex flex-col justify-center leading-none pl-3 min-[380px]:pl-4 py-1.5 min-w-0 pr-1">
-            <span className="font-black text-[10px] min-[380px]:text-[11px] sm:text-xs tracking-tight text-[#1b3124]/75 uppercase leading-none">
-              GIFT REWARD
-            </span>
-            <span className="font-black text-base min-[380px]:text-lg sm:text-[20px] tracking-tight text-[#1b3124] uppercase leading-tight mt-0.5 sm:mt-1 truncate max-w-[120px] min-[380px]:max-w-[140px] sm:max-w-[160px]">
-              {gift.name}
-            </span>
+        <div key={gift.id} className="cd-banner">
+          <div className="cd-banner-title">
+            <small>Gift Reward</small>
+            <em>{gift.name}</em>
           </div>
-
-          {/* Center: TAP TO REDEEM ➔ or REDEEMED */}
           {gift.isRedeemRequested ? (
-            <div className="flex items-center gap-1 bg-white/95 text-emerald-800 px-2 min-[380px]:px-2.5 py-1 rounded-full text-[9px] min-[380px]:text-[10px] font-black tracking-wider border border-emerald-300 shadow-2xs whitespace-nowrap">
-              <span>REDEEMED</span>
-            </div>
+            <span className="cd-redeemed">REDEEMED</span>
           ) : (
-            <button
-              type="button"
-              onClick={() => setRedeemModalReward(gift)}
-              className="flex items-center gap-0.5 min-[380px]:gap-1 text-[8.5px] min-[380px]:text-[10px] font-bold text-[#1b3124] hover:underline cursor-pointer active:scale-95 transition-transform shrink-0 whitespace-nowrap px-1"
-            >
-              <span>TAP TO REDEEM</span>
-              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#1b3124]" />
+            <button type="button" className="cd-tap" onClick={() => setRedeemModalReward(gift)}>
+              TAP TO REDEEM
+              <svg viewBox="0 0 205 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M2 10h198M190 2l9 8-9 8" />
+              </svg>
             </button>
           )}
-
-          {/* Right: Folded Ribbon FREE GIFT */}
-          <div className="relative bg-[#0d331c] text-white pl-4 min-[380px]:pl-5 pr-3 min-[380px]:pr-4 py-2 sm:py-2.5 h-full flex flex-col justify-center items-center overflow-hidden [clip-path:polygon(20%_0%,_100%_0%,_100%_100%,_0%_100%)] shrink-0 min-w-[85px] sm:min-w-[95px]">
-            <Gift className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-            <div className="font-black text-[9px] min-[380px]:text-[10px] leading-none text-white tracking-widest uppercase mt-0.5">
-              FREE
-            </div>
-          </div>
+          <div className="cd-ribbon" />
+          <span className="cd-big cd-gift-free">
+            <Gift />
+            FREE
+          </span>
         </div>
       ))}
 
-      {/* ============================================================== */}
-      {/* 6. VISIT MILESTONE REWARD TRACKER CARD                         */}
-      {/* ============================================================== */}
-      <div className="bg-white rounded-2xl p-3 min-[380px]:p-3.5 sm:p-4 shadow-xs mb-3 flex items-center justify-between gap-2 border border-[#E8E2D7]">
-        {/* Left: VISIT MILESTONE REWARD */}
-        <div className="flex flex-col justify-center leading-none min-w-0">
-          <span className="font-black text-lg min-[380px]:text-xl sm:text-2xl tracking-tight text-[#163827] uppercase leading-[0.9]">
-            VISIT MILESTONE
-          </span>
-          <span className="font-black text-lg min-[380px]:text-xl sm:text-2xl tracking-tight text-[#163827] uppercase leading-[0.9] mt-0.5 sm:mt-1">
-            REWARD
-          </span>
+      {/* 6. VISIT MILESTONE REWARD */}
+      <div className="cd-banner cd-banner-visit">
+        <div className="cd-banner-title">
+          Visit Milestone
+          <br />
+          Reward
         </div>
-
-        {/* Right: 0/5 & Gift Icon & unlock text */}
-        <div className="flex flex-col items-end shrink-0 text-right">
-          <div className="flex items-center gap-1 sm:gap-1.5">
-            <span className="font-black text-xl min-[380px]:text-2xl sm:text-[26px] text-[#163827] leading-none">
-              {visitsIntoCycle}/{milestoneThreshold}
-            </span>
-            <div className="text-[#163827]">
-              <svg className="w-6 h-6 sm:w-7 sm:h-7 fill-[#163827]" viewBox="0 0 24 24">
-                <path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.65-.5-.65C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1h-2V5c0-.55.45-1 1-1zM9 4c.55 0 1 .45 1 1v1H8c0-.55.45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h7v6h2V8h7v6z"/>
-              </svg>
-            </div>
-          </div>
-          <span className="text-[8px] min-[380px]:text-[9.5px] sm:text-[10px] font-semibold text-[#163827] mt-0.5 sm:mt-1 leading-tight whitespace-nowrap">
-            unlock after every {milestoneThreshold === 5 ? "5th" : `${milestoneThreshold}th`} visit
-          </span>
-        </div>
+        <span className="cd-visit-count">
+          {visitsIntoCycle}/{milestoneThreshold}
+        </span>
+        <span className="cd-visit-note">
+          unlock after every {milestoneThreshold}
+          <sup>{nthSuffix(milestoneThreshold)}</sup> visit
+        </span>
+        <svg className="cd-visit-gift" viewBox="0 0 122 140" fill="currentColor" aria-hidden="true">
+          <path d="M61 34c-6-14-20-26-33-22-9 3-9 15 0 19 9 4 24 4 33 3zm0 0c6-14 20-26 33-22 9 3 9 15 0 19-9 4-24 4-33 3z" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round" />
+          <rect x="0" y="40" width="122" height="24" />
+          <rect x="10" y="72" width="102" height="68" />
+          <rect x="56" y="40" width="10" height="100" fill="#fff" />
+        </svg>
       </div>
 
-      {/* ============================================================== */}
-      {/* 7. LOYALTY POINTS & REWARDS SECTION (Sage Green #809181)       */}
-      {/* ============================================================== */}
-      <div className="bg-[#809181] rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 text-white shadow-xs mb-3 space-y-2.5">
-        {/* Section Title Pill */}
-        <div className="bg-white rounded-xl py-1.5 px-3 text-center">
-          <h3 className="font-bold text-xs min-[380px]:text-sm tracking-wider uppercase text-[#1b3124]">
-            LOYALTY POINTS &amp; REWARDS
-          </h3>
-        </div>
+      {/* 7. LOYALITY POINTS & REWARDS */}
+      <div className="cd-panel">
+        <div className="cd-panel-title">LOYALITY POINTS &amp; REWARDS</div>
 
-        {/* Date Filter Pills */}
-        <div className="flex items-center justify-between gap-1 min-[380px]:gap-1.5 px-0.5">
+        <div className="cd-filters">
           {(
             [
               { id: "all", label: "All Time" },
@@ -919,26 +842,27 @@ export default function CustomerDashboardPage() {
           ).map((tab) => (
             <button
               key={tab.id}
+              type="button"
               onClick={() => setDateFilter(tab.id)}
-              className={`flex-1 py-1 rounded-full text-[9px] min-[360px]:text-[10px] min-[390px]:text-[11px] font-bold text-center transition-all cursor-pointer truncate ${
-                dateFilter === tab.id
-                  ? "bg-[#0d331c] text-white shadow-xs font-black"
-                  : "bg-white text-[#1b3124] hover:bg-stone-50"
-              }`}
+              className={`cd-filter ${dateFilter === tab.id && tab.id !== "all" ? "cd-filter-on" : ""}`}
+              aria-pressed={dateFilter === tab.id}
             >
               {tab.label}
             </button>
           ))}
         </div>
 
-        {/* White Inner Box: Recent visits and reciepts */}
-        <div className="bg-white rounded-2xl p-3.5 sm:p-4 text-[#1E1815] min-h-[170px] shadow-xs">
-          <div className="font-normal text-xs min-[380px]:text-sm text-[#1E1815] mb-2.5 font-medium">
-            Recent visits and reciepts:
-          </div>
+        <div className="cd-recent">
+          <div className="cd-recent-title">Recent visits and reciepts:</div>
 
           {filteredTransactions && filteredTransactions.length > 0 ? (
-            <div className="divide-y divide-[#EFE8E1]">
+            <div
+              className={`divide-y divide-[#EFE8E1] ${
+                filteredTransactions.length > 5
+                  ? "max-h-[16.5rem] overflow-y-auto overscroll-contain custom-scrollbar pr-1 -mr-1"
+                  : ""
+              }`}
+            >
               {filteredTransactions.map((t: any) => (
                 <div
                   key={t.id}
@@ -1057,7 +981,7 @@ export default function CustomerDashboardPage() {
 
               {/* Header: LEVANTE */}
               <div className="flex flex-col items-start justify-center pt-0.5 mb-2.5 relative z-10">
-                <div className="font-serif tracking-[0.2em] text-lg font-normal text-[#1E1815] leading-none">
+                <div className="font-blossom tracking-[0.12em] text-xl font-normal text-[#1E1815] leading-none">
                   LEVANTE
                 </div>
                 <div className="text-[6.5px] tracking-[0.25em] uppercase text-[#7A6A68] mt-0.5 font-sans font-medium">
@@ -1180,7 +1104,7 @@ export default function CustomerDashboardPage() {
 
               {/* Header: LEVANTE */}
               <div className="flex flex-col items-start justify-center pt-0.5 mb-2.5 relative z-10">
-                <div className="font-serif tracking-[0.2em] text-lg font-normal text-[#1E1815] leading-none">
+                <div className="font-blossom tracking-[0.12em] text-xl font-normal text-[#1E1815] leading-none">
                   LEVANTE
                 </div>
                 <div className="text-[6.5px] tracking-[0.25em] uppercase text-[#7A6A68] mt-0.5 font-sans font-medium">

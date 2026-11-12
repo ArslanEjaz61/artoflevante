@@ -1,10 +1,43 @@
 @import "tailwindcss";
 
+/* Self-hosted brand fonts (public/fonts). Inter = body face of the customer dashboard,
+   Blossom = the LEVANTE wordmark face. */
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/InterVariable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/InterVariable-Italic.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Blossom";
+  src: url("/fonts/Blossom.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Blossom";
+  src: url("/fonts/Blossom-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
 @theme {
   /* foldables / small tablets: 512px+ gets the roomier "sm" layout (was 640px) */
   --breakpoint-sm: 32rem;
   /* Display face for the branded member screens (matches the brand artwork). */
   --font-display: "Playfair Display", "Cormorant Garamond", "Montserrat", serif;
+  --font-inter: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-blossom: "Blossom", "Cormorant Garamond", serif;
 }
 
 :root {
