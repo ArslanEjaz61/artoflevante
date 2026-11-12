@@ -97,5 +97,5 @@ export async function loadWalletCardData(customerId: string): Promise<WalletCard
 }
 
 export function stampImageUrl(origin: string, card: WalletCardData) {
-  return `${origin}/api/card/wallet/stamp-image?stamps=${card.visitsInCycle}&total=${card.threshold}&theme=${card.theme}&variant=hero`;
+  return `${origin}/api/card/wallet/stamp-image?stamps=${card.visitsInCycle}&total=${card.threshold}&theme=${card.theme}&variant=hero&v=2`;
 }

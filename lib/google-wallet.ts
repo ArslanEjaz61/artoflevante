@@ -93,6 +93,8 @@ function buildClass(issuerId: string, origin: string, theme: StampTheme) {
     issuerName: "Levante",
     programName: "Loyalty Stamp Card",
     programLogo: { sourceUri: { uri: `${origin}/bc-roundel.png` }, contentDescription: text("Levante") },
+    // LEVANTE wordmark across the top, like the wallet-card mockup.
+    wideProgramLogo: { sourceUri: { uri: `${origin}/levante-wordmark-wide.png` }, contentDescription: text("Levante") },
     hexBackgroundColor: "#FFFFFF",
     reviewStatus: "UNDER_REVIEW",
     multipleDevicesAndHoldersAllowedStatus: "ONE_USER_ALL_DEVICES",
@@ -116,15 +118,14 @@ function buildObject(issuerId: string, origin: string, card: WalletCardData) {
     accountId: card.formattedCode,
     accountName: card.name,
     barcode: { type: "QR_CODE", value: card.memberCode, alternateText: card.memberCode },
-    loyaltyPoints: { label: "Stamps", balance: { string: card.stamps } },
     heroImage: {
       sourceUri: { uri: stampImageUrl(origin, card) },
       contentDescription: text(`${card.visitsInCycle} of ${card.threshold} stamps collected`),
     },
     textModulesData: [
       { id: "tm_name", header: "Full Name", body: card.name },
-      { id: "tm_coupon", header: "Coupon", body: card.coupon },
-      { id: "tm_points", header: "Loyalty Points", body: String(card.points) },
+      { id: "tm_coupon", header: "Cupon", body: card.coupon },
+      { id: "tm_points", header: "Loyality Points", body: String(card.points) },
       { id: "tm_branch", header: "Preferred Outlet", body: card.branch },
     ],
     hexBackgroundColor: "#FFFFFF",

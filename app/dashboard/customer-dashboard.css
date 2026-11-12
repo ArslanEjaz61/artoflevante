@@ -358,3 +358,46 @@
   color: var(--cd-green);
 }
 .cd-recent-title { font-size: calc(45 * var(--u)); line-height: 1.2; font-weight: 400; }
+
+/* ======================================================================
+   Wallet card preview (components/customer/WalletCardPreview.tsx).
+   Sizes from the 1057 x 1332 wallet-card mockup, scaled to the card width.
+   ====================================================================== */
+.wc { container-type: inline-size; width: 100%; }
+.wc-card {
+  --w: calc(100cqw / 1057);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 1057 / 1332;
+  background: #fff;
+  border-radius: calc(60 * var(--w));
+  color: #1a1a1a;
+  font-family: var(--font-inter);
+}
+.wc-wm { position: absolute; right: calc(4 * var(--w)); top: calc(128 * var(--w)); height: calc(1225 * var(--w)); width: auto; max-width: none; pointer-events: none; user-select: none; }
+.wc-logo { position: absolute; left: calc(68 * var(--w)); top: calc(85 * var(--w)); width: calc(262 * var(--w)); height: auto; }
+.wc-stamps { position: absolute; left: calc(51 * var(--w)); right: calc(52 * var(--w)); top: calc(289 * var(--w)); display: flex; justify-content: space-between; }
+.wc-stamp {
+  width: calc(126 * var(--w));
+  height: calc(126 * var(--w));
+  border-radius: 9999px;
+  border: calc(3.2 * var(--w)) solid #1a1a1a;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wc-stamp img { width: 62%; height: 62%; object-fit: contain; }
+.wc-name { position: absolute; left: calc(50 * var(--w)); top: calc(560 * var(--w)); max-width: 55%; }
+.wc-label { font-size: calc(28 * var(--w)); line-height: 1; margin-left: calc(3 * var(--w)); }
+.wc-value { font-size: calc(46 * var(--w)); line-height: 1.1; margin-top: calc(6 * var(--w)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wc-stats { position: absolute; right: calc(60 * var(--w)); top: calc(588 * var(--w)); text-align: right; font-size: calc(28 * var(--w)); line-height: calc(27 * var(--w)); white-space: nowrap; }
+.wc-qr { position: absolute; left: calc(301 * var(--w)); top: calc(801 * var(--w)); width: calc(448 * var(--w)); height: calc(452 * var(--w)); display: flex; align-items: center; justify-content: center; }
+.wc-qr > i { position: absolute; width: calc(51 * var(--w)); height: calc(51 * var(--w)); border: 0 solid #1a1a1a; }
+.wc-qr > i:nth-child(1) { top: 0; left: 0; border-top-width: calc(4.5 * var(--w)); border-left-width: calc(4.5 * var(--w)); }
+.wc-qr > i:nth-child(2) { top: 0; right: 0; border-top-width: calc(4.5 * var(--w)); border-right-width: calc(4.5 * var(--w)); }
+.wc-qr > i:nth-child(3) { bottom: 0; left: 0; border-bottom-width: calc(4.5 * var(--w)); border-left-width: calc(4.5 * var(--w)); }
+.wc-qr > i:nth-child(4) { bottom: 0; right: 0; border-bottom-width: calc(4.5 * var(--w)); border-right-width: calc(4.5 * var(--w)); }
+.wc-qr img, .wc-qr span { width: calc(313 * var(--w)); height: calc(313 * var(--w)); display: block; object-fit: contain; mix-blend-mode: multiply; }
+.wc-code { position: absolute; left: 0; right: 0; top: calc(1254 * var(--w)); text-align: center; font-size: calc(47 * var(--w)); line-height: 1; color: #1b4a2c; }
