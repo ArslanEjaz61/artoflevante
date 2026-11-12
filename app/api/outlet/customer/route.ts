@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
             include: {
               homeBranch: { select: { id: true, name: true, city: true } },
               customerRewards: {
-                where: { status: "AVAILABLE" },
+                where: { status: "AVAILABLE", isRedeemRequested: true },
                 include: { reward: true },
                 orderBy: { issuedAt: "asc" },
               },
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
           include: {
             homeBranch: { select: { id: true, name: true, city: true } },
             customerRewards: {
-              where: { status: "AVAILABLE" },
+              where: { status: "AVAILABLE", isRedeemRequested: true },
               include: { reward: true },
               orderBy: { issuedAt: "asc" },
             },
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
         include: {
           homeBranch: { select: { id: true, name: true, city: true } },
           customerRewards: {
-            where: { status: "AVAILABLE" },
+            where: { status: "AVAILABLE", isRedeemRequested: true },
             include: { reward: true },
             orderBy: { issuedAt: "asc" },
           },

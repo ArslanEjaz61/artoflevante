@@ -302,6 +302,42 @@ export async function GET() {
     }
   }
 
+  // Ensure customer has a Welcome reward if eligible and never issued
+  const hasAnyWelcomeReward = await prisma.customerReward.findFirst({
+    where: { customerId, reward: { type: "WELCOME" } },
+  });
+  if (!hasAnyWelcomeReward) {
+    let welcomeRewardRule = await prisma.reward.findFirst({
+      where: { type: "WELCOME", isActive: true },
+    });
+    if (!welcomeRewardRule) {
+      const welcomeDiscountPercent = Number(settings.welcome_discount_percent || 10);
+      welcomeRewardRule = await prisma.reward.create({
+        data: {
+          name: `Welcome ${welcomeDiscountPercent}% Voucher`,
+          nameAr: `قسيمة ترحيبية ${welcomeDiscountPercent}%`,
+          description: `Enjoy ${welcomeDiscountPercent}% off your first dining order as a new member gift.`,
+          type: "WELCOME",
+          threshold: 0,
+          value: welcomeDiscountPercent,
+          isPercent: true,
+          validDays: 30,
+          isActive: true,
+        },
+      });
+    }
+    await prisma.customerReward.create({
+      data: {
+        customerId,
+        rewardId: welcomeRewardRule.id,
+        status: "AVAILABLE",
+        expiresAt: welcomeRewardRule.validDays
+          ? new Date(Date.now() + welcomeRewardRule.validDays * 86400_000)
+          : new Date(Date.now() + 30 * 86400_000),
+      },
+    });
+  }
+
   const allCustRewards = await prisma.customerReward.findMany({
     where: { customerId },
     include: {
@@ -441,6 +477,8 @@ export async function GET() {
       description: cr.reward.description,
       type: cr.reward.type,
       status: cr.status,
+      isRedeemRequested: cr.isRedeemRequested ?? false,
+      redeemRequestedAt: cr.redeemRequestedAt ?? null,
       value: Number(cr.reward.value),
       isPercent: cr.reward.isPercent,
       expiresAt: cr.expiresAt,

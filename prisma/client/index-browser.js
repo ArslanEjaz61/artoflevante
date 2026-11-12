@@ -238,6 +238,8 @@ exports.Prisma.CustomerRewardScalarFieldEnum = {
   customerId: 'customerId',
   rewardId: 'rewardId',
   status: 'status',
+  isRedeemRequested: 'isRedeemRequested',
+  redeemRequestedAt: 'redeemRequestedAt',
   issuedAt: 'issuedAt',
   expiresAt: 'expiresAt',
   redeemedAt: 'redeemedAt',

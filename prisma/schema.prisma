@@ -230,8 +230,10 @@ model CustomerReward {
   rewardId   String
   reward     Reward   @relation(fields: [rewardId], references: [id])
 
-  status      RewardStatus @default(AVAILABLE)
-  issuedAt    DateTime     @default(now())
+  status            RewardStatus @default(AVAILABLE)
+  isRedeemRequested Boolean      @default(false)
+  redeemRequestedAt DateTime?
+  issuedAt          DateTime     @default(now())
   expiresAt   DateTime?
   redeemedAt  DateTime?
 

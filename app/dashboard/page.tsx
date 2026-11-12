@@ -379,9 +379,20 @@ export default function CustomerDashboardPage() {
     if (!redeemModalReward) return;
     try {
       setRedeemBusy(true);
+      const res = await fetch("/api/card/redeem-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customerRewardId: redeemModalReward.id }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || "Failed to activate reward.");
       setToast(`✓ ${redeemModalReward.name} is now ready! Show cashier to apply.`);
       setTimeout(() => setToast(null), 4000);
       setRedeemModalReward(null);
+      await loadCard();
+    } catch (e: any) {
+      setToast(String(e.message || e));
+      setTimeout(() => setToast(null), 3500);
     } finally {
       setRedeemBusy(false);
     }
@@ -720,18 +731,24 @@ export default function CustomerDashboardPage() {
           </span>
         </div>
 
-        {/* Center: TAP TO REDEEM ➔ */}
-        <button
-          type="button"
-          onClick={() => {
-            if (welcomeReward) setRedeemModalReward(welcomeReward);
-            else handleOpenOffersModal();
-          }}
-          className="flex items-center gap-0.5 min-[380px]:gap-1 text-[8.5px] min-[380px]:text-[10px] font-bold text-[#1b3124] hover:underline cursor-pointer active:scale-95 transition-transform whitespace-nowrap px-1"
-        >
-          <span>TAP TO REDEEM</span>
-          <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#1b3124]" />
-        </button>
+        {/* Center: TAP TO REDEEM ➔ or REDEEMED */}
+        {welcomeReward?.isRedeemRequested ? (
+          <div className="flex items-center gap-1 bg-white/95 text-emerald-800 px-2 min-[380px]:px-2.5 py-1 rounded-full text-[9px] min-[380px]:text-[10px] font-black tracking-wider border border-emerald-300 shadow-2xs whitespace-nowrap">
+            <span>REDEEMED</span>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              if (welcomeReward) setRedeemModalReward(welcomeReward);
+              else handleOpenOffersModal();
+            }}
+            className="flex items-center gap-0.5 min-[380px]:gap-1 text-[8.5px] min-[380px]:text-[10px] font-bold text-[#1b3124] hover:underline cursor-pointer active:scale-95 transition-transform whitespace-nowrap px-1"
+          >
+            <span>TAP TO REDEEM</span>
+            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#1b3124]" />
+          </button>
+        )}
 
         {/* Right: Folded Ribbon 10% OFF */}
         <div className="relative bg-[#0d331c] text-white pl-4 min-[380px]:pl-5 pr-3 min-[380px]:pr-4 py-2 sm:py-2.5 h-full flex flex-col justify-center items-center overflow-hidden [clip-path:polygon(20%_0%,_100%_0%,_100%_100%,_0%_100%)] shrink-0 min-w-[85px] sm:min-w-[95px]">
@@ -762,15 +779,21 @@ export default function CustomerDashboardPage() {
             </span>
           </div>
 
-          {/* Center: TAP TO REDEEM ➔ */}
-          <button
-            type="button"
-            onClick={() => setRedeemModalReward(gift)}
-            className="flex items-center gap-0.5 min-[380px]:gap-1 text-[8.5px] min-[380px]:text-[10px] font-bold text-[#1b3124] hover:underline cursor-pointer active:scale-95 transition-transform shrink-0 whitespace-nowrap px-1"
-          >
-            <span>TAP TO REDEEM</span>
-            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#1b3124]" />
-          </button>
+          {/* Center: TAP TO REDEEM ➔ or REDEEMED */}
+          {gift.isRedeemRequested ? (
+            <div className="flex items-center gap-1 bg-white/95 text-emerald-800 px-2 min-[380px]:px-2.5 py-1 rounded-full text-[9px] min-[380px]:text-[10px] font-black tracking-wider border border-emerald-300 shadow-2xs whitespace-nowrap">
+              <span>REDEEMED</span>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setRedeemModalReward(gift)}
+              className="flex items-center gap-0.5 min-[380px]:gap-1 text-[8.5px] min-[380px]:text-[10px] font-bold text-[#1b3124] hover:underline cursor-pointer active:scale-95 transition-transform shrink-0 whitespace-nowrap px-1"
+            >
+              <span>TAP TO REDEEM</span>
+              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#1b3124]" />
+            </button>
+          )}
 
           {/* Right: Folded Ribbon FREE GIFT */}
           <div className="relative bg-[#0d331c] text-white pl-4 min-[380px]:pl-5 pr-3 min-[380px]:pr-4 py-2 sm:py-2.5 h-full flex flex-col justify-center items-center overflow-hidden [clip-path:polygon(20%_0%,_100%_0%,_100%_100%,_0%_100%)] shrink-0 min-w-[85px] sm:min-w-[95px]">

@@ -12368,6 +12368,8 @@ export namespace Prisma {
     customerId: string | null
     rewardId: string | null
     status: $Enums.RewardStatus | null
+    isRedeemRequested: boolean | null
+    redeemRequestedAt: Date | null
     issuedAt: Date | null
     expiresAt: Date | null
     redeemedAt: Date | null
@@ -12379,6 +12381,8 @@ export namespace Prisma {
     customerId: string | null
     rewardId: string | null
     status: $Enums.RewardStatus | null
+    isRedeemRequested: boolean | null
+    redeemRequestedAt: Date | null
     issuedAt: Date | null
     expiresAt: Date | null
     redeemedAt: Date | null
@@ -12390,6 +12394,8 @@ export namespace Prisma {
     customerId: number
     rewardId: number
     status: number
+    isRedeemRequested: number
+    redeemRequestedAt: number
     issuedAt: number
     expiresAt: number
     redeemedAt: number
@@ -12403,6 +12409,8 @@ export namespace Prisma {
     customerId?: true
     rewardId?: true
     status?: true
+    isRedeemRequested?: true
+    redeemRequestedAt?: true
     issuedAt?: true
     expiresAt?: true
     redeemedAt?: true
@@ -12414,6 +12422,8 @@ export namespace Prisma {
     customerId?: true
     rewardId?: true
     status?: true
+    isRedeemRequested?: true
+    redeemRequestedAt?: true
     issuedAt?: true
     expiresAt?: true
     redeemedAt?: true
@@ -12425,6 +12435,8 @@ export namespace Prisma {
     customerId?: true
     rewardId?: true
     status?: true
+    isRedeemRequested?: true
+    redeemRequestedAt?: true
     issuedAt?: true
     expiresAt?: true
     redeemedAt?: true
@@ -12509,6 +12521,8 @@ export namespace Prisma {
     customerId: string
     rewardId: string
     status: $Enums.RewardStatus
+    isRedeemRequested: boolean
+    redeemRequestedAt: Date | null
     issuedAt: Date
     expiresAt: Date | null
     redeemedAt: Date | null
@@ -12537,6 +12551,8 @@ export namespace Prisma {
     customerId?: boolean
     rewardId?: boolean
     status?: boolean
+    isRedeemRequested?: boolean
+    redeemRequestedAt?: boolean
     issuedAt?: boolean
     expiresAt?: boolean
     redeemedAt?: boolean
@@ -12551,6 +12567,8 @@ export namespace Prisma {
     customerId?: boolean
     rewardId?: boolean
     status?: boolean
+    isRedeemRequested?: boolean
+    redeemRequestedAt?: boolean
     issuedAt?: boolean
     expiresAt?: boolean
     redeemedAt?: boolean
@@ -12565,6 +12583,8 @@ export namespace Prisma {
     customerId?: boolean
     rewardId?: boolean
     status?: boolean
+    isRedeemRequested?: boolean
+    redeemRequestedAt?: boolean
     issuedAt?: boolean
     expiresAt?: boolean
     redeemedAt?: boolean
@@ -12579,13 +12599,15 @@ export namespace Prisma {
     customerId?: boolean
     rewardId?: boolean
     status?: boolean
+    isRedeemRequested?: boolean
+    redeemRequestedAt?: boolean
     issuedAt?: boolean
     expiresAt?: boolean
     redeemedAt?: boolean
     redeemedTxId?: boolean
   }
 
-  export type CustomerRewardOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "customerId" | "rewardId" | "status" | "issuedAt" | "expiresAt" | "redeemedAt" | "redeemedTxId", ExtArgs["result"]["customerReward"]>
+  export type CustomerRewardOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "customerId" | "rewardId" | "status" | "isRedeemRequested" | "redeemRequestedAt" | "issuedAt" | "expiresAt" | "redeemedAt" | "redeemedTxId", ExtArgs["result"]["customerReward"]>
   export type CustomerRewardInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     customer?: boolean | CustomerDefaultArgs<ExtArgs>
     reward?: boolean | RewardDefaultArgs<ExtArgs>
@@ -12614,6 +12636,8 @@ export namespace Prisma {
       customerId: string
       rewardId: string
       status: $Enums.RewardStatus
+      isRedeemRequested: boolean
+      redeemRequestedAt: Date | null
       issuedAt: Date
       expiresAt: Date | null
       redeemedAt: Date | null
@@ -13048,6 +13072,8 @@ export namespace Prisma {
     readonly customerId: FieldRef<"CustomerReward", 'String'>
     readonly rewardId: FieldRef<"CustomerReward", 'String'>
     readonly status: FieldRef<"CustomerReward", 'RewardStatus'>
+    readonly isRedeemRequested: FieldRef<"CustomerReward", 'Boolean'>
+    readonly redeemRequestedAt: FieldRef<"CustomerReward", 'DateTime'>
     readonly issuedAt: FieldRef<"CustomerReward", 'DateTime'>
     readonly expiresAt: FieldRef<"CustomerReward", 'DateTime'>
     readonly redeemedAt: FieldRef<"CustomerReward", 'DateTime'>
@@ -22193,6 +22219,8 @@ export namespace Prisma {
     customerId: 'customerId',
     rewardId: 'rewardId',
     status: 'status',
+    isRedeemRequested: 'isRedeemRequested',
+    redeemRequestedAt: 'redeemRequestedAt',
     issuedAt: 'issuedAt',
     expiresAt: 'expiresAt',
     redeemedAt: 'redeemedAt',
@@ -23234,6 +23262,8 @@ export namespace Prisma {
     customerId?: StringFilter<"CustomerReward"> | string
     rewardId?: StringFilter<"CustomerReward"> | string
     status?: EnumRewardStatusFilter<"CustomerReward"> | $Enums.RewardStatus
+    isRedeemRequested?: BoolFilter<"CustomerReward"> | boolean
+    redeemRequestedAt?: DateTimeNullableFilter<"CustomerReward"> | Date | string | null
     issuedAt?: DateTimeFilter<"CustomerReward"> | Date | string
     expiresAt?: DateTimeNullableFilter<"CustomerReward"> | Date | string | null
     redeemedAt?: DateTimeNullableFilter<"CustomerReward"> | Date | string | null
@@ -23248,6 +23278,8 @@ export namespace Prisma {
     customerId?: SortOrder
     rewardId?: SortOrder
     status?: SortOrder
+    isRedeemRequested?: SortOrder
+    redeemRequestedAt?: SortOrderInput | SortOrder
     issuedAt?: SortOrder
     expiresAt?: SortOrderInput | SortOrder
     redeemedAt?: SortOrderInput | SortOrder
@@ -23265,6 +23297,8 @@ export namespace Prisma {
     customerId?: StringFilter<"CustomerReward"> | string
     rewardId?: StringFilter<"CustomerReward"> | string
     status?: EnumRewardStatusFilter<"CustomerReward"> | $Enums.RewardStatus
+    isRedeemRequested?: BoolFilter<"CustomerReward"> | boolean
+    redeemRequestedAt?: DateTimeNullableFilter<"CustomerReward"> | Date | string | null
     issuedAt?: DateTimeFilter<"CustomerReward"> | Date | string
     expiresAt?: DateTimeNullableFilter<"CustomerReward"> | Date | string | null
     redeemedAt?: DateTimeNullableFilter<"CustomerReward"> | Date | string | null
@@ -23279,6 +23313,8 @@ export namespace Prisma {
     customerId?: SortOrder
     rewardId?: SortOrder
     status?: SortOrder
+    isRedeemRequested?: SortOrder
+    redeemRequestedAt?: SortOrderInput | SortOrder
     issuedAt?: SortOrder
     expiresAt?: SortOrderInput | SortOrder
     redeemedAt?: SortOrderInput | SortOrder
@@ -23296,6 +23332,8 @@ export namespace Prisma {
     customerId?: StringWithAggregatesFilter<"CustomerReward"> | string
     rewardId?: StringWithAggregatesFilter<"CustomerReward"> | string
     status?: EnumRewardStatusWithAggregatesFilter<"CustomerReward"> | $Enums.RewardStatus
+    isRedeemRequested?: BoolWithAggregatesFilter<"CustomerReward"> | boolean
+    redeemRequestedAt?: DateTimeNullableWithAggregatesFilter<"CustomerReward"> | Date | string | null
     issuedAt?: DateTimeWithAggregatesFilter<"CustomerReward"> | Date | string
     expiresAt?: DateTimeNullableWithAggregatesFilter<"CustomerReward"> | Date | string | null
     redeemedAt?: DateTimeNullableWithAggregatesFilter<"CustomerReward"> | Date | string | null
@@ -24670,6 +24708,8 @@ export namespace Prisma {
   export type CustomerRewardCreateInput = {
     id?: string
     status?: $Enums.RewardStatus
+    isRedeemRequested?: boolean
+    redeemRequestedAt?: Date | string | null
     issuedAt?: Date | string
     expiresAt?: Date | string | null
     redeemedAt?: Date | string | null
@@ -24683,6 +24723,8 @@ export namespace Prisma {
     customerId: string
     rewardId: string
     status?: $Enums.RewardStatus
+    isRedeemRequested?: boolean
+    redeemRequestedAt?: Date | string | null
     issuedAt?: Date | string
     expiresAt?: Date | string | null
     redeemedAt?: Date | string | null
@@ -24692,6 +24734,8 @@ export namespace Prisma {
   export type CustomerRewardUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: EnumRewardStatusFieldUpdateOperationsInput | $Enums.RewardStatus
+    isRedeemRequested?: BoolFieldUpdateOperationsInput | boolean
+    redeemRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -24705,6 +24749,8 @@ export namespace Prisma {
     customerId?: StringFieldUpdateOperationsInput | string
     rewardId?: StringFieldUpdateOperationsInput | string
     status?: EnumRewardStatusFieldUpdateOperationsInput | $Enums.RewardStatus
+    isRedeemRequested?: BoolFieldUpdateOperationsInput | boolean
+    redeemRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -24716,6 +24762,8 @@ export namespace Prisma {
     customerId: string
     rewardId: string
     status?: $Enums.RewardStatus
+    isRedeemRequested?: boolean
+    redeemRequestedAt?: Date | string | null
     issuedAt?: Date | string
     expiresAt?: Date | string | null
     redeemedAt?: Date | string | null
@@ -24725,6 +24773,8 @@ export namespace Prisma {
   export type CustomerRewardUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: EnumRewardStatusFieldUpdateOperationsInput | $Enums.RewardStatus
+    isRedeemRequested?: BoolFieldUpdateOperationsInput | boolean
+    redeemRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -24735,6 +24785,8 @@ export namespace Prisma {
     customerId?: StringFieldUpdateOperationsInput | string
     rewardId?: StringFieldUpdateOperationsInput | string
     status?: EnumRewardStatusFieldUpdateOperationsInput | $Enums.RewardStatus
+    isRedeemRequested?: BoolFieldUpdateOperationsInput | boolean
+    redeemRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26089,6 +26141,8 @@ export namespace Prisma {
     customerId?: SortOrder
     rewardId?: SortOrder
     status?: SortOrder
+    isRedeemRequested?: SortOrder
+    redeemRequestedAt?: SortOrder
     issuedAt?: SortOrder
     expiresAt?: SortOrder
     redeemedAt?: SortOrder
@@ -26100,6 +26154,8 @@ export namespace Prisma {
     customerId?: SortOrder
     rewardId?: SortOrder
     status?: SortOrder
+    isRedeemRequested?: SortOrder
+    redeemRequestedAt?: SortOrder
     issuedAt?: SortOrder
     expiresAt?: SortOrder
     redeemedAt?: SortOrder
@@ -26111,6 +26167,8 @@ export namespace Prisma {
     customerId?: SortOrder
     rewardId?: SortOrder
     status?: SortOrder
+    isRedeemRequested?: SortOrder
+    redeemRequestedAt?: SortOrder
     issuedAt?: SortOrder
     expiresAt?: SortOrder
     redeemedAt?: SortOrder
@@ -28193,6 +28251,8 @@ export namespace Prisma {
   export type CustomerRewardCreateWithoutCustomerInput = {
     id?: string
     status?: $Enums.RewardStatus
+    isRedeemRequested?: boolean
+    redeemRequestedAt?: Date | string | null
     issuedAt?: Date | string
     expiresAt?: Date | string | null
     redeemedAt?: Date | string | null
@@ -28204,6 +28264,8 @@ export namespace Prisma {
     id?: string
     rewardId: string
     status?: $Enums.RewardStatus
+    isRedeemRequested?: boolean
+    redeemRequestedAt?: Date | string | null
     issuedAt?: Date | string
     expiresAt?: Date | string | null
     redeemedAt?: Date | string | null
@@ -28403,6 +28465,8 @@ export namespace Prisma {
     customerId?: StringFilter<"CustomerReward"> | string
     rewardId?: StringFilter<"CustomerReward"> | string
     status?: EnumRewardStatusFilter<"CustomerReward"> | $Enums.RewardStatus
+    isRedeemRequested?: BoolFilter<"CustomerReward"> | boolean
+    redeemRequestedAt?: DateTimeNullableFilter<"CustomerReward"> | Date | string | null
     issuedAt?: DateTimeFilter<"CustomerReward"> | Date | string
     expiresAt?: DateTimeNullableFilter<"CustomerReward"> | Date | string | null
     redeemedAt?: DateTimeNullableFilter<"CustomerReward"> | Date | string | null
@@ -28907,6 +28971,8 @@ export namespace Prisma {
   export type CustomerRewardCreateWithoutRedeemedTxInput = {
     id?: string
     status?: $Enums.RewardStatus
+    isRedeemRequested?: boolean
+    redeemRequestedAt?: Date | string | null
     issuedAt?: Date | string
     expiresAt?: Date | string | null
     redeemedAt?: Date | string | null
@@ -28919,6 +28985,8 @@ export namespace Prisma {
     customerId: string
     rewardId: string
     status?: $Enums.RewardStatus
+    isRedeemRequested?: boolean
+    redeemRequestedAt?: Date | string | null
     issuedAt?: Date | string
     expiresAt?: Date | string | null
     redeemedAt?: Date | string | null
@@ -29294,6 +29362,8 @@ export namespace Prisma {
   export type CustomerRewardCreateWithoutRewardInput = {
     id?: string
     status?: $Enums.RewardStatus
+    isRedeemRequested?: boolean
+    redeemRequestedAt?: Date | string | null
     issuedAt?: Date | string
     expiresAt?: Date | string | null
     redeemedAt?: Date | string | null
@@ -29305,6 +29375,8 @@ export namespace Prisma {
     id?: string
     customerId: string
     status?: $Enums.RewardStatus
+    isRedeemRequested?: boolean
+    redeemRequestedAt?: Date | string | null
     issuedAt?: Date | string
     expiresAt?: Date | string | null
     redeemedAt?: Date | string | null
@@ -30361,6 +30433,8 @@ export namespace Prisma {
     id?: string
     rewardId: string
     status?: $Enums.RewardStatus
+    isRedeemRequested?: boolean
+    redeemRequestedAt?: Date | string | null
     issuedAt?: Date | string
     expiresAt?: Date | string | null
     redeemedAt?: Date | string | null
@@ -30480,6 +30554,8 @@ export namespace Prisma {
   export type CustomerRewardUpdateWithoutCustomerInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: EnumRewardStatusFieldUpdateOperationsInput | $Enums.RewardStatus
+    isRedeemRequested?: BoolFieldUpdateOperationsInput | boolean
+    redeemRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30491,6 +30567,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     rewardId?: StringFieldUpdateOperationsInput | string
     status?: EnumRewardStatusFieldUpdateOperationsInput | $Enums.RewardStatus
+    isRedeemRequested?: BoolFieldUpdateOperationsInput | boolean
+    redeemRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30501,6 +30579,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     rewardId?: StringFieldUpdateOperationsInput | string
     status?: EnumRewardStatusFieldUpdateOperationsInput | $Enums.RewardStatus
+    isRedeemRequested?: BoolFieldUpdateOperationsInput | boolean
+    redeemRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30652,6 +30732,8 @@ export namespace Prisma {
     customerId: string
     rewardId: string
     status?: $Enums.RewardStatus
+    isRedeemRequested?: boolean
+    redeemRequestedAt?: Date | string | null
     issuedAt?: Date | string
     expiresAt?: Date | string | null
     redeemedAt?: Date | string | null
@@ -30690,6 +30772,8 @@ export namespace Prisma {
   export type CustomerRewardUpdateWithoutRedeemedTxInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: EnumRewardStatusFieldUpdateOperationsInput | $Enums.RewardStatus
+    isRedeemRequested?: BoolFieldUpdateOperationsInput | boolean
+    redeemRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30702,6 +30786,8 @@ export namespace Prisma {
     customerId?: StringFieldUpdateOperationsInput | string
     rewardId?: StringFieldUpdateOperationsInput | string
     status?: EnumRewardStatusFieldUpdateOperationsInput | $Enums.RewardStatus
+    isRedeemRequested?: BoolFieldUpdateOperationsInput | boolean
+    redeemRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30712,6 +30798,8 @@ export namespace Prisma {
     customerId?: StringFieldUpdateOperationsInput | string
     rewardId?: StringFieldUpdateOperationsInput | string
     status?: EnumRewardStatusFieldUpdateOperationsInput | $Enums.RewardStatus
+    isRedeemRequested?: BoolFieldUpdateOperationsInput | boolean
+    redeemRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30721,6 +30809,8 @@ export namespace Prisma {
     id?: string
     customerId: string
     status?: $Enums.RewardStatus
+    isRedeemRequested?: boolean
+    redeemRequestedAt?: Date | string | null
     issuedAt?: Date | string
     expiresAt?: Date | string | null
     redeemedAt?: Date | string | null
@@ -30730,6 +30820,8 @@ export namespace Prisma {
   export type CustomerRewardUpdateWithoutRewardInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: EnumRewardStatusFieldUpdateOperationsInput | $Enums.RewardStatus
+    isRedeemRequested?: BoolFieldUpdateOperationsInput | boolean
+    redeemRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30741,6 +30833,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     customerId?: StringFieldUpdateOperationsInput | string
     status?: EnumRewardStatusFieldUpdateOperationsInput | $Enums.RewardStatus
+    isRedeemRequested?: BoolFieldUpdateOperationsInput | boolean
+    redeemRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30751,6 +30845,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     customerId?: StringFieldUpdateOperationsInput | string
     status?: EnumRewardStatusFieldUpdateOperationsInput | $Enums.RewardStatus
+    isRedeemRequested?: BoolFieldUpdateOperationsInput | boolean
+    redeemRequestedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issuedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
