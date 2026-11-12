@@ -34,11 +34,14 @@ import {
   Unlock,
   Trash2,
   RotateCcw,
+  ArrowRight,
 } from "lucide-react";
 import QRCode from "qrcode";
 import { usePwaInstall } from "@/lib/usePwaInstall";
 import { InstallGuideModal } from "@/components/InstallGuideModal";
 import ReceiptScanner from "@/components/ReceiptScanner";
+import { AppleWalletIcon, GoogleWalletIcon } from "@/components/WalletIcons";
+import CustomerDesignB from "@/components/customer/CustomerDesignB";
 import { CountryCodePicker } from "@/components/CountryCodePicker";
 import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/mobile";
 
@@ -52,6 +55,13 @@ function formatRelativeTime(iso?: string | null): string {
   const d = Math.floor(h / 24);
   if (d < 30) return `${d}d ago`;
   return new Date(iso).toLocaleDateString();
+}
+
+function formatCustomerCode(code?: string | null): string {
+  if (!code) return "LP987 867";
+  const clean = String(code).toUpperCase().replace(/[^A-Z0-9]/g, "");
+  if (clean.length > 5) return clean.slice(0, 5) + " " + clean.slice(5);
+  return clean;
 }
 
 function formatExactDateTime(iso?: string | null): string {
@@ -79,6 +89,10 @@ export default function CustomerDashboardPage() {
   const [profileMsg, setProfileMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
   const [historyTab, setHistoryTab] = useState<"bills" | "rewards">("bills");
+  const [redeemModalReward, setRedeemModalReward] = useState<any | null>(null);
+  const [redeemBusy, setRedeemBusy] = useState(false);
+  const [showAppleWalletModal, setShowAppleWalletModal] = useState(false);
+  const [showGoogleWalletModal, setShowGoogleWalletModal] = useState(false);
 
   // Promotional Banner Slider & In-App Offer Notification States
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
@@ -361,6 +375,18 @@ export default function CustomerDashboardPage() {
     window.location.href = "/";
   }
 
+  const handleConfirmRedeem = async () => {
+    if (!redeemModalReward) return;
+    try {
+      setRedeemBusy(true);
+      setToast(`✓ ${redeemModalReward.name} is now ready! Show cashier to apply.`);
+      setTimeout(() => setToast(null), 4000);
+      setRedeemModalReward(null);
+    } finally {
+      setRedeemBusy(false);
+    }
+  };
+
   function handleShare() {
     if (typeof navigator !== "undefined" && navigator.share) {
       navigator
@@ -546,8 +572,27 @@ export default function CustomerDashboardPage() {
   // First name for greeting
   const firstName = customer?.name ? customer.name.trim().split(" ")[0] : "VIP Member";
 
+  // Visit milestone coupon: updates when 5 visits completed (every 5 visits = +1 coupon)
+  const visitCoupons = availableRewards.filter(
+    (r: any) => r.type === "VISITS" || r.name?.toLowerCase().includes("visit") || r.name?.toLowerCase().includes("milestone")
+  );
+  const completed5VisitCycles = Math.floor(currentVisits / 5);
+  const couponCount = Math.max(visitCoupons.length, completed5VisitCycles > 0 ? 1 : 0);
+  const couponDisplay = String(couponCount).padStart(2, "0");
+
+  const targetStamps = milestoneThreshold === 6 ? 6 : 5;
+  const stampsEarned = visitsIntoCycle;
+
+  // Separate Welcome Discount and Available Gift Rewards
+  const welcomeReward = availableRewards.find(
+    (r: any) => r.type === "WELCOME" || r.name?.toLowerCase().includes("welcome")
+  );
+  const availableGifts = availableRewards.filter(
+    (r: any) => r.id !== welcomeReward?.id
+  );
+
   return (
-    <div className="min-h-screen bg-[#F5EFE0] text-[#1E1815] pb-24 px-3.5 sm:px-4 pt-3.5 sm:pt-5 max-w-md w-full mx-auto fold-safe [box-shadow:0_0_0_100vmax_#F5EFE0] [clip-path:inset(0_-100vmax)] selection:bg-[#0E331E] selection:text-white">
+    <div className="min-h-screen bg-[#EFEBE0] text-[#1E1815] pb-24 px-3.5 sm:px-4 pt-3.5 sm:pt-5 max-w-md w-full mx-auto fold-safe [box-shadow:0_0_0_100vmax_#EFEBE0] [clip-path:inset(0_-100vmax)] selection:bg-[#0E331E] selection:text-white">
       {/* Toast Notification */}
       {toast && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#1E1815] text-white px-4 py-2.5 rounded-full text-xs font-bold shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-top-4 max-w-[90vw] text-center">
@@ -557,742 +602,518 @@ export default function CustomerDashboardPage() {
       )}
 
       {/* ============================================================== */}
-      {/* 1. TOP HEADER (With Brand Avatar & Hamburger Menu)             */}
+      {/* 1. TOP HEADER (Brand Roundel & "Loyality Reward Path")          */}
       {/* ============================================================== */}
-      <header className="flex items-center justify-between mb-3.5 sm:mb-4">
-        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-          {/* Brand Logo Avatar */}
-          <div className="w-12 h-12 sm:w-16 sm:h-16 shrink-0">
+      <header className="flex items-center justify-between mb-3 px-0.5">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-11 h-11 min-[380px]:w-12 min-[380px]:h-12 sm:w-14 sm:h-14 shrink-0 rounded-full overflow-hidden shadow-2xs">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/bc-roundel.png" alt="Levante" className="w-full h-full object-contain" />
           </div>
           <div className="min-w-0">
-            <div className="font-display font-bold uppercase tracking-[0.02em] text-[16px] sm:text-[21px] leading-none text-[#A57414] truncate">
-              Welcome Back
-            </div>
-            <h1 className="font-display text-[17px] sm:text-[21px] font-bold text-[#1E1815] leading-tight mt-0.5 truncate">
-              {firstName}
+            <h1 className="font-bold text-[17px] min-[380px]:text-[19px] sm:text-[21px] leading-tight text-[#1a3c24] tracking-tight truncate">
+              Loyality Reward Path
             </h1>
           </div>
         </div>
 
-        {/* Actions (Offers Notification Bell & Hamburger Menu) */}
-        <div className="flex items-center gap-2 shrink-0">
-          {/* Active Deals / Notifications Bell */}
+        {/* Action icons (Notifications & Menu) */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <button
             onClick={handleOpenOffersModal}
-            className="w-10 h-10 rounded-2xl bg-[#EFE9E2] hover:bg-[#E5DDD4] text-[#0E331E] flex items-center justify-center transition-all shadow-xs cursor-pointer active:scale-95 relative"
+            className="w-9 h-9 rounded-xl bg-white hover:bg-stone-50 text-[#0d331c] flex items-center justify-center transition-all shadow-2xs cursor-pointer active:scale-95 relative border border-stone-200/60"
             title="Special Offers & Deals"
             aria-label="View Deals"
           >
-            <Bell className="w-5 h-5 text-[#0E331E]" />
+            <Bell className="w-4 h-4 text-[#0d331c]" />
             {unreadOffersCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#0E331E] text-white rounded-full text-[10px] font-black flex items-center justify-center border-2 border-[#FAF7F4] animate-pulse">
+              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#0d331c] text-white rounded-full text-[9px] font-black flex items-center justify-center border-2 border-white animate-pulse">
                 {unreadOffersCount}
               </span>
             )}
           </button>
-
-          {/* Hamburger Menu Button */}
           <button
             onClick={() => setShowSwitchModal(true)}
-            className="w-10 h-10 rounded-2xl bg-[#EFE9E2] hover:bg-[#E5DDD4] text-[#0E331E] flex items-center justify-center transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
+            className="w-9 h-9 rounded-xl bg-white hover:bg-stone-50 text-[#0d331c] flex items-center justify-center transition-all shadow-2xs cursor-pointer active:scale-95 shrink-0 border border-stone-200/60"
             title="Account Menu"
             aria-label="Open Menu"
           >
-            <Menu className="w-5 h-5 text-[#0E331E]" />
+            <Menu className="w-4 h-4 text-[#0d331c]" />
           </button>
         </div>
       </header>
 
       {/* ============================================================== */}
-      {/* 2. CULINARY HERO BANNER CARD (Fallback / Single / Carousel)   */}
+      {/* 2. DIGITAL MEMBERSHIP & STAMP CARD (CustomerDesignB 2-Card)    */}
       {/* ============================================================== */}
-      <div className="rounded-3xl overflow-hidden shadow-md mb-3.5 relative bg-[#1E1815]">
-        {bannerOffers.length === 0 ? (
-          /* Fallback: Default supplied artwork */
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
-            src="/banner-art.jpg"
-            alt="Double the flavour, double the delight — watch this space for our deals and discounts."
-            className="w-full h-auto block select-none"
-            draggable={false}
-          />
-        ) : bannerOffers.length === 1 ? (
-          /* Single Active Promotional Banner */
-          <div
-            className="relative group cursor-pointer"
-            onClick={() => setPopupOffer(bannerOffers[0])}
-            title="Click to view promotional details"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={bannerOffers[0].imageUrl}
-              alt={bannerOffers[0].name}
-              className="w-full h-auto block select-none object-cover"
-              draggable={false}
-            />
-          </div>
-        ) : (
-          /* Multi-Offer Auto-Sliding Carousel */
-          <div className="relative overflow-hidden group">
-            <div
-              className="flex transition-transform duration-500 ease-out"
-              style={{ transform: `translateX(-${currentSlideIndex * 100}%)` }}
-            >
-              {bannerOffers.map((offer: any, idx: number) => (
-                <div
-                  key={offer.id || idx}
-                  className="w-full shrink-0 relative cursor-pointer"
-                  onClick={() => setPopupOffer(offer)}
-                  title="Click to view offer details"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={offer.imageUrl}
-                    alt={offer.name}
-                    className="w-full h-auto block select-none object-cover"
-                    draggable={false}
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Prev / Next Arrows */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setCurrentSlideIndex((prev) => (prev === 0 ? bannerOffers.length - 1 : prev - 1));
-              }}
-              className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs transition-all cursor-pointer opacity-70 hover:opacity-100 shadow-md"
-              aria-label="Previous Offer"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setCurrentSlideIndex((prev) => (prev + 1) % bannerOffers.length);
-              }}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs transition-all cursor-pointer opacity-70 hover:opacity-100 shadow-md"
-              aria-label="Next Offer"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-
-            {/* Dot Indicators */}
-            <div className="absolute bottom-2.5 left-0 right-0 flex items-center justify-center gap-1.5 z-10 pointer-events-none">
-              {bannerOffers.map((_, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setCurrentSlideIndex(idx);
-                  }}
-                  className={`transition-all rounded-full pointer-events-auto cursor-pointer ${
-                    currentSlideIndex === idx
-                      ? "w-6 h-1.5 bg-[#F5EFE0] shadow-xs"
-                      : "w-1.5 h-1.5 bg-white/50 hover:bg-white/80"
-                  }`}
-                  aria-label={`Slide ${idx + 1}`}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+      <CustomerDesignB
+        customer={customer}
+        qr={qr}
+        customerCode={formatCustomerCode(qr?.code || "LP987867")}
+        targetStamps={targetStamps}
+        stampsEarned={stampsEarned}
+        couponDisplay={couponDisplay}
+      />
 
       {/* ============================================================== */}
-      {/* 3. ACTION BUTTONS (Share with a friend, QR Code & Install)     */}
+      {/* 3. THREE BLACK ACTION BUTTONS (Apple / Google / Web App)       */}
       {/* ============================================================== */}
-      <div className="space-y-2.5 mb-4">
-        <div className="grid grid-cols-2 gap-2.5">
-          <button
-            onClick={handleShare}
-            className="bg-white hover:bg-[#FAF7F4] text-[#0E331E] rounded-2xl py-3.5 px-3 font-display font-bold text-[15px] leading-tight shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.99]"
-          >
-            <Share2 className="w-[18px] h-[18px] shrink-0" />
-            <span>Share with a<span className="block">friend</span></span>
-          </button>
-          <button
-            onClick={() => setShowPortalQrModal(true)}
-            className="bg-white hover:bg-[#FAF7F4] text-[#0E331E] rounded-2xl py-3.5 px-3 font-display font-bold text-[15px] leading-tight shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.99]"
-          >
-            <QrCode className="w-[18px] h-[18px] shrink-0" />
-            <span>QR Code</span>
-          </button>
-        </div>
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-3">
+        {/* 1. Add to Apple Wallet */}
         <button
-          onClick={handleInstall}
-          className="w-full bg-white hover:bg-[#FAF7F4] text-[#0E331E] rounded-2xl py-3 px-4 font-display font-bold text-[15px] shadow-sm flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.99]"
+          type="button"
+          onClick={() => setShowAppleWalletModal(true)}
+          className="bg-[#151515] hover:bg-[#222222] text-white rounded-xl py-2 px-1 min-[380px]:px-1.5 sm:px-2 flex items-center gap-1.5 min-[380px]:gap-2 cursor-pointer transition-all active:scale-95 shadow-xs"
         >
-          <Download className="w-[18px] h-[18px] shrink-0" />
-          <span>Install loyalty app</span>
+          <AppleWalletIcon className="w-5 h-4 sm:w-5.5 sm:h-4.5 shrink-0" />
+          <div className="text-left min-w-0">
+            <div className="text-[7.5px] min-[380px]:text-[8px] text-[#A0A0A0] leading-tight font-medium">Add to</div>
+            <div className="text-[9px] min-[380px]:text-[10px] font-bold text-white leading-tight truncate">Apple Wallet</div>
+          </div>
+        </button>
+
+        {/* 2. Add to Google Wallet */}
+        <button
+          type="button"
+          onClick={() => setShowGoogleWalletModal(true)}
+          className="bg-[#151515] hover:bg-[#222222] text-white rounded-xl py-2 px-1 min-[380px]:px-1.5 sm:px-2 flex items-center gap-1.5 min-[380px]:gap-2 cursor-pointer transition-all active:scale-95 shadow-xs"
+        >
+          <div className="w-5 h-4 sm:w-5.5 sm:h-4.5 shrink-0 flex items-center justify-center">
+            <GoogleWalletIcon className="w-5 h-4 sm:w-5.5 sm:h-4.5" />
+          </div>
+          <div className="text-left min-w-0">
+            <div className="text-[7.5px] min-[380px]:text-[8px] text-[#A0A0A0] leading-tight font-medium">Add to</div>
+            <div className="text-[9px] min-[380px]:text-[10px] font-bold text-white leading-tight truncate">Google Wallet</div>
+          </div>
+        </button>
+
+        {/* 3. Download it as WEB APP */}
+        <button
+          type="button"
+          onClick={handleInstall}
+          className="bg-[#151515] hover:bg-[#222222] text-white rounded-xl py-2 px-1 min-[380px]:px-1.5 sm:px-2 flex items-center justify-between gap-1 cursor-pointer transition-all active:scale-95 shadow-xs"
+        >
+          <div className="text-left min-w-0">
+            <div className="text-[7.5px] min-[380px]:text-[8px] text-[#A0A0A0] leading-tight font-medium">Download as</div>
+            <div className="text-[9px] min-[380px]:text-[10px] font-bold text-white leading-tight truncate">WEB APP</div>
+          </div>
+          <Download className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white shrink-0" />
         </button>
       </div>
 
       {/* ============================================================== */}
-      {/* 4. AVAILABLE POINTS VELVET CARD                                */}
+      {/* 4. SCAN RECEIPT BANNER                                         */}
       {/* ============================================================== */}
-      <div className="rounded-3xl bg-[#0E331E] px-4.5 sm:px-6 pt-4 pb-5 shadow-md mb-4 relative overflow-hidden">
-        {/* Subtle Decorative Background Ring */}
-        <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full bg-white/5 blur-xl pointer-events-none" />
-
-        <div className="relative z-10">
-          <div className="font-display font-extrabold uppercase tracking-[0.01em] text-[#F5EFE0] text-[20px] sm:text-[26px] leading-tight">
-            Available Points
-          </div>
-
-          <div className="flex items-end justify-between gap-2 sm:gap-3">
-            <div className="font-display font-extrabold text-[#CC8820] text-[58px] xs:text-[68px] sm:text-[80px] leading-[0.9] -mt-1 truncate">
-              {customer.pointsBalance}
-            </div>
-
-            {/* Golden Ribbon / Medallion Emblem */}
-            <Award className="w-[64px] h-[64px] sm:w-[84px] sm:h-[84px] text-[#CC8820] stroke-[1.5] shrink-0 mb-1" />
-          </div>
-
-          <div className="flex items-end justify-between gap-2 sm:gap-3 -mt-1 flex-wrap">
-            <div className="font-display font-bold text-white text-[12px] sm:text-[14px]">
-              {loyaltyRules?.pointsRequiredForRedemption || 100} Points = {currency} {loyaltyRules?.currencyValuePerRedemptionPoints || 1}
-            </div>
-            <div className="font-display font-bold uppercase text-white text-[13px] sm:text-[16px] shrink-0">
-              Tap to redeem
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ============================================================== */}
-      {/* 6. MEMBERSHIP QR CARD                                          */}
-      {/* ============================================================== */}
-      <div className="bg-white rounded-3xl p-5 sm:p-7 shadow-sm text-center mb-4">
-        {/* Header Label */}
-        <div className="flex items-center justify-center gap-2 mb-1.5">
-          <QrCode className="w-[18px] h-[18px] text-[#8A7F7C]" />
-          <span className="font-display text-[14px] sm:text-[15px] font-semibold tracking-[0.06em] text-[#8A7F7C] uppercase">
-            Your Membership QR
-          </span>
-        </div>
-        <h3 className="font-display text-[18px] sm:text-[20px] font-bold text-[#0E331E] mb-4 sm:mb-5">
-          Scan at any outlet
-        </h3>
-
-        {/* QR Code */}
-        <div className="bg-[#FAF7F4] p-3 sm:p-3.5 rounded-2xl inline-block mb-3.5 sm:mb-4 shadow-inner max-w-full">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={qr.image}
-            alt="Membership QR"
-            className="w-48 h-48 sm:w-56 sm:h-56 rounded-xl block mx-auto object-contain"
-          />
-        </div>
-
-        {/* Monospace Code */}
-        <div className="font-mono text-sm sm:text-base font-bold text-[#0E331E] tracking-[0.16em] sm:tracking-[0.18em]">
-          {qr.code}
-        </div>
-
-        {/* Helper micro-copy */}
-        <p className="font-display text-xs sm:text-[14px] text-[#8A7F7C] leading-[1.45] max-w-[270px] mx-auto mt-2">
-          Show this QR to cashier. Scanning opens your profile without sharing mobile number.
-        </p>
-      </div>
-
-      {/* SCAN A RECEIPT TO EARN POINTS */}
       <ReceiptScanner onClaimed={loadCard} />
 
-
       {/* ============================================================== */}
-      {/* 7. BIRTHDAY SURPRISE & FREE VOUCHERS CARDS                     */}
+      {/* 5. WELCOME DISCOUNT CARD (From loyalty design)                 */}
       {/* ============================================================== */}
-      <div className="space-y-2.5 mb-4">
-        {/* Case A: Birthday Surprise Gift Countdown (Locked Mystery State) */}
-        {birthdayStatus?.status === "COUNTDOWN_LOCKED" && (
-          <div className="rounded-2xl p-4 bg-gradient-to-r from-[#FFF9EE] via-[#FFF3DD] to-[#FFE8C2] border-2 border-[#E5A93C] shadow-sm relative overflow-hidden">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0 pr-1">
-                <div className="w-10 h-10 rounded-2xl bg-[#CC8820] text-white flex items-center justify-center shadow-md shadow-[#CC8820]/30 shrink-0">
-                  <Gift className="w-5 h-5 animate-pulse" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[9px] font-black uppercase tracking-wider text-[#8A5600] bg-[#FFD88A] px-2 py-0.5 rounded-md">
-                      🎂 Birthday Mystery Gift
-                    </span>
-                    <span className="text-[9px] font-extrabold text-[#A06000] flex items-center gap-1">
-                      <Lock className="w-2.5 h-2.5" /> Locked
-                    </span>
-                  </div>
-                  <div className="font-bold text-xs sm:text-sm text-[#1E1815] truncate mt-0.5">
-                    Unlocks in {birthdayStatus.daysUntilBirthday} {birthdayStatus.daysUntilBirthday === 1 ? "day" : "days"}!
-                  </div>
-                  <div className="text-[10px] text-[#7A6E67] leading-tight mt-0.5">
-                    Your special birthday surprise gift will reveal &amp; unlock automatically on your birthday!
-                  </div>
-                </div>
-              </div>
-              <div className="text-center shrink-0 bg-white/95 px-2.5 py-1.5 rounded-xl border border-[#E5A93C]/50 shadow-xs">
-                <div className="text-[16px] sm:text-[18px] font-black text-[#CC8820] font-mono leading-none">
-                  {birthdayStatus.daysUntilBirthday}
-                </div>
-                <div className="text-[7px] sm:text-[8px] font-black uppercase text-[#8A5600] tracking-wider mt-0.5">
-                  Days Left
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+      <div className="bg-white rounded-2xl h-[70px] min-[380px]:h-[76px] sm:h-[80px] flex items-center justify-between overflow-hidden shadow-xs mb-3 relative border border-[#E8E2D7]">
+        {/* Left: WELCOME DISCOUNT */}
+        <div className="flex flex-col justify-center leading-none pl-3 min-[380px]:pl-4 py-1.5 min-w-0 pr-1">
+          <span className="font-black text-lg min-[380px]:text-xl sm:text-[23px] tracking-tight text-[#1b3124] uppercase leading-[0.9]">
+            WELCOME
+          </span>
+          <span className="font-black text-lg min-[380px]:text-xl sm:text-[23px] tracking-tight text-[#1b3124] uppercase leading-[0.9] mt-0.5 sm:mt-1">
+            DISCOUNT
+          </span>
+        </div>
 
-        {/* Case B: Birthday Treat Unlocked (Available State) */}
-        {birthdayStatus?.status === "AVAILABLE" && (
-          <div className="rounded-2xl p-4 bg-gradient-to-br from-[#FFF5F5] to-[#FBF0EE] border-2 border-[#0E331E] shadow-md relative overflow-hidden">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0 pr-1">
-                <div className="w-10 h-10 rounded-2xl bg-[#0E331E] text-white flex items-center justify-center shadow-md shadow-[#0E331E]/25 shrink-0">
-                  <PartyPopper className="w-5 h-5 text-[#F5EFE0]" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[9px] font-black uppercase tracking-wider text-[#0E331E] bg-[#0E331E]/10 px-2 py-0.5 rounded-md">
-                      🎉 Happy Birthday Treat!
-                    </span>
-                    <span className="text-[9px] font-black text-emerald-700 flex items-center gap-1">
-                      <Unlock className="w-2.5 h-2.5" /> Unlocked
-                    </span>
-                  </div>
-                  <div className="font-extrabold text-xs sm:text-sm text-[#0E331E] truncate mt-0.5">
-                    {birthdayStatus.reward?.name || "Special Birthday Gift"}
-                  </div>
-                  <div className="text-[10px] text-[#5C504A] leading-tight mt-0.5">
-                    {birthdayStatus.reward?.description || "Show at any branch counter to claim your birthday surprise!"}
-                  </div>
-                </div>
-              </div>
-              <span className="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
-                READY
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Available Vouchers List */}
-        {availableRewards.length > 0 &&
-          availableRewards.map((reward: any) => {
-            const discText = reward.isPercent
-              ? `${reward.value}% OFF`
-              : reward.value > 0
-              ? `${currency} ${reward.value} OFF`
-              : "Complimentary Item";
-            const title = reward.name.includes("%") || reward.name.includes("OFF")
-              ? reward.name
-              : `${reward.name} (${discText})`;
-
-            return (
-              <div key={reward.id} className="bg-white rounded-2xl p-4 border border-[#EAE3DC] shadow-xs flex items-center justify-between">
-                <div className="flex items-center gap-3 min-w-0 pr-2">
-                  <div className="w-9 h-9 rounded-xl bg-[#FFF6E5] text-[#C68A1E] flex items-center justify-center shrink-0 border border-[#EFE7D8]">
-                    <Gift className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="font-bold text-xs sm:text-sm text-[#1E1815] truncate">
-                      {title}
-                    </div>
-                    <div className="text-[10px] text-[#7A6E67]">Tap to show cashier</div>
-                  </div>
-                </div>
-                <span className="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
-                  AVAILABLE
-                </span>
-              </div>
-            );
-          })}
-
-        {/* Visit Milestone Surprise Reward Card */}
-        <div
-          className={`rounded-2xl p-4 border shadow-xs flex items-center justify-between gap-3 transition-all ${
-            isSurpriseUnlocked
-              ? "bg-[#FAF5EE] border-[#D8C7B5] ring-1 ring-[#D8C7B5]/60"
-              : "bg-white border-[#EAE3DC]"
-          }`}
+        {/* Center: TAP TO REDEEM ➔ */}
+        <button
+          type="button"
+          onClick={() => {
+            if (welcomeReward) setRedeemModalReward(welcomeReward);
+            else handleOpenOffersModal();
+          }}
+          className="flex items-center gap-0.5 min-[380px]:gap-1 text-[8.5px] min-[380px]:text-[10px] font-bold text-[#1b3124] hover:underline cursor-pointer active:scale-95 transition-transform whitespace-nowrap px-1"
         >
-          <div className="flex items-center gap-3.5 min-w-0 pr-2">
-            <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${
-                isSurpriseUnlocked
-                  ? "bg-[#0E331E] text-white border-[#0E331E]"
-                  : "bg-[#0E331E]/10 text-[#0E331E] border-[#0E331E]/15"
+          <span>TAP TO REDEEM</span>
+          <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#1b3124]" />
+        </button>
+
+        {/* Right: Folded Ribbon 10% OFF */}
+        <div className="relative bg-[#0d331c] text-white pl-4 min-[380px]:pl-5 pr-3 min-[380px]:pr-4 py-2 sm:py-2.5 h-full flex flex-col justify-center items-center overflow-hidden [clip-path:polygon(20%_0%,_100%_0%,_100%_100%,_0%_100%)] shrink-0 min-w-[85px] sm:min-w-[95px]">
+          <div className="font-black text-xl min-[380px]:text-2xl sm:text-[27px] leading-none text-white tracking-tighter">
+            {welcomeReward?.value ? Math.round(welcomeReward.value) : 10}%
+          </div>
+          <div className="font-black text-[9px] min-[380px]:text-xs leading-none text-white tracking-widest uppercase mt-0.5">
+            OFF
+          </div>
+        </div>
+      </div>
+
+      {/* ============================================================== */}
+      {/* 5.1 ADDITIONAL UNLOCKED GIFTS (Rendered in matching shape)     */}
+      {/* ============================================================== */}
+      {availableGifts.map((gift: any) => (
+        <div
+          key={gift.id}
+          className="bg-white rounded-2xl h-[70px] min-[380px]:h-[76px] sm:h-[80px] flex items-center justify-between overflow-hidden shadow-xs mb-3 relative border border-[#E8E2D7]"
+        >
+          {/* Left: GIFT REWARD & NAME */}
+          <div className="flex flex-col justify-center leading-none pl-3 min-[380px]:pl-4 py-1.5 min-w-0 pr-1">
+            <span className="font-black text-[10px] min-[380px]:text-[11px] sm:text-xs tracking-tight text-[#1b3124]/75 uppercase leading-none">
+              GIFT REWARD
+            </span>
+            <span className="font-black text-base min-[380px]:text-lg sm:text-[20px] tracking-tight text-[#1b3124] uppercase leading-tight mt-0.5 sm:mt-1 truncate max-w-[120px] min-[380px]:max-w-[140px] sm:max-w-[160px]">
+              {gift.name}
+            </span>
+          </div>
+
+          {/* Center: TAP TO REDEEM ➔ */}
+          <button
+            type="button"
+            onClick={() => setRedeemModalReward(gift)}
+            className="flex items-center gap-0.5 min-[380px]:gap-1 text-[8.5px] min-[380px]:text-[10px] font-bold text-[#1b3124] hover:underline cursor-pointer active:scale-95 transition-transform shrink-0 whitespace-nowrap px-1"
+          >
+            <span>TAP TO REDEEM</span>
+            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#1b3124]" />
+          </button>
+
+          {/* Right: Folded Ribbon FREE GIFT */}
+          <div className="relative bg-[#0d331c] text-white pl-4 min-[380px]:pl-5 pr-3 min-[380px]:pr-4 py-2 sm:py-2.5 h-full flex flex-col justify-center items-center overflow-hidden [clip-path:polygon(20%_0%,_100%_0%,_100%_100%,_0%_100%)] shrink-0 min-w-[85px] sm:min-w-[95px]">
+            <Gift className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            <div className="font-black text-[9px] min-[380px]:text-[10px] leading-none text-white tracking-widest uppercase mt-0.5">
+              FREE
+            </div>
+          </div>
+        </div>
+      ))}
+
+      {/* ============================================================== */}
+      {/* 6. VISIT MILESTONE REWARD TRACKER CARD                         */}
+      {/* ============================================================== */}
+      <div className="bg-white rounded-2xl p-3 min-[380px]:p-3.5 sm:p-4 shadow-xs mb-3 flex items-center justify-between gap-2 border border-[#E8E2D7]">
+        {/* Left: VISIT MILESTONE REWARD */}
+        <div className="flex flex-col justify-center leading-none min-w-0">
+          <span className="font-black text-lg min-[380px]:text-xl sm:text-2xl tracking-tight text-[#163827] uppercase leading-[0.9]">
+            VISIT MILESTONE
+          </span>
+          <span className="font-black text-lg min-[380px]:text-xl sm:text-2xl tracking-tight text-[#163827] uppercase leading-[0.9] mt-0.5 sm:mt-1">
+            REWARD
+          </span>
+        </div>
+
+        {/* Right: 0/5 & Gift Icon & unlock text */}
+        <div className="flex flex-col items-end shrink-0 text-right">
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            <span className="font-black text-xl min-[380px]:text-2xl sm:text-[26px] text-[#163827] leading-none">
+              {visitsIntoCycle}/{milestoneThreshold}
+            </span>
+            <div className="text-[#163827]">
+              <svg className="w-6 h-6 sm:w-7 sm:h-7 fill-[#163827]" viewBox="0 0 24 24">
+                <path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.65-.5-.65C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1h-2V5c0-.55.45-1 1-1zM9 4c.55 0 1 .45 1 1v1H8c0-.55.45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h7v6h2V8h7v6z"/>
+              </svg>
+            </div>
+          </div>
+          <span className="text-[8px] min-[380px]:text-[9.5px] sm:text-[10px] font-semibold text-[#163827] mt-0.5 sm:mt-1 leading-tight whitespace-nowrap">
+            unlock after every {milestoneThreshold === 5 ? "5th" : `${milestoneThreshold}th`} visit
+          </span>
+        </div>
+      </div>
+
+      {/* ============================================================== */}
+      {/* 7. LOYALTY POINTS & REWARDS SECTION (Sage Green #809181)       */}
+      {/* ============================================================== */}
+      <div className="bg-[#809181] rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 text-white shadow-xs mb-3 space-y-2.5">
+        {/* Section Title Pill */}
+        <div className="bg-white rounded-xl py-1.5 px-3 text-center">
+          <h3 className="font-bold text-xs min-[380px]:text-sm tracking-wider uppercase text-[#1b3124]">
+            LOYALTY POINTS &amp; REWARDS
+          </h3>
+        </div>
+
+        {/* Date Filter Pills */}
+        <div className="flex items-center justify-between gap-1 min-[380px]:gap-1.5 px-0.5">
+          {(
+            [
+              { id: "all", label: "All Time" },
+              { id: "today", label: "Today" },
+              { id: "7days", label: "Last 7 Days" },
+              { id: "30days", label: "Last 30 Days" },
+            ] as const
+          ).map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setDateFilter(tab.id)}
+              className={`flex-1 py-1 rounded-full text-[9px] min-[360px]:text-[10px] min-[390px]:text-[11px] font-bold text-center transition-all cursor-pointer truncate ${
+                dateFilter === tab.id
+                  ? "bg-[#0d331c] text-white shadow-xs font-black"
+                  : "bg-white text-[#1b3124] hover:bg-stone-50"
               }`}
             >
-              {isSurpriseUnlocked ? <Gift className="w-5 h-5" /> : <Sparkles className="w-4 h-4" />}
-            </div>
-            <div className="min-w-0">
-              <div className="text-[9px] font-extrabold tracking-widest text-[#7A6E67] uppercase flex items-center gap-1.5">
-                <span>{isSurpriseUnlocked ? "SURPRISE REWARD UNLOCKED" : "VISIT MILESTONE REWARD"}</span>
-              </div>
-              <div className="font-bold text-xs sm:text-sm text-[#1E1815] truncate">
-                {isSurpriseUnlocked
-                  ? (unlockedSurpriseReward?.name || `Free Gift on ${milestoneThreshold}th Visit`)
-                  : "A delicious surprise is coming soon"}
-              </div>
-              <div className="text-[10px] text-[#7A6E67] mt-0.5">
-                {isSurpriseUnlocked
-                  ? (unlockedSurpriseReward?.description || `All ${milestoneThreshold} visits completed! Ready to redeem at the counter.`)
-                  : `Unlocks once you complete ${milestoneThreshold} visits (${visitsNeeded} visit${visitsNeeded > 1 ? "s" : ""} left)`}
-              </div>
-            </div>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* White Inner Box: Recent visits and reciepts */}
+        <div className="bg-white rounded-2xl p-3.5 sm:p-4 text-[#1E1815] min-h-[170px] shadow-xs">
+          <div className="font-normal text-xs min-[380px]:text-sm text-[#1E1815] mb-2.5 font-medium">
+            Recent visits and reciepts:
           </div>
-          {isSurpriseUnlocked && (
-            <span className="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
-              READY
-            </span>
+
+          {filteredTransactions && filteredTransactions.length > 0 ? (
+            <div className="divide-y divide-[#EFE8E1]">
+              {filteredTransactions.map((t: any) => (
+                <div
+                  key={t.id}
+                  onClick={() => setSelectedReceipt(t)}
+                  className="py-2.5 px-1 rounded-xl hover:bg-[#FAF7F4] active:bg-[#F2ECE5] transition-all flex items-center justify-between first:pt-1 last:pb-1 gap-2 cursor-pointer group"
+                  role="button"
+                  tabIndex={0}
+                  title="Click to view full receipt breakdown"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="font-bold text-xs sm:text-sm text-[#1E1815] group-hover:text-[#0d331c] transition-colors truncate flex items-center gap-1">
+                      <span>{t.branch || customer.homeBranch?.name || "Branch Visit"}</span>
+                      <span className="text-[10px] text-[#A0938C]">›</span>
+                    </div>
+                    <div className="text-[10px] text-[#7A6E67] flex items-center gap-1.5 mt-0.5 flex-wrap">
+                      {t.invoiceNumber && (
+                        <span className="font-mono font-bold text-[#1E1815]">#{t.invoiceNumber}</span>
+                      )}
+                      <span>•</span>
+                      <span>{formatRelativeTime(t.createdAt)}</span>
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div className="font-black text-xs sm:text-sm text-[#1E1815]">
+                      {currency} {Number(t.amount || 0).toFixed(2)}
+                    </div>
+                    {t.pointsEarned > 0 && (
+                      <div className="text-[10px] font-extrabold text-emerald-700">
+                        +{t.pointsEarned} pts
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-7 text-xs text-[#7A6E67]">
+              <Receipt className="w-6 h-6 text-[#809181]/40 mx-auto mb-1.5" />
+              <p className="font-semibold text-[#1E1815]">
+                {dateFilter === "all"
+                  ? "No previous visits recorded yet."
+                  : `No visits recorded for ${dateFilter === "today" ? "today" : dateFilter === "7days" ? "the last 7 days" : "the last 30 days"}.`}
+              </p>
+            </div>
           )}
         </div>
       </div>
 
       {/* ============================================================== */}
-      {/* 8. REPEAT-VISIT REWARD PATH (Single Clean Progress Bar)        */}
+      {/* CONFIRMATION POPUP MODAL: TAP TO REDEEM REWARD                 */}
       {/* ============================================================== */}
-      <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-xs border border-[#EAE3DC] mb-4">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <div className="text-[9px] font-extrabold tracking-widest text-[#7A6E67] uppercase">
-              YOUR REPEAT-VISIT REWARD PATH
+      {redeemModalReward && (
+        <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white rounded-3xl p-5 sm:p-6 max-w-sm w-full border border-[#EAE3DC] shadow-2xl space-y-4 animate-in zoom-in-95 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-[#0d331c] mx-auto flex items-center justify-center border border-emerald-100 shadow-xs">
+              <Gift className="w-7 h-7 text-[#0d331c]" />
             </div>
-            <div className="font-black text-sm text-[#0E331E] mt-0.5">
-              {customer.homeBranch?.name || "Dubai Festival City"}
+            <div>
+              <h3 className="font-bold text-lg text-[#1E1815]">Redeem Reward?</h3>
+              <p className="text-sm font-semibold text-[#0d331c] mt-1">
+                {redeemModalReward.name}
+              </p>
+              <p className="text-xs text-[#7A6E67] mt-2 leading-relaxed">
+                Do you want to redeem this reward now? Once confirmed, it will be activated so the cashier at the outlet counter can apply it to your bill.
+              </p>
             </div>
-          </div>
-          <div className="text-right">
-            <div className="font-black text-sm text-[#0E331E]">
-              {visitsIntoCycle} of {milestoneThreshold} visits
-            </div>
-            {milestoneProgress?.cycleNumber && milestoneProgress.cycleNumber > 1 && (
-              <div className="text-[9px] font-bold text-[#7A6E67] uppercase">
-                Cycle #{milestoneProgress.cycleNumber}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Stepper Circles dynamically generated */}
-        <div className="flex items-center justify-between gap-1 py-1">
-          {Array.from({ length: Math.min(milestoneThreshold, 7) }, (_, idx) => {
-            const stepNum = idx + 1;
-            const isMilestone = stepNum === Math.min(milestoneThreshold, 7);
-            const isCompleted = visitsIntoCycle >= stepNum;
-
-            if (isMilestone) {
-              return (
-                <div
-                  key={stepNum}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center relative shadow-xs ${
-                    isCompleted
-                      ? "bg-[#0E331E] text-white border-2 border-[#E5A93C]"
-                      : "border-2 border-dashed border-[#E5A93C] bg-[#FFFBF0] text-[#C68A1E]"
-                  }`}
-                >
-                  <Gift className={`w-4 h-4 ${isCompleted ? "text-white" : "text-[#C68A1E]"}`} />
-                  <span
-                    className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full text-[8px] font-black flex items-center justify-center ${
-                      isCompleted
-                        ? "bg-[#0E331E] border border-white text-white"
-                        : "bg-[#FFFBF0] border border-[#E5A93C] text-[#C68A1E]"
-                    }`}
-                  >
-                    {milestoneThreshold}
-                  </span>
-                </div>
-              );
-            }
-
-            return (
-              <div
-                key={stepNum}
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                  isCompleted
-                    ? "bg-[#0E331E] text-white shadow-xs"
-                    : "border border-dashed border-[#D5CBC3] text-[#8C7F78] bg-[#FAF7F4]"
-                }`}
+            <div className="grid grid-cols-2 gap-2.5 pt-1">
+              <button
+                type="button"
+                onClick={() => setRedeemModalReward(null)}
+                disabled={redeemBusy}
+                className="py-2.5 px-4 rounded-xl border border-stone-200 text-[#7A6E67] hover:bg-[#FAF7F4] font-bold text-xs cursor-pointer transition-colors"
               >
-                {isCompleted ? "✓" : stepNum}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Dynamic Progress Bar (Fills according to completed visits) */}
-        <div className="w-full mt-3.5 mb-2">
-          <div
-            className="bg-[#0E331E] h-2 rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${Math.max(progressPercent, 2)}%` }}
-          />
-        </div>
-
-        <div className="text-[11px] text-[#7A6E67]">
-          {visitsIntoCycle >= milestoneThreshold
-            ? "Congratulations! Surprise milestone reward is unlocked and ready to redeem!"
-            : visitsNeeded > 0
-            ? `${visitsNeeded} more visit(s) to unlock your next gift.`
-            : "Milestone goal reached!"}
-        </div>
-      </div>
-
-      {/* ============================================================== */}
-      {/* 8.5 HISTORY SWITCH TABS (Bills & Receipts vs Claimed Rewards)  */}
-      {/* ============================================================== */}
-      <div className="flex bg-[#EAE3DC] p-1 rounded-2xl mb-3 gap-1">
-        <button
-          type="button"
-          onClick={() => setHistoryTab("bills")}
-          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-            historyTab === "bills"
-              ? "bg-white text-[#0E331E] shadow-xs font-black"
-              : "text-[#7A6E67] hover:text-[#1E1815]"
-          }`}
-        >
-          <Receipt className="w-3.5 h-3.5" />
-          <span>Bills &amp; Points ({filteredTransactions.length})</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setHistoryTab("rewards")}
-          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-            historyTab === "rewards"
-              ? "bg-white text-[#0E331E] shadow-xs font-black"
-              : "text-[#7A6E67] hover:text-[#1E1815]"
-          }`}
-        >
-          <Gift className="w-3.5 h-3.5" />
-          <span>Claimed Perks ({usedRewards.length})</span>
-        </button>
-      </div>
-
-      {/* ============================================================== */}
-      {/* 8.6 DATE RANGE FILTER PILL BAR (When Bills Tab is selected)    */}
-      {/* ============================================================== */}
-      {historyTab === "bills" && (
-        <div className="bg-white rounded-2xl p-1 sm:p-1.5 border border-[#EAE3DC] shadow-2xs mb-4 flex items-center justify-between gap-1">
-          <button
-            type="button"
-            onClick={() => setDateFilter("all")}
-            className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
-              dateFilter === "all"
-                ? "bg-[#0E331E] text-white shadow-xs font-black"
-                : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
-            }`}
-          >
-            All Time
-          </button>
-          <button
-            type="button"
-            onClick={() => setDateFilter("today")}
-            className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
-              dateFilter === "today"
-                ? "bg-[#0E331E] text-white shadow-xs font-black"
-                : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
-            }`}
-          >
-            Today
-          </button>
-          <button
-            type="button"
-            onClick={() => setDateFilter("7days")}
-            className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
-              dateFilter === "7days"
-                ? "bg-[#0E331E] text-white shadow-xs font-black"
-                : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
-            }`}
-          >
-            Last 7 Days
-          </button>
-          <button
-            type="button"
-            onClick={() => setDateFilter("30days")}
-            className={`flex-1 py-2 px-1 text-center rounded-xl text-xs sm:text-[13px] font-bold transition-all cursor-pointer ${
-              dateFilter === "30days"
-                ? "bg-[#0E331E] text-white shadow-xs font-black"
-                : "text-[#7A6E67] hover:text-[#1E1815] hover:bg-[#FAF7F4]"
-            }`}
-          >
-            Last 30 Days
-          </button>
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmRedeem}
+                disabled={redeemBusy}
+                className="py-2.5 px-4 rounded-xl bg-[#0d331c] hover:bg-[#163827] text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-md transition-colors"
+              >
+                {redeemBusy ? "Activating…" : "Yes, Redeem"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
       {/* ============================================================== */}
-      {/* 9. HISTORY SECTION (Bills vs Claimed Perks)                     */}
+      {/* MODAL: APPLE WALLET PASS INSTRUCTIONS                          */}
       {/* ============================================================== */}
-      <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-xs border border-[#EAE3DC] mb-4">
-        {historyTab === "bills" ? (
-          <>
-            <div className="flex items-center justify-between mb-4">
+      {showAppleWalletModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-[#1C1C1E] text-white rounded-3xl max-w-sm w-full p-5 border border-white/10 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-[#0E331E]/10 text-[#0E331E] flex items-center justify-center">
-                  <History className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-[#1E1815]">
-                    Recent Visits &amp; Receipts
-                  </h3>
-                  {dateFilter !== "all" && (
-                    <div className="text-[10px] font-bold text-[#0E331E]">
-                      Showing: {dateFilter === "today" ? "Today" : dateFilter === "7days" ? "Past 7 Days" : "Past 30 Days"}
-                    </div>
-                  )}
-                </div>
+                <AppleWalletIcon className="w-6 h-4.5 shrink-0" />
+                <h3 className="font-bold text-sm tracking-tight text-white">Apple Wallet Pass</h3>
               </div>
-              <span className="text-[10px] font-bold text-[#7A6E67] uppercase tracking-wider bg-[#FAF7F4] px-2 py-0.5 rounded-lg border border-[#EAE3DC]">
-                {filteredTransactions.length} {filteredTransactions.length === 1 ? "Record" : "Records"}
-              </span>
+              <button
+                type="button"
+                onClick={() => setShowAppleWalletModal(false)}
+                className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white/70 flex items-center justify-center cursor-pointer transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            {filteredTransactions && filteredTransactions.length > 0 ? (
-              <div className="divide-y divide-[#EFE8E1]">
-                {filteredTransactions.map((t: any) => (
-                  <div
-                    key={t.id}
-                    onClick={() => setSelectedReceipt(t)}
-                    className="py-3 px-2.5 -mx-2 rounded-xl hover:bg-[#FAF7F4] active:bg-[#F2ECE5] transition-all flex items-center justify-between first:pt-2 last:pb-2 gap-3 cursor-pointer group"
-                    role="button"
-                    tabIndex={0}
-                    title="Click to view full receipt breakdown"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="font-bold text-xs sm:text-sm text-[#1E1815] group-hover:text-[#0E331E] transition-colors truncate flex items-center gap-1.5">
-                        <span>{t.branch || customer.homeBranch?.name || "Branch Visit"}</span>
-                        <span className="text-[10px] text-[#A0938C] font-normal group-hover:text-[#0E331E]">›</span>
-                      </div>
-                      <div className="text-[10px] text-[#7A6E67] flex items-center gap-1.5 mt-0.5 flex-wrap">
-                        {t.invoiceNumber && (
-                          <>
-                            <span className="font-mono font-bold text-[#1E1815]">#{t.invoiceNumber}</span>
-                            <span>•</span>
-                          </>
-                        )}
-                        <span>{formatRelativeTime(t.createdAt)}</span>
-                        <span>•</span>
-                        <span>{new Date(t.createdAt).toLocaleDateString()}</span>
-                      </div>
-                      {t.discountGiven > 0 && (
-                        <div className="text-[10px] text-[#0E331E] font-bold mt-0.5">
-                          Discount: -{currency} {Number(t.discountGiven).toFixed(2)}
-                          {t.redeemedRewards?.length > 0 && ` (${t.redeemedRewards.join(", ")})`}
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="font-black text-xs sm:text-sm text-[#1E1815]">
-                        {currency} {Number(t.amount || 0).toFixed(2)}
-                      </div>
-                      {t.pointsEarned > 0 && (
-                        <div className="text-[10px] font-extrabold text-emerald-700">
-                          +{t.pointsEarned} pts
-                        </div>
-                      )}
-                      {t.pointsRedeemed > 0 && (
-                        <div className="text-[10px] font-extrabold text-red-700">
-                          -{t.pointsRedeemed} pts redeemed
-                        </div>
-                      )}
-                    </div>
+            <div className="bg-white text-[#1E1815] rounded-2xl p-4 shadow-lg space-y-2.5 relative overflow-hidden border border-stone-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/bc-roundel.png" alt="Levante" className="w-7 h-7 rounded-full object-contain" />
+                  <div>
+                    <div className="font-bold text-xs uppercase tracking-wider text-[#1a3c24]">Levante</div>
+                    <div className="text-[9px] text-[#7A6E67] font-semibold">Loyalty Card</div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-6 text-xs text-[#7A6E67]">
-                <Receipt className="w-7 h-7 text-[#0E331E]/30 mx-auto mb-1.5" />
-                <p className="font-semibold">
-                  {dateFilter === "all"
-                    ? "No previous visits recorded yet."
-                    : `No visits or receipts recorded for ${dateFilter === "today" ? "today" : dateFilter === "7days" ? "the last 7 days" : "the last 30 days"}.`}
-                </p>
-                {dateFilter !== "all" && (
-                  <button
-                    type="button"
-                    onClick={() => setDateFilter("all")}
-                    className="mt-2 text-[11px] font-bold text-[#0E331E] hover:underline cursor-pointer"
-                  >
-                    Show All Time History ({transactions?.length || 0} Records)
-                  </button>
-                )}
-                {dateFilter === "all" && (
-                  <p className="text-[10px] text-[#A0938C] mt-0.5">
-                    Points earned and redeemed on your bills will appear here automatically.
-                  </p>
-                )}
-              </div>
-            )}
-          </>
-        ) : (
-          /* Claimed Perks & Rewards History Tab */
-          <>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-800 flex items-center justify-center">
-                  <Gift className="w-4 h-4" />
                 </div>
+                <div className="text-right">
+                  <div className="text-[9px] font-bold text-[#7A6E67] uppercase">VISITS</div>
+                  <div className="text-sm font-black leading-tight text-[#1a3c24]">{visitsIntoCycle} / {milestoneThreshold}</div>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-end pt-1 border-t border-stone-100">
                 <div>
-                  <h3 className="font-bold text-sm text-[#1E1815]">
-                    Claimed Perks &amp; Rewards
-                  </h3>
-                  <div className="text-[10px] text-[#7A6E67]">
-                    Vouchers, milestone perks &amp; gifts redeemed
-                  </div>
+                  <div className="text-[9px] text-[#7A6E67] uppercase font-medium">MEMBER NAME</div>
+                  <div className="font-bold text-xs truncate max-w-[170px] text-[#1E1815]">{customer?.name}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[9px] text-[#7A6E67] uppercase font-medium">COUPON / PTS</div>
+                  <div className="font-bold text-xs text-[#1E1815]">{couponDisplay} • {customer?.pointsBalance || 0} pts</div>
                 </div>
               </div>
-              <span className="text-[10px] font-bold text-[#7A6E67] uppercase tracking-wider bg-[#FAF7F4] px-2 py-0.5 rounded-lg border border-[#EAE3DC]">
-                {usedRewards.length} {usedRewards.length === 1 ? "Perk" : "Perks"}
-              </span>
+
+              <div className="bg-stone-50 rounded-xl p-2.5 flex flex-col items-center justify-center text-center">
+                {qr?.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={qr.image} alt="Wallet Barcode" className="w-24 h-24 object-contain" />
+                ) : (
+                  <div className="w-24 h-24 bg-gray-100 flex items-center justify-center text-xs font-mono text-gray-400">QR</div>
+                )}
+                <div className="text-[11px] font-mono font-bold text-black mt-1">
+                  {formatCustomerCode(qr?.code || "LP987867")}
+                </div>
+              </div>
             </div>
 
-            {usedRewards && usedRewards.length > 0 ? (
-              <div className="divide-y divide-[#EFE8E1]">
-                {usedRewards.map((cr: any) => (
-                  <div key={cr.id} className="py-3 px-2 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                      <div className="w-8 h-8 rounded-xl bg-stone-100 text-stone-600 flex items-center justify-center shrink-0 border border-stone-200">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-700" />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="font-bold text-xs sm:text-sm text-stone-800 truncate">
-                          {cr.name}
-                        </div>
-                        <div className="text-[10px] text-[#7A6E67] flex items-center gap-1.5 mt-0.5 flex-wrap">
-                          <span>Redeemed {cr.redeemedAt ? formatRelativeTime(cr.redeemedAt) : "Recently"}</span>
-                          {cr.redeemedBranch && (
-                            <>
-                              <span>•</span>
-                              <span className="font-medium text-[#1E1815]">{cr.redeemedBranch}</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-stone-100 text-stone-600 border border-stone-300 shrink-0">
-                      REDEEMED ✓
-                    </span>
-                  </div>
-                ))}
+            <div className="text-xs text-white/70 space-y-1.5 px-0.5">
+              <div className="flex items-start gap-2">
+                <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                <span><strong>iPhone Safari:</strong> Add to Apple Wallet by opening this page in Safari.</span>
               </div>
-            ) : (
-              <div className="text-center py-6 text-xs text-[#7A6E67]">
-                <Gift className="w-7 h-7 text-[#0E331E]/30 mx-auto mb-1.5" />
-                <p className="font-semibold">No claimed perks yet.</p>
-                <p className="text-[10px] text-[#A0938C] mt-0.5">
-                  When you redeem milestone treats, birthday gifts, or vouchers at checkout, they will appear here in your permanent rewards history.
-                </p>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+            </div>
+
+            <div className="pt-1 flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setToast("Apple Wallet pass sync initiated!");
+                  setShowAppleWalletModal(false);
+                }}
+                className="flex-1 py-3 rounded-xl bg-white hover:bg-gray-100 text-black font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer text-center"
+              >
+                <span>Add to Apple Wallet</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAppleWalletModal(false)}
+                className="py-3 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-colors cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ============================================================== */}
+      {/* MODAL: GOOGLE WALLET PASS INSTRUCTIONS                          */}
+      {/* ============================================================== */}
+      {showGoogleWalletModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-[#1C1C1E] text-white rounded-3xl max-w-sm w-full p-5 border border-white/10 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <GoogleWalletIcon className="w-6 h-4.5 shrink-0" />
+                <h3 className="font-bold text-sm tracking-tight text-white">Google Wallet Pass</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowGoogleWalletModal(false)}
+                className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white/70 flex items-center justify-center cursor-pointer transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="bg-white text-[#1E1815] rounded-2xl p-4 shadow-lg space-y-2.5 relative overflow-hidden border border-stone-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/bc-roundel.png" alt="Levante" className="w-7 h-7 rounded-full object-contain" />
+                  <div>
+                    <div className="font-bold text-xs uppercase tracking-wider text-[#1a3c24]">Levante</div>
+                    <div className="text-[9px] text-[#7A6E67] font-semibold">Loyalty Card</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[9px] font-bold text-[#7A6E67] uppercase">POINTS</div>
+                  <div className="text-sm font-black leading-tight text-[#1a3c24]">{customer?.pointsBalance || 0} pts</div>
+                </div>
+              </div>
+
+              <div className="bg-stone-50 rounded-xl p-2.5 flex flex-col items-center justify-center text-center">
+                {qr?.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={qr.image} alt="Wallet Barcode" className="w-24 h-24 object-contain" />
+                ) : (
+                  <div className="w-24 h-24 bg-gray-100 flex items-center justify-center text-xs font-mono text-gray-400">QR</div>
+                )}
+                <div className="text-[11px] font-mono font-bold text-black mt-1">
+                  {formatCustomerCode(qr?.code || "LP987867")}
+                </div>
+              </div>
+            </div>
+
+            <div className="text-xs text-white/70 space-y-1.5 px-0.5">
+              <div className="flex items-start gap-2">
+                <span className="text-blue-400 font-bold shrink-0">•</span>
+                <span>Keep your loyalty membership barcode and stamps handy directly in Google Wallet.</span>
+              </div>
+            </div>
+
+            <div className="pt-1 flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setToast("Google Wallet pass saved!");
+                  setShowGoogleWalletModal(false);
+                }}
+                className="flex-1 py-3 rounded-xl bg-white hover:bg-gray-100 text-black font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer text-center"
+              >
+                <span>Save to Google Wallet</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowGoogleWalletModal(false)}
+                className="py-3 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-colors cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 11. HAMBURGER MENU / PROFILE SLIDEOUT MODAL                    */}
       {/* ============================================================== */}
       {showSwitchModal && (

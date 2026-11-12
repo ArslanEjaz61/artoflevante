@@ -119,36 +119,36 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
       <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFile} />
       <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
 
-      {/* the card on the dashboard */}
-      <div className="rounded-3xl bg-white shadow-sm mb-4 overflow-hidden border border-[#0E331E]/10">
-        <div className="px-4.5 sm:px-6 pt-4 pb-3.5 flex items-center gap-3.5">
-          <div className="relative w-12 h-12 rounded-2xl bg-[#0E331E] text-[#F5EFE0] flex items-center justify-center shrink-0 shadow-md shadow-[#0E331E]/25">
-            <ReceiptText className="w-6 h-6" />
-            <ScanLine className="w-4 h-4 absolute -right-1 -bottom-1 bg-[#CC8820] text-white rounded-md p-0.5" />
+      {/* Scan your receipt banner matching reference design */}
+      <div className="py-2.5 my-3 flex flex-col xs:flex-row xs:items-center justify-between gap-2.5">
+        <div className="flex items-center gap-2.5">
+          <div className="w-10 h-10 rounded-xl bg-white text-[#163827] flex items-center justify-center shrink-0 border border-stone-200/80 shadow-2xs">
+            <ReceiptText className="w-5 h-5 stroke-[1.8]" />
           </div>
-          <div className="min-w-0">
-            <div className="font-display font-extrabold text-[#0E331E] text-[17px] sm:text-[19px] leading-tight">Scan your receipt</div>
-            <p className="font-display text-[12.5px] sm:text-[13.5px] text-[#8A7F7C] leading-snug mt-0.5">
-              Snap your Levante bill and the points land in your account.
+          <div>
+            <div className="font-sans font-bold text-xs sm:text-sm text-[#1E1815] leading-tight">Scan your reciept</div>
+            <p className="font-sans text-[10px] sm:text-[11px] text-[#1E1815]/75 mt-0.5">
+              And add points to your account.
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2 px-4.5 sm:px-6 pb-4">
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             type="button"
             onClick={() => cameraRef.current?.click()}
-            className="bg-[#0E331E] hover:bg-[#0A2617] text-[#F5EFE0] rounded-2xl py-3 px-3 font-display font-bold text-[14.5px] flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-[0.99]"
+            className="bg-black hover:bg-stone-900 text-white rounded-xl py-2 px-3 text-[11px] sm:text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95"
           >
-            <Camera className="w-[18px] h-[18px] shrink-0" />
-            Open camera
+            <Camera className="w-3.5 h-3.5" />
+            <span>Open Camera</span>
           </button>
+          <span className="text-[11px] text-[#1E1815] font-semibold px-0.5">or</span>
           <button
             type="button"
             onClick={() => galleryRef.current?.click()}
-            className="bg-[#FAF7F4] hover:bg-[#F3ECE6] text-[#0E331E] rounded-2xl py-3 px-3 font-display font-bold text-[14.5px] flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-[0.99] border border-[#0E331E]/15"
+            className="bg-black hover:bg-stone-900 text-white rounded-xl py-2 px-3 text-[11px] sm:text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95"
           >
-            <ImageUp className="w-[18px] h-[18px] shrink-0" />
-            Upload photo
+            <ReceiptText className="w-3.5 h-3.5" />
+            <span>Upload Reciept</span>
           </button>
         </div>
       </div>
