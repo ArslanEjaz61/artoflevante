@@ -163,7 +163,7 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-5 pt-4 pb-2">
-              <div className="font-display font-extrabold text-[#0E331E] text-[17px]">
+              <div className="font-inter font-extrabold text-[#0E331E] text-[17px]">
                 {phase.step === "done" ? "Points added" : phase.step === "error" ? "Couldn't use this receipt" : "Your receipt"}
               </div>
               {phase.step !== "reading" && phase.step !== "claiming" && (
@@ -189,7 +189,7 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
 
             <div className="px-5 pb-5" aria-live="polite">
               {phase.step === "reading" && (
-                <div className="flex items-center gap-2.5 py-3 font-display font-bold text-[#4A3F39]">
+                <div className="flex items-center gap-2.5 py-3 font-inter font-bold text-[#4A3F39]">
                   <Loader2 className="w-5 h-5 animate-spin text-[#0E331E]" />
                   Reading your bill…
                 </div>
@@ -204,8 +204,8 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                     </div>
                   </div>
 
-                  <div className="rounded-2xl bg-white border border-[#0E331E]/10 divide-y divide-[#0E331E]/8 font-display text-[14px]">
-                    <Row label="Invoice #" value={<span className="font-mono font-bold">{phase.scan.receipt.invoiceNumber}</span>} />
+                  <div className="rounded-2xl bg-white border border-[#0E331E]/10 divide-y divide-[#0E331E]/8 font-inter text-[14px]">
+                    <Row label="Invoice #" value={<span className="font-bold tabular-nums tracking-wide">{phase.scan.receipt.invoiceNumber}</span>} />
                     <Row label="Date" value={formatDate(phase.scan.receipt.date)} />
                     <Row
                       label="Outlet"
@@ -241,14 +241,14 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
 
                   <div className="mt-3 rounded-2xl bg-[#0E331E] text-[#F5EFE0] px-4 py-3 flex items-center justify-between">
                     <div>
-                      <span className="font-display font-bold text-[14px] block">You&apos;ll earn</span>
+                      <span className="font-inter font-bold text-[14px] block">You&apos;ll earn</span>
                       <span className="text-[11px] text-[#F5EFE0]/80 font-medium">+1 Visit Stamp included</span>
                     </div>
-                    <span className="font-display font-extrabold text-[#F2C76B] text-[26px] leading-none">+{phase.scan.pointsToEarn} pts</span>
+                    <span className="font-inter font-extrabold text-[#F2C76B] text-[26px] leading-none">+{phase.scan.pointsToEarn} pts</span>
                   </div>
 
                   {!phase.scan.branch && (
-                    <p className="text-[12px] text-[#8A7F7C] mt-2 font-display">We couldn&apos;t tell which outlet this bill is from. Please pick it above.</p>
+                    <p className="text-[12px] text-[#8A7F7C] mt-2 font-inter">We couldn&apos;t tell which outlet this bill is from. Please pick it above.</p>
                   )}
 
                   <div className="grid grid-cols-[auto_1fr] gap-2 mt-4">
@@ -256,7 +256,7 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                       type="button"
                       onClick={retake}
                       disabled={phase.step === "claiming"}
-                      className="px-4 py-3 rounded-2xl border border-[#0E331E]/20 text-[#0E331E] font-display font-bold text-[14px] flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      className="px-4 py-3 rounded-2xl border border-[#0E331E]/20 text-[#0E331E] font-inter font-bold text-[14px] flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                     >
                       <RotateCcw className="w-4 h-4" /> Retake
                     </button>
@@ -264,13 +264,13 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                       type="button"
                       onClick={() => claim(phase.photo, phase.scan)}
                       disabled={phase.step === "claiming" || (!phase.scan.branch && !branchId)}
-                      className="py-3 rounded-2xl bg-[#CC8820] hover:bg-[#b5781b] text-white font-display font-extrabold text-[15px] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 transition-colors"
+                      className="py-3 rounded-2xl bg-[#CC8820] hover:bg-[#b5781b] text-white font-inter font-extrabold text-[15px] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 transition-colors"
                     >
                       {phase.step === "claiming" ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
                       {phase.step === "claiming" ? "Claiming visit & points…" : `Add ${phase.scan.pointsToEarn} pts + 1 Visit`}
                     </button>
                   </div>
-                  <p className="text-[11px] text-[#8A7F7C] mt-2.5 font-display text-center">
+                  <p className="text-[11px] text-[#8A7F7C] mt-2.5 font-inter text-center">
                     Numbers wrong? Retake the photo flat and in good light.
                   </p>
                 </>
@@ -281,27 +281,27 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                   <div className="bc-receipt-pop mx-auto w-20 h-20 rounded-full bg-[#0E331E] flex items-center justify-center shadow-lg shadow-[#0E331E]/30">
                     <CheckCircle2 className="w-11 h-11 text-[#F2C76B]" />
                   </div>
-                  <div className="font-display font-extrabold text-[#CC8820] text-[36px] sm:text-[40px] leading-none mt-4">
+                  <div className="font-inter font-extrabold text-[#CC8820] text-[36px] sm:text-[40px] leading-none mt-4">
                     +{phase.result.transaction?.pointsEarned ?? 0} pts
                   </div>
-                  <div className="font-display font-bold text-[#0E331E] text-[15px] mt-1">
+                  <div className="font-inter font-bold text-[#0E331E] text-[15px] mt-1">
                     Points &amp; +1 Visit Stamp Added!
                   </div>
-                  <p className="font-display text-[13px] text-[#4A3F39] mt-2">
+                  <p className="font-inter text-[13px] text-[#4A3F39] mt-2">
                     Invoice #{phase.result.transaction?.invoiceNumber} · {phase.result.transaction?.branchName}
                   </p>
                   <div className="mt-3 flex items-center justify-center gap-2 flex-wrap">
-                    <div className="inline-flex items-center gap-1.5 rounded-full bg-[#FAF2E2] px-3.5 py-1.5 font-display text-[12.5px] font-bold text-[#8A5600]">
+                    <div className="inline-flex items-center gap-1.5 rounded-full bg-[#FAF2E2] px-3.5 py-1.5 font-inter text-[12.5px] font-bold text-[#8A5600]">
                       Points: {phase.result.customer?.pointsBalance ?? "—"} pts
                     </div>
-                    <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 px-3.5 py-1.5 font-display text-[12.5px] font-bold text-emerald-800">
+                    <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 px-3.5 py-1.5 font-inter text-[12.5px] font-bold text-emerald-800">
                       Total Visits: {phase.result.customer?.visitCount ?? "—"} visits
                     </div>
                   </div>
                   {phase.result.newRewards?.length > 0 && (
                     <div className="mt-3 rounded-2xl border-2 border-[#E5A93C] bg-[#FFF8EA] p-3 text-left">
                       {phase.result.newRewards.map((r: any) => (
-                        <div key={r.id} className="flex items-center gap-2 font-display text-[13.5px] font-bold text-[#8A5600]">
+                        <div key={r.id} className="flex items-center gap-2 font-inter text-[13.5px] font-bold text-[#8A5600]">
                           <Gift className="w-4 h-4 shrink-0" /> Unlocked: {r.name}
                         </div>
                       ))}
@@ -310,7 +310,7 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                   <button
                     type="button"
                     onClick={close}
-                    className="w-full mt-5 py-3 rounded-2xl bg-[#0E331E] text-[#F5EFE0] font-display font-extrabold text-[15px] cursor-pointer"
+                    className="w-full mt-5 py-3 rounded-2xl bg-[#0E331E] text-[#F5EFE0] font-inter font-extrabold text-[15px] cursor-pointer"
                   >
                     Done
                   </button>
@@ -327,7 +327,7 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                       <span className="inline-block px-3 py-1 rounded-full bg-red-100 text-red-800 text-[10px] font-black uppercase tracking-wider">
                         DUPLICATE BILL DETECTED
                       </span>
-                      <h4 className="font-display font-black text-lg text-[#1E1815]">
+                      <h4 className="font-inter font-black text-lg text-[#1E1815]">
                         Invoice Already Registered
                       </h4>
                       <div className="bg-red-50 border border-red-200 rounded-2xl p-3.5 text-xs font-bold text-red-900 leading-relaxed text-center">
@@ -338,7 +338,7 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                       </p>
                     </div>
                   ) : (
-                    <div className="flex items-start gap-2.5 rounded-2xl bg-[#FBEDEA] border border-[#0E331E]/15 p-3.5 font-display text-[14px] text-[#0A2617]">
+                    <div className="flex items-start gap-2.5 rounded-2xl bg-[#FBEDEA] border border-[#0E331E]/15 p-3.5 font-inter text-[14px] text-[#0A2617]">
                       <AlertCircle className="w-5 h-5 shrink-0 mt-px" />
                       <span>{phase.message}</span>
                     </div>
@@ -347,14 +347,14 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
                     <button
                       type="button"
                       onClick={close}
-                      className="py-3 rounded-2xl border border-[#0E331E]/20 text-[#0E331E] font-display font-bold text-[14px] cursor-pointer"
+                      className="py-3 rounded-2xl border border-[#0E331E]/20 text-[#0E331E] font-inter font-bold text-[14px] cursor-pointer"
                     >
                       Close
                     </button>
                     <button
                       type="button"
                       onClick={retake}
-                      className="py-3 rounded-2xl bg-[#0E331E] text-[#F5EFE0] font-display font-bold text-[14px] flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="py-3 rounded-2xl bg-[#0E331E] text-[#F5EFE0] font-inter font-bold text-[14px] flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <Camera className="w-4 h-4" /> Try again
                     </button>
@@ -372,7 +372,7 @@ export default function ReceiptScanner({ onClaimed }: { onClaimed: () => void })
 function Row({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3 px-4 py-2.5">
-      <span className="text-[#8A7F7C] font-semibold">{label}</span>
+      <span className="text-[#8A7F7C] font-medium">{label}</span>
       <span className="text-[#221C1A] font-semibold text-right">{value}</span>
     </div>
   );

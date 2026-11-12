@@ -42,6 +42,7 @@ import { InstallGuideModal } from "@/components/InstallGuideModal";
 import ReceiptScanner from "@/components/ReceiptScanner";
 import { AppleWalletIcon, GoogleWalletIcon } from "@/components/WalletIcons";
 import CustomerDesignB from "@/components/customer/CustomerDesignB";
+import WalletCardPreview from "@/components/customer/WalletCardPreview";
 import "./customer-dashboard.css";
 import { CountryCodePicker } from "@/components/CountryCodePicker";
 import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/mobile";
@@ -956,7 +957,7 @@ export default function CustomerDashboardPage() {
       {/* ============================================================== */}
       {showAppleWalletModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-[#1C1C1E] text-white rounded-3xl max-w-sm w-full p-5 border border-white/10 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
+          <div className="bg-[#1C1C1E] text-white rounded-3xl max-w-sm w-full max-h-[94dvh] overflow-y-auto p-5 border border-white/10 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
                 <AppleWalletIcon className="w-6 h-4.5 shrink-0" />
@@ -971,80 +972,15 @@ export default function CustomerDashboardPage() {
               </button>
             </div>
 
-            {/* Unified Card matching Image 3 (100% same to same) */}
-            <div className="bg-white rounded-2xl p-4 shadow-lg border border-[#E8E2D7] relative overflow-hidden text-[#1E1815]">
-              {/* Subtle Watermark */}
-              <div className="absolute right-0 top-0 bottom-0 w-36 pointer-events-none select-none z-0 overflow-hidden flex items-center justify-end">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/watermark-top.png" alt="" className="h-[110%] w-auto object-contain opacity-90" />
-              </div>
-
-              {/* Header: LEVANTE */}
-              <div className="flex flex-col items-start justify-center pt-0.5 mb-2.5 relative z-10">
-                <div className="font-blossom tracking-[0.12em] text-xl font-normal text-[#1E1815] leading-none">
-                  LEVANTE
-                </div>
-                <div className="text-[6.5px] tracking-[0.25em] uppercase text-[#7A6A68] mt-0.5 font-sans font-medium">
-                  COFFEE • FLOWERS • CHOCOLATE
-                </div>
-              </div>
-
-              {/* 5 Stamps Row */}
-              <div className="relative z-10 my-2.5 flex items-center justify-between gap-1">
-                {Array.from({ length: 5 }).map((_, i) => {
-                  const isFilled = i < stampsEarned;
-                  return (
-                    <div
-                      key={i}
-                      className="w-9 h-9 rounded-full border-[1.5px] border-[#8E7E7C] flex items-center justify-center bg-transparent overflow-hidden shrink-0"
-                    >
-                      {isFilled && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src="/levante-stamp.png" alt="Stamp" className="w-7 h-7 object-contain" />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Customer Details */}
-              <div className="flex items-end justify-between gap-2 pt-1 pb-2 relative z-10">
-                <div className="min-w-0 flex-1 pr-1">
-                  <div className="text-[9px] font-medium text-[#7A6A68] leading-tight">Full Name</div>
-                  <div className="text-[13px] font-bold text-[#1E1815] leading-snug tracking-tight truncate">
-                    {customer?.name || "Bilal Chishty"}
-                  </div>
-                </div>
-                <div className="text-right shrink-0 whitespace-nowrap">
-                  <div className="text-[9px] font-bold text-[#1E1815] leading-tight">
-                    Cupon: {couponDisplay}
-                  </div>
-                  <div className="text-[9px] font-bold text-[#1E1815] leading-tight mt-0.5">
-                    Loyality Points: {customer?.pointsBalance ?? 0}
-                  </div>
-                </div>
-              </div>
-
-              {/* QR Code */}
-              <div className="pt-1.5 flex flex-col items-center justify-center relative z-10">
-                <div className="relative p-1.5 inline-block">
-                  <span className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#1E1815]" />
-                  <span className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#1E1815]" />
-                  <span className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#1E1815]" />
-                  <span className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#1E1815]" />
-
-                  {qr?.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={qr.image} alt="QR Code" className="w-24 h-24 mix-blend-multiply object-contain block" />
-                  ) : (
-                    <div className="w-24 h-24 bg-stone-100 flex items-center justify-center text-xs font-mono">QR</div>
-                  )}
-                </div>
-                <div className="mt-1.5 text-center font-bold text-xs tracking-wider text-[#1E1815]">
-                  {formatCustomerCode(qr?.code || "LP987867")}
-                </div>
-              </div>
-            </div>
+            <WalletCardPreview
+              name={customer?.name || "Member"}
+              points={customer?.pointsBalance ?? 0}
+              couponDisplay={couponDisplay}
+              stampsEarned={stampsEarned}
+              targetStamps={targetStamps}
+              qrImage={qr?.image}
+              code={formatCustomerCode(qr?.code || "LP987867")}
+            />
 
             <div className="text-xs text-white/70 space-y-1.5 px-0.5">
               <div className="flex items-start gap-2">
@@ -1079,7 +1015,7 @@ export default function CustomerDashboardPage() {
       {/* ============================================================== */}
       {showGoogleWalletModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-[#1C1C1E] text-white rounded-3xl max-w-sm w-full p-5 border border-white/10 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
+          <div className="bg-[#1C1C1E] text-white rounded-3xl max-w-sm w-full max-h-[94dvh] overflow-y-auto p-5 border border-white/10 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
                 <GoogleWalletIcon className="w-6 h-4.5 shrink-0" />
@@ -1094,80 +1030,15 @@ export default function CustomerDashboardPage() {
               </button>
             </div>
 
-            {/* Unified Card matching Image 3 (100% same to same) */}
-            <div className="bg-white rounded-2xl p-4 shadow-lg border border-[#E8E2D7] relative overflow-hidden text-[#1E1815]">
-              {/* Subtle Watermark */}
-              <div className="absolute right-0 top-0 bottom-0 w-36 pointer-events-none select-none z-0 overflow-hidden flex items-center justify-end">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/watermark-top.png" alt="" className="h-[110%] w-auto object-contain opacity-90" />
-              </div>
-
-              {/* Header: LEVANTE */}
-              <div className="flex flex-col items-start justify-center pt-0.5 mb-2.5 relative z-10">
-                <div className="font-blossom tracking-[0.12em] text-xl font-normal text-[#1E1815] leading-none">
-                  LEVANTE
-                </div>
-                <div className="text-[6.5px] tracking-[0.25em] uppercase text-[#7A6A68] mt-0.5 font-sans font-medium">
-                  COFFEE • FLOWERS • CHOCOLATE
-                </div>
-              </div>
-
-              {/* 5 Stamps Row */}
-              <div className="relative z-10 my-2.5 flex items-center justify-between gap-1">
-                {Array.from({ length: 5 }).map((_, i) => {
-                  const isFilled = i < stampsEarned;
-                  return (
-                    <div
-                      key={i}
-                      className="w-9 h-9 rounded-full border-[1.5px] border-[#8E7E7C] flex items-center justify-center bg-transparent overflow-hidden shrink-0"
-                    >
-                      {isFilled && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src="/levante-stamp.png" alt="Stamp" className="w-7 h-7 object-contain" />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Customer Details */}
-              <div className="flex items-end justify-between gap-2 pt-1 pb-2 relative z-10">
-                <div className="min-w-0 flex-1 pr-1">
-                  <div className="text-[9px] font-medium text-[#7A6A68] leading-tight">Full Name</div>
-                  <div className="text-[13px] font-bold text-[#1E1815] leading-snug tracking-tight truncate">
-                    {customer?.name || "Bilal Chishty"}
-                  </div>
-                </div>
-                <div className="text-right shrink-0 whitespace-nowrap">
-                  <div className="text-[9px] font-bold text-[#1E1815] leading-tight">
-                    Cupon: {couponDisplay}
-                  </div>
-                  <div className="text-[9px] font-bold text-[#1E1815] leading-tight mt-0.5">
-                    Loyality Points: {customer?.pointsBalance ?? 0}
-                  </div>
-                </div>
-              </div>
-
-              {/* QR Code */}
-              <div className="pt-1.5 flex flex-col items-center justify-center relative z-10">
-                <div className="relative p-1.5 inline-block">
-                  <span className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#1E1815]" />
-                  <span className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#1E1815]" />
-                  <span className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#1E1815]" />
-                  <span className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#1E1815]" />
-
-                  {qr?.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={qr.image} alt="QR Code" className="w-24 h-24 mix-blend-multiply object-contain block" />
-                  ) : (
-                    <div className="w-24 h-24 bg-stone-100 flex items-center justify-center text-xs font-mono">QR</div>
-                  )}
-                </div>
-                <div className="mt-1.5 text-center font-bold text-xs tracking-wider text-[#1E1815]">
-                  {formatCustomerCode(qr?.code || "LP987867")}
-                </div>
-              </div>
-            </div>
+            <WalletCardPreview
+              name={customer?.name || "Member"}
+              points={customer?.pointsBalance ?? 0}
+              couponDisplay={couponDisplay}
+              stampsEarned={stampsEarned}
+              targetStamps={targetStamps}
+              qrImage={qr?.image}
+              code={formatCustomerCode(qr?.code || "LP987867")}
+            />
 
             <div className="text-xs text-white/70 space-y-1.5 px-0.5">
               <div className="flex items-start gap-2">

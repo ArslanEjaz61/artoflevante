@@ -43,6 +43,15 @@ async function resizePng(src: Buffer, size: number) {
   return sharp(src).resize(size, size, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer();
 }
 
+/** LEVANTE wordmark sized for the pass logo slot (max 160 x 50 pt), left-aligned. */
+async function wordmarkLogo(src: Buffer, scale: number) {
+  if (!src.length) return src;
+  return sharp(src)
+    .resize(160 * scale, 50 * scale, { fit: "inside", kernel: "lanczos3" })
+    .png()
+    .toBuffer();
+}
+
 function buildPassJson(card: WalletCardData, signer: ApplePassSigner, origin: string | null) {
   const barcode = {
     format: "PKBarcodeFormatQR",
@@ -58,38 +67,30 @@ function buildPassJson(card: WalletCardData, signer: ApplePassSigner, origin: st
     teamIdentifier: signer.teamIdentifier,
     organizationName: "Levante",
     description: "Levante Loyalty Stamp Card",
-    logoText: "LEVANTE",
-    foregroundColor: "rgb(30, 24, 21)",
+    // Matches the wallet-card mockup: LEVANTE wordmark (logo.png), stamps strip, Full Name / Cupon / Points, QR.
+    foregroundColor: "rgb(26, 26, 26)",
     backgroundColor: "rgb(255, 255, 255)",
-    labelColor: "rgb(122, 110, 103)",
+    labelColor: "rgb(26, 26, 26)",
     ...(origin
       ? { webServiceURL: `${origin}${APPLE_WEB_SERVICE_PATH}`, authenticationToken: appleAuthToken(card.customerId) }
       : {}),
     barcodes: [barcode],
     barcode,
     storeCard: {
-      headerFields: [
-        {
-          key: "stamps",
-          label: "STAMPS",
-          value: card.stamps,
-          textAlignment: "PKTextAlignmentRight",
-          changeMessage: "Stamps: %@",
-        },
-      ],
+      headerFields: [],
       primaryFields: [],
       secondaryFields: [
-        { key: "member", label: "FULL NAME", value: card.name },
+        { key: "member", label: "Full Name", value: card.name },
         {
           key: "coupon",
-          label: "COUPON",
+          label: "Cupon",
           value: card.coupon,
           textAlignment: "PKTextAlignmentRight",
           changeMessage: "Coupons: %@",
         },
         {
           key: "points",
-          label: "LOYALTY POINTS",
+          label: "Loyality Points",
           value: card.points,
           textAlignment: "PKTextAlignmentRight",
           changeMessage: "Loyalty points: %@",
@@ -120,26 +121,32 @@ export async function buildApplePass(
   const passJson = Buffer.from(JSON.stringify(buildPassJson(card, signer, publicOrigin(requestOrigin)), null, 2), "utf8");
 
   const iconSrc = readAsset("apple-touch-icon.png", "icon-192.png", "favicon.png", "bc-roundel.png");
-  const roundel = readAsset("bc-roundel.png", "brand_logo.png", "logo.png");
+  const wordmark = readAsset("levante-wordmark.png", "bc-roundel.png");
   const strip = { stampsEarned: card.visitsInCycle, totalStamps: card.threshold, theme: card.theme, variant: "strip" as const };
 
-  const [icon, icon2x, logo, logo2x, stripImg, strip2x] = await Promise.all([
+  const [icon, icon2x, icon3x, logo, logo2x, logo3x, stripImg, strip2x, strip3x] = await Promise.all([
     resizePng(iconSrc, 29),
     resizePng(iconSrc, 58),
-    resizePng(roundel, 50),
-    resizePng(roundel, 100),
+    resizePng(iconSrc, 87),
+    wordmarkLogo(wordmark, 1),
+    wordmarkLogo(wordmark, 2),
+    wordmarkLogo(wordmark, 3),
     generateStampStripImage({ ...strip, scale: 1 }),
     generateStampStripImage({ ...strip, scale: 2 }),
+    generateStampStripImage({ ...strip, scale: 3 }),
   ]);
 
   const files: Record<string, Buffer> = {
     "pass.json": passJson,
     "icon.png": icon,
     "icon@2x.png": icon2x,
+    "icon@3x.png": icon3x,
     "logo.png": logo,
     "logo@2x.png": logo2x,
+    "logo@3x.png": logo3x,
     "strip.png": stripImg,
     "strip@2x.png": strip2x,
+    "strip@3x.png": strip3x,
   };
 
   const zip = new JSZip();
