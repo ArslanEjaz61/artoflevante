@@ -312,7 +312,7 @@ export async function POST(req: NextRequest) {
     try {
       await tx.qrToken.create({
         data: {
-          token: randomCode(8),
+          token: "LP" + Math.floor(100000 + Math.random() * 900000),
           customerId: created.id,
           expiresAt: new Date(Date.now() + 10 * 365 * 86400_000),
         },

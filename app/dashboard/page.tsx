@@ -93,6 +93,8 @@ export default function CustomerDashboardPage() {
   const [redeemBusy, setRedeemBusy] = useState(false);
   const [showAppleWalletModal, setShowAppleWalletModal] = useState(false);
   const [showGoogleWalletModal, setShowGoogleWalletModal] = useState(false);
+  const [googleWalletSaveUrl, setGoogleWalletSaveUrl] = useState<string | null>(null);
+  const [walletLoading, setWalletLoading] = useState<"apple" | "google" | null>(null);
 
   // Promotional Banner Slider & In-App Offer Notification States
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
@@ -375,6 +377,60 @@ export default function CustomerDashboardPage() {
     window.location.href = "/";
   }
 
+  const handleAppleWallet = async () => {
+    try {
+      const isIOS = typeof navigator !== "undefined" && /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const code = qr?.code ? String(qr.code).replace(/\s+/g, "") : "";
+      const passUrl = `/api/card/wallet/apple?code=${encodeURIComponent(code)}`;
+
+      const check = await fetch("/api/card/wallet/apple?check=1").catch(() => null);
+      if (!check?.ok) {
+        setShowAppleWalletModal(true);
+        return;
+      }
+
+      if (isIOS) {
+        window.location.href = passUrl;
+      } else {
+        const a = document.createElement("a");
+        a.href = passUrl;
+        a.download = `Levante-${code || "loyalty"}.pkpass`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setShowAppleWalletModal(true);
+      }
+    } catch {
+      setShowAppleWalletModal(true);
+    }
+  };
+
+  const handleGoogleWallet = async () => {
+    if (googleWalletSaveUrl) {
+      window.location.href = googleWalletSaveUrl;
+      return;
+    }
+
+    try {
+      setWalletLoading("google");
+      const code = qr?.code ? String(qr.code).replace(/\s+/g, "") : "";
+      const res = await fetch(`/api/card/wallet/google?code=${encodeURIComponent(code)}`);
+      const d = await res.json();
+      if (d.saveUrl) {
+        setGoogleWalletSaveUrl(d.saveUrl);
+        window.location.href = d.saveUrl;
+      } else {
+        setGoogleWalletSaveUrl(null);
+        setShowGoogleWalletModal(true);
+      }
+    } catch {
+      setGoogleWalletSaveUrl(null);
+      setShowGoogleWalletModal(true);
+    } finally {
+      setWalletLoading(null);
+    }
+  };
+
   const handleConfirmRedeem = async () => {
     if (!redeemModalReward) return;
     try {
@@ -583,16 +639,13 @@ export default function CustomerDashboardPage() {
   // First name for greeting
   const firstName = customer?.name ? customer.name.trim().split(" ")[0] : "VIP Member";
 
-  // Visit milestone coupon: updates when 5 visits completed (every 5 visits = +1 coupon)
-  const visitCoupons = availableRewards.filter(
-    (r: any) => r.type === "VISITS" || r.name?.toLowerCase().includes("visit") || r.name?.toLowerCase().includes("milestone")
-  );
+  // Visit milestone coupon: cyclical every 5 visits (every 5 visits = +1 coupon and stamps restart for the next cycle)
   const completed5VisitCycles = Math.floor(currentVisits / 5);
-  const couponCount = Math.max(visitCoupons.length, completed5VisitCycles > 0 ? 1 : 0);
+  const couponCount = completed5VisitCycles;
   const couponDisplay = String(couponCount).padStart(2, "0");
 
-  const targetStamps = milestoneThreshold === 6 ? 6 : 5;
-  const stampsEarned = visitsIntoCycle;
+  const targetStamps = 5;
+  const stampsEarned = currentVisits % 5;
 
   // Separate Welcome Discount and Available Gift Rewards
   const welcomeReward = availableRewards.find(
@@ -673,7 +726,8 @@ export default function CustomerDashboardPage() {
         {/* 1. Add to Apple Wallet */}
         <button
           type="button"
-          onClick={() => setShowAppleWalletModal(true)}
+          onClick={handleAppleWallet}
+          disabled={walletLoading === "apple"}
           className="bg-[#151515] hover:bg-[#222222] text-white rounded-xl py-2 px-1 min-[380px]:px-1.5 sm:px-2 flex items-center gap-1.5 min-[380px]:gap-2 cursor-pointer transition-all active:scale-95 shadow-xs"
         >
           <AppleWalletIcon className="w-5 h-4 sm:w-5.5 sm:h-4.5 shrink-0" />
@@ -686,7 +740,8 @@ export default function CustomerDashboardPage() {
         {/* 2. Add to Google Wallet */}
         <button
           type="button"
-          onClick={() => setShowGoogleWalletModal(true)}
+          onClick={handleGoogleWallet}
+          disabled={walletLoading === "google"}
           className="bg-[#151515] hover:bg-[#222222] text-white rounded-xl py-2 px-1 min-[380px]:px-1.5 sm:px-2 flex items-center gap-1.5 min-[380px]:gap-2 cursor-pointer transition-all active:scale-95 shadow-xs"
         >
           <div className="w-5 h-4 sm:w-5.5 sm:h-4.5 shrink-0 flex items-center justify-center">
@@ -694,7 +749,9 @@ export default function CustomerDashboardPage() {
           </div>
           <div className="text-left min-w-0">
             <div className="text-[7.5px] min-[380px]:text-[8px] text-[#A0A0A0] leading-tight font-medium">Add to</div>
-            <div className="text-[9px] min-[380px]:text-[10px] font-bold text-white leading-tight truncate">Google Wallet</div>
+            <div className="text-[9px] min-[380px]:text-[10px] font-bold text-white leading-tight truncate">
+              {walletLoading === "google" ? "Saving..." : "Google Wallet"}
+            </div>
           </div>
         </button>
 
@@ -988,41 +1045,76 @@ export default function CustomerDashboardPage() {
               </button>
             </div>
 
-            <div className="bg-white text-[#1E1815] rounded-2xl p-4 shadow-lg space-y-2.5 relative overflow-hidden border border-stone-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/bc-roundel.png" alt="Levante" className="w-7 h-7 rounded-full object-contain" />
-                  <div>
-                    <div className="font-bold text-xs uppercase tracking-wider text-[#1a3c24]">Levante</div>
-                    <div className="text-[9px] text-[#7A6E67] font-semibold">Loyalty Card</div>
+            {/* Unified Card matching Image 3 (100% same to same) */}
+            <div className="bg-white rounded-2xl p-4 shadow-lg border border-[#E8E2D7] relative overflow-hidden text-[#1E1815]">
+              {/* Subtle Watermark */}
+              <div className="absolute right-0 top-0 bottom-0 w-36 pointer-events-none select-none z-0 overflow-hidden flex items-center justify-end">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/watermark-top.png" alt="" className="h-[110%] w-auto object-contain opacity-90" />
+              </div>
+
+              {/* Header: LEVANTE */}
+              <div className="flex flex-col items-start justify-center pt-0.5 mb-2.5 relative z-10">
+                <div className="font-serif tracking-[0.2em] text-lg font-normal text-[#1E1815] leading-none">
+                  LEVANTE
+                </div>
+                <div className="text-[6.5px] tracking-[0.25em] uppercase text-[#7A6A68] mt-0.5 font-sans font-medium">
+                  COFFEE • FLOWERS • CHOCOLATE
+                </div>
+              </div>
+
+              {/* 5 Stamps Row */}
+              <div className="relative z-10 my-2.5 flex items-center justify-between gap-1">
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const isFilled = i < stampsEarned;
+                  return (
+                    <div
+                      key={i}
+                      className="w-9 h-9 rounded-full border-[1.5px] border-[#8E7E7C] flex items-center justify-center bg-transparent overflow-hidden shrink-0"
+                    >
+                      {isFilled && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src="/levante-stamp.png" alt="Stamp" className="w-7 h-7 object-contain" />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Customer Details */}
+              <div className="flex items-end justify-between gap-2 pt-1 pb-2 relative z-10">
+                <div className="min-w-0 flex-1 pr-1">
+                  <div className="text-[9px] font-medium text-[#7A6A68] leading-tight">Full Name</div>
+                  <div className="text-[13px] font-bold text-[#1E1815] leading-snug tracking-tight truncate">
+                    {customer?.name || "Bilal Chishty"}
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-[9px] font-bold text-[#7A6E67] uppercase">VISITS</div>
-                  <div className="text-sm font-black leading-tight text-[#1a3c24]">{visitsIntoCycle} / {milestoneThreshold}</div>
+                <div className="text-right shrink-0 whitespace-nowrap">
+                  <div className="text-[9px] font-bold text-[#1E1815] leading-tight">
+                    Cupon: {couponDisplay}
+                  </div>
+                  <div className="text-[9px] font-bold text-[#1E1815] leading-tight mt-0.5">
+                    Loyality Points: {customer?.pointsBalance ?? 0}
+                  </div>
                 </div>
               </div>
 
-              <div className="flex justify-between items-end pt-1 border-t border-stone-100">
-                <div>
-                  <div className="text-[9px] text-[#7A6E67] uppercase font-medium">MEMBER NAME</div>
-                  <div className="font-bold text-xs truncate max-w-[170px] text-[#1E1815]">{customer?.name}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-[9px] text-[#7A6E67] uppercase font-medium">COUPON / PTS</div>
-                  <div className="font-bold text-xs text-[#1E1815]">{couponDisplay} • {customer?.pointsBalance || 0} pts</div>
-                </div>
-              </div>
+              {/* QR Code */}
+              <div className="pt-1.5 flex flex-col items-center justify-center relative z-10">
+                <div className="relative p-1.5 inline-block">
+                  <span className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#1E1815]" />
+                  <span className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#1E1815]" />
+                  <span className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#1E1815]" />
+                  <span className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#1E1815]" />
 
-              <div className="bg-stone-50 rounded-xl p-2.5 flex flex-col items-center justify-center text-center">
-                {qr?.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={qr.image} alt="Wallet Barcode" className="w-24 h-24 object-contain" />
-                ) : (
-                  <div className="w-24 h-24 bg-gray-100 flex items-center justify-center text-xs font-mono text-gray-400">QR</div>
-                )}
-                <div className="text-[11px] font-mono font-bold text-black mt-1">
+                  {qr?.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={qr.image} alt="QR Code" className="w-24 h-24 mix-blend-multiply object-contain block" />
+                  ) : (
+                    <div className="w-24 h-24 bg-stone-100 flex items-center justify-center text-xs font-mono">QR</div>
+                  )}
+                </div>
+                <div className="mt-1.5 text-center font-bold text-xs tracking-wider text-[#1E1815]">
                   {formatCustomerCode(qr?.code || "LP987867")}
                 </div>
               </div>
@@ -1031,21 +1123,19 @@ export default function CustomerDashboardPage() {
             <div className="text-xs text-white/70 space-y-1.5 px-0.5">
               <div className="flex items-start gap-2">
                 <span className="text-emerald-400 font-bold shrink-0">✓</span>
-                <span><strong>iPhone Safari:</strong> Add to Apple Wallet by opening this page in Safari.</span>
+                <span><strong>iPhone Safari:</strong> Open in Safari to add your dynamic pass directly to Apple Wallet.</span>
               </div>
             </div>
 
             <div className="pt-1 flex gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setToast("Apple Wallet pass sync initiated!");
-                  setShowAppleWalletModal(false);
-                }}
+              <a
+                href={`/api/card/wallet/apple?code=${encodeURIComponent(qr?.code ? String(qr.code).replace(/\s+/g, "") : "")}`}
+                download={`Levante-${qr?.code || "loyalty"}.pkpass`}
                 className="flex-1 py-3 rounded-xl bg-white hover:bg-gray-100 text-black font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer text-center"
               >
-                <span>Add to Apple Wallet</span>
-              </button>
+                <span>Download .pkpass</span>
+                <Download className="w-3.5 h-3.5" />
+              </a>
               <button
                 type="button"
                 onClick={() => setShowAppleWalletModal(false)}
@@ -1078,30 +1168,76 @@ export default function CustomerDashboardPage() {
               </button>
             </div>
 
-            <div className="bg-white text-[#1E1815] rounded-2xl p-4 shadow-lg space-y-2.5 relative overflow-hidden border border-stone-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/bc-roundel.png" alt="Levante" className="w-7 h-7 rounded-full object-contain" />
-                  <div>
-                    <div className="font-bold text-xs uppercase tracking-wider text-[#1a3c24]">Levante</div>
-                    <div className="text-[9px] text-[#7A6E67] font-semibold">Loyalty Card</div>
-                  </div>
+            {/* Unified Card matching Image 3 (100% same to same) */}
+            <div className="bg-white rounded-2xl p-4 shadow-lg border border-[#E8E2D7] relative overflow-hidden text-[#1E1815]">
+              {/* Subtle Watermark */}
+              <div className="absolute right-0 top-0 bottom-0 w-36 pointer-events-none select-none z-0 overflow-hidden flex items-center justify-end">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/watermark-top.png" alt="" className="h-[110%] w-auto object-contain opacity-90" />
+              </div>
+
+              {/* Header: LEVANTE */}
+              <div className="flex flex-col items-start justify-center pt-0.5 mb-2.5 relative z-10">
+                <div className="font-serif tracking-[0.2em] text-lg font-normal text-[#1E1815] leading-none">
+                  LEVANTE
                 </div>
-                <div className="text-right">
-                  <div className="text-[9px] font-bold text-[#7A6E67] uppercase">POINTS</div>
-                  <div className="text-sm font-black leading-tight text-[#1a3c24]">{customer?.pointsBalance || 0} pts</div>
+                <div className="text-[6.5px] tracking-[0.25em] uppercase text-[#7A6A68] mt-0.5 font-sans font-medium">
+                  COFFEE • FLOWERS • CHOCOLATE
                 </div>
               </div>
 
-              <div className="bg-stone-50 rounded-xl p-2.5 flex flex-col items-center justify-center text-center">
-                {qr?.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={qr.image} alt="Wallet Barcode" className="w-24 h-24 object-contain" />
-                ) : (
-                  <div className="w-24 h-24 bg-gray-100 flex items-center justify-center text-xs font-mono text-gray-400">QR</div>
-                )}
-                <div className="text-[11px] font-mono font-bold text-black mt-1">
+              {/* 5 Stamps Row */}
+              <div className="relative z-10 my-2.5 flex items-center justify-between gap-1">
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const isFilled = i < stampsEarned;
+                  return (
+                    <div
+                      key={i}
+                      className="w-9 h-9 rounded-full border-[1.5px] border-[#8E7E7C] flex items-center justify-center bg-transparent overflow-hidden shrink-0"
+                    >
+                      {isFilled && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src="/levante-stamp.png" alt="Stamp" className="w-7 h-7 object-contain" />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Customer Details */}
+              <div className="flex items-end justify-between gap-2 pt-1 pb-2 relative z-10">
+                <div className="min-w-0 flex-1 pr-1">
+                  <div className="text-[9px] font-medium text-[#7A6A68] leading-tight">Full Name</div>
+                  <div className="text-[13px] font-bold text-[#1E1815] leading-snug tracking-tight truncate">
+                    {customer?.name || "Bilal Chishty"}
+                  </div>
+                </div>
+                <div className="text-right shrink-0 whitespace-nowrap">
+                  <div className="text-[9px] font-bold text-[#1E1815] leading-tight">
+                    Cupon: {couponDisplay}
+                  </div>
+                  <div className="text-[9px] font-bold text-[#1E1815] leading-tight mt-0.5">
+                    Loyality Points: {customer?.pointsBalance ?? 0}
+                  </div>
+                </div>
+              </div>
+
+              {/* QR Code */}
+              <div className="pt-1.5 flex flex-col items-center justify-center relative z-10">
+                <div className="relative p-1.5 inline-block">
+                  <span className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#1E1815]" />
+                  <span className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#1E1815]" />
+                  <span className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#1E1815]" />
+                  <span className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#1E1815]" />
+
+                  {qr?.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={qr.image} alt="QR Code" className="w-24 h-24 mix-blend-multiply object-contain block" />
+                  ) : (
+                    <div className="w-24 h-24 bg-stone-100 flex items-center justify-center text-xs font-mono">QR</div>
+                  )}
+                </div>
+                <div className="mt-1.5 text-center font-bold text-xs tracking-wider text-[#1E1815]">
                   {formatCustomerCode(qr?.code || "LP987867")}
                 </div>
               </div>
@@ -1115,16 +1251,24 @@ export default function CustomerDashboardPage() {
             </div>
 
             <div className="pt-1 flex gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setToast("Google Wallet pass saved!");
-                  setShowGoogleWalletModal(false);
-                }}
-                className="flex-1 py-3 rounded-xl bg-white hover:bg-gray-100 text-black font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer text-center"
-              >
-                <span>Save to Google Wallet</span>
-              </button>
+              {googleWalletSaveUrl ? (
+                <a
+                  href={googleWalletSaveUrl}
+                  className="flex-1 py-3 rounded-xl bg-[#4285F4] hover:bg-[#3367D6] text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer text-center"
+                >
+                  <GoogleWalletIcon className="w-4.5 h-4 shrink-0" />
+                  <span>Save to Google Wallet</span>
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleGoogleWallet}
+                  className="flex-1 py-3 rounded-xl bg-[#4285F4] hover:bg-[#3367D6] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer text-center"
+                >
+                  <GoogleWalletIcon className="w-4.5 h-4 shrink-0" />
+                  <span>Save to Google Wallet</span>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setShowGoogleWalletModal(false)}

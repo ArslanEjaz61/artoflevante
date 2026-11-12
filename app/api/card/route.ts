@@ -58,8 +58,8 @@ export async function GET() {
   let token = qrRecord?.token;
   let expiresAt = qrRecord?.expiresAt || new Date(Date.now() + 10 * 365 * 86400_000);
 
-  if (!token) {
-    token = randomCode(8);
+  if (!token || !token.startsWith("LP")) {
+    token = "LP" + Math.floor(100000 + Math.random() * 900000);
     expiresAt = new Date(Date.now() + 10 * 365 * 86400_000);
     for (let attempt = 0; attempt < 5; attempt += 1) {
       try {
@@ -67,7 +67,7 @@ export async function GET() {
         break;
       } catch (e: any) {
         if (e?.code !== "P2002" || attempt === 4) throw e;
-        token = randomCode(8);
+        token = "LP" + Math.floor(100000 + Math.random() * 900000);
       }
     }
   }

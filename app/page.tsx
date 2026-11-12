@@ -347,6 +347,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
   }
 
   async function verify(e?: React.FormEvent) {
+    if (code.length < 6) return;
     e?.preventDefault();
     setBusy(true);
     setErr("");
@@ -805,7 +806,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
 
             <button
               type="submit"
-              disabled={busy || code.length < 4}
+              disabled={busy || code.length < 6}
               className="w-full py-3.5 px-6 rounded-xl bg-[#0E331E] hover:bg-[#0A2617] text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md disabled:opacity-50 transition-all cursor-pointer"
             >
               {busy ? (
