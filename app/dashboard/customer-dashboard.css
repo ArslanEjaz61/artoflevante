@@ -71,17 +71,17 @@
 
 .cd-stamps {
   position: absolute;
-  left: calc(51 * var(--u));
-  right: calc(52 * var(--u));
-  top: calc(289 * var(--u));
+  left: calc(39 * var(--u));
+  right: calc(40 * var(--u));
+  top: calc(277 * var(--u));
   display: flex;
   justify-content: space-between;
 }
 .cd-stamp {
-  width: calc(126 * var(--u));
-  height: calc(126 * var(--u));
+  width: calc(150 * var(--u));
+  height: calc(150 * var(--u));
   border-radius: 9999px;
-  border: calc(3.2 * var(--u)) solid #1a1a1a;
+  border: calc(3.4 * var(--u)) solid #1a1a1a;
   display: flex;
   align-items: center;
   justify-content: center;
