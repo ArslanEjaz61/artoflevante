@@ -394,10 +394,11 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
       {/* ============================================================== */}
       {view === "hero" && (
         <div className="w-full flex flex-col items-center">
+          {/* Artwork (1131 x 1999) in a rounded card. Buttons below are placed in % of the artwork. */}
           <div className="w-full relative overflow-hidden rounded-[28px] shadow-2xl border border-[#E2DBD0]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/welcome-art.jpg"
+              src="/welcome-hero.webp"
               alt={`${BRAND} — Loyalty Rewards`}
               className="w-full h-auto block select-none pointer-events-none"
               draggable={false}
@@ -412,7 +413,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
               }}
               aria-label="Join now — Claim 10% off"
               className="absolute rounded-full cursor-pointer bg-transparent hover:bg-[#C8BAA6]/45 active:bg-[#C8BAA6]/70 transition-colors duration-200 focus:outline-none focus-visible:outline-none"
-              style={{ left: "35.2%", top: "57.8%", width: "29.6%", height: "4.1%" }}
+              style={{ left: "35.0%", top: "57.7%", width: "30.0%", height: "6.6%" }}
             />
 
             {/* 2. Already a member? View My Rewards */}
@@ -424,7 +425,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
               }}
               aria-label="Already a member? View My Rewards"
               className="absolute rounded-lg cursor-pointer bg-transparent hover:bg-transparent active:bg-transparent focus:outline-none focus-visible:outline-none"
-              style={{ left: "10.0%", top: "69.5%", width: "80.0%", height: "4.5%" }}
+              style={{ left: "12.0%", top: "69.6%", width: "76.0%", height: "3.6%" }}
             />
 
             {/* 3. WhatsApp Contact Link (+971 52 812 2263) */}
@@ -432,7 +433,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
               onClick={() => window.open("https://wa.me/971528122263", "_blank", "noopener,noreferrer")}
               aria-label="Contact Levante on WhatsApp: +971 52 812 2263"
               className="absolute cursor-pointer bg-transparent hover:bg-transparent active:bg-transparent focus:outline-none focus-visible:outline-none rounded-full"
-              style={{ left: "38.0%", top: "91.5%", width: "26.0%", height: "2.8%" }}
+              style={{ left: "40.5%", top: "91.4%", width: "23.5%", height: "2.8%" }}
             />
 
             {/* 4. TikTok Icon */}
@@ -440,7 +441,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
               onClick={() => window.open("https://www.tiktok.com/@artoflevante", "_blank", "noopener,noreferrer")}
               aria-label="Levante on TikTok: @artoflevante"
               className="absolute cursor-pointer bg-transparent hover:bg-transparent active:bg-transparent focus:outline-none focus-visible:outline-none rounded-full"
-              style={{ left: "37.0%", top: "94.8%", width: "5.0%", height: "3.2%" }}
+              style={{ left: "37.4%", top: "94.5%", width: "4.6%", height: "2.8%" }}
             />
 
             {/* 5. Facebook Icon */}
@@ -448,7 +449,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
               onClick={() => window.open("https://www.facebook.com/artoflevante", "_blank", "noopener,noreferrer")}
               aria-label="Levante on Facebook: @artoflevante"
               className="absolute cursor-pointer bg-transparent hover:bg-transparent active:bg-transparent focus:outline-none focus-visible:outline-none rounded-full"
-              style={{ left: "42.5%", top: "94.8%", width: "5.0%", height: "3.2%" }}
+              style={{ left: "42.9%", top: "94.5%", width: "4.6%", height: "2.8%" }}
             />
 
             {/* 6. Instagram Icon & /artoflevante Text */}
@@ -456,7 +457,7 @@ export function CustomerPortalContent({ showCrmHeader = false }: { showCrmHeader
               onClick={() => window.open("https://www.instagram.com/artoflevante", "_blank", "noopener,noreferrer")}
               aria-label="Levante on Instagram: @artoflevante"
               className="absolute cursor-pointer bg-transparent hover:bg-transparent active:bg-transparent focus:outline-none focus-visible:outline-none rounded-md"
-              style={{ left: "48.0%", top: "94.8%", width: "24.0%", height: "3.2%" }}
+              style={{ left: "48.4%", top: "94.5%", width: "21.6%", height: "2.8%" }}
             />
           </div>
         </div>
