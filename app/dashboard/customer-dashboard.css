@@ -88,6 +88,7 @@
   flex-shrink: 0;
 }
 .cd-stamp img { width: 62%; height: 62%; object-fit: contain; }
+.cd-stamps .cd-stamp:nth-child(even) { transform: translateY(calc(-172 * var(--u))); }
 
 .cd-name-block { position: absolute; left: calc(50 * var(--u)); bottom: calc(33 * var(--u)); color: #1a1a1a; max-width: 55%; }
 .cd-label { font-size: calc(28 * var(--u)); line-height: 1; font-weight: 400; margin-left: calc(3 * var(--u)); }
@@ -148,9 +149,12 @@
   display: grid;
   grid-template-columns: 330fr 360fr 330fr;
   gap: calc(14 * var(--u));
-  padding: 0 calc(43 * var(--u)) 0 calc(40 * var(--u));
-  margin-top: calc(40 * var(--u));
+  padding: 0 calc(38 * var(--u)) 0 calc(40 * var(--u));
+  margin-top: calc(25 * var(--u));
 }
+/* Apple / Google Wallet buttons hidden for now: the WEB APP button sits alone on the right */
+.cd-wallets-webonly { display: flex; justify-content: flex-end; }
+.cd-wallets-webonly .cd-wallet-web { width: calc(330 * var(--u)); }
 .cd-wallet {
   height: calc(100 * var(--u));
   background: #000;
@@ -182,8 +186,8 @@
 .cd-scan {
   display: flex;
   align-items: center;
-  padding: 0 calc(48 * var(--u));
-  margin-top: calc(48 * var(--u));
+  padding: 0 calc(38 * var(--u)) 0 calc(38 * var(--u));
+  margin-top: calc(22 * var(--u));
   height: calc(90 * var(--u));
 }
 .cd-scan-icon { width: calc(76 * var(--u)); height: calc(90 * var(--u)); flex-shrink: 0; color: #0e3b22; }
@@ -224,7 +228,7 @@
   margin: calc(19 * var(--u)) calc(52 * var(--u)) 0 calc(55 * var(--u));
   color: var(--cd-green);
 }
-.cd-banner-first { margin-top: calc(51 * var(--u)); }
+.cd-banner-first { margin-top: calc(38 * var(--u)); }
 .cd-banner-visit { margin-right: calc(55 * var(--u)); }
 .cd-banner-title {
   position: absolute;
@@ -401,3 +405,17 @@
 .wc-qr > i:nth-child(4) { bottom: 0; right: 0; border-bottom-width: calc(4.5 * var(--w)); border-right-width: calc(4.5 * var(--w)); }
 .wc-qr img, .wc-qr span { width: calc(313 * var(--w)); height: calc(313 * var(--w)); display: block; object-fit: contain; mix-blend-mode: multiply; }
 .wc-code { position: absolute; left: 0; right: 0; top: calc(1254 * var(--w)); text-align: center; font-size: calc(47 * var(--w)); line-height: 1; color: #1b4a2c; }
+
+/* Fixed artwork behind the dashboard (leaves / beans / flower); content scrolls over it. */
+.cd-bg {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: min(100vw, 28rem);
+  transform: translateX(-50%);
+  background: #efebe0 url("/dashboard-bg.webp") center / cover no-repeat;
+  z-index: -1;
+  pointer-events: none;
+}
+.cd { isolation: isolate; }

@@ -59,6 +59,9 @@ function formatRelativeTime(iso?: string | null): string {
   return new Date(iso).toLocaleDateString();
 }
 
+/** Apple / Google Wallet buttons are hidden for now; set to true to show them again. */
+const SHOW_WALLET_BUTTONS = false;
+
 function formatCustomerCode(code?: string | null): string {
   if (!code) return "LP987867";
   let clean = String(code).toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -673,6 +676,9 @@ export default function CustomerDashboardPage() {
         </div>
       )}
 
+      {/* fixed background artwork (./customer-dashboard.css .cd-bg) */}
+      <div className="cd-bg" aria-hidden="true" />
+
       {/* 1. HEADER: roundel + "Loyality Reward Path" (sizes: ./customer-dashboard.css) */}
       <header className="cd-header">
         <div className="cd-header-brand">
@@ -716,26 +722,30 @@ export default function CustomerDashboardPage() {
       />
 
       {/* 3. APPLE WALLET / GOOGLE WALLET / WEB APP */}
-      <div className="cd-wallets">
-        <button type="button" onClick={handleAppleWallet} disabled={walletLoading === "apple"} className="cd-wallet">
-          <AppleWalletIcon className="cd-wallet-icon" />
-          <div className="min-w-0">
-            <small>Add to</small>
-            <b>Apple Wallet</b>
-          </div>
-        </button>
-        <button
-          type="button"
-          onClick={handleGoogleWallet}
-          disabled={walletLoading === "google"}
-          className="cd-wallet cd-wallet-google"
-        >
-          <GoogleWalletIcon className="cd-wallet-icon-g" />
-          <div className="min-w-0">
-            <small>Add to</small>
-            <b>{walletLoading === "google" ? "Saving..." : "Google Wallet"}</b>
-          </div>
-        </button>
+      <div className={`cd-wallets ${SHOW_WALLET_BUTTONS ? "" : "cd-wallets-webonly"}`}>
+        {SHOW_WALLET_BUTTONS && (
+          <>
+            <button type="button" onClick={handleAppleWallet} disabled={walletLoading === "apple"} className="cd-wallet">
+              <AppleWalletIcon className="cd-wallet-icon" />
+              <div className="min-w-0">
+                <small>Add to</small>
+                <b>Apple Wallet</b>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={handleGoogleWallet}
+              disabled={walletLoading === "google"}
+              className="cd-wallet cd-wallet-google"
+            >
+              <GoogleWalletIcon className="cd-wallet-icon-g" />
+              <div className="min-w-0">
+                <small>Add to</small>
+                <b>{walletLoading === "google" ? "Saving..." : "Google Wallet"}</b>
+              </div>
+            </button>
+          </>
+        )}
         <button type="button" onClick={handleInstall} className="cd-wallet cd-wallet-web">
           <span>
             Download it as
